@@ -357,7 +357,7 @@ function cancelDeleteQuest() {
 
 <style scoped>
 .host-setup {
-  height: 100vh;
+  height: 100dvh;
   overflow: hidden;
   background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
   padding: 1rem clamp(1rem, 4vw, 3rem);

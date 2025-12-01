@@ -321,7 +321,7 @@ function goBack() {
 
 <style scoped>
 .admin-quest-view {
-  min-height: 100vh;
+  min-height: 100dvh;
   background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
   padding: 2rem clamp(1rem, 4vw, 3rem);
   display: flex;
@@ -707,7 +707,7 @@ function goBack() {
 }
 
 .not-found {
-  min-height: 100vh;
+  min-height: 100dvh;
   background: linear-gradient(160deg, #0f172a 0%, #1f2937 45%, #0b1120 100%);
   color: #e2e8f0;
   display: flex;

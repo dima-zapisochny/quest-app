@@ -567,9 +567,9 @@ watch(() => route.path, (newPath) => {
 
 <style scoped>
 .landing {
-  min-height: 100vh;
-  height: 100vh;
-  max-height: 100vh;
+  min-height: 100dvh;
+  height: 100dvh;
+  max-height: 100dvh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -593,7 +593,7 @@ watch(() => route.path, (newPath) => {
   border: 1px solid rgba(56, 189, 248, 0.25);
   color: #f8fafc;
   transform: translateY(-8%);
-  max-height: calc(100vh - 2rem);
+  max-height: calc(100dvh - 2rem);
   overflow: hidden;
   box-sizing: border-box;
 }
@@ -1041,7 +1041,7 @@ watch(() => route.path, (newPath) => {
     transform: translateY(0);
     width: 100%;
     max-width: 100%;
-    max-height: 100vh;
+    max-height: 100dvh;
     overflow: hidden;
     box-sizing: border-box;
   }
@@ -1126,7 +1126,7 @@ watch(() => route.path, (newPath) => {
     width: 100%;
     max-width: 100%;
     margin: 0;
-    max-height: 100vh;
+    max-height: 100dvh;
     overflow: hidden;
     box-sizing: border-box;
   }
@@ -1252,7 +1252,7 @@ watch(() => route.path, (newPath) => {
     padding: 1rem 0.75rem;
     gap: 0.625rem;
     border-radius: 1rem;
-    max-height: 100vh;
+    max-height: 100dvh;
     overflow: hidden;
     box-sizing: border-box;
   }

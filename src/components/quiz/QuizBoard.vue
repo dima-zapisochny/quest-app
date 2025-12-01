@@ -122,7 +122,7 @@ function handleFinished() {
 
 @media (max-width: 1280px) {
   .board-container {
-    min-height: calc(100vh - 200px);
+    min-height: calc(100dvh - 200px);
   }
 }
 

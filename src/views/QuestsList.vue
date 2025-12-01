@@ -74,7 +74,7 @@ function goToQuest(questId: string) {
 
 <style scoped>
 .quests-view {
-  min-height: 100vh;
+  min-height: 100dvh;
   background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
   padding: 2rem;
   color: #fff;
