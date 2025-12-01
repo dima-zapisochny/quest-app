@@ -573,7 +573,7 @@ watch(() => route.path, (newPath) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 1rem;
+  padding: 0 1.5rem;
   background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
   color: #0f172a;
   overflow: hidden;
@@ -890,6 +890,8 @@ watch(() => route.path, (newPath) => {
   color: #f9fafb;
   box-shadow: inset 0 0 0 2px rgba(148, 163, 184, 0.45);
   font-size: 1.05rem;
+  box-sizing: border-box;
+  min-width: 0;
 }
 
 .join-input::placeholder {
@@ -1010,7 +1012,7 @@ watch(() => route.path, (newPath) => {
   }
 
   .landing {
-    padding: 0 1.5rem;
+    padding: 0 2rem;
   }
 
   .brand-title {
@@ -1029,7 +1031,7 @@ watch(() => route.path, (newPath) => {
 /* Мобильные устройства (до 768px) */
 @media (max-width: 768px) {
   .landing {
-    padding: 0 0.75rem;
+    padding: 0 1rem;
     align-items: center;
     justify-content: center;
     overflow: hidden;
@@ -1090,7 +1092,7 @@ watch(() => route.path, (newPath) => {
   }
 
   .actions {
-    padding: 0 0.5rem;
+    padding: 0;
     gap: 0.75rem;
   }
 
@@ -1117,7 +1119,7 @@ watch(() => route.path, (newPath) => {
 /* Маленькие мобильные (до 480px) */
 @media (max-width: 480px) {
   .landing {
-    padding: 0 0.5rem;
+    padding: 0 0.75rem;
     align-items: center;
     justify-content: center;
     overflow: hidden;
@@ -1191,7 +1193,7 @@ watch(() => route.path, (newPath) => {
 /* Очень маленькие экраны (до 360px) */
 @media (max-width: 360px) {
   .landing {
-    padding: 0 0.375rem;
+    padding: 0 0.5rem;
     align-items: center;
     justify-content: center;
     overflow: hidden;
@@ -1257,7 +1259,7 @@ watch(() => route.path, (newPath) => {
 /* Экстремально маленькие экраны (до 320px) */
 @media (max-width: 320px) {
   .landing {
-    padding: 0 0.25rem;
+    padding: 0 0.375rem;
     overflow: hidden;
   }
 

@@ -1196,6 +1196,12 @@ function cancelDeleteQuest() {
   .secondary {
     width: 100%;
     min-width: 0;
+    padding: 0.9rem 1.75rem;
+    font-size: 0.95rem;
+  }
+
+  .actions--fixed {
+    padding: 1rem 0;
   }
 
   .host-header {
@@ -1206,12 +1212,93 @@ function cancelDeleteQuest() {
     padding: 1.75rem 1.25rem;
   }
 
+  .host-title h1 {
+    font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+  }
+
+  .host-title p {
+    font-size: clamp(0.7rem, 2vw, 0.85rem);
+  }
+
   .host-pixel-story {
     width: 100%;
     order: 1;
     min-height: clamp(220px, 40vw, 260px);
     padding: 0;
     margin-top: 1.25rem;
+  }
+
+  /* Уменьшаем карточки квестов для мобильных */
+  .quest-card {
+    padding: 1.25rem;
+    height: 80px;
+    min-height: 80px;
+    max-height: 80px;
+    gap: 0.6rem;
+    border-radius: 0.75rem;
+  }
+
+  .quest-title {
+    font-size: 0.75rem;
+    line-height: 1.25;
+  }
+
+  .quest-description {
+    font-size: 0.6rem;
+    line-height: 1.35;
+    max-height: calc(0.6rem * 1.35 * 2);
+  }
+
+  .quest-meta {
+    font-size: 0.55rem;
+    gap: 0.4rem;
+  }
+
+  .quest-action-button {
+    width: 24px;
+    height: 24px;
+  }
+
+  .quest-action-button svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  .quest-topline {
+    gap: 0.4rem;
+  }
+
+  .quest-actions {
+    gap: 0.3rem;
+  }
+
+  .quest-card--new {
+    gap: 0.4rem;
+  }
+
+  .new-quest-circle {
+    width: 50px;
+    height: 50px;
+    font-size: 1.5rem;
+    border-width: 1.5px;
+  }
+
+  .quest-card--new span {
+    font-size: 0.6rem;
+  }
+
+  .quests-grid {
+    gap: 1rem;
+    max-height: calc(2 * (80px + 2 * 1.25rem) + 1 * 1rem);
+  }
+
+  .section-title h2 {
+    white-space: nowrap;
+    font-size: clamp(0.7rem, 2.5vw, 0.9rem);
+  }
+
+  .section-subtitle {
+    display: none;
   }
 }
 
