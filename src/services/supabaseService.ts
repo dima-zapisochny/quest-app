@@ -1,0 +1,563 @@
+import { supabase } from '@/config/supabase'
+import type { UserProfile, Quest, GameSession, Player } from '@/types'
+
+// ============================================================================
+// User Profiles
+// ============================================================================
+
+export async function getUserProfile(userId: string): Promise<UserProfile | null> {
+  const { data, error } = await supabase
+    .from('user_profiles')
+    .select('*')
+    .eq('id', userId)
+    .single()
+
+  if (error) {
+    if (error.code === 'PGRST116') return null // Not found
+    console.error('Error fetching user profile:', error)
+    return null
+  }
+
+  return {
+    id: data.id,
+    name: data.name,
+    avatar: data.avatar
+  }
+}
+
+export async function upsertUserProfile(profile: UserProfile): Promise<UserProfile> {
+  const { data, error } = await supabase
+    .from('user_profiles')
+    .upsert({
+      id: profile.id,
+      name: profile.name,
+      avatar: profile.avatar
+    })
+    .select()
+    .single()
+
+  if (error) {
+    console.error('Error upserting user profile:', error)
+    throw error
+  }
+
+  return {
+    id: data.id,
+    name: data.name,
+    avatar: data.avatar
+  }
+}
+
+// ============================================================================
+// Quests
+// ============================================================================
+
+export async function getAllQuests(): Promise<Quest[]> {
+  const { data, error } = await supabase
+    .from('quests')
+    .select('*')
+    .order('created_at', { ascending: false })
+
+  if (error) {
+    console.error('Error fetching quests:', error)
+    return []
+  }
+
+  return data.map(row => row.data as Quest)
+}
+
+export async function getQuestById(questId: string): Promise<Quest | null> {
+  const { data, error } = await supabase
+    .from('quests')
+    .select('*')
+    .eq('id', questId)
+    .single()
+
+  if (error) {
+    if (error.code === 'PGRST116') return null // Not found
+    console.error('Error fetching quest:', error)
+    return null
+  }
+
+  return data.data as Quest
+}
+
+export async function createQuest(quest: Quest): Promise<Quest> {
+  const { data, error } = await supabase
+    .from('quests')
+    .insert({
+      id: quest.id,
+      title: quest.title,
+      description: quest.description || null,
+      data: quest
+    })
+    .select()
+    .single()
+
+  if (error) {
+    console.error('Error creating quest:', error)
+    throw error
+  }
+
+  return data.data as Quest
+}
+
+export async function updateQuest(quest: Quest): Promise<Quest> {
+  const { data, error } = await supabase
+    .from('quests')
+    .update({
+      title: quest.title,
+      description: quest.description || null,
+      data: quest
+    })
+    .eq('id', quest.id)
+    .select()
+    .single()
+
+  if (error) {
+    console.error('Error updating quest:', error)
+    throw error
+  }
+
+  return data.data as Quest
+}
+
+export async function deleteQuest(questId: string): Promise<void> {
+  const { error } = await supabase
+    .from('quests')
+    .delete()
+    .eq('id', questId)
+
+  if (error) {
+    console.error('Error deleting quest:', error)
+    throw error
+  }
+}
+
+// ============================================================================
+// Game Sessions
+// ============================================================================
+
+export async function getAllSessions(): Promise<GameSession[]> {
+  const { data, error } = await supabase
+    .from('game_sessions')
+    .select('*')
+    .order('created_at', { ascending: false })
+
+  if (error) {
+    console.error('Error fetching sessions:', error)
+    return []
+  }
+
+  return data.map(row => ({
+    id: row.id,
+    code: row.code,
+    questId: row.quest_id,
+    hostId: row.host_id,
+    hostName: row.host_name,
+    hostAvatar: row.host_avatar,
+    state: row.state,
+    roundId: row.round_id || undefined,
+    players: (row.players as Player[]).map(player => ({
+      ...player,
+      score: player.score ?? 0
+    })),
+    activeQuestion: row.active_question as GameSession['activeQuestion'],
+    createdAt: new Date(row.created_at).getTime(),
+    updatedAt: new Date(row.updated_at).getTime()
+  }))
+}
+
+export async function getSessionById(sessionId: string): Promise<GameSession | null> {
+  const { data, error } = await supabase
+    .from('game_sessions')
+    .select('*')
+    .eq('id', sessionId)
+    .single()
+
+  if (error) {
+    if (error.code === 'PGRST116') return null // Not found
+    console.error('Error fetching session:', error)
+    return null
+  }
+
+  return {
+    id: data.id,
+    code: data.code,
+    questId: data.quest_id,
+    hostId: data.host_id,
+    hostName: data.host_name,
+    hostAvatar: data.host_avatar,
+    state: data.state,
+    roundId: data.round_id || undefined,
+    players: (data.players as Player[]).map(player => {
+      const mappedPlayer = {
+        ...player,
+        score: player.score ?? 0
+      }
+      console.log('📊 Player loaded from database:', { id: mappedPlayer.id, name: mappedPlayer.name, score: mappedPlayer.score })
+      return mappedPlayer
+    }),
+    activeQuestion: data.active_question as GameSession['activeQuestion'],
+    createdAt: new Date(data.created_at).getTime(),
+    updatedAt: new Date(data.updated_at).getTime()
+  }
+}
+
+export async function getSessionByCode(code: string): Promise<GameSession | null> {
+  const { data, error } = await supabase
+    .from('game_sessions')
+    .select('*')
+    .eq('code', code.toUpperCase())
+    .single()
+
+  if (error) {
+    if (error.code === 'PGRST116') return null // Not found
+    console.error('Error fetching session by code:', error)
+    return null
+  }
+
+  return {
+    id: data.id,
+    code: data.code,
+    questId: data.quest_id,
+    hostId: data.host_id,
+    hostName: data.host_name,
+    hostAvatar: data.host_avatar,
+    state: data.state,
+    roundId: data.round_id || undefined,
+    players: (data.players as Player[]).map(player => {
+      const mappedPlayer = {
+        ...player,
+        score: player.score ?? 0
+      }
+      console.log('📊 Player loaded from database:', { id: mappedPlayer.id, name: mappedPlayer.name, score: mappedPlayer.score })
+      return mappedPlayer
+    }),
+    activeQuestion: data.active_question as GameSession['activeQuestion'],
+    createdAt: new Date(data.created_at).getTime(),
+    updatedAt: new Date(data.updated_at).getTime()
+  }
+}
+
+export async function createSession(session: GameSession): Promise<GameSession> {
+  const { data, error } = await supabase
+    .from('game_sessions')
+    .insert({
+      id: session.id,
+      code: session.code,
+      quest_id: session.questId,
+      host_id: session.hostId,
+      host_name: session.hostName,
+      host_avatar: session.hostAvatar,
+      state: session.state,
+      round_id: session.roundId || null,
+      players: session.players,
+      active_question: session.activeQuestion || null
+    })
+    .select()
+    .single()
+
+  if (error) {
+    console.error('Error creating session:', error)
+    throw error
+  }
+
+  return {
+    id: data.id,
+    code: data.code,
+    questId: data.quest_id,
+    hostId: data.host_id,
+    hostName: data.host_name,
+    hostAvatar: data.host_avatar,
+    state: data.state,
+    roundId: data.round_id || undefined,
+    players: (data.players as Player[]).map(player => ({
+      ...player,
+      score: player.score ?? 0
+    })),
+    activeQuestion: data.active_question as GameSession['activeQuestion'],
+    createdAt: new Date(data.created_at).getTime(),
+    updatedAt: new Date(data.updated_at).getTime()
+  }
+}
+
+export async function updateSession(session: GameSession): Promise<GameSession> {
+  console.log('💾 Updating session in database:', {
+    sessionId: session.id,
+    playersCount: session.players.length,
+    players: session.players.map(p => ({ id: p.id, name: p.name, score: p.score }))
+  })
+  
+  const { data, error } = await supabase
+    .from('game_sessions')
+    .update({
+      code: session.code,
+      quest_id: session.questId,
+      host_id: session.hostId,
+      host_name: session.hostName,
+      host_avatar: session.hostAvatar,
+      state: session.state,
+      round_id: session.roundId || null,
+      players: session.players, // JSONB поле - Supabase автоматически сериализует
+      active_question: session.activeQuestion || null
+    })
+    .eq('id', session.id)
+    .select()
+    .single()
+
+  if (error) {
+    console.error('❌ Error updating session:', error)
+    throw error
+  }
+
+  const updated = {
+    id: data.id,
+    code: data.code,
+    questId: data.quest_id,
+    hostId: data.host_id,
+    hostName: data.host_name,
+    hostAvatar: data.host_avatar,
+    state: data.state,
+    roundId: data.round_id || undefined,
+    players: (data.players as Player[]).map(player => {
+      const mappedPlayer = {
+        ...player,
+        score: player.score ?? 0
+      }
+      console.log('📊 Player returned from update:', { id: mappedPlayer.id, name: mappedPlayer.name, score: mappedPlayer.score })
+      return mappedPlayer
+    }),
+    activeQuestion: data.active_question as GameSession['activeQuestion'],
+    createdAt: new Date(data.created_at).getTime(),
+    updatedAt: new Date(data.updated_at).getTime()
+  }
+  
+  console.log('✅ Session updated successfully, players with scores:', updated.players.map(p => ({ id: p.id, name: p.name, score: p.score })))
+  
+  return updated
+}
+
+export async function deleteSession(sessionId: string): Promise<void> {
+  const { error } = await supabase
+    .from('game_sessions')
+    .delete()
+    .eq('id', sessionId)
+
+  if (error) {
+    console.error('Error deleting session:', error)
+    throw error
+  }
+}
+
+// ============================================================================
+// Quest Progress
+// ============================================================================
+
+export async function getQuestProgress(questId: string, userId: string) {
+  const { data, error } = await supabase
+    .from('quest_progress')
+    .select('*')
+    .eq('quest_id', questId)
+    .eq('user_id', userId)
+
+  if (error) {
+    console.error('Error fetching quest progress:', error)
+    return []
+  }
+
+  return data.map(row => ({
+    questId: row.quest_id,
+    userId: row.user_id,
+    roundId: row.round_id,
+    categoryId: row.category_id,
+    questionId: row.question_id,
+    playedAt: new Date(row.played_at).getTime()
+  }))
+}
+
+export async function markQuestionAsPlayed(
+  questId: string,
+  userId: string,
+  roundId: string,
+  categoryId: string,
+  questionId: string
+): Promise<void> {
+  const { error } = await supabase
+    .from('quest_progress')
+    .upsert({
+      quest_id: questId,
+      user_id: userId,
+      round_id: roundId,
+      category_id: categoryId,
+      question_id: questionId
+    })
+
+  if (error) {
+    console.error('Error marking question as played:', error)
+    throw error
+  }
+}
+
+export async function resetQuestProgress(questId: string, userId: string): Promise<void> {
+  const { error } = await supabase
+    .from('quest_progress')
+    .delete()
+    .eq('quest_id', questId)
+    .eq('user_id', userId)
+
+  if (error) {
+    console.error('Error resetting quest progress:', error)
+    throw error
+  }
+}
+
+export async function resetRoundProgress(
+  questId: string,
+  userId: string,
+  roundId: string
+): Promise<void> {
+  const { error } = await supabase
+    .from('quest_progress')
+    .delete()
+    .eq('quest_id', questId)
+    .eq('user_id', userId)
+    .eq('round_id', roundId)
+
+  if (error) {
+    console.error('Error resetting round progress:', error)
+    throw error
+  }
+}
+
+// ============================================================================
+// Real-time subscriptions
+// ============================================================================
+
+export function subscribeToSessions(
+  callback: (session: GameSession) => void
+): () => void {
+  const channelName = `game_sessions_changes_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+  
+  const channel = supabase
+    .channel(channelName, {
+      config: {
+        broadcast: { self: true },
+        presence: { key: 'session' }
+      }
+    })
+    .on(
+      'postgres_changes',
+      {
+        event: '*',
+        schema: 'public',
+        table: 'game_sessions',
+        filter: undefined // Подписываемся на все изменения
+      },
+      async (payload) => {
+        try {
+          console.log('📨 WebSocket payload received:', {
+            eventType: payload.eventType,
+            table: payload.table,
+            sessionId: payload.new?.id || payload.old?.id,
+            timestamp: new Date().toISOString()
+          })
+          
+          if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
+            const sessionId = payload.new.id
+            console.log('🔄 Loading session from database:', sessionId)
+            
+            // Загружаем полную сессию из базы данных
+            const session = await getSessionById(sessionId)
+            if (session) {
+              console.log('✅ Session loaded, players count:', session.players.length)
+              callback(session)
+            } else {
+              console.warn('⚠️ Session not found in database:', sessionId)
+            }
+          } else if (payload.eventType === 'DELETE') {
+            // Handle deletion if needed
+            console.log('🗑️ Session deleted:', payload.old.id)
+          }
+        } catch (error) {
+          console.error('❌ Error in real-time subscription:', error)
+        }
+      }
+    )
+    .on('system', {}, (payload) => {
+      // Обработка системных событий (подключение, отключение)
+      if (payload.status === 'SUBSCRIBED') {
+        console.log('✅ WebSocket connected to game_sessions')
+      } else if (payload.status === 'CHANNEL_ERROR') {
+        console.error('❌ WebSocket channel error:', payload)
+      } else if (payload.status === 'TIMED_OUT') {
+        console.warn('⏱️ WebSocket connection timed out, reconnecting...')
+      } else if (payload.status === 'CLOSED') {
+        console.warn('🔌 WebSocket connection closed')
+      }
+    })
+    .subscribe((status) => {
+      if (status === 'SUBSCRIBED') {
+        console.log('✅ Successfully subscribed to game_sessions changes via WebSocket')
+        console.log('📡 WebSocket channel:', channelName, 'is now listening for changes')
+      } else if (status === 'CHANNEL_ERROR') {
+        console.error('❌ Error subscribing to game_sessions:', status)
+        console.error('💡 Убедитесь, что real-time включен для таблицы game_sessions в Supabase Dashboard')
+      } else if (status === 'TIMED_OUT') {
+        console.warn('⏱️ Subscription timeout, retrying...')
+        // Попытка переподключения
+        setTimeout(() => {
+          channel.subscribe()
+        }, 1000)
+      } else if (status === 'CLOSED') {
+        console.warn('🔌 Subscription closed')
+      } else {
+        console.log('ℹ️ WebSocket subscription status:', status)
+      }
+    })
+
+  // Автоматическое переподключение при разрыве соединения
+  const handleReconnect = () => {
+    console.log('🔄 Attempting to reconnect WebSocket...')
+    channel.subscribe()
+  }
+
+  // Обработка разрыва соединения
+  const originalUnsubscribe = channel.unsubscribe
+  channel.unsubscribe = function() {
+    console.log('🔌 Unsubscribing from game_sessions changes')
+    return originalUnsubscribe.call(this)
+  }
+
+  return () => {
+    console.log('🔌 Cleaning up WebSocket subscription')
+    supabase.removeChannel(channel)
+  }
+}
+
+export function subscribeToQuests(
+  callback: (quest: Quest) => void
+): () => void {
+  const channel = supabase
+    .channel('quests_changes')
+    .on(
+      'postgres_changes',
+      {
+        event: '*',
+        schema: 'public',
+        table: 'quests'
+      },
+      async (payload) => {
+        if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
+          const quest = await getQuestById(payload.new.id)
+          if (quest) callback(quest)
+        }
+      }
+    )
+    .subscribe()
+
+  return () => {
+    supabase.removeChannel(channel)
+  }
+}
+
