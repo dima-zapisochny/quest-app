@@ -567,7 +567,9 @@ watch(() => route.path, (newPath) => {
 
 <style scoped>
 .landing {
+  min-height: 100vh;
   height: 100vh;
+  max-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -579,6 +581,7 @@ watch(() => route.path, (newPath) => {
 
 .landing-card {
   width: min(700px, 100%);
+  max-width: 100%;
   background: rgba(12, 19, 36, 0.65);
   backdrop-filter: blur(24px) saturate(160%);
   border-radius: 2rem;
@@ -590,6 +593,9 @@ watch(() => route.path, (newPath) => {
   border: 1px solid rgba(56, 189, 248, 0.25);
   color: #f8fafc;
   transform: translateY(-8%);
+  max-height: calc(100vh - 2rem);
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .landing-brand h1 {
@@ -608,7 +614,7 @@ watch(() => route.path, (newPath) => {
 
 .brand-title {
   display: block;
-  font-size: clamp(2.4rem, 5vw, 3.6rem);
+  font-size: clamp(2rem, 4.5vw, 3.2rem);
   color: #f8fafc;
   text-shadow: 0 6px 24px rgba(15, 23, 42, 0.6);
   white-space: normal;
@@ -664,7 +670,7 @@ watch(() => route.path, (newPath) => {
   margin: 0.85rem 0 0;
   color: rgba(226, 232, 240, 0.9);
   font-family: 'Kalam', 'Nunito', cursive;
-  font-size: clamp(1.1rem, 2.2vw, 1.35rem);
+  font-size: clamp(0.95rem, 2vw, 1.2rem);
   font-weight: 500;
   opacity: 0;
   transform: translateY(12px);
@@ -995,46 +1001,289 @@ watch(() => route.path, (newPath) => {
   text-shadow: 0 2px 8px rgba(15, 23, 42, 0.3);
 }
 
-@media (max-width: 720px) {
+/* Планшеты (768px - 1024px) */
+@media (max-width: 1024px) and (min-width: 769px) {
   .landing-card {
-    padding: 2rem 1.5rem;
+    padding: 2.5rem 2rem;
+    gap: 1.75rem;
+  }
+
+  .landing {
+    padding: 0 1.5rem;
+  }
+
+  .brand-title {
+    font-size: clamp(2rem, 4vw, 3rem);
+  }
+
+  .identity-row {
+    gap: 1.25rem;
+  }
+
+  .actions {
+    gap: 1rem;
+  }
+}
+
+/* Мобильные устройства (до 768px) */
+@media (max-width: 768px) {
+  .landing {
+    padding: 0 0.75rem;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .landing-card {
+    padding: 2rem 1.75rem;
+    gap: 1.25rem;
+    border-radius: 1.5rem;
+    transform: translateY(0);
+    width: 100%;
+    max-width: 100%;
+    max-height: 100vh;
+    overflow: hidden;
+    box-sizing: border-box;
   }
 
   .landing-brand {
     padding: 0 0.5rem;
   }
 
+  .brand-title {
+    font-size: clamp(1.2rem, 4.5vw, 1.6rem);
+    line-height: 1.2;
+  }
+
   .brand-subtitle {
     margin-top: 1rem;
     font-weight: 600;
+    font-size: clamp(0.75rem, 2.2vw, 0.85rem);
   }
 
   .brand-subtitle-break {
     display: block;
   }
 
+  .landing-brand {
+    margin-bottom: 0.5rem;
+  }
+
   .identity-row {
     flex-direction: column-reverse;
-    align-items: center;
+    align-items: stretch;
+    gap: 1.125rem;
     padding: 0 0.5rem;
+    margin-top: 0.5rem;
   }
 
   .identity-row input {
     width: 100%;
     width: -webkit-fill-available;
+    padding: 0.8rem 1.25rem;
+    font-size: 0.9rem;
   }
 
   .actions {
     padding: 0 0.5rem;
+    gap: 0.75rem;
+  }
+
+  .actions button {
+    padding: 0.85rem 1.25rem;
+    font-size: 0.9rem;
   }
 
   .join-block {
     flex-direction: column;
     align-items: stretch;
+    gap: 0.875rem;
   }
 
   .secondary {
     width: 100%;
+  }
+
+  .primary {
+    width: 100%;
+  }
+}
+
+/* Маленькие мобильные (до 480px) */
+@media (max-width: 480px) {
+  .landing {
+    padding: 0 0.5rem;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .landing-card {
+    padding: 1.5rem 1.25rem;
+    gap: 0.875rem;
+    border-radius: 1.25rem;
+    transform: translateY(0);
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    max-height: 100vh;
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+
+  .landing-brand {
+    padding: 0;
+  }
+
+  .brand-title {
+    font-size: clamp(1.1rem, 4.5vw, 1.35rem);
+    line-height: 1.15;
+    margin-bottom: 0.4rem;
+  }
+
+  .brand-subtitle {
+    font-size: clamp(0.7rem, 2.2vw, 0.8rem);
+    margin-top: 0.75rem;
+    line-height: 1.3;
+  }
+
+  .landing-brand {
+    margin-bottom: 0.5rem;
+  }
+
+  .identity-row {
+    padding: 0;
+    gap: 1rem;
+    margin-top: 0.5rem;
+  }
+
+  .identity-row input {
+    padding: 0.7rem 0.9rem;
+    font-size: 0.85rem;
+    border-radius: 1rem;
+  }
+
+  .actions {
+    padding: 0;
+    gap: 0.75rem;
+  }
+
+  .actions button {
+    padding: 0.8rem 1.15rem;
+    font-size: 0.85rem;
+    border-radius: 1rem;
+  }
+
+  .join-block {
+    gap: 0.75rem;
+  }
+}
+
+/* Очень маленькие экраны (до 360px) */
+@media (max-width: 360px) {
+  .landing {
+    padding: 0 0.375rem;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .landing-card {
+    padding: 1.25rem 1rem;
+    gap: 0.75rem;
+  }
+
+  .landing-brand {
+    padding: 0;
+  }
+
+  .brand-title {
+    font-size: clamp(1rem, 6vw, 1.25rem);
+    line-height: 1.1;
+    margin-bottom: 0.25rem;
+  }
+
+  .brand-subtitle {
+    font-size: clamp(0.7rem, 2.8vw, 0.85rem);
+    margin-top: 0.5rem;
+    line-height: 1.25;
+  }
+
+  .landing-brand {
+    margin-bottom: 0.375rem;
+  }
+
+  .identity-row {
+    gap: 0.75rem;
+    padding: 0;
+    margin-top: 0.375rem;
+  }
+
+  .identity-row input {
+    padding: 0.6rem 0.75rem;
+    font-size: 0.8rem;
+    border-radius: 0.875rem;
+  }
+
+  .actions {
+    gap: 0.5rem;
+    padding: 0;
+  }
+
+  .actions button {
+    padding: 0.7rem 0.875rem;
+    font-size: 0.8rem;
+    border-radius: 0.875rem;
+  }
+
+  .join-block {
+    gap: 0.5rem;
+  }
+}
+
+/* Экстремально маленькие экраны (до 320px) */
+@media (max-width: 320px) {
+  .landing {
+    padding: 0 0.25rem;
+    overflow: hidden;
+  }
+
+  .landing-card {
+    padding: 1rem 0.75rem;
+    gap: 0.625rem;
+    border-radius: 1rem;
+    max-height: 100vh;
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+
+  .brand-title {
+    font-size: clamp(0.9rem, 5.5vw, 1.2rem);
+    margin-bottom: 0.2rem;
+  }
+
+  .brand-subtitle {
+    font-size: clamp(0.65rem, 2.5vw, 0.8rem);
+    margin-top: 0.4rem;
+  }
+
+  .landing-brand {
+    margin-bottom: 0.3rem;
+  }
+
+  .identity-row {
+    gap: 0.625rem;
+    margin-top: 0.3rem;
+  }
+
+  .identity-row input {
+    padding: 0.55rem 0.65rem;
+    font-size: 0.75rem;
+  }
+
+  .actions button {
+    padding: 0.65rem 0.75rem;
+    font-size: 0.75rem;
   }
 }
 </style>

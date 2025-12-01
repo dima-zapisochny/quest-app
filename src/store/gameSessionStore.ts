@@ -593,7 +593,8 @@ export const useGameSessionStore = defineStore('game-session', () => {
       showAnswer: false,
       timerPaused: false,
       buzzedOrder: [],
-      currentResponderId: null
+      currentResponderId: null,
+      responderStartedAt: null
     }
     
     session.activeQuestion = active
@@ -661,6 +662,7 @@ export const useGameSessionStore = defineStore('game-session', () => {
       session.activeQuestion.currentResponderId = playerId
       session.activeQuestion.buzzedOrder.push(playerId)
       session.activeQuestion.timerPaused = true
+      session.activeQuestion.responderStartedAt = now()
       player.status = 'buzzed'
       player.buzzedAt = now()
     } else {
@@ -852,6 +854,44 @@ export const useGameSessionStore = defineStore('game-session', () => {
     }
   }
 
+  async function timeoutResponder(sessionId: string) {
+    const session = getSessionById(sessionId)
+    if (!session || !session.activeQuestion || !session.activeQuestion.currentResponderId) return
+    
+    const failedPlayerId = session.activeQuestion.currentResponderId
+    const player = session.players.find(p => p.id === failedPlayerId)
+    
+    if (player) {
+      // Блокируем игрока для этого вопроса
+      player.status = 'locked'
+    }
+    
+    // Очищаем текущего отвечающего, но сохраняем buzzedOrder
+    session.activeQuestion.currentResponderId = null
+    session.activeQuestion.responderStartedAt = null
+    
+    // Возобновляем общий таймер вопроса (30 секунд), чтобы он продолжал идти
+    session.activeQuestion.timerPaused = false
+    
+    // Разблокируем других игроков, которые не заблокированы
+    session.players.forEach(p => {
+      if (p.status !== 'locked' && p.id !== failedPlayerId) {
+        p.status = 'idle'
+      }
+    })
+    
+    session.updatedAt = now()
+    
+    try {
+      const updated = await updateSession(session)
+      updateSessionInArray(updated)
+    } catch (error) {
+      console.error('Error updating session:', error)
+      // Fallback: обновляем локально
+      updateSessionInArray(session)
+    }
+  }
+
   function setActivePlayer(sessionId: string, playerId: string) {
     activePlayerSession.value = { sessionId, playerId }
     // Сохраняем в localStorage для восстановления при обновлении страницы
@@ -1011,6 +1051,7 @@ export const useGameSessionStore = defineStore('game-session', () => {
     buzz,
     resolveQuestion,
     resumeTimer,
+    timeoutResponder,
     setActivePlayer,
     clearActivePlayer,
     checkActivePlayerSession,

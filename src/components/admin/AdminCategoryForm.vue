@@ -70,16 +70,21 @@
         v-if="category.questions.length < 10"
         class="add-question-button"
         type="button"
+        :disabled="isAddingQuestion"
         @click="handleAddQuestion"
       >
-        Добавить вопрос
+        <span v-if="!isAddingQuestion">Добавить вопрос</span>
+        <span v-else class="add-question-loading">
+          <span class="mini-loader"></span>
+          <span>Создание...</span>
+        </span>
       </button>
     </section>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, watchEffect, nextTick } from 'vue'
 import { useQuizStore } from '@/store/quizStore'
 import AdminQuestionRow from './AdminQuestionRow.vue'
 import type { Category } from '@/types'
@@ -98,6 +103,8 @@ const props = defineProps<Props>()
 const store = useQuizStore()
 
 const openQuestionId = ref<string | null>(null)
+const isAddingQuestion = ref(false)
+const newlyAddedQuestionId = ref<string | null>(null)
 
 const categoryTitle = computed({
   get: () => props.category.title,
@@ -106,32 +113,58 @@ const categoryTitle = computed({
   }
 })
 
-function handleAddQuestion() {
-  const defaultValue = 100 * (props.category.questions.length + 1)
-  const newId = store.addQuestion(
-    props.questId,
-    props.roundId,
-    props.category.id,
-    defaultValue,
-    'Новый вопрос',
-    'Ответ'
-  )
-  openQuestionId.value = newId
+async function handleAddQuestion() {
+  isAddingQuestion.value = true
+  try {
+    const defaultValue = 100 * (props.category.questions.length + 1)
+    const newId = await store.addQuestion(
+      props.questId,
+      props.roundId,
+      props.category.id,
+      defaultValue,
+      'Новый вопрос',
+      'Ответ'
+    )
+    // Сохраняем ID нового вопроса для watchEffect
+    newlyAddedQuestionId.value = newId
+    // Устанавливаем сразу после получения ID (элемент уже в массиве после push)
+    openQuestionId.value = newId
+    // Сбрасываем флаг сразу
+    isAddingQuestion.value = false
+  } catch (error) {
+    isAddingQuestion.value = false
+    newlyAddedQuestionId.value = null
+    throw error
+  }
 }
 
-watch(
-  () => props.category.questions.map(question => question.id),
-  ids => {
-    if (ids.length === 0) {
-      openQuestionId.value = null
-      return
-    }
-    if (!openQuestionId.value || !ids.includes(openQuestionId.value)) {
-      openQuestionId.value = ids[0]
-    }
-  },
-  { immediate: true }
-)
+// Используем watchEffect для мгновенной реакции на изменения
+watchEffect(() => {
+  const ids = props.category.questions.map(question => question.id)
+  
+  // Если мы только что создали вопрос, открываем его
+  if (newlyAddedQuestionId.value && ids.includes(newlyAddedQuestionId.value)) {
+    openQuestionId.value = newlyAddedQuestionId.value
+    newlyAddedQuestionId.value = null
+    return
+  }
+  
+  // Игнорируем watch, если мы только что создали вопрос
+  if (isAddingQuestion.value) return
+  
+  if (ids.length === 0) {
+    openQuestionId.value = null
+    return
+  }
+  // Не перезаписываем, если вопрос уже открыт и существует
+  if (openQuestionId.value && ids.includes(openQuestionId.value)) {
+    return
+  }
+  // Устанавливаем первый вопрос только если ничего не открыто
+  if (!openQuestionId.value) {
+    openQuestionId.value = ids[0]
+  }
+})
 
 function toggleQuestion(questionId: string) {
   openQuestionId.value = openQuestionId.value === questionId ? null : questionId
@@ -165,6 +198,7 @@ function handleQuestionDeleted(questionId: string) {
 .category-panel--meta {
   gap: 0.6rem;
   padding-bottom: 1.1rem;
+  box-sizing: border-box;
 }
 
 .category-panel--questions {
@@ -217,6 +251,7 @@ function handleQuestionDeleted(questionId: string) {
   color: #f8fafc;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
   width: 100%;
+  box-sizing: border-box;
 }
 
 .category-title-input:focus {
@@ -428,11 +463,38 @@ function handleQuestionDeleted(questionId: string) {
   min-width: 200px;
 }
 
-.add-question-button:hover {
+.add-question-button:hover:not(:disabled) {
   transform: translateY(-1.5px);
   border-color: rgba(56, 189, 248, 0.55);
   background: rgba(15, 32, 56, 0.72);
   box-shadow: 0 16px 32px rgba(56, 189, 248, 0.22);
+}
+
+.add-question-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.add-question-loading {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.mini-loader {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(186, 230, 253, 0.3);
+  border-top-color: #bae6fd;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .add-question-label {

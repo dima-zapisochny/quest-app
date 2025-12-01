@@ -69,10 +69,12 @@
             v-else-if="index === roundsCount + 1 && roundsCount < 8"
             class="round-slot round-slot--add"
             type="button"
+            :disabled="isAddingRound"
             aria-label="Добавить раунд"
             @click="handleAddRound"
           >
-            <span>+</span>
+            <span v-if="!isAddingRound">+</span>
+            <span v-else class="mini-loader"></span>
           </button>
           <button
             v-else
@@ -105,7 +107,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch, onMounted } from 'vue'
+import { computed, ref, watch, watchEffect, onMounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { useQuizStore } from '@/store/quizStore'
 import { useGameSessionStore } from '@/store/gameSessionStore'
@@ -123,6 +125,8 @@ const sessionStore = useGameSessionStore()
 const quest = computed(() => store.getQuestById(props.questId))
 
 const editingRoundId = ref<string | null>(null)
+const isAddingRound = ref(false)
+const newlyAddedRoundId = ref<string | null>(null)
 
 const editingRound = computed(() => {
   if (!quest.value?.rounds || !editingRoundId.value) return null
@@ -215,26 +219,52 @@ watch(
   { immediate: true }
 )
 
-watch(
-  quest,
-  newQuest => {
-    if (!newQuest?.rounds || newQuest.rounds.length === 0) {
-      editingRoundId.value = null
-      return
-    }
-    if (!editingRoundId.value || !newQuest.rounds.some(round => round.id === editingRoundId.value)) {
-      editingRoundId.value = newQuest.rounds[0].id
-    }
-  },
-  { immediate: true }
-)
+// Используем watchEffect для мгновенной реакции на изменения
+watchEffect(() => {
+  const rounds = quest.value?.rounds
+  
+  // Если мы только что создали раунд, устанавливаем его как активный
+  if (newlyAddedRoundId.value && rounds?.some(round => round.id === newlyAddedRoundId.value)) {
+    editingRoundId.value = newlyAddedRoundId.value
+    newlyAddedRoundId.value = null
+    return
+  }
+  
+  // Игнорируем watch, если мы только что создали раунд
+  if (isAddingRound.value) return
+  
+  if (!rounds || rounds.length === 0) {
+    editingRoundId.value = null
+    return
+  }
+  // Не перезаписываем, если раунд уже выбран и существует
+  if (editingRoundId.value && rounds.some(round => round.id === editingRoundId.value)) {
+    return
+  }
+  // Устанавливаем первый раунд только если ничего не выбрано
+  if (!editingRoundId.value) {
+    editingRoundId.value = rounds[0].id
+  }
+})
 
-function handleAddRound() {
+async function handleAddRound() {
   if (!quest.value) return
   const currentRounds = Array.isArray(quest.value.rounds) ? quest.value.rounds : []
   const baseTitle = `Раунд ${currentRounds.length + 1}`
-  const newRoundId = store.addRound(quest.value.id, baseTitle)
-  editingRoundId.value = newRoundId
+  isAddingRound.value = true
+  try {
+    const newRoundId = await store.addRound(quest.value.id, baseTitle)
+    // Сохраняем ID нового раунда для watchEffect
+    newlyAddedRoundId.value = newRoundId
+    // Устанавливаем сразу после получения ID (элемент уже в массиве после push)
+    editingRoundId.value = newRoundId
+    // Сбрасываем флаг сразу
+    isAddingRound.value = false
+  } catch (error) {
+    isAddingRound.value = false
+    newlyAddedRoundId.value = null
+    throw error
+  }
 }
 
 function handleDeleteRound(roundId: string) {
@@ -419,6 +449,8 @@ function goBack() {
   gap: 0.6rem;
   align-content: start;
   width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
 }
 
 .toolbar-label {
@@ -433,6 +465,7 @@ function goBack() {
 .toolbar-input,
 .toolbar-textarea {
   width: 100%;
+  box-sizing: border-box;
   background: rgba(15, 23, 42, 0.62);
   border: 1px solid rgba(59, 130, 246, 0.25);
   border-radius: 18px;
@@ -629,6 +662,27 @@ function goBack() {
 
 .round-slot--empty span {
   opacity: 0.35;
+}
+
+.mini-loader {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(186, 230, 253, 0.3);
+  border-top-color: #bae6fd;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.round-slot--add:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
 }
 
 .round-editor {

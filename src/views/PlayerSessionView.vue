@@ -43,6 +43,26 @@
               :media="media"
             />
           </div>
+          <div class="responder-container" :class="{ 'responder-container--hidden': !currentResponder }">
+            <div v-if="currentResponder" class="responder-info">
+              <div class="responder-avatar">
+                <span>{{ avatarEmoji(currentResponder.avatar || 'fox') }}</span>
+              </div>
+              <div class="responder-details">
+                <span class="responder-name">{{ currentResponder.name }}</span>
+                <span class="responder-label">отвечает</span>
+              </div>
+            </div>
+            <div v-if="currentResponder" class="responder-timer">
+              <TimerCircle
+                v-if="shouldShowResponderTimer"
+                :duration-sec="10"
+                :auto-start="true"
+                ref="responderTimerRef"
+                @finished="handleResponderTimeout"
+              />
+            </div>
+          </div>
           <div v-if="activeQuestion.showAnswer" class="answer-reveal">
             Ответ: <strong>{{ currentQuestion?.answer }}</strong>
           </div>
@@ -101,9 +121,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, onMounted, onBeforeUnmount, ref, watch, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import QuestionMediaPreview from '@/components/quiz/QuestionMediaPreview.vue'
+import TimerCircle from '@/components/quiz/TimerCircle.vue'
 import { useGameSessionStore } from '@/store/gameSessionStore'
 import { useQuizStore } from '@/store/quizStore'
 import type { MediaAsset } from '@/types'
@@ -183,6 +204,51 @@ const playerRank = computed(() => {
   const rank = sortedPlayers.findIndex(p => p.id === player.value?.id) + 1
   return rank || '-'
 })
+
+const currentResponder = computed(() => {
+  if (!session.value || !activeQuestion.value?.currentResponderId) return null
+  return session.value.players.find(p => p.id === activeQuestion.value?.currentResponderId) ?? null
+})
+
+const responderTimerRef = ref<InstanceType<typeof TimerCircle> | null>(null)
+
+const shouldShowResponderTimer = computed(() => {
+  return !!currentResponder.value && !!activeQuestion.value?.responderStartedAt && !activeQuestion.value?.showAnswer
+})
+
+function handleResponderTimeout() {
+  if (!session.value || !activeQuestion.value?.currentResponderId) return
+  console.log('⏰ Responder timeout, calling timeoutResponder')
+  sessionStore.timeoutResponder(session.value.id)
+}
+
+// Отслеживаем изменения currentResponderId для сброса таймера
+watch(
+  () => activeQuestion.value?.currentResponderId,
+  (newResponderId, oldResponderId) => {
+    if (newResponderId !== oldResponderId) {
+      nextTick(() => {
+        if (responderTimerRef.value) {
+          responderTimerRef.value.reset()
+        }
+      })
+    }
+  }
+)
+
+// Отслеживаем изменения responderStartedAt для запуска таймера
+watch(
+  () => activeQuestion.value?.responderStartedAt,
+  (newStartedAt) => {
+    if (newStartedAt && shouldShowResponderTimer.value) {
+      nextTick(() => {
+        if (responderTimerRef.value) {
+          responderTimerRef.value.reset()
+        }
+      })
+    }
+  }
+)
 
 function handleBuzz() {
   if (!player.value || !session.value || !activeQuestion.value) return
@@ -480,7 +546,7 @@ onBeforeUnmount(() => {
     document.removeEventListener('visibilitychange', handleVisibilityChange)
   }
   if (handleBeforeUnload) {
-    window.removeEventListener('beforeunload', handleBeforeUnload)
+  window.removeEventListener('beforeunload', handleBeforeUnload)
   }
   
   // Автоматически удаляем участника из сессии при уходе со страницы
@@ -649,7 +715,7 @@ onBeforeUnmount(() => {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 2.5rem;
+  gap: 3rem;
   padding: 1rem;
   min-height: 0;
   overflow: hidden;
@@ -658,7 +724,7 @@ onBeforeUnmount(() => {
 .player-stats {
   width: 100%;
   flex-shrink: 0;
-  margin-bottom: -1rem;
+  box-sizing: border-box;
 }
 
 
@@ -671,6 +737,7 @@ onBeforeUnmount(() => {
   backdrop-filter: blur(12px);
   position: relative;
   overflow: hidden;
+  box-sizing: border-box;
   box-shadow: 
     0 4px 12px rgba(2, 6, 23, 0.3),
     0 2px 6px rgba(2, 6, 23, 0.2),
@@ -789,7 +856,7 @@ onBeforeUnmount(() => {
   overflow: hidden;
   align-items: center;
   justify-content: center;
-  gap: 3.5rem;
+  gap: 1.5rem;
 }
 
 .question-content h2 {
@@ -800,20 +867,104 @@ onBeforeUnmount(() => {
   flex-shrink: 0;
 }
 
+.responder-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+  min-height: 72px;
+  transition: opacity 0.3s ease;
+}
+
+.responder-container--hidden {
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.responder-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1.25rem;
+  background: rgba(34, 197, 94, 0.2);
+  border: 1px solid rgba(34, 197, 94, 0.4);
+  border-radius: 9999px;
+  backdrop-filter: blur(12px);
+  box-shadow: 
+    0 4px 12px rgba(2, 6, 23, 0.3),
+    0 2px 6px rgba(2, 6, 23, 0.2),
+    inset 0 2px 4px rgba(255, 255, 255, 0.15),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.25);
+}
+
+.responder-timer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.responder-timer :deep(.timer-circle-container) {
+  transform: scale(0.6);
+}
+
+.responder-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid rgba(34, 197, 94, 0.5);
+  background: rgba(8, 47, 73, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  flex-shrink: 0;
+}
+
+.responder-details {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+}
+
+.responder-name {
+  font-size: clamp(0.95rem, 2.5vw, 1.1rem);
+  font-weight: 700;
+  color: #f8fafc;
+  line-height: 1.2;
+}
+
+.responder-label {
+  font-size: clamp(0.75rem, 2vw, 0.85rem);
+  color: #94a3b8;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
 .media-grid {
   margin-top: 0;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(100px, auto));
+  display: flex;
+  flex-direction: column;
   gap: 0.75rem;
-  flex: 0 1 auto;
+  flex: 1 1 0;
   min-height: 0;
+  max-height: 100%;
   overflow: hidden;
-  align-content: start;
-  align-items: start;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
 }
 
 .media-grid :deep(.media-card) {
-  height: auto;
+  width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -821,19 +972,35 @@ onBeforeUnmount(() => {
   border: none;
   padding: 0;
   box-shadow: none;
+  min-height: 0;
+  align-items: center;
+  justify-content: center;
 }
 
 .media-grid :deep(.image-wrapper) {
-  flex: 0 1 auto;
+  width: 100%;
+  max-height: 100%;
+  flex: 1 1 0;
   min-height: 0;
-  max-height: none;
   border: none;
   border-radius: 0.75rem;
-  height: auto;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .media-grid :deep(.media-name) {
   display: none;
+}
+
+.media-grid :deep(.image-wrapper img) {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  display: block;
 }
 
 .answer-reveal {
@@ -853,11 +1020,11 @@ onBeforeUnmount(() => {
 }
 
 .buzzer-button {
-  width: min(400px, 100%);
+  width: min(600px, 100%);
   border: 1px solid rgba(148, 163, 184, 0.2);
   border-radius: 9999px;
-  padding: 2rem 2.5rem;
-  font-size: clamp(1.5rem, 4vw, 1.75rem);
+  padding: 3rem 3.75rem;
+  font-size: clamp(2.25rem, 6vw, 2.625rem);
   font-weight: 700;
   cursor: pointer;
   color: #0f172a;
@@ -1218,14 +1385,675 @@ onBeforeUnmount(() => {
   }
 }
 
-@media (max-width: 768px) {
-  .player-view {
-    padding: 1rem;
+/* Планшеты (768px - 1024px) */
+@media (max-width: 1024px) and (min-width: 769px) {
+  .player-topbar {
+    padding: 0.75rem 1.25rem;
   }
 
-  .player-header {
+  .player-main {
+    padding: 1.25rem;
+    gap: 1.25rem;
+  }
+
+  .player-stats {
+    padding: 1.25rem;
+  }
+
+  .question-panel {
+    padding: 1.75rem;
+  }
+
+  .buzzer-button {
+    padding: 2.625rem 3.75rem;
+    font-size: 1.65rem;
+  }
+}
+
+/* Мобильные устройства (до 768px) */
+@media (max-width: 768px) {
+  .player-view {
+    padding: 0;
+    height: 100vh;
+    max-height: 100vh;
+    overflow: hidden;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
+
+  .player-topbar {
+    padding: 0.6rem 0.875rem;
+    gap: 0.625rem;
+    flex-shrink: 0;
+  }
+
+  .player-topbar-left {
+    gap: 0.4rem;
+  }
+
+  .exit-button {
+    padding: 0.7rem 0.9rem;
+    font-size: 0.8rem;
+  }
+
+  .player-user-pill {
+    gap: 0.4rem;
+    padding: 0.35rem 0.75rem;
+  }
+
+  .player-user-name {
+    font-size: 0.8rem;
+  }
+
+  .player-user-avatar {
+    width: 28px;
+    height: 28px;
+    font-size: 0.9rem;
+  }
+
+  .player-main {
+    padding: 0.625rem;
+    gap: 0.625rem;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    display: flex;
     flex-direction: column;
-    align-items: flex-start;
+  }
+
+  .player-stats {
+    padding: 0;
+    flex-shrink: 0;
+    box-sizing: border-box;
+  }
+
+  .stats-item {
+    padding: 0.625rem;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .stats-row {
+    gap: 0.75rem;
+  }
+
+  .responder-container {
+    gap: 0.75rem;
+    min-height: 60px;
+  }
+
+  .responder-info {
+    padding: 0.5rem 0.875rem;
+    gap: 0.5rem;
+  }
+
+  .responder-timer :deep(.timer-circle-container) {
+    transform: scale(0.5);
+  }
+
+  .responder-avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 1.1rem;
+  }
+
+  .responder-name {
+    font-size: clamp(0.85rem, 2.5vw, 0.95rem);
+  }
+
+  .responder-label {
+    font-size: clamp(0.7rem, 2vw, 0.75rem);
+  }
+
+  .stats-label {
+    font-size: 0.75rem;
+  }
+
+  .stats-value {
+    font-size: 1.15rem;
+  }
+
+  .question-panel {
+    padding: 0.875rem;
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .question-content {
+    gap: 1rem;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .question-content h2 {
+    font-size: clamp(1rem, 4vw, 1.3rem);
+    line-height: 1.35;
+    flex-shrink: 0;
+  }
+
+  .media-grid {
+    flex: 1 1 0;
+    min-height: 0;
+    max-height: 100%;
+    overflow: hidden;
+  }
+
+  .responder-container {
+    gap: 0.75rem;
+    min-height: 64px;
+  }
+
+  .responder-info {
+    padding: 0.6rem 1rem;
+    gap: 0.6rem;
+  }
+
+  .responder-timer :deep(.timer-circle-container) {
+    transform: scale(0.55);
+  }
+
+  .responder-avatar {
+    width: 36px;
+    height: 36px;
+    font-size: 1.2rem;
+  }
+
+  .responder-name {
+    font-size: clamp(0.9rem, 2.5vw, 1rem);
+  }
+
+  .responder-label {
+    font-size: clamp(0.7rem, 2vw, 0.8rem);
+  }
+
+  .answer-reveal {
+    font-size: clamp(0.9rem, 3vw, 1.1rem);
+    padding: 0.75rem;
+    flex-shrink: 0;
+  }
+
+  .media-grid {
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 0.625rem;
+    flex-shrink: 0;
+    max-height: 400px;
+    overflow-y: auto;
+  }
+
+  .buzzer-section {
+    padding: 0.625rem;
+    flex-shrink: 0;
+  }
+
+  .buzzer-button {
+    padding: 1.875rem 2.625rem;
+    font-size: 1.425rem;
+    min-height: 97.5px;
+    width: 100%;
+  }
+
+  .button-label {
+    font-size: 0.95rem;
+  }
+
+  .buzzer-hint {
+    font-size: 0.8rem;
+    margin-top: 0.375rem;
+  }
+
+  .player-modal {
+    width: calc(100% - 1.5rem);
+    margin: 0.75rem;
+    padding: 1.2rem;
+  }
+}
+
+/* Маленькие мобильные (до 480px) */
+@media (max-width: 480px) {
+  .player-view {
+    height: 100vh;
+    max-height: 100vh;
+    overflow: hidden;
+  }
+
+  .player-topbar {
+    padding: 0.5rem 0.75rem;
+    flex-shrink: 0;
+  }
+
+  .exit-button {
+    padding: 0.6rem 0.875rem;
+    font-size: 0.75rem;
+  }
+
+  .player-user-pill {
+    padding: 0.3rem 0.65rem;
+    gap: 0.4rem;
+  }
+
+  .player-user-name {
+    font-size: 0.75rem;
+  }
+
+  .player-user-avatar {
+    width: 24px;
+    height: 24px;
+    font-size: 0.8rem;
+  }
+
+  .player-main {
+    padding: 0.5rem;
+    gap: 0.5rem;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .player-stats {
+    padding: 0;
+    flex-shrink: 0;
+    box-sizing: border-box;
+  }
+
+  .stats-item {
+    padding: 0.5rem;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .stats-row {
+    gap: 0.5rem;
+  }
+
+  .responder-info {
+    padding: 0.45rem 0.75rem;
+    gap: 0.45rem;
+  }
+
+  .responder-avatar {
+    width: 28px;
+    height: 28px;
+    font-size: 1rem;
+  }
+
+  .responder-name {
+    font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+  }
+
+  .responder-label {
+    font-size: clamp(0.65rem, 2vw, 0.7rem);
+  }
+
+  .stats-label {
+    font-size: 0.7rem;
+  }
+
+  .stats-value {
+    font-size: 1rem;
+  }
+
+  .question-panel {
+    padding: 0.75rem;
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .question-content {
+    gap: 0.75rem;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .question-content h2 {
+    font-size: clamp(0.9rem, 4vw, 1.1rem);
+    line-height: 1.3;
+    flex-shrink: 0;
+  }
+
+  .media-grid {
+    flex: 1 1 0;
+    min-height: 0;
+    max-height: 100%;
+    overflow: hidden;
+  }
+
+  .responder-container {
+    gap: 0.5rem;
+    min-height: 52px;
+  }
+
+  .responder-info {
+    padding: 0.45rem 0.75rem;
+    gap: 0.45rem;
+  }
+
+  .responder-avatar {
+    width: 28px;
+    height: 28px;
+    font-size: 1rem;
+  }
+
+  .responder-name {
+    font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+  }
+
+  .responder-label {
+    font-size: clamp(0.65rem, 2vw, 0.7rem);
+  }
+
+  .media-grid {
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    gap: 0.4rem;
+    flex-shrink: 0;
+    max-height: 220px;
+    overflow-y: auto;
+  }
+
+  .answer-reveal {
+    font-size: clamp(0.8rem, 3vw, 1rem);
+    padding: 0.5rem;
+    flex-shrink: 0;
+  }
+
+  .buzzer-section {
+    padding: 0.5rem;
+    flex-shrink: 0;
+  }
+
+  .buzzer-button {
+    padding: 1.5rem 2.25rem;
+    font-size: 1.35rem;
+    min-height: 90px;
+    width: 100%;
+  }
+
+  .button-label {
+    font-size: 0.9rem;
+  }
+
+  .buzzer-hint {
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+  }
+
+  .player-modal {
+    padding: 1rem;
+  }
+}
+
+/* Очень маленькие экраны (до 360px) */
+@media (max-width: 360px) {
+  .player-topbar {
+    padding: 0.4rem 0.5rem;
+  }
+
+  .exit-button {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.7rem;
+  }
+
+  .player-user-pill {
+    padding: 0.25rem 0.5rem;
+  }
+
+  .player-user-name {
+    font-size: 0.7rem;
+  }
+
+  .player-user-avatar {
+    width: 20px;
+    height: 20px;
+    font-size: 0.75rem;
+  }
+
+  .player-main {
+    padding: 0.375rem;
+    gap: 0.375rem;
+  }
+
+  .player-stats {
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  .stats-item {
+    padding: 0.375rem;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .stats-label {
+    font-size: 0.65rem;
+  }
+
+  .stats-value {
+    font-size: 0.85rem;
+  }
+
+  .question-panel {
+    padding: 0.5rem;
+  }
+
+  .question-content {
+    gap: 0.5rem;
+    overflow: hidden;
+  }
+
+  .media-grid {
+    flex: 1 1 0;
+    min-height: 0;
+    max-height: 100%;
+    overflow: hidden;
+  }
+
+  .stats-row {
+    gap: 0.4rem;
+  }
+
+  .responder-container {
+    gap: 0.4rem;
+    min-height: 48px;
+  }
+
+  .responder-info {
+    padding: 0.35rem 0.55rem;
+    gap: 0.35rem;
+  }
+
+  .responder-timer :deep(.timer-circle-container) {
+    transform: scale(0.4);
+  }
+
+  .responder-avatar {
+    width: 20px;
+    height: 20px;
+    font-size: 0.8rem;
+  }
+
+  .responder-name {
+    font-size: clamp(0.7rem, 2.5vw, 0.8rem);
+  }
+
+  .responder-label {
+    font-size: clamp(0.55rem, 2vw, 0.6rem);
+  }
+
+  .question-content h2 {
+    font-size: clamp(0.8rem, 4vw, 0.95rem);
+    line-height: 1.3;
+  }
+
+  .question-placeholder {
+    font-size: clamp(0.8rem, 3vw, 0.9rem);
+  }
+
+  .answer-reveal {
+    font-size: clamp(0.75rem, 2.8vw, 0.9rem);
+    padding: 0.4rem;
+  }
+
+  .media-grid {
+    flex: 1 1 0;
+    min-height: 0;
+    max-height: 100%;
+    overflow: hidden;
+    gap: 0.3rem;
+  }
+
+  .buzzer-button {
+    padding: 1.3125rem 1.875rem;
+    font-size: 1.2rem;
+    min-height: 75px;
+  }
+
+  .button-label {
+    font-size: 0.8rem;
+  }
+
+  .buzzer-hint {
+    font-size: 0.7rem;
+  }
+}
+
+/* Экстремально маленькие экраны (до 320px) */
+@media (max-width: 320px) {
+  .player-topbar {
+    padding: 0.35rem 0.4rem;
+  }
+
+  .exit-button {
+    padding: 0.45rem 0.65rem;
+    font-size: 0.65rem;
+  }
+
+  .player-user-pill {
+    padding: 0.2rem 0.4rem;
+  }
+
+  .player-user-name {
+    font-size: 0.65rem;
+  }
+
+  .player-user-avatar {
+    width: 18px;
+    height: 18px;
+    font-size: 0.7rem;
+  }
+
+  .player-main {
+    padding: 0.3rem;
+    gap: 0.3rem;
+  }
+
+  .player-stats {
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  .stats-item {
+    padding: 0.3rem;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .stats-label {
+    font-size: 0.6rem;
+  }
+
+  .stats-value {
+    font-size: 0.8rem;
+  }
+
+  .question-panel {
+    padding: 0.4rem;
+  }
+
+  .stats-row {
+    gap: 0.3rem;
+  }
+
+  .responder-container {
+    gap: 0.35rem;
+    min-height: 44px;
+  }
+
+  .responder-info {
+    padding: 0.3rem 0.5rem;
+    gap: 0.3rem;
+  }
+
+  .responder-timer :deep(.timer-circle-container) {
+    transform: scale(0.35);
+  }
+
+  .responder-avatar {
+    width: 18px;
+    height: 18px;
+    font-size: 0.75rem;
+  }
+
+  .responder-name {
+    font-size: clamp(0.65rem, 2.5vw, 0.75rem);
+  }
+
+  .responder-label {
+    font-size: clamp(0.5rem, 2vw, 0.55rem);
+  }
+
+  .question-content {
+    gap: 0.4rem;
+    overflow: hidden;
+  }
+
+  .question-content h2 {
+    font-size: clamp(0.75rem, 3.8vw, 0.9rem);
+  }
+
+  .media-grid {
+    flex: 1 1 0;
+    min-height: 0;
+    max-height: 100%;
+    overflow: hidden;
+  }
+
+  .question-placeholder {
+    font-size: clamp(0.75rem, 2.8vw, 0.85rem);
+  }
+
+  .answer-reveal {
+    font-size: clamp(0.7rem, 2.5vw, 0.85rem);
+    padding: 0.35rem;
+  }
+
+  .buzzer-button {
+    padding: 1.125rem 1.5rem;
+    font-size: 1.125rem;
+    min-height: 67.5px;
+  }
+
+  .button-label {
+    font-size: 0.75rem;
+  }
+
+  .buzzer-hint {
+    font-size: 0.65rem;
   }
 }
 </style>

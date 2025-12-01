@@ -626,12 +626,11 @@ function cancelDeleteQuest() {
 }
 
 .quest-selection {
-  flex: 1;
   padding-right: 0.5rem;
   margin-right: -0.5rem;
   padding-bottom: 1rem;
-  overflow-y: auto;
   min-height: 0;
+
 }
 
 .quest-selection::-webkit-scrollbar {
@@ -688,7 +687,7 @@ function cancelDeleteQuest() {
   scrollbar-color: rgba(148, 163, 184, 0.6) transparent;
   flex: 1;
   min-height: 0;
-  max-height: calc(2 * (120px + 2 * 2rem) + 1 * 1.6rem + 0.2rem);
+  max-height: calc(2 * (120px + 2 * 2rem) + 1 * 2rem);
 }
 
 .quests-grid::-webkit-scrollbar {
@@ -1015,6 +1014,7 @@ function cancelDeleteQuest() {
 
 .quest-modal {
   width: min(480px, 100%);
+  box-sizing: border-box;
   border-radius: 20px;
   background: rgba(15, 23, 42, 0.95);
   border: 1px solid rgba(56, 189, 248, 0.28);
@@ -1066,6 +1066,8 @@ function cancelDeleteQuest() {
   display: flex;
   flex-direction: column;
   gap: 0.9rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .quest-modal__label {
@@ -1078,6 +1080,7 @@ function cancelDeleteQuest() {
 .quest-modal__input,
 .quest-modal__textarea {
   width: 100%;
+  box-sizing: border-box;
   border-radius: 14px;
   border: 1px solid rgba(59, 130, 246, 0.24);
   padding: 0.65rem 0.8rem;

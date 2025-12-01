@@ -67,6 +67,7 @@ export type ActiveQuestionState = {
   timerPaused: boolean
   buzzedOrder: string[]
   currentResponderId: string | null
+  responderStartedAt: number | null
 }
 
 export type GameSession = {

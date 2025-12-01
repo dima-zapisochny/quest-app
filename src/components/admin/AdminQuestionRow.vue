@@ -221,12 +221,15 @@ function removeMedia(target: 'question' | 'answer', mediaId: string) {
   grid-template-columns: minmax(110px, 140px) repeat(2, minmax(0, 1fr));
   gap: 1rem;
   width: 100%;
+  box-sizing: border-box;
 }
 
 .field {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .field-label {
@@ -238,6 +241,7 @@ function removeMedia(target: 'question' | 'answer', mediaId: string) {
 
 .value-field input {
   width: 100%;
+  box-sizing: border-box;
   padding: 0.5rem 0.6rem;
   border: 1px solid rgba(59, 130, 246, 0.22);
   border-radius: 12px;
@@ -255,6 +259,7 @@ function removeMedia(target: 'question' | 'answer', mediaId: string) {
 
 textarea {
   width: 100%;
+  box-sizing: border-box;
   border: 1px solid rgba(59, 130, 246, 0.2);
   border-radius: 14px;
   padding: 0.55rem 0.7rem;
@@ -275,6 +280,8 @@ textarea:focus,
 
 .text-field {
   width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
 }
 
 .media-row {
