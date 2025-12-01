@@ -202,6 +202,14 @@ onMounted(async () => {
     isCheckingAuth.value = false
     setupMusic() // Настраиваем музыку после проверки авторизации
   }
+  
+  // Дополнительная попытка запустить музыку через 500ms после монтирования
+  // на случай, если setupMusic не сработал
+  setTimeout(() => {
+    if (!shouldRedirect.value && !isThemePlaying.value && !hasPlayedIntro) {
+      setupMusic()
+    }
+  }, 500)
 })
 
 async function checkAndRedirect() {
@@ -317,53 +325,98 @@ function schedulePattern(startTime: number) {
   return cursor
 }
 
-function playIntro() {
+async function playIntro() {
   if (hasPlayedIntro) return
-  hasPlayedIntro = true
-  animateTitle.value = true
-  subtitleVisible.value = false
-  isThemePlaying.value = true
   
-  // Очищаем fallback таймаут, так как музыка запустилась
-  if (fallbackTimeout) {
-    window.clearTimeout(fallbackTimeout)
-    fallbackTimeout = null
-  }
-
-  // Пересоздаем audioCtx, если его нет или он закрыт
-  if (!audioCtx || audioCtx.state === 'closed') {
-    if (audioCtx && audioCtx.state === 'closed') {
-      audioCtx = null
+  try {
+    hasPlayedIntro = true
+    animateTitle.value = true
+    subtitleVisible.value = false
+    isThemePlaying.value = true
+    
+    // Очищаем fallback таймаут, так как музыка запустилась
+    if (fallbackTimeout) {
+      window.clearTimeout(fallbackTimeout)
+      fallbackTimeout = null
     }
-    audioCtx = new AudioContext()
+
+    // Пересоздаем audioCtx, если его нет или он закрыт
+    if (!audioCtx || audioCtx.state === 'closed') {
+      if (audioCtx && audioCtx.state === 'closed') {
+        try {
+          audioCtx.close()
+        } catch (e) {
+          // Игнорируем ошибки при закрытии
+        }
+        audioCtx = null
+      }
+      audioCtx = new AudioContext()
+    }
+    
+    // Пытаемся возобновить контекст, если он приостановлен
+    // Это необходимо для политики автоплея браузеров
+    if (audioCtx && audioCtx.state === 'suspended') {
+      try {
+        await audioCtx.resume()
+      } catch (error) {
+        // Если не удалось возобновить, пробуем создать новый контекст
+        console.warn('Failed to resume AudioContext, creating new one:', error)
+        const oldCtx = audioCtx
+        try {
+          if (oldCtx && oldCtx.state !== 'closed') {
+            oldCtx.close()
+          }
+        } catch (e) {
+          // Игнорируем ошибки
+        }
+        audioCtx = new AudioContext()
+        // Пробуем возобновить новый контекст
+        if (audioCtx.state === 'suspended') {
+          await audioCtx.resume()
+        }
+      }
+    }
+    
+    // Пересоздаем gainNode для нового контекста
+    if (gainNode) {
+      try {
+        gainNode.disconnect()
+      } catch (e) {
+        // Игнорируем ошибки
+      }
+      gainNode = null
+    }
+    gainNode = audioCtx.createGain()
+    gainNode.gain.value = 0.06
+    gainNode.connect(audioCtx.destination)
+
+    const start = audioCtx.currentTime + 0.05
+    let cursor = start
+    cursor = schedulePattern(cursor)
+
+    const animationDuration = 0.15 * (titleLetters.value.length - 1) + 1.2
+    const totalDuration = Math.max(animationDuration, cursor - start)
+
+    cleanupTimeout = window.setTimeout(() => {
+      stopIntro()
+    }, totalDuration * 1000)
+
+    window.setTimeout(() => {
+      subtitleVisible.value = true
+    }, animationDuration * 1000)
+  } catch (error) {
+    // Если произошла ошибка, сбрасываем флаг и пробуем снова
+    console.warn('Ошибка при запуске музыки:', error)
+    hasPlayedIntro = false
+    isThemePlaying.value = false
+    
+    // Пробуем запустить снова через небольшую задержку
+    setTimeout(() => {
+      if (!shouldRedirect.value) {
+        playIntro()
+      }
+    }, 500)
   }
-  if (audioCtx.state === 'suspended') {
-    audioCtx.resume()
-  }
-  
-  // Пересоздаем gainNode для нового контекста
-  if (gainNode) {
-    gainNode.disconnect()
-    gainNode = null
-  }
-  gainNode = audioCtx.createGain()
-  gainNode.gain.value = 0.06
-  gainNode.connect(audioCtx.destination)
-
-  const start = audioCtx.currentTime + 0.05
-  let cursor = start
-  cursor = schedulePattern(cursor)
-
-  const animationDuration = 0.15 * (titleLetters.value.length - 1) + 1.2
-  const totalDuration = Math.max(animationDuration, cursor - start)
-
-  cleanupTimeout = window.setTimeout(() => {
-    stopIntro()
-  }, totalDuration * 1000)
-
-  window.setTimeout(() => {
-    subtitleVisible.value = true
-  }, animationDuration * 1000)
 }
 
 function stopIntro() {
@@ -404,29 +457,49 @@ function setupMusic() {
     fallbackTimeout = null
   }, 3000)
   
-  const interactionHandler = () => {
-    if (!shouldRedirect.value) {
-      playIntro()
-    }
-    window.removeEventListener('pointerdown', interactionHandler)
-  }
-  window.addEventListener('pointerdown', interactionHandler, { once: true })
-
-  const tryAutoPlay = () => {
-    if (!shouldRedirect.value) {
-      playIntro()
-    }
-  }
-
-  if (document.readyState === 'complete') {
-    window.setTimeout(tryAutoPlay, 150)
-  } else {
-    window.addEventListener('load', () => {
-      if (!shouldRedirect.value) {
-        window.setTimeout(tryAutoPlay, 150)
+  // НЕ запускаем музыку автоматически - только после взаимодействия пользователя
+  // Это критично для политики автоплея браузеров - AudioContext должен быть создан/возобновлен после жеста пользователя
+  const interactionHandler = async () => {
+    if (!shouldRedirect.value && !isThemePlaying.value && !hasPlayedIntro) {
+      // Создаем AudioContext только после взаимодействия пользователя
+      if (!audioCtx || audioCtx.state === 'closed') {
+        audioCtx = new AudioContext()
       }
-    }, { once: true })
+      // Возобновляем контекст, если он приостановлен
+      if (audioCtx.state === 'suspended') {
+        try {
+          await audioCtx.resume()
+        } catch (error) {
+          console.warn('Failed to resume AudioContext after interaction:', error)
+          // Если не удалось возобновить, создаем новый контекст
+          const oldCtx = audioCtx
+          try {
+            if (oldCtx && oldCtx.state !== 'closed') {
+              oldCtx.close()
+            }
+          } catch (e) {
+            // Игнорируем ошибки
+          }
+          audioCtx = new AudioContext()
+          if (audioCtx.state === 'suspended') {
+            await audioCtx.resume()
+          }
+        }
+      }
+      // Теперь запускаем музыку после успешного создания/возобновления контекста
+      await playIntro()
+    }
   }
+  
+  // Добавляем обработчики для разных типов взаимодействий
+  // Используем { once: true } чтобы обработчик сработал только один раз
+  window.addEventListener('pointerdown', interactionHandler, { once: true, passive: true })
+  window.addEventListener('click', interactionHandler, { once: true, passive: true })
+  window.addEventListener('keydown', interactionHandler, { once: true })
+  window.addEventListener('touchstart', interactionHandler, { once: true, passive: true })
+  
+  // Также показываем анимацию заголовка сразу, даже без музыки
+  animateTitle.value = true
 }
 
 onBeforeUnmount(() => {

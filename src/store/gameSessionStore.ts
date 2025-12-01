@@ -947,6 +947,46 @@ export const useGameSessionStore = defineStore('game-session', () => {
     return null
   }
 
+  // Проверяет, является ли пользователь хостом какой-либо сессии
+  function checkActiveHostSession(): { session: GameSession; isHost: true } | null {
+    if (!userProfile.value) return null
+    
+    // Проверяем все сессии в store
+    const hostSession = sessions.value.find(session => session.hostId === userProfile.value!.id)
+    
+    if (hostSession) {
+      console.log('✅ Active host session found:', hostSession.id, hostSession.code)
+      return { session: hostSession, isHost: true }
+    }
+    
+    return null
+  }
+
+  // Проверяет активную сессию (хоста или игрока) и возвращает информацию для редиректа
+  async function checkActiveSession(): Promise<{ 
+    session: GameSession; 
+    role: 'host' | 'player';
+    playerId?: string;
+  } | null> {
+    // Сначала проверяем, является ли пользователь хостом
+    const hostSession = checkActiveHostSession()
+    if (hostSession) {
+      return { session: hostSession.session, role: 'host' }
+    }
+    
+    // Затем проверяем, является ли пользователь игроком
+    const playerSession = await checkActivePlayerSession()
+    if (playerSession) {
+      return { 
+        session: playerSession.session, 
+        role: 'player',
+        playerId: playerSession.playerId
+      }
+    }
+    
+    return null
+  }
+
   const sessionList = computed(() => sessions.value)
 
   return {
@@ -974,6 +1014,8 @@ export const useGameSessionStore = defineStore('game-session', () => {
     setActivePlayer,
     clearActivePlayer,
     checkActivePlayerSession,
+    checkActiveHostSession,
+    checkActiveSession,
     getCurrentDevicePlayer
   }
 })

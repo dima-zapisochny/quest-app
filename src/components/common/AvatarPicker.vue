@@ -95,16 +95,21 @@ defineExpose({ randomize })
   position: absolute;
   bottom: -6px;
   right: -6px;
-  width: 34px;
-  height: 34px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   border: none;
   background: linear-gradient(135deg, #22d3ee, #38bdf8);
   color: #0f172a;
+  font-size: 1.8rem;
   font-weight: 700;
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   box-shadow: 0 10px 18px rgba(34, 211, 238, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
 }
 
 .avatar-refresh:hover {

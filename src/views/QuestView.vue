@@ -2,7 +2,7 @@
   <div v-if="quest" class="quest-view">
     <header class="quest-topbar">
       <div class="quest-topbar-left">
-        <button class="back-button" @click="goBack">← Назад</button>
+        <button class="back-button" @click="goBack"><span class="back-arrow">←</span> Назад</button>
       </div>
       <div class="topbar-actions">
         <div v-if="session" class="session-chip">
@@ -31,7 +31,7 @@
         </button>
       </div>
     </nav>
-        <QuizBoard :quest-id="quest.id" :round="activeRound" :session-id="sessionId" />
+        <QuizBoard :quest-id="quest.id" :round="activeRound" :session-id="session?.id" />
       </section>
       <aside class="quest-sidebar">
         <div class="sidebar-card">
@@ -154,6 +154,16 @@
     <p>Квест не найден.</p>
     <router-link to="/host/setup" class="back-link">← Вернуться к списку квестов</router-link>
   </div>
+
+  <!-- Полноэкранный лоадер при выходе из игры -->
+  <teleport to="body">
+    <div v-if="isExiting" class="quest-loading-wrapper" style="z-index: 10000;">
+      <div class="loading-state">
+        <div class="loader"></div>
+        <p>Выход из игры...</p>
+      </div>
+    </div>
+  </teleport>
   
   <!-- Модальное окно подтверждения выхода из игры -->
   <teleport to="body">
@@ -167,8 +177,29 @@
           <p>Вы уверены, что хотите выйти из игры? Все данные игры будут утеряны.</p>
         </div>
         <div class="quest-modal__actions">
-          <button type="button" class="secondary" @click="cancelExit">Отмена</button>
-          <button type="button" class="danger" @click="confirmExit">Выйти</button>
+          <button type="button" class="secondary" @click="cancelExit" :disabled="isExiting">Отмена</button>
+          <button type="button" class="danger" @click="confirmExit" :disabled="isExiting">
+            {{ isExiting ? 'Выход...' : 'Выйти' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </teleport>
+
+  <!-- Модальное окно подтверждения сброса прогресса -->
+  <teleport to="body">
+    <div v-if="showResetConfirm" class="quest-modal-backdrop" @click="cancelReset">
+      <div class="quest-modal quest-modal--confirm" role="dialog" aria-modal="true" @click.stop>
+        <header class="quest-modal__header">
+          <h2>Сбросить прогресс</h2>
+          <button type="button" class="quest-modal__close" @click="cancelReset" aria-label="Закрыть">✕</button>
+        </header>
+        <div class="quest-modal__body">
+          <p>Вы уверены, что хотите сбросить весь прогресс квеста? Это действие нельзя отменить.</p>
+        </div>
+        <div class="quest-modal__actions">
+          <button type="button" class="secondary" @click="cancelReset">Отмена</button>
+          <button type="button" class="danger" @click="confirmReset">Сбросить</button>
         </div>
       </div>
     </div>
@@ -183,9 +214,10 @@ import { useGameSessionStore } from '@/store/gameSessionStore'
 import QuizBoard from '@/components/quiz/QuizBoard.vue'
 
 interface Props {
-  questId: string
+  questId?: string
   roundId?: string
   sessionId?: string
+  sessionCode?: string
 }
 
 const props = defineProps<Props>()
@@ -195,11 +227,34 @@ const quizStore = useQuizStore()
 const sessionStore = useGameSessionStore()
 
 const isLoadingQuest = ref(true)
-const quest = computed(() => quizStore.getQuestById(props.questId))
-// Computed для сессии - отслеживает изменения в store
-// Vue автоматически отследит изменения, так как мы обновляем массив sessions через helper функцию
-const session = computed(() => (props.sessionId ? sessionStore.getSessionById(props.sessionId) : undefined))
+
+// Получаем сессию по коду или ID
+const session = computed(() => {
+  if (props.sessionCode) {
+    return sessionStore.getSessionByCode(props.sessionCode)
+  }
+  if (props.sessionId) {
+    return sessionStore.getSessionById(props.sessionId)
+  }
+  return undefined
+})
+
+// Получаем questId из сессии или из props
+const questId = computed(() => {
+  if (props.questId) {
+    return props.questId
+  }
+  if (session.value) {
+    return session.value.questId
+  }
+  return ''
+})
+
+const quest = computed(() => questId.value ? quizStore.getQuestById(questId.value) : null)
+const sessionId = computed(() => session.value?.id)
 const showExitConfirm = ref(false)
+const showResetConfirm = ref(false)
+const isExiting = ref(false)
 
 const userProfile = computed(() => sessionStore.userProfile)
 const displayName = computed(() => {
@@ -347,7 +402,7 @@ const questProgress = computed(() => {
   if (!quest.value) {
     return { totalRounds: 0, totalQuestions: 0, playedQuestions: 0 }
   }
-  return quizStore.getQuestProgress(props.questId)
+  return quizStore.getQuestProgress(questId.value)
 })
 
 const questProgressPercent = computed(() => {
@@ -483,7 +538,7 @@ onMounted(async () => {
 
 // Отслеживаем изменение questId в маршруте
 watch(
-  () => props.questId,
+  () => questId.value,
   async (newQuestId) => {
     if (!quest.value) {
       isLoadingQuest.value = true
@@ -531,11 +586,17 @@ watch(
       if (session.value.roundId !== newId) {
         sessionStore.setActiveRound(session.value.id, newId)
       }
-      if (route.params.roundId !== newId || route.params.sessionId !== session.value.id) {
-        router.replace({ name: 'host-session', params: { sessionId: session.value.id, questId: props.questId, roundId: newId } })
+      const sessionCode = session.value.code
+      const currentRoundId = route.params.roundId as string | undefined
+      if (session.value.roundId !== newId || currentRoundId !== newId || route.params.sessionCode !== sessionCode) {
+        router.replace({ 
+          name: 'host-session', 
+          params: { sessionCode, roundId: newId },
+          query: { questId: questId.value }
+        })
       }
     } else if (route.params.roundId !== newId) {
-      router.replace({ name: 'quest', params: { questId: props.questId, roundId: newId } })
+      router.replace({ name: 'quest', params: { questId: questId.value, roundId: newId } })
     }
   },
   { immediate: true }
@@ -545,9 +606,13 @@ function selectRound(roundId: string) {
   if (roundId === activeRoundId.value) return
   if (session.value) {
     sessionStore.setActiveRound(session.value.id, roundId)
-    router.push({ name: 'host-session', params: { sessionId: session.value.id, questId: props.questId, roundId } })
+    router.push({ 
+      name: 'host-session', 
+      params: { sessionCode: session.value.code, roundId },
+      query: { questId: questId.value }
+    })
   } else {
-    router.push({ name: 'quest', params: { questId: props.questId, roundId } })
+    router.push({ name: 'quest', params: { questId: questId.value, roundId } })
   }
 }
 
@@ -562,26 +627,47 @@ function goBack() {
 
 function cancelExit() {
   showExitConfirm.value = false
+  isExiting.value = false
 }
 
 async function confirmExit() {
+  if (isExiting.value) return // Предотвращаем повторные нажатия
+  
+  // Закрываем попап и показываем лоадер
+  showExitConfirm.value = false
+  isExiting.value = true
+  
   if (session.value) {
     try {
+      // Сбрасываем прогресс квеста перед удалением сессии
+      if (questId.value) {
+        await quizStore.resetQuestProgress(questId.value)
+      }
       // Удаляем сессию игры
       await sessionStore.deleteSession(session.value.id)
+      // Очищаем активную сессию игрока, чтобы не редиректило обратно
+      sessionStore.clearActivePlayer()
     } catch (error) {
-      console.error('Error deleting session:', error)
+      console.error('Error deleting session or resetting progress:', error)
     }
   }
-  showExitConfirm.value = false
+  
   router.push({ name: 'host-setup' })
 }
 
 function handleReset() {
   if (!quest.value) return
-  if (confirm('Сбросить весь прогресс квеста?')) {
-    quizStore.resetQuestProgress(props.questId)
-  }
+  showResetConfirm.value = true
+}
+
+function cancelReset() {
+  showResetConfirm.value = false
+}
+
+function confirmReset() {
+  if (!quest.value) return
+  quizStore.resetQuestProgress(questId.value)
+  showResetConfirm.value = false
 }
 
 onMounted(() => {
@@ -752,6 +838,11 @@ onMounted(() => {
 .back-button:hover {
   transform: translateY(-2px);
   box-shadow: 0 10px 20px rgba(34, 211, 238, 0.25);
+}
+
+.back-arrow {
+  font-weight: 900;
+  display: inline-block;
 }
 
 .session-chip {
@@ -955,7 +1046,7 @@ onMounted(() => {
 .quest-layout {
   flex: 1;
   display: flex;
-  gap: 1.25rem;
+  gap: 3rem;
   padding: 0 1.5rem 1.25rem;
   align-items: stretch;
   position: relative;
@@ -1004,7 +1095,6 @@ onMounted(() => {
     inset 0 -2px 4px rgba(0, 0, 0, 0.2);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  transform: perspective(1000px) rotateX(1deg);
 }
 
 .sidebar-card:has(.sidebar-stats) {
@@ -1136,9 +1226,9 @@ onMounted(() => {
   background: rgba(239, 68, 68, 0.18);
   border: 1px solid rgba(239, 68, 68, 0.45);
   color: #fca5a5;
-  padding: 0.4rem 1.1rem;
+  padding: 0.65rem 1.2rem;
   border-radius: 999px;
-  font-size: 0.72rem;
+  font-size: 0.85rem;
   font-weight: 600;
   letter-spacing: 0.08em;
   cursor: pointer;
@@ -1282,24 +1372,30 @@ onMounted(() => {
   flex-direction: column;
   gap: 0.65rem;
   width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .leaderboard-list {
+  margin: 0;
+  margin-top: 1rem;
   display: flex;
-  gap: 0.65rem;
+  gap: 0.5rem;
   overflow-x: auto;
-  padding: 0.25rem 0.5rem 1rem;
+  padding: 0.25rem 0.25rem 1rem 0.25rem;
   scrollbar-width: thin;
   scrollbar-color: rgba(56, 189, 248, 0.4) transparent;
   width: 100%;
   max-width: 100%;
   max-height: none;
+  flex-wrap: nowrap;
+  box-sizing: border-box;
 }
 
 .leaderboard-list::after {
   content: '';
   flex: 0 0 auto;
-  width: 0.5rem;
+  width: 0;
 }
 
 .leaderboard-list::-webkit-scrollbar {
@@ -1320,9 +1416,12 @@ onMounted(() => {
   flex-direction: column;
   align-items: center;
   gap: 0.45rem;
-  flex: 0 0 calc((100% - 9 * 0.65rem) / 10);
-  min-width: 120px;
-  padding: 0.65rem 0.75rem;
+  flex: 0 0 calc((100% - 9 * 0.5rem) / 10);
+  min-width: 0;
+  width: calc((100% - 9 * 0.5rem) / 10);
+  max-width: calc((100% - 9 * 0.5rem) / 10);
+  flex-shrink: 0;
+  padding: 0.65rem 0.4rem;
   border-radius: 16px;
   border: 1px solid rgba(56, 189, 248, 0.18);
   background: rgba(15, 23, 42, 0.7);
@@ -1336,6 +1435,7 @@ onMounted(() => {
   overflow: hidden;
   backdrop-filter: blur(10px);
   transform: perspective(1000px) rotateX(2deg);
+  box-sizing: border-box;
 }
 
 .leaderboard-item::before {

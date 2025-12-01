@@ -66,6 +66,16 @@
     <p>Загрузка сессии…</p>
   </div>
 
+  <!-- Полноэкранный лоадер при выходе из игры -->
+  <teleport to="body">
+    <div v-if="isExiting" class="quest-loading-wrapper">
+      <div class="loading-state">
+        <div class="loader"></div>
+        <p>Выход из игры...</p>
+      </div>
+    </div>
+  </teleport>
+
   <!-- Модальное окно подтверждения выхода -->
   <teleport to="body">
     <Transition name="modal">
@@ -79,8 +89,10 @@
             <p>Вы уверены, что хотите выйти из игры? Вы будете удалены из списка участников.</p>
           </div>
           <div class="player-modal__actions">
-            <button type="button" class="secondary" @click="cancelExit">Отмена</button>
-            <button type="button" class="danger" @click="confirmExit">Выйти</button>
+            <button type="button" class="secondary" @click="cancelExit" :disabled="isExiting">Отмена</button>
+            <button type="button" class="danger" @click="confirmExit" :disabled="isExiting">
+              {{ isExiting ? 'Выход...' : 'Выйти' }}
+            </button>
           </div>
         </div>
       </div>
@@ -89,7 +101,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onBeforeUnmount, ref } from 'vue'
+import { computed, onMounted, onBeforeUnmount, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import QuestionMediaPreview from '@/components/quiz/QuestionMediaPreview.vue'
 import { useGameSessionStore } from '@/store/gameSessionStore'
@@ -101,7 +113,12 @@ const router = useRouter()
 const sessionStore = useGameSessionStore()
 const quizStore = useQuizStore()
 
-const sessionId = route.params.sessionId as string
+// Объявляем пропы для совместимости с router props: true
+const props = defineProps<{
+  sessionId?: string
+}>()
+
+const sessionId = (props.sessionId || route.params.sessionId) as string
 
 const session = computed(() => sessionStore.getSessionById(sessionId))
 const quest = computed(() => (session.value ? quizStore.getQuestById(session.value.questId) : undefined))
@@ -114,6 +131,7 @@ const activeQuestion = computed(() => session.value?.activeQuestion)
 const playerId = computed(() => sessionStore.getCurrentDevicePlayer(sessionId))
 const player = computed(() => session.value?.players.find(p => p.id === playerId.value))
 const showExitConfirm = ref(false)
+const isExiting = ref(false)
 
 const currentQuestion = computed(() => {
   if (!activeQuestion.value) return undefined
@@ -159,7 +177,9 @@ const buzzerClasses = computed(() => {
 
 const playerRank = computed(() => {
   if (!session.value || !player.value) return '-'
-  const sortedPlayers = [...session.value.players].sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
+  // Исключаем хоста из списка участников для расчета места
+  const participants = session.value.players.filter(p => p.id !== session.value!.hostId)
+  const sortedPlayers = [...participants].sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
   const rank = sortedPlayers.findIndex(p => p.id === player.value?.id) + 1
   return rank || '-'
 })
@@ -177,18 +197,27 @@ function handleExit() {
 
 function cancelExit() {
   showExitConfirm.value = false
+  isExiting.value = false
 }
 
 async function confirmExit() {
+  if (isExiting.value) return // Предотвращаем повторные нажатия
+  
+  // Закрываем попап и показываем лоадер
+  showExitConfirm.value = false
+  isExiting.value = true
+  
   if (session.value && player.value) {
     try {
       await sessionStore.leaveSession(session.value.id, player.value.id)
+      // Очищаем активную сессию игрока, чтобы не редиректило обратно
+      sessionStore.clearActivePlayer()
       console.log('✅ Player left session')
     } catch (error) {
       console.error('❌ Error leaving session:', error)
     }
   }
-  showExitConfirm.value = false
+  
   router.push({ name: 'landing' })
 }
 
@@ -264,6 +293,7 @@ function handleLeave() {
 }
 
 let handleVisibilityChange: (() => void) | null = null
+let handleBeforeUnload: ((event: BeforeUnloadEvent) => void) | null = null
 
 onMounted(async () => {
   console.log('🎮 PlayerSessionView mounted, sessionId:', sessionId)
@@ -419,7 +449,7 @@ onMounted(async () => {
   }
   
   // Обработчик beforeunload - проверяем, не перезагрузка ли это
-  const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+  handleBeforeUnload = (event: BeforeUnloadEvent) => {
     // handleLeave сам проверит, не перезагрузка ли это через isPageReloading()
     handleLeave()
   }
@@ -428,12 +458,30 @@ onMounted(async () => {
   window.addEventListener('beforeunload', handleBeforeUnload)
 })
 
+// Отслеживаем удаление сессии (когда хост выходит из игры)
+watch(
+  () => session.value,
+  (newSession, oldSession) => {
+    // Если сессия была, но теперь её нет - значит хост вышел из игры
+    if (oldSession && !newSession) {
+      console.log('⚠️ Session was deleted, redirecting to landing...')
+      // Очищаем активную сессию игрока
+      sessionStore.clearActivePlayer()
+      // Редиректим на страницу входа
+      router.replace({ name: 'landing' })
+    }
+  },
+  { immediate: false }
+)
+
 onBeforeUnmount(() => {
   // Удаляем обработчики событий
   if (handleVisibilityChange) {
     document.removeEventListener('visibilitychange', handleVisibilityChange)
   }
-  window.removeEventListener('beforeunload', handleBeforeUnload)
+  if (handleBeforeUnload) {
+    window.removeEventListener('beforeunload', handleBeforeUnload)
+  }
   
   // Автоматически удаляем участника из сессии при уходе со страницы
   // handleLeave сам проверит, не перезагрузка ли это
@@ -916,6 +964,109 @@ onBeforeUnmount(() => {
   background: #0f172a;
   color: #94a3b8;
   font-size: 1.1rem;
+}
+
+.quest-loading-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  z-index: 10000;
+}
+
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  text-align: center;
+}
+
+.loader {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(34, 211, 238, 0.2), rgba(56, 189, 248, 0.15));
+  border: 3px solid rgba(56, 189, 248, 0.3);
+  position: relative;
+  animation: pulse 2s ease-in-out infinite;
+  box-shadow: 
+    0 0 0 0 rgba(34, 211, 238, 0.4),
+    0 8px 24px rgba(15, 23, 42, 0.3),
+    inset 0 2px 4px rgba(255, 255, 255, 0.1);
+}
+
+.loader::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  border-top-color: #22d3ee;
+  border-right-color: #38bdf8;
+  animation: spin 1s linear infinite;
+}
+
+.loader::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(34, 211, 238, 0.6), transparent);
+  animation: pulse-inner 1.5s ease-in-out infinite;
+}
+
+@keyframes spin {
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 
+      0 0 0 0 rgba(34, 211, 238, 0.4),
+      0 8px 24px rgba(15, 23, 42, 0.3),
+      inset 0 2px 4px rgba(255, 255, 255, 0.1);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 
+      0 0 0 8px rgba(34, 211, 238, 0),
+      0 12px 32px rgba(15, 23, 42, 0.4),
+      inset 0 2px 4px rgba(255, 255, 255, 0.15);
+  }
+}
+
+@keyframes pulse-inner {
+  0%, 100% {
+    opacity: 0.6;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.2);
+  }
+}
+
+.loading-state p {
+  color: rgba(226, 232, 240, 0.9);
+  font-size: 1.05rem;
+  margin: 0;
 }
 
 .player-modal-backdrop {

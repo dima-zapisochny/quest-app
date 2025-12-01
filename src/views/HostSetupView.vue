@@ -2,7 +2,7 @@
   <div class="host-setup">
     <header class="host-topbar">
       <div class="host-topbar-left">
-        <button class="back-button" @click="goBack">← Назад</button>
+        <button class="back-button" @click="goBack"><span class="back-arrow">←</span> Назад</button>
       </div>
       <div class="topbar-actions">
         <div class="host-user-pill">
@@ -70,7 +70,7 @@
                 </button>
               </div>
             </div>
-            <p v-if="quest.description" class="quest-description">{{ quest.description }}</p>
+            <p class="quest-description">{{ quest.description || '' }}</p>
             <div class="quest-meta">
               <span>Раундов: {{ quest.rounds ? quest.rounds.length : 0 }}</span>
               <span>Вопросов: {{ questQuestions(quest.id) }}</span>
@@ -83,7 +83,7 @@
         </div>
       </section>
 
-      <section class="actions">
+      <section class="actions actions--fixed">
         <button class="primary" :disabled="!selectedQuestId" @click="handleStart">Начать игру</button>
         <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
       </section>
@@ -276,9 +276,11 @@ async function handleStart() {
     router.push({
       name: 'host-session',
       params: {
-        sessionId: session.id,
-        questId: session.questId,
+        sessionCode: session.code,
         roundId: firstRound.id
+      },
+      query: {
+        questId: session.questId
       }
     })
   } catch (error: any) {
@@ -355,12 +357,15 @@ function cancelDeleteQuest() {
 
 <style scoped>
 .host-setup {
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
   background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-  padding: 2rem clamp(1rem, 4vw, 3rem);
+  padding: 1rem clamp(1rem, 4vw, 3rem);
+  padding-bottom: 0;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 3rem;
+  box-sizing: border-box;
 }
 
 .host-loading-wrapper {
@@ -474,7 +479,8 @@ function cancelDeleteQuest() {
   align-items: center;
   justify-content: space-between;
   gap: 0.9rem;
-  padding: 0.75rem 1.5rem 0.5rem;
+  padding: 0.5rem 0;
+  flex-shrink: 0;
 }
 
 .host-topbar-left {
@@ -501,6 +507,11 @@ function cancelDeleteQuest() {
   font-weight: 600;
   letter-spacing: 0.05em;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.back-arrow {
+  font-weight: 900;
+  display: inline-block;
 }
 
 .back-button:hover {
@@ -572,13 +583,14 @@ function cancelDeleteQuest() {
 .host-header {
   background: rgba(15, 23, 42, 0.78);
   border-radius: 1.25rem;
-  padding: 1.5rem 1.75rem;
+  padding: 2rem;
   box-shadow: 0 25px 60px rgba(8, 47, 73, 0.45);
   color: #f8fafc;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 2rem;
+  flex-shrink: 0;
 }
 
 .host-title {
@@ -617,6 +629,9 @@ function cancelDeleteQuest() {
   flex: 1;
   padding-right: 0.5rem;
   margin-right: -0.5rem;
+  padding-bottom: 1rem;
+  overflow-y: auto;
+  min-height: 0;
 }
 
 .quest-selection::-webkit-scrollbar {
@@ -636,9 +651,10 @@ function cancelDeleteQuest() {
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
-  margin-top: 1.5rem;
-  margin-bottom: 3rem;
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
   padding: 0 28px;
+  flex-shrink: 0;
 }
 
 .section-title {
@@ -666,11 +682,13 @@ function cancelDeleteQuest() {
   grid-template-columns: repeat(auto-fit, minmax(540px, 1fr));
   gap: 1.6rem;
   padding-top: 0.2rem;
-  max-height: 390px;
-  overflow-y: scroll;
+  overflow-y: auto;
   padding-right: 0.75rem;
   scrollbar-width: thin;
   scrollbar-color: rgba(148, 163, 184, 0.6) transparent;
+  flex: 1;
+  min-height: 0;
+  max-height: calc(2 * (120px + 2 * 2rem) + 1 * 1.6rem + 0.2rem);
 }
 
 .quests-grid::-webkit-scrollbar {
@@ -704,6 +722,9 @@ function cancelDeleteQuest() {
   cursor: pointer;
   overflow: hidden;
   transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  height: 120px;
+  min-height: 120px;
+  max-height: 120px;
 }
 
 .quest-card:hover,
@@ -717,6 +738,7 @@ function cancelDeleteQuest() {
   display: flex;
   align-items: flex-start;
   gap: 0.6rem;
+  flex-shrink: 0;
 }
 
 .quest-title {
@@ -891,9 +913,11 @@ function cancelDeleteQuest() {
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
+  -webkit-line-clamp: 2;
   line-clamp: 2;
-  -webkit-line-clamp: 2; /* Show 2 lines of text */
   -webkit-box-orient: vertical;
+  max-height: calc(0.9rem * 1.4 * 2);
+  flex-shrink: 0;
 }
 
 .quest-meta {
@@ -901,6 +925,8 @@ function cancelDeleteQuest() {
   gap: 0.6rem;
   font-size: 0.85rem;
   color: rgba(226, 232, 240, 0.8);
+  flex-shrink: 0;
+  margin-top: auto;
 }
 
 .actions {
@@ -910,15 +936,23 @@ function cancelDeleteQuest() {
   align-items: center;
 }
 
+.actions--fixed {
+  flex-shrink: 0;
+  padding: 2rem 0;
+  margin-top: auto;
+  z-index: 10;
+}
+
 .primary,
 .secondary {
   border-radius: 9999px;
-  padding: 0.78rem 1.8rem;
+  padding: 1.2rem 2.5rem;
   font-weight: 600;
+  font-size: 1.1rem;
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
   width: auto;
-  min-width: 220px;
+  min-width: 280px;
   display: inline-flex;
   justify-content: center;
   align-items: center;
