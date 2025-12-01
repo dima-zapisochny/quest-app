@@ -557,8 +557,8 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .player-view {
-  height: 100vh;
-  max-height: 100vh;
+  height: 100dvh;
+  max-height: 100dvh;
   display: flex;
   flex-direction: column;
   background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
@@ -566,6 +566,14 @@ onBeforeUnmount(() => {
   padding: 0;
   gap: 0;
   overflow: hidden;
+}
+
+/* Fallback для старых браузеров */
+@supports not (height: 100dvh) {
+  .player-view {
+    height: 100vh;
+    max-height: 100vh;
+  }
 }
 
 .player-topbar {
@@ -1124,13 +1132,19 @@ onBeforeUnmount(() => {
 }
 
 .player-loading {
-  min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   align-items: center;
   justify-content: center;
   background: #0f172a;
   color: #94a3b8;
-  font-size: 1.1rem;
+}
+
+/* Fallback для старых браузеров */
+@supports not (min-height: 100dvh) {
+  .player-loading {
+    min-height: 100vh;
+  }
 }
 
 .quest-loading-wrapper {
@@ -1414,14 +1428,22 @@ onBeforeUnmount(() => {
 @media (max-width: 768px) {
   .player-view {
     padding: 0;
-    height: 100vh;
-    max-height: 100vh;
+    height: 100dvh;
+    max-height: 100dvh;
     overflow: hidden;
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
+  }
+
+  /* Fallback для старых браузеров */
+  @supports not (height: 100dvh) {
+    .player-view {
+      height: 100vh;
+      max-height: 100vh;
+    }
   }
 
   .player-topbar {
@@ -1619,9 +1641,17 @@ onBeforeUnmount(() => {
 /* Маленькие мобильные (до 480px) */
 @media (max-width: 480px) {
   .player-view {
-    height: 100vh;
-    max-height: 100vh;
+    height: 100dvh;
+    max-height: 100dvh;
     overflow: hidden;
+  }
+
+  /* Fallback для старых браузеров */
+  @supports not (height: 100dvh) {
+    .player-view {
+      height: 100vh;
+      max-height: 100vh;
+    }
   }
 
   .player-topbar {
