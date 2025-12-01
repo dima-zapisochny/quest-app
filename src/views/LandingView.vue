@@ -26,7 +26,7 @@
           </span>
         </h1>
         <p class="brand-subtitle" :class="{ 'brand-subtitle--visible': subtitleVisible }">
-          Командные викторины<br class="brand-subtitle-break"> с атмосферой шоу.
+          Командные викторины<br class="brand-subtitle-break"> с атмосферой шоу
         </p>
       </div>
 
@@ -875,6 +875,8 @@ watch(() => route.path, (newPath) => {
   display: flex;
   gap: 0.75rem;
   flex-wrap: wrap;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .join-input {
@@ -892,6 +894,8 @@ watch(() => route.path, (newPath) => {
   font-size: 1.05rem;
   box-sizing: border-box;
   min-width: 0;
+  max-width: 100%;
+  width: 100%;
 }
 
 .join-input::placeholder {
@@ -1105,6 +1109,14 @@ watch(() => route.path, (newPath) => {
     flex-direction: column;
     align-items: stretch;
     gap: 0.875rem;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .join-input {
+    width: 100%;
+    max-width: 100%;
+    flex: none;
   }
 
   .secondary {
@@ -1172,6 +1184,9 @@ watch(() => route.path, (newPath) => {
 
   .join-input {
     font-size: 1rem;
+    width: 100%;
+    max-width: 100%;
+    flex: none;
   }
 
   .actions {
@@ -1187,6 +1202,8 @@ watch(() => route.path, (newPath) => {
 
   .join-block {
     gap: 0.75rem;
+    width: 100%;
+    box-sizing: border-box;
   }
 }
 
@@ -1238,6 +1255,9 @@ watch(() => route.path, (newPath) => {
 
   .join-input {
     font-size: 1rem;
+    width: 100%;
+    max-width: 100%;
+    flex: none;
   }
 
   .actions {
@@ -1253,6 +1273,8 @@ watch(() => route.path, (newPath) => {
 
   .join-block {
     gap: 0.5rem;
+    width: 100%;
+    box-sizing: border-box;
   }
 }
 
@@ -1298,6 +1320,14 @@ watch(() => route.path, (newPath) => {
 
   .join-input {
     font-size: 1rem;
+    width: 100%;
+    max-width: 100%;
+    flex: none;
+  }
+
+  .join-block {
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .actions button {
