@@ -889,6 +889,7 @@ watch(() => route.path, (newPath) => {
   background: rgba(11, 23, 42, 0.85);
   color: #f9fafb;
   box-shadow: inset 0 0 0 2px rgba(148, 163, 184, 0.45);
+  font-size: 1.05rem;
 }
 
 .join-input::placeholder {
@@ -1081,7 +1082,11 @@ watch(() => route.path, (newPath) => {
     width: 100%;
     width: -webkit-fill-available;
     padding: 0.8rem 1.25rem;
-    font-size: 0.9rem;
+    font-size: 1rem;
+  }
+
+  .join-input {
+    font-size: 1rem;
   }
 
   .actions {
@@ -1159,8 +1164,12 @@ watch(() => route.path, (newPath) => {
 
   .identity-row input {
     padding: 0.7rem 0.9rem;
-    font-size: 0.85rem;
+    font-size: 1rem;
     border-radius: 1rem;
+  }
+
+  .join-input {
+    font-size: 1rem;
   }
 
   .actions {
@@ -1221,8 +1230,12 @@ watch(() => route.path, (newPath) => {
 
   .identity-row input {
     padding: 0.6rem 0.75rem;
-    font-size: 0.8rem;
+    font-size: 1rem;
     border-radius: 0.875rem;
+  }
+
+  .join-input {
+    font-size: 1rem;
   }
 
   .actions {
@@ -1278,7 +1291,11 @@ watch(() => route.path, (newPath) => {
 
   .identity-row input {
     padding: 0.55rem 0.65rem;
-    font-size: 0.75rem;
+    font-size: 1rem;
+  }
+
+  .join-input {
+    font-size: 1rem;
   }
 
   .actions button {

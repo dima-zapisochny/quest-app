@@ -727,8 +727,8 @@ onBeforeUnmount(() => {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 3rem;
-  padding: 1rem;
+  gap: 4.5rem;
+  padding: 1rem 1.5rem;
   margin: 0;
   min-height: 0;
   overflow: hidden;
@@ -1039,11 +1039,11 @@ onBeforeUnmount(() => {
 }
 
 .buzzer-button {
-  width: min(600px, 100%);
+  width: min(900px, 100%);
   border: 1px solid rgba(148, 163, 184, 0.2);
   border-radius: 9999px;
-  padding: 3rem 3.75rem;
-  font-size: clamp(2.25rem, 6vw, 2.625rem);
+  padding: 4.5rem 5.625rem;
+  font-size: clamp(3.375rem, 9vw, 3.9375rem);
   font-weight: 700;
   cursor: pointer;
   color: #0f172a;
@@ -1417,8 +1417,8 @@ onBeforeUnmount(() => {
   }
 
   .player-main {
-    padding: 1.25rem;
-    gap: 1.25rem;
+    padding: 1.25rem 1.75rem;
+    gap: 1.875rem;
   }
 
   .player-stats {
@@ -1430,8 +1430,9 @@ onBeforeUnmount(() => {
   }
 
   .buzzer-button {
-    padding: 2.625rem 3.75rem;
-    font-size: 1.65rem;
+    padding: 3.9375rem 5.625rem;
+    font-size: 2.475rem;
+    width: min(900px, 100%);
   }
 }
 
@@ -1488,13 +1489,14 @@ onBeforeUnmount(() => {
   }
 
   .player-main {
-    padding: 0.625rem;
-    gap: 0.625rem;
+    padding: 0.625rem 1.25rem;
+    gap: 0.9375rem;
     flex: 1;
     min-height: 0;
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    box-sizing: border-box;
   }
 
   .player-stats {
@@ -1627,9 +1629,9 @@ onBeforeUnmount(() => {
   }
 
   .buzzer-button {
-    padding: 1.875rem 2.625rem;
-    font-size: 1.425rem;
-    min-height: 97.5px;
+    padding: 2.8125rem 3.9375rem;
+    font-size: 2.1375rem;
+    min-height: 146.25px;
     width: 100%;
   }
 
@@ -1691,8 +1693,8 @@ onBeforeUnmount(() => {
   }
 
   .player-main {
-    padding: 0.25rem;
-    gap: 0.25rem;
+    padding: 0.25rem 1rem;
+    gap: 0.375rem;
     flex: 1;
     min-height: 0;
     overflow: hidden;
@@ -1824,9 +1826,9 @@ onBeforeUnmount(() => {
   }
 
   .buzzer-button {
-    padding: 1.25rem 1.75rem;
-    font-size: 1.2rem;
-    min-height: 70px;
+    padding: 1.875rem 2.625rem;
+    font-size: 1.8rem;
+    min-height: 105px;
     width: 100%;
   }
 
@@ -1870,8 +1872,14 @@ onBeforeUnmount(() => {
   }
 
   .player-main {
-    padding: 0.375rem;
-    gap: 0.375rem;
+    padding: 0.375rem 0.875rem;
+    gap: 0.5625rem;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
   }
 
   .player-stats {
@@ -1977,9 +1985,10 @@ onBeforeUnmount(() => {
   }
 
   .buzzer-button {
-    padding: 1.3125rem 1.875rem;
-    font-size: 1.2rem;
-    min-height: 75px;
+    padding: 1.96875rem 2.8125rem;
+    font-size: 1.8rem;
+    min-height: 112.5px;
+    width: 100%;
   }
 
   .button-label {
@@ -2017,8 +2026,8 @@ onBeforeUnmount(() => {
   }
 
   .player-main {
-    padding: 0.2rem;
-    gap: 0.2rem;
+    padding: 0.2rem 0.875rem;
+    gap: 0.3rem;
     flex: 1;
     min-height: 0;
     overflow: hidden;
@@ -2129,9 +2138,9 @@ onBeforeUnmount(() => {
   }
 
   .buzzer-button {
-    padding: 1rem 1.25rem;
-    font-size: 1.1rem;
-    min-height: 60px;
+    padding: 1.5rem 1.875rem;
+    font-size: 1.65rem;
+    min-height: 90px;
     width: 100%;
   }
 
