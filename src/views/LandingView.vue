@@ -26,7 +26,7 @@
           </span>
         </h1>
         <p class="brand-subtitle" :class="{ 'brand-subtitle--visible': subtitleVisible }">
-          Командные викторины с атмосферой шоу.
+          Командные викторины<br class="brand-subtitle-break"> с атмосферой шоу.
         </p>
       </div>
 
@@ -169,6 +169,11 @@ watch(() => sessionStore.userProfile, (profile) => {
 
 // Автоматическое перенаправление, если пользователь уже авторизован
 onMounted(async () => {
+  // Сбрасываем флаги при монтировании компонента
+  hasPlayedIntro = false
+  subtitleVisible.value = false
+  animateTitle.value = false
+  
   // Если уже редиректили, не проверяем дальше
   if (shouldRedirect.value) return
   
@@ -230,6 +235,7 @@ const isThemePlaying = ref(false)
 let audioCtx: AudioContext | null = null
 let gainNode: GainNode | null = null
 let cleanupTimeout: number | null = null
+let fallbackTimeout: number | null = null
 let hasPlayedIntro = false
 
 watch(joinCode, value => {
@@ -317,12 +323,28 @@ function playIntro() {
   animateTitle.value = true
   subtitleVisible.value = false
   isThemePlaying.value = true
+  
+  // Очищаем fallback таймаут, так как музыка запустилась
+  if (fallbackTimeout) {
+    window.clearTimeout(fallbackTimeout)
+    fallbackTimeout = null
+  }
 
-  if (!audioCtx) {
+  // Пересоздаем audioCtx, если его нет или он закрыт
+  if (!audioCtx || audioCtx.state === 'closed') {
+    if (audioCtx && audioCtx.state === 'closed') {
+      audioCtx = null
+    }
     audioCtx = new AudioContext()
   }
   if (audioCtx.state === 'suspended') {
     audioCtx.resume()
+  }
+  
+  // Пересоздаем gainNode для нового контекста
+  if (gainNode) {
+    gainNode.disconnect()
+    gainNode = null
   }
   gainNode = audioCtx.createGain()
   gainNode.gain.value = 0.06
@@ -373,29 +395,26 @@ function setupMusic() {
   // Если уже редиректили, не запускаем музыку
   if (shouldRedirect.value) return
   
-  // Проверяем, не играла ли уже музыка в этой сессии
-  const musicPlayedKey = 'quiz-app-music-played'
-  const musicAlreadyPlayed = sessionStorage.getItem(musicPlayedKey) === 'true'
-  
-  // Если музыка уже играла, не запускаем снова
-  if (musicAlreadyPlayed) {
-    hasPlayedIntro = true
-    return
-  }
+  // Fallback: показываем subtitle через 3 секунды, даже если музыка не запустилась
+  fallbackTimeout = window.setTimeout(() => {
+    if (!subtitleVisible.value && !shouldRedirect.value) {
+      subtitleVisible.value = true
+      animateTitle.value = true
+    }
+    fallbackTimeout = null
+  }, 3000)
   
   const interactionHandler = () => {
-    if (!shouldRedirect.value && !hasPlayedIntro) {
+    if (!shouldRedirect.value) {
       playIntro()
-      sessionStorage.setItem(musicPlayedKey, 'true')
     }
     window.removeEventListener('pointerdown', interactionHandler)
   }
   window.addEventListener('pointerdown', interactionHandler, { once: true })
 
   const tryAutoPlay = () => {
-    if (!shouldRedirect.value && !hasPlayedIntro) {
+    if (!shouldRedirect.value) {
       playIntro()
-      sessionStorage.setItem(musicPlayedKey, 'true')
     }
   }
 
@@ -403,7 +422,7 @@ function setupMusic() {
     window.setTimeout(tryAutoPlay, 150)
   } else {
     window.addEventListener('load', () => {
-      if (!shouldRedirect.value && !hasPlayedIntro) {
+      if (!shouldRedirect.value) {
         window.setTimeout(tryAutoPlay, 150)
       }
     }, { once: true })
@@ -432,10 +451,14 @@ onBeforeUnmount(() => {
     }
   }
   
-  // Очищаем таймаут
+  // Очищаем таймауты
   if (cleanupTimeout) {
     window.clearTimeout(cleanupTimeout)
     cleanupTimeout = null
+  }
+  if (fallbackTimeout) {
+    window.clearTimeout(fallbackTimeout)
+    fallbackTimeout = null
   }
   
   // Сбрасываем флаги
@@ -471,13 +494,14 @@ watch(() => route.path, (newPath) => {
 
 <style scoped>
 .landing {
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2rem;
+  padding: 0 1rem;
   background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
   color: #0f172a;
+  overflow: hidden;
 }
 
 .landing-card {
@@ -485,13 +509,14 @@ watch(() => route.path, (newPath) => {
   background: rgba(12, 19, 36, 0.65);
   backdrop-filter: blur(24px) saturate(160%);
   border-radius: 2rem;
-  padding: 2.75rem;
+  padding: 3.5rem 2.75rem;
   box-shadow: 0 45px 90px rgba(5, 12, 28, 0.65);
   display: flex;
   flex-direction: column;
-  gap: 1.75rem;
+  gap: 2.25rem;
   border: 1px solid rgba(56, 189, 248, 0.25);
   color: #f8fafc;
+  transform: translateY(-8%);
 }
 
 .landing-brand h1 {
@@ -563,13 +588,18 @@ watch(() => route.path, (newPath) => {
 }
 
 .brand-subtitle {
-  margin: 0.5rem 0 0;
+  margin: 0.85rem 0 0;
   color: rgba(226, 232, 240, 0.9);
   font-family: 'Kalam', 'Nunito', cursive;
   font-size: clamp(1.1rem, 2.2vw, 1.35rem);
+  font-weight: 500;
   opacity: 0;
   transform: translateY(12px);
   transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.brand-subtitle-break {
+  display: none;
 }
 
 .brand-subtitle--visible {
@@ -628,6 +658,7 @@ watch(() => route.path, (newPath) => {
   color: #f8fafc;
   box-shadow: inset 0 0 0 2px rgba(148, 163, 184, 0.45), 0 8px 20px rgba(5, 25, 45, 0.6);
   transition: transform 0.35s cubic-bezier(0.19, 1, 0.22, 1), box-shadow 0.35s ease;
+  width: -webkit-fill-available;
 }
 
 .identity-row input::placeholder {
@@ -893,16 +924,35 @@ watch(() => route.path, (newPath) => {
 
 @media (max-width: 720px) {
   .landing-card {
-    padding: 2rem;
+    padding: 2rem 1.5rem;
+  }
+
+  .landing-brand {
+    padding: 0 0.5rem;
+  }
+
+  .brand-subtitle {
+    margin-top: 1rem;
+    font-weight: 600;
+  }
+
+  .brand-subtitle-break {
+    display: block;
   }
 
   .identity-row {
     flex-direction: column-reverse;
     align-items: center;
+    padding: 0 0.5rem;
   }
 
   .identity-row input {
     width: 100%;
+    width: -webkit-fill-available;
+  }
+
+  .actions {
+    padding: 0 0.5rem;
   }
 
   .join-block {
