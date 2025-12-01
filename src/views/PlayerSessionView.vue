@@ -1650,8 +1650,8 @@ onBeforeUnmount(() => {
   }
 
   .player-main {
-    padding: 0.5rem;
-    gap: 0.5rem;
+    padding: 0.375rem;
+    gap: 0.375rem;
     flex: 1;
     min-height: 0;
     overflow: hidden;
@@ -1666,14 +1666,14 @@ onBeforeUnmount(() => {
   }
 
   .stats-item {
-    padding: 0.5rem;
+    padding: 0.4rem 0.5rem;
     box-sizing: border-box;
     width: 100%;
     max-width: 100%;
   }
 
   .stats-row {
-    gap: 0.5rem;
+    gap: 0.4rem;
   }
 
   .responder-info {
@@ -1704,7 +1704,7 @@ onBeforeUnmount(() => {
   }
 
   .question-panel {
-    padding: 0.75rem;
+    padding: 0.5rem;
     flex: 1;
     min-height: 0;
     display: flex;
@@ -1713,16 +1713,17 @@ onBeforeUnmount(() => {
   }
 
   .question-content {
-    gap: 0.75rem;
+    gap: 0.5rem;
     flex: 1;
     min-height: 0;
     overflow: hidden;
   }
 
   .question-content h2 {
-    font-size: clamp(0.9rem, 4vw, 1.1rem);
-    line-height: 1.3;
+    font-size: clamp(0.85rem, 3.5vw, 1rem);
+    line-height: 1.25;
     flex-shrink: 0;
+    margin: 0;
   }
 
   .media-grid {
@@ -1733,27 +1734,28 @@ onBeforeUnmount(() => {
   }
 
   .responder-container {
-    gap: 0.5rem;
-    min-height: 52px;
+    gap: 0.4rem;
+    min-height: 48px;
+    flex-shrink: 0;
   }
 
   .responder-info {
-    padding: 0.45rem 0.75rem;
-    gap: 0.45rem;
+    padding: 0.4rem 0.65rem;
+    gap: 0.4rem;
   }
 
   .responder-avatar {
-    width: 28px;
-    height: 28px;
-    font-size: 1rem;
+    width: 26px;
+    height: 26px;
+    font-size: 0.9rem;
   }
 
   .responder-name {
-    font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+    font-size: clamp(0.75rem, 2.2vw, 0.85rem);
   }
 
   .responder-label {
-    font-size: clamp(0.65rem, 2vw, 0.7rem);
+    font-size: clamp(0.6rem, 1.8vw, 0.65rem);
   }
 
   .media-grid {
@@ -1771,14 +1773,14 @@ onBeforeUnmount(() => {
   }
 
   .buzzer-section {
-    padding: 0.5rem;
+    padding: 0.375rem;
     flex-shrink: 0;
   }
 
   .buzzer-button {
-    padding: 1.5rem 2.25rem;
-    font-size: 1.35rem;
-    min-height: 90px;
+    padding: 1.25rem 1.75rem;
+    font-size: 1.2rem;
+    min-height: 70px;
     width: 100%;
   }
 
@@ -1847,12 +1849,24 @@ onBeforeUnmount(() => {
   }
 
   .question-panel {
-    padding: 0.5rem;
+    padding: 0.4rem;
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
   }
 
   .question-content {
-    gap: 0.5rem;
+    gap: 0.4rem;
+    flex: 1;
+    min-height: 0;
     overflow: hidden;
+  }
+
+  .question-content h2 {
+    font-size: clamp(0.8rem, 3vw, 0.95rem);
+    line-height: 1.2;
   }
 
   .media-grid {
@@ -1957,20 +1971,30 @@ onBeforeUnmount(() => {
   }
 
   .player-main {
-    padding: 0.3rem;
-    gap: 0.3rem;
+    padding: 0.25rem;
+    gap: 0.25rem;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
   }
 
   .player-stats {
     padding: 0;
+    flex-shrink: 0;
     box-sizing: border-box;
   }
 
   .stats-item {
-    padding: 0.3rem;
+    padding: 0.3rem 0.4rem;
     box-sizing: border-box;
     width: 100%;
     max-width: 100%;
+  }
+
+  .stats-row {
+    gap: 0.3rem;
   }
 
   .stats-label {
@@ -1978,20 +2002,35 @@ onBeforeUnmount(() => {
   }
 
   .stats-value {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
   }
 
   .question-panel {
-    padding: 0.4rem;
+    padding: 0.35rem;
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
   }
 
-  .stats-row {
-    gap: 0.3rem;
+  .question-content {
+    gap: 0.35rem;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .question-content h2 {
+    font-size: clamp(0.75rem, 2.8vw, 0.9rem);
+    line-height: 1.2;
+    margin: 0;
   }
 
   .responder-container {
-    gap: 0.35rem;
+    gap: 0.3rem;
     min-height: 44px;
+    flex-shrink: 0;
   }
 
   .responder-info {
@@ -2017,15 +2056,6 @@ onBeforeUnmount(() => {
     font-size: clamp(0.5rem, 2vw, 0.55rem);
   }
 
-  .question-content {
-    gap: 0.4rem;
-    overflow: hidden;
-  }
-
-  .question-content h2 {
-    font-size: clamp(0.75rem, 3.8vw, 0.9rem);
-  }
-
   .media-grid {
     flex: 1 1 0;
     min-height: 0;
@@ -2042,10 +2072,16 @@ onBeforeUnmount(() => {
     padding: 0.35rem;
   }
 
+  .buzzer-section {
+    padding: 0.25rem;
+    flex-shrink: 0;
+  }
+
   .buzzer-button {
-    padding: 1.125rem 1.5rem;
-    font-size: 1.125rem;
-    min-height: 67.5px;
+    padding: 1rem 1.25rem;
+    font-size: 1.1rem;
+    min-height: 60px;
+    width: 100%;
   }
 
   .button-label {
