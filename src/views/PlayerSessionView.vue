@@ -564,8 +564,10 @@ onBeforeUnmount(() => {
   background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
   color: #f8fafc;
   padding: 0;
+  margin: 0;
   gap: 0;
   overflow: hidden;
+  box-sizing: border-box;
 }
 
 /* Fallback для старых браузеров */
@@ -582,9 +584,11 @@ onBeforeUnmount(() => {
   justify-content: space-between;
   gap: 0.9rem;
   padding: 0.75rem 1.5rem;
+  margin: 0;
   position: relative;
   z-index: 1;
   flex-shrink: 0;
+  box-sizing: border-box;
 }
 
 .player-topbar-left {
@@ -725,8 +729,10 @@ onBeforeUnmount(() => {
   flex-direction: column;
   gap: 3rem;
   padding: 1rem;
+  margin: 0;
   min-height: 0;
   overflow: hidden;
+  box-sizing: border-box;
 }
 
 .player-stats {
@@ -812,6 +818,7 @@ onBeforeUnmount(() => {
   border-radius: 1.5rem;
   border: 1px solid rgba(148, 163, 184, 0.2);
   padding: 2rem;
+  margin: 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -820,6 +827,7 @@ onBeforeUnmount(() => {
   position: relative;
   overflow: hidden;
   min-height: 0;
+  box-sizing: border-box;
   box-shadow: 
     0 4px 12px rgba(2, 6, 23, 0.3),
     0 2px 6px rgba(2, 6, 23, 0.2),
@@ -1024,7 +1032,10 @@ onBeforeUnmount(() => {
   flex-direction: column;
   align-items: center;
   gap: 0.75rem;
+  margin: 0;
+  padding: 0;
   flex-shrink: 0;
+  box-sizing: border-box;
 }
 
 .buzzer-button {
@@ -1680,13 +1691,14 @@ onBeforeUnmount(() => {
   }
 
   .player-main {
-    padding: 0.375rem;
-    gap: 0.375rem;
+    padding: 0.25rem;
+    gap: 0.25rem;
     flex: 1;
     min-height: 0;
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    box-sizing: border-box;
   }
 
   .player-stats {
@@ -1734,12 +1746,14 @@ onBeforeUnmount(() => {
   }
 
   .question-panel {
-    padding: 0.5rem;
+    padding: 0.4rem;
+    margin: 0;
     flex: 1;
     min-height: 0;
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    box-sizing: border-box;
   }
 
   .question-content {
@@ -1803,8 +1817,10 @@ onBeforeUnmount(() => {
   }
 
   .buzzer-section {
-    padding: 0.375rem;
+    padding: 0.25rem;
+    margin: 0;
     flex-shrink: 0;
+    box-sizing: border-box;
   }
 
   .buzzer-button {
@@ -2001,13 +2017,14 @@ onBeforeUnmount(() => {
   }
 
   .player-main {
-    padding: 0.25rem;
-    gap: 0.25rem;
+    padding: 0.2rem;
+    gap: 0.2rem;
     flex: 1;
     min-height: 0;
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    box-sizing: border-box;
   }
 
   .player-stats {
@@ -2036,12 +2053,14 @@ onBeforeUnmount(() => {
   }
 
   .question-panel {
-    padding: 0.35rem;
+    padding: 0.3rem;
+    margin: 0;
     flex: 1;
     min-height: 0;
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    box-sizing: border-box;
   }
 
   .question-content {
@@ -2103,8 +2122,10 @@ onBeforeUnmount(() => {
   }
 
   .buzzer-section {
-    padding: 0.25rem;
+    padding: 0.2rem;
+    margin: 0;
     flex-shrink: 0;
+    box-sizing: border-box;
   }
 
   .buzzer-button {
