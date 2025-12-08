@@ -14,38 +14,133 @@
                 Отвечает: <strong>{{ currentResponder.name }}</strong>
               </div>
             </div>
-            <div v-if="question.questionMedia?.length" class="media-grid">
-              <QuestionMediaPreview
-                v-for="media in question.questionMedia"
-                :key="media.id"
-                :media="media"
-              />
+            <div 
+              v-if="questionMediaImages.length" 
+              class="media-grid"
+              :class="{ 'media-grid--multiple': visibleImages.length > 1 }"
+            >
+              <TransitionGroup name="fade">
+                <QuestionMediaPreview
+                  v-for="media in visibleImages"
+                  :key="media.id"
+                  :media="media"
+                />
+              </TransitionGroup>
+            </div>
+            <div v-if="hasAudio" class="audio-controls">
+              <div
+                v-for="audio in questionMediaAudio"
+                :key="audio.id"
+                class="audio-control-block"
+                :class="{ 'is-playing': playingAudioId === audio.id }"
+              >
+                <button
+                  class="audio-play-button"
+                  :class="{ 'is-playing': playingAudioId === audio.id }"
+                  @click="toggleAudio(audio)"
+                  type="button"
+                  aria-label="Проиграть аудио"
+                >
+                  <svg v-if="playingAudioId !== audio.id" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                  </svg>
+                  <svg v-else xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="6" y="4" width="4" height="16"></rect>
+                    <rect x="14" y="4" width="4" height="16"></rect>
+                  </svg>
+                </button>
+                <div class="audio-equalizer">
+                  <div class="equalizer-bar" style="animation-delay: 0s"></div>
+                  <div class="equalizer-bar" style="animation-delay: 0.08s"></div>
+                  <div class="equalizer-bar" style="animation-delay: 0.16s"></div>
+                  <div class="equalizer-bar" style="animation-delay: 0.24s"></div>
+                  <div class="equalizer-bar" style="animation-delay: 0.32s"></div>
+                  <div class="equalizer-bar" style="animation-delay: 0.4s"></div>
+                  <div class="equalizer-bar" style="animation-delay: 0.48s"></div>
+                  <div class="equalizer-bar" style="animation-delay: 0.56s"></div>
+                  <div class="equalizer-bar" style="animation-delay: 0.64s"></div>
+                  <div class="equalizer-bar" style="animation-delay: 0.72s"></div>
+                  <div class="equalizer-bar" style="animation-delay: 0.8s"></div>
+                  <div class="equalizer-bar" style="animation-delay: 0.88s"></div>
+                  <div class="equalizer-bar" style="animation-delay: 0.96s"></div>
+                  <div class="equalizer-bar" style="animation-delay: 1.04s"></div>
+                  <div class="equalizer-bar" style="animation-delay: 1.12s"></div>
+                  <div class="equalizer-bar" style="animation-delay: 1.2s"></div>
+                  <div class="equalizer-bar" style="animation-delay: 1.28s"></div>
+                </div>
+              </div>
+              <audio
+                v-for="audio in questionMediaAudio"
+                :key="audio.id"
+                :ref="el => setAudioRef(audio.id, el)"
+                :src="audio.url"
+                preload="none"
+                @ended="handleAudioEnded"
+              ></audio>
             </div>
           </div>
           <aside class="admin-panel">
-            <TimerCircle
-              :duration-sec="30"
-              :auto-start="true"
-              ref="timerRef"
-              @finished="handleReveal"
-            />
-            <div v-if="isHostSession" class="host-actions">
-              <button 
-                class="host-button host-button-success" 
-                type="button" 
-                :disabled="!canResolve" 
-                @click="handleResolve(true)"
-              >
-                Правильно
-              </button>
-              <button 
-                class="host-button host-button-danger" 
-                type="button" 
-                :disabled="!canResolve" 
-                @click="handleResolve(false)"
-              >
-                Неправильно
-              </button>
+            <div class="admin-controls-block">
+              <div class="question-type-wrapper">
+                <div class="question-type-icon" :class="questionTypeClass" :title="questionTypeTitle">
+                  <svg v-if="questionType === 'audio'" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 18V5l12-2v13"></path>
+                    <circle cx="6" cy="18" r="3"></circle>
+                    <circle cx="18" cy="16" r="3"></circle>
+                  </svg>
+                  <svg v-else-if="questionType === 'image'" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                    <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                    <polyline points="21 15 16 10 5 21"></polyline>
+                  </svg>
+                  <svg v-else xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 7h16M4 12h16M4 17h16"></path>
+                  </svg>
+                </div>
+              </div>
+              <TimerCircle
+                :duration-sec="30"
+                :auto-start="true"
+                ref="timerRef"
+                @finished="handleReveal"
+              />
+              <div v-if="isHostSession" class="host-actions">
+                <button 
+                  class="host-button host-button-success" 
+                  type="button" 
+                  :disabled="!canResolve" 
+                  @click="handleResolve(true)"
+                  aria-label="Правильно"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </button>
+                <button 
+                  class="host-button host-button-danger" 
+                  type="button" 
+                  :disabled="!canResolve" 
+                  @click="handleResolve(false)"
+                  aria-label="Неправильно"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div class="responder-info-card">
+              <div v-if="currentResponder" class="responder-card-content">
+                <div class="responder-avatar">{{ avatarEmoji(currentResponder.avatar) }}</div>
+                <div class="responder-details">
+                  <div class="responder-name">{{ currentResponder.name }}</div>
+                  <div class="responder-label">Отвечает</div>
+                </div>
+              </div>
+              <div v-else class="responder-empty">
+                <span>Ожидание ответа</span>
+              </div>
             </div>
             <!-- Debug: responderId={{ responderId }}, currentResponder={{ currentResponder?.name }} -->
             <div v-if="currentResponder" class="responder-card">
@@ -81,7 +176,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, nextTick, computed } from 'vue'
+import { ref, watch, nextTick, computed, onMounted, onBeforeUnmount, TransitionGroup } from 'vue'
 import TimerCircle from './TimerCircle.vue'
 import QuestionMediaPreview from './QuestionMediaPreview.vue'
 import { useGameSessionStore } from '@/store/gameSessionStore'
@@ -109,6 +204,11 @@ const quizStore = useQuizStore()
 
 const showAnswer = ref(false)
 const timerRef = ref<InstanceType<typeof TimerCircle> | null>(null)
+const playingAudioId = ref<string | null>(null)
+const audioRefs = ref<Record<string, HTMLAudioElement | null>>({})
+const questionOpenedAt = ref<number | null>(null)
+const elapsedTime = ref(0)
+let elapsedTimeInterval: number | null = null
 
 const session = computed(() => (props.sessionId ? gameSessionStore.getSessionById(props.sessionId) : undefined))
 const activeQuestion = computed(() => session.value?.activeQuestion)
@@ -157,6 +257,200 @@ const hasQuestionImage = computed(() => {
   return props.question?.questionMedia?.some(media => media.type === 'image') ?? false
 })
 
+// Фильтрация медиа: только изображения
+const questionMediaImages = computed(() => {
+  return props.question?.questionMedia?.filter(media => media.type === 'image') ?? []
+})
+
+// Видимые изображения с учетом задержки
+const visibleImages = computed(() => {
+  if (!questionOpenedAt.value) return []
+  
+  return questionMediaImages.value.filter(media => {
+    const delay = media.delay ?? 0
+    return elapsedTime.value >= delay
+  })
+})
+
+// Фильтрация медиа: только аудио
+const questionMediaAudio = computed(() => {
+  if (!props.question?.questionMedia) {
+    return []
+  }
+  
+  if (!Array.isArray(props.question.questionMedia)) {
+    console.warn('questionMedia is not an array:', props.question.questionMedia)
+    return []
+  }
+  
+  const audioFiles = props.question.questionMedia.filter(media => {
+    // Проверяем существование объекта
+    if (!media || typeof media !== 'object') {
+      return false
+    }
+    
+    // Проверяем тип
+    if (!media.type || media.type !== 'audio') {
+      return false
+    }
+    
+    // Проверяем URL - должен быть непустой строкой
+    if (!media.url) {
+      return false
+    }
+    
+    if (typeof media.url !== 'string') {
+      return false
+    }
+    
+    const urlTrimmed = media.url.trim()
+    if (urlTrimmed === '') {
+      return false
+    }
+    
+    // Проверяем, что URL не является пустым data URL
+    if (urlTrimmed === 'data:' || urlTrimmed.startsWith('data:,') || urlTrimmed === 'data:audio/') {
+      return false
+    }
+    
+    // Проверяем, что это валидный data URL или обычный URL
+    if (urlTrimmed.startsWith('data:')) {
+      // Для data URL проверяем, что есть данные после типа
+      const dataUrlMatch = urlTrimmed.match(/^data:([^;]+);base64,(.+)$/)
+      if (!dataUrlMatch || !dataUrlMatch[2] || dataUrlMatch[2].trim() === '') {
+        return false
+      }
+    } else {
+      // Для обычных URL проверяем, что это не placeholder URL
+      // Проверяем на example.com, example.org и другие placeholder домены
+      const placeholderPatterns = [
+        /^https?:\/\/example\.(com|org|net)/i,
+        /^https?:\/\/placeholder/i,
+        /^https?:\/\/test\./i,
+        /^https?:\/\/dummy/i,
+        /^https?:\/\/fake/i
+      ]
+      
+      const isPlaceholder = placeholderPatterns.some(pattern => pattern.test(urlTrimmed))
+      if (isPlaceholder) {
+        return false
+      }
+      
+      // Проверяем, что URL выглядит как валидный HTTP/HTTPS URL
+      try {
+        const urlObj = new URL(urlTrimmed)
+        // Если это HTTP/HTTPS URL, но домен example.com - это placeholder
+        if (urlObj.hostname.includes('example.com') || 
+            urlObj.hostname.includes('example.org') ||
+            urlObj.hostname.includes('example.net')) {
+          return false
+        }
+      } catch (e) {
+        // Если URL не может быть распарсен, это невалидный URL
+        return false
+      }
+    }
+    
+    return true
+  })
+  
+  return audioFiles
+})
+
+// Проверка наличия валидного аудио
+const hasAudio = computed(() => {
+  const audioList = questionMediaAudio.value
+  const count = audioList.length
+  
+  if (count === 0) {
+    return false
+  }
+  
+  // Дополнительная проверка - убеждаемся, что все аудио имеют валидные URL
+  const allValid = audioList.every(audio => {
+    if (!audio) return false
+    if (!audio.url) return false
+    if (typeof audio.url !== 'string') return false
+    
+    const urlTrimmed = audio.url.trim()
+    if (urlTrimmed === '') return false
+    if (urlTrimmed === 'data:') return false
+    if (urlTrimmed.startsWith('data:,')) return false
+    
+    // Для data URL проверяем наличие данных
+    if (urlTrimmed.startsWith('data:')) {
+      const parts = urlTrimmed.split(',')
+      if (parts.length < 2 || parts[1].trim() === '') {
+        return false
+      }
+    }
+    
+    return true
+  })
+  
+  return allValid
+})
+
+// Тип вопроса для отображения иконки
+const questionType = computed(() => {
+  const hasImages = questionMediaImages.value.length > 0
+  
+  // Если есть аудио - музыкальный вопрос
+  if (hasAudio.value) return 'audio'
+  // Если есть изображения - вопрос с изображением
+  if (hasImages) return 'image'
+  // Если нет ни аудио, ни изображений - текстовый вопрос
+  return 'text'
+})
+
+const questionTypeClass = computed(() => `question-type--${questionType.value}`)
+
+const questionTypeTitle = computed(() => {
+  switch (questionType.value) {
+    case 'audio':
+      return 'Музыкальный вопрос'
+    case 'image':
+      return 'Вопрос с изображением'
+    default:
+      return 'Текстовый вопрос'
+  }
+})
+
+function setAudioRef(id: string, el: HTMLAudioElement | null) {
+  if (el) {
+    audioRefs.value[id] = el
+  }
+}
+
+function toggleAudio(audio: MediaAsset) {
+  const audioElement = audioRefs.value[audio.id]
+  if (!audioElement) return
+
+  if (playingAudioId.value === audio.id) {
+    // Останавливаем текущее аудио
+    audioElement.pause()
+    audioElement.currentTime = 0
+    playingAudioId.value = null
+  } else {
+    // Останавливаем все другие аудио
+    Object.values(audioRefs.value).forEach(a => {
+      if (a && a !== audioElement) {
+        a.pause()
+        a.currentTime = 0
+      }
+    })
+    // Воспроизводим выбранное аудио
+    audioElement.play().catch(error => {
+      console.error('Error playing audio:', error)
+    })
+    playingAudioId.value = audio.id
+  }
+}
+
+function handleAudioEnded() {
+  playingAudioId.value = null
+}
+
 // Кнопки доступны только когда есть отвечающий и время установлено
 const canResolve = computed(() => {
   // Мок: если нет сессии, кнопки всегда доступны
@@ -171,6 +465,20 @@ watch(
   async (newVal) => {
     if (newVal) {
       resetModal()
+      
+      // Сбрасываем время открытия вопроса
+      questionOpenedAt.value = Date.now()
+      elapsedTime.value = 0
+      
+      // Запускаем отсчет времени для отображения изображений с задержкой
+      if (elapsedTimeInterval) {
+        clearInterval(elapsedTimeInterval)
+      }
+      elapsedTimeInterval = window.setInterval(() => {
+        if (questionOpenedAt.value) {
+          elapsedTime.value = (Date.now() - questionOpenedAt.value) / 1000
+        }
+      }, 100) // Обновляем каждые 100мс для плавности
       
       // Если есть сессия, открываем вопрос в store для синхронизации с участниками
       if (props.sessionId && props.question && props.roundId && props.categoryId) {
@@ -275,6 +583,15 @@ watch(
 
 function resetModal() {
   showAnswer.value = !!activeQuestion.value?.showAnswer
+  
+  // Очищаем интервал отсчета времени
+  if (elapsedTimeInterval) {
+    clearInterval(elapsedTimeInterval)
+    elapsedTimeInterval = null
+  }
+  questionOpenedAt.value = null
+  elapsedTime.value = 0
+  
   nextTick(() => {
     timerRef.value?.reset()
     if (activeQuestion.value?.timerPaused) {
@@ -330,6 +647,15 @@ function handleFinish() {
 }
 
 function handleClose() {
+  // Останавливаем все аудио при закрытии
+  Object.values(audioRefs.value).forEach(audio => {
+    if (audio) {
+      audio.pause()
+      audio.currentTime = 0
+    }
+  })
+  playingAudioId.value = null
+  
   if (props.sessionId) {
     gameSessionStore.closeQuestion(props.sessionId)
   }
@@ -366,92 +692,131 @@ function avatarEmoji(avatarId: string): string {
   return map[avatarId] ?? '🙂'
 }
 
+onBeforeUnmount(() => {
+  if (elapsedTimeInterval) {
+    clearInterval(elapsedTimeInterval)
+    elapsedTimeInterval = null
+  }
+})
+
 </script>
 
 <style scoped>
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(2, 6, 23, 0.88);
-  backdrop-filter: blur(10px);
+  background: linear-gradient(
+    135deg,
+    rgba(15, 23, 42, 0.95) 0%,
+    rgba(30, 41, 59, 0.95) 50%,
+    rgba(15, 23, 42, 0.95) 100%
+  );
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 9999;
   padding: 2rem;
+  animation: overlayFadeIn 0.3s ease-out;
+}
+
+@keyframes overlayFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .modal-content {
-  width: min(70vw, 1100px);
-  height: min(70vh, 720px);
-  min-height: 420px;
-  background: rgba(15, 23, 42, 0.7);
-  border: 1px solid rgba(56, 189, 248, 0.18);
+  width: min(75vw, 1200px);
+  height: min(75vh, 800px);
+  min-height: 480px;
+  background: linear-gradient(
+    145deg,
+    rgba(30, 41, 59, 0.85) 0%,
+    rgba(51, 65, 85, 0.8) 50%,
+    rgba(30, 41, 59, 0.85) 100%
+  );
+  border: 1.5px solid rgba(148, 163, 184, 0.2);
   border-radius: 16px;
-  padding: 2rem 2.25rem;
+  padding: 2.5rem 3rem;
   display: flex;
   flex-direction: column;
   position: relative;
   overflow: hidden;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
   box-shadow: 
-    0 8px 32px rgba(2, 6, 23, 0.3),
-    0 4px 16px rgba(2, 6, 23, 0.2),
-    inset 0 2px 4px rgba(255, 255, 255, 0.1),
-    inset 0 -2px 4px rgba(0, 0, 0, 0.2);
-  transform: perspective(1000px) rotateX(1deg);
-  transform-origin: center center;
+    0 4px 12px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  animation: modalSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-sizing: border-box;
 }
 
-
-.modal-content::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.08) 0%,
-    transparent 50%,
-    rgba(255, 255, 255, 0.04) 100%
-  );
-  border-radius: 16px;
-  pointer-events: none;
-  opacity: 0.5;
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
+
 
 .modal-header {
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  margin-bottom: 0.75rem;
+  margin-bottom: 1rem;
   position: relative;
-  z-index: 1;
+  z-index: 2;
 }
 
 .modal-back,
 .modal-close {
-  background: rgba(15, 118, 110, 0.18);
-  border: 1px solid rgba(34, 211, 238, 0.4);
-  color: #e0f2fe;
-  border-radius: 9999px;
-  padding: 0.4rem 1rem;
+  background: linear-gradient(
+    135deg,
+    rgba(30, 41, 59, 0.6) 0%,
+    rgba(15, 23, 42, 0.7) 100%
+  );
+  border: 1.5px solid rgba(148, 163, 184, 0.2);
+  color: rgba(148, 163, 184, 0.8);
+  border-radius: 50%;
+  width: 34px;
+  height: 34px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  line-height: 1;
+  padding: 0;
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .modal-back:hover,
 .modal-close:hover {
-  border-color: #22d3ee;
-  color: #22d3ee;
+  transform: translateY(-2px);
+  border-color: rgba(148, 163, 184, 0.35);
+  color: rgba(148, 163, 184, 1);
+  box-shadow: 
+    0 6px 16px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
-.modal-close {
-  font-size: 1.1rem;
-  line-height: 1;
+.modal-back:active,
+.modal-close:active {
+  transform: translateY(0);
 }
 
 .question-pane,
@@ -469,19 +834,43 @@ function avatarEmoji(avatarId: string): string {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.5rem;
   overflow-y: auto;
   padding-right: 0.5rem;
   justify-content: center;
   align-items: center;
   text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.question-body::-webkit-scrollbar,
+.answer-body::-webkit-scrollbar {
+  width: 8px;
+}
+
+.question-body::-webkit-scrollbar-track,
+.answer-body::-webkit-scrollbar-track {
+  background: rgba(30, 41, 59, 0.3);
+  border-radius: 4px;
+}
+
+.question-body::-webkit-scrollbar-thumb,
+.answer-body::-webkit-scrollbar-thumb {
+  background: rgba(139, 92, 246, 0.4);
+  border-radius: 4px;
+}
+
+.question-body::-webkit-scrollbar-thumb:hover,
+.answer-body::-webkit-scrollbar-thumb:hover {
+  background: rgba(139, 92, 246, 0.6);
 }
 
 .question-body.has-media {
   justify-content: flex-start;
   align-items: stretch;
   text-align: left;
-  overflow: hidden;
+  overflow: visible;
   max-height: 100%;
   gap: 0.75rem;
   flex-direction: column;
@@ -510,19 +899,28 @@ function avatarEmoji(avatarId: string): string {
   flex: 1 1 0;
   order: 2;
   min-height: 0;
+  max-height: 100%;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 1rem;
-  overflow: hidden;
+  overflow: visible;
+  align-items: center;
+  justify-content: center;
+}
+
+.question-body.has-media .media-grid--multiple {
+  justify-content: space-around;
 }
 
 .question-body.has-media .media-grid :deep(.media-card) {
   flex: 1;
   min-height: 0;
+  max-height: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
   padding: 0;
-  overflow: hidden;
+  overflow: visible;
   background: transparent;
   border: none;
   box-shadow: none;
@@ -531,6 +929,7 @@ function avatarEmoji(avatarId: string): string {
 .question-body.has-media .media-grid :deep(.image-wrapper) {
   flex: 1;
   min-height: 0;
+  max-height: 100%;
   aspect-ratio: unset;
   border-radius: 0.75rem;
   overflow: hidden;
@@ -546,6 +945,7 @@ function avatarEmoji(avatarId: string): string {
   height: auto;
   object-fit: contain;
   border-radius: 0.75rem;
+  display: block;
 }
 
 .question-body.has-media .media-grid :deep(.media-name) {
@@ -559,111 +959,429 @@ function avatarEmoji(avatarId: string): string {
   margin-top: 0;
 }
 
-.responder-banner {
-  background: rgba(34, 211, 238, 0.12);
-  border: 1px solid rgba(34, 211, 238, 0.4);
-  border-radius: 0.75rem;
-  padding: 0.5rem 0.85rem;
-  color: #f8fafc;
-  font-size: 0.9rem;
-  text-align: center;
-}
-
-.admin-panel {
-  width: 220px;
+.audio-controls {
   display: flex;
   flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
   align-items: center;
-  justify-content: center;
-  gap: 3.5rem;
-  flex-shrink: 0;
-  overflow: visible;
 }
 
-.admin-panel :deep(.timer-circle-container) {
-  transform: scale(1.2);
-  background: rgba(15, 23, 42, 0.5);
-  border: 1px solid rgba(139, 92, 246, 0.3);
-  border-radius: 50%;
-  padding: 0.85rem;
-  backdrop-filter: blur(10px);
+.audio-control-block {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: linear-gradient(
+    135deg,
+    rgba(30, 41, 59, 0.6) 0%,
+    rgba(15, 23, 42, 0.7) 100%
+  );
+  border: 1.5px solid rgba(148, 163, 184, 0.2);
+  border-radius: 16px;
+  padding: 1rem 1.25rem;
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
   box-shadow: 
-    0 4px 16px rgba(2, 6, 23, 0.25),
-    0 2px 8px rgba(2, 6, 23, 0.15),
-    inset 0 1px 2px rgba(255, 255, 255, 0.08),
-    inset 0 -1px 2px rgba(0, 0, 0, 0.15);
+    0 4px 12px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+  width: fit-content;
+}
+
+.audio-control-block.is-playing {
+  background: linear-gradient(
+    135deg,
+    rgba(30, 41, 59, 0.6) 0%,
+    rgba(15, 23, 42, 0.7) 100%
+  );
+  border-color: rgba(148, 163, 184, 0.2);
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.audio-play-button {
+  background: rgba(148, 163, 184, 0.15);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  color: rgba(148, 163, 184, 0.8);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+  flex-shrink: 0;
+  flex-grow: 0;
   position: relative;
   overflow: hidden;
 }
 
-.admin-panel :deep(.timer-circle-container)::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(
-    circle at 30% 30%,
-    rgba(139, 92, 246, 0.1) 0%,
-    transparent 50%
-  );
-  border-radius: 50%;
-  pointer-events: none;
+.audio-play-button:hover {
+  background: rgba(148, 163, 184, 0.25);
+  border-color: rgba(148, 163, 184, 0.4);
+  color: rgba(148, 163, 184, 1);
 }
 
+.audio-play-button.is-playing {
+  background: rgba(148, 163, 184, 0.2);
+  border-color: rgba(148, 163, 184, 0.35);
+  color: rgba(148, 163, 184, 0.9);
+}
+
+.audio-play-button svg {
+  width: 18px;
+  height: 18px;
+  position: relative;
+  z-index: 1;
+}
+
+.audio-equalizer {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 24px;
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.equalizer-bar {
+  width: 4px;
+  background: linear-gradient(
+    to top,
+    rgba(148, 163, 184, 0.5) 0%,
+    rgba(148, 163, 184, 0.3) 100%
+  );
+  border-radius: 2px;
+  animation: equalizer-idle 1.5s ease-in-out infinite;
+}
+
+.audio-control-block.is-playing .equalizer-bar {
+  background: linear-gradient(
+    to top,
+    rgba(148, 163, 184, 0.7) 0%,
+    rgba(148, 163, 184, 0.5) 100%
+  );
+  animation: equalizer-active 1.2s ease-in-out infinite;
+}
+
+.equalizer-bar:nth-child(1) {
+  height: 50%;
+}
+
+.equalizer-bar:nth-child(2) {
+  height: 80%;
+}
+
+.equalizer-bar:nth-child(3) {
+  height: 100%;
+}
+
+.equalizer-bar:nth-child(4) {
+  height: 70%;
+}
+
+.equalizer-bar:nth-child(5) {
+  height: 90%;
+}
+
+.equalizer-bar:nth-child(6) {
+  height: 100%;
+}
+
+.equalizer-bar:nth-child(7) {
+  height: 60%;
+}
+
+.equalizer-bar:nth-child(8) {
+  height: 85%;
+}
+
+.equalizer-bar:nth-child(9) {
+  height: 100%;
+}
+
+.equalizer-bar:nth-child(10) {
+  height: 75%;
+}
+
+.equalizer-bar:nth-child(11) {
+  height: 95%;
+}
+
+.equalizer-bar:nth-child(12) {
+  height: 65%;
+}
+
+.equalizer-bar:nth-child(13) {
+  height: 90%;
+}
+
+.equalizer-bar:nth-child(14) {
+  height: 55%;
+}
+
+.equalizer-bar:nth-child(15) {
+  height: 100%;
+}
+
+.equalizer-bar:nth-child(16) {
+  height: 80%;
+}
+
+.equalizer-bar:nth-child(17) {
+  height: 70%;
+}
+
+@keyframes equalizer-idle {
+  0%, 100% {
+    transform: scaleY(0.4);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scaleY(0.6);
+    opacity: 0.7;
+  }
+}
+
+@keyframes equalizer-active {
+  0%, 100% {
+    transform: scaleY(0.3);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+
+.responder-banner {
+  background: linear-gradient(
+    135deg,
+    rgba(139, 92, 246, 0.2) 0%,
+    rgba(59, 130, 246, 0.15) 100%
+  );
+  border: 1.5px solid rgba(139, 92, 246, 0.5);
+  border-radius: 12px;
+  padding: 0.75rem 1.25rem;
+  color: #e9d5ff;
+  font-size: 0.95rem;
+  text-align: center;
+  font-weight: 600;
+  backdrop-filter: blur(10px);
+  box-shadow: 
+    0 4px 12px rgba(139, 92, 246, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  animation: bannerPulse 2s ease-in-out infinite;
+}
+
+@keyframes bannerPulse {
+  0%, 100% {
+    box-shadow: 
+      0 4px 12px rgba(139, 92, 246, 0.2),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+  50% {
+    box-shadow: 
+      0 6px 16px rgba(139, 92, 246, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  }
+}
+
+.admin-panel {
+  width: 220px;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  flex-shrink: 0;
+  overflow: visible;
+  box-sizing: border-box;
+}
+
+.admin-controls-block {
+  width: 100%;
+  max-width: 100%;
+  min-height: 320px;
+  background: linear-gradient(
+    135deg,
+    rgba(30, 41, 59, 0.6) 0%,
+    rgba(15, 23, 42, 0.7) 100%
+  );
+  border: 1.5px solid rgba(148, 163, 184, 0.2);
+  border-radius: 16px;
+  padding: 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  backdrop-filter: blur(15px);
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  box-sizing: border-box;
+}
+
+.question-type-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.question-type-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(
+    135deg,
+    rgba(30, 41, 59, 0.6) 0%,
+    rgba(15, 23, 42, 0.7) 100%
+  );
+  border: 1.5px solid rgba(148, 163, 184, 0.2);
+  backdrop-filter: blur(15px);
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  cursor: help;
+  position: relative;
+  overflow: hidden;
+}
+
+.question-type-icon::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(139, 92, 246, 0.1) 0%,
+    transparent 50%,
+    rgba(59, 130, 246, 0.1) 100%
+  );
+  pointer-events: none;
+  border-radius: 50%;
+}
+
+.question-type-icon svg {
+  width: 24px;
+  height: 24px;
+  color: rgba(148, 163, 184, 0.7);
+  position: relative;
+  z-index: 1;
+}
+
+.question-type-icon.question-type--audio,
+.question-type-icon.question-type--image,
+.question-type-icon.question-type--text {
+  border-color: rgba(148, 163, 184, 0.2);
+}
+
+.question-type-icon.question-type--audio svg,
+.question-type-icon.question-type--image svg,
+.question-type-icon.question-type--text svg {
+  color: rgba(148, 163, 184, 0.7);
+}
+
+.admin-panel :deep(.timer-circle-container) {
+  background: linear-gradient(
+    135deg,
+    rgba(30, 41, 59, 0.8) 0%,
+    rgba(15, 23, 42, 0.9) 100%
+  );
+  border: 2px solid rgba(148, 163, 184, 0.2);
+  border-radius: 50%;
+  padding: 1rem;
+  backdrop-filter: blur(15px);
+  box-shadow: 
+    0 8px 24px rgba(0, 0, 0, 0.2),
+    0 4px 12px rgba(2, 6, 23, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.admin-panel :deep(.timer-warning.timer-circle-container),
+.admin-panel :deep(.timer-circle-container.timer-warning) {
+  border-color: rgba(239, 68, 68, 0.7) !important;
+  box-shadow: 
+    0 8px 24px rgba(239, 68, 68, 0.4),
+    0 4px 12px rgba(239, 68, 68, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.2) !important;
+}
+
+
 .admin-panel :deep(.timer-circle) {
-  filter: drop-shadow(0 0 3px rgba(139, 92, 246, 0.3));
+  filter: drop-shadow(0 0 6px rgba(34, 197, 94, 0.4));
+  transition: filter 0.3s ease;
+}
+
+.admin-panel :deep(.timer-warning .timer-circle) {
+  filter: drop-shadow(0 0 6px rgba(239, 68, 68, 0.5));
 }
 
 .admin-panel :deep(.timer-progress) {
-  color: #a78bfa;
-  filter: drop-shadow(0 0 2px rgba(167, 139, 250, 0.4));
+  color: #22c55e;
+  filter: drop-shadow(0 0 4px rgba(34, 197, 94, 0.5));
   transition: color 0.3s ease, filter 0.3s ease;
 }
 
 .admin-panel :deep(.timer-bg) {
-  color: rgba(139, 92, 246, 0.15);
+  color: rgba(34, 197, 94, 0.25);
 }
 
 .admin-panel :deep(.timer-text) {
-  font-size: 2.2rem;
-  color: #c4b5fd;
-  text-shadow: 
-    0 0 6px rgba(196, 181, 253, 0.4),
-    0 0 12px rgba(139, 92, 246, 0.25);
+  font-size: 2.4rem;
+  color: #4ade80;
   font-weight: 700;
+  text-shadow: 
+    0 0 8px rgba(74, 222, 128, 0.5),
+    0 0 16px rgba(34, 197, 94, 0.3);
   transition: color 0.3s ease, text-shadow 0.3s ease;
 }
 
 .admin-panel :deep(.timer-warning .timer-progress) {
   color: #ef4444;
-  filter: drop-shadow(0 0 3px rgba(239, 68, 68, 0.5));
+  filter: drop-shadow(0 0 4px rgba(239, 68, 68, 0.6));
 }
 
 .admin-panel :deep(.timer-warning .timer-text) {
   color: #f87171;
   text-shadow: 
-    0 0 8px rgba(239, 68, 68, 0.6),
-    0 0 16px rgba(239, 68, 68, 0.4);
+    0 0 10px rgba(248, 113, 113, 0.7),
+    0 0 20px rgba(239, 68, 68, 0.5);
 }
 
 .admin-panel :deep(.timer-warning .timer-circle-container) {
-  border-color: rgba(239, 68, 68, 0.4);
+  background: linear-gradient(
+    135deg,
+    rgba(30, 41, 59, 0.8) 0%,
+    rgba(15, 23, 42, 0.9) 100%
+  );
+  border-color: rgba(239, 68, 68, 0.7);
   box-shadow: 
-    0 4px 16px rgba(239, 68, 68, 0.2),
-    0 2px 8px rgba(239, 68, 68, 0.15),
-    inset 0 1px 2px rgba(255, 255, 255, 0.08),
-    inset 0 -1px 2px rgba(0, 0, 0, 0.15);
+    0 8px 24px rgba(239, 68, 68, 0.4),
+    0 4px 12px rgba(239, 68, 68, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.2);
 }
 
-.admin-panel :deep(.timer-warning .timer-circle-container)::before {
-  background: radial-gradient(
-    circle at 30% 30%,
-    rgba(239, 68, 68, 0.15) 0%,
-    transparent 50%
-  );
-}
 
 .admin-button {
   width: 100%;
@@ -752,55 +1470,121 @@ function avatarEmoji(avatarId: string): string {
 
 .host-actions {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 0.75rem;
   width: 100%;
+  justify-content: center;
 }
 
 .host-button {
-  width: 100%;
+  width: 56px;
+  height: 56px;
   border: none;
-  border-radius: 10px;
-  padding: 0.65rem 1rem;
-  font-weight: 600;
-  font-size: 0.8rem;
+  border-radius: 50%;
+  padding: 0;
   cursor: pointer;
-  transition: all 0.2s ease;
-  text-align: center;
-  color: #ffffff;
-  font-family: 'Press Start 2P', 'Nunito', cursive;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+  flex-shrink: 0;
+}
+
+.host-button svg {
+  width: 28px;
+  height: 28px;
+  stroke: currentColor;
+  stroke-width: 2.5;
+  transition: transform 0.2s ease;
+}
+
+.host-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  transition: left 0.5s ease;
+}
+
+.host-button:hover::before {
+  left: 100%;
 }
 
 .host-button-success {
-  background: rgba(34, 197, 94, 0.85);
+  background: rgba(34, 197, 94, 0.25);
+  color: rgba(34, 197, 94, 0.9);
   box-shadow: 
-    0 4px 8px rgba(34, 197, 94, 0.3),
-    inset 0 1px 2px rgba(255, 255, 255, 0.2);
+    0 2px 8px rgba(34, 197, 94, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+  border: 1.5px solid rgba(34, 197, 94, 0.4);
 }
 
 .host-button-success:not(:disabled):hover {
-  background: rgba(34, 197, 94, 1);
+  background: rgba(34, 197, 94, 0.35);
+  color: rgba(34, 197, 94, 1);
   box-shadow: 
-    0 6px 12px rgba(34, 197, 94, 0.4),
-    inset 0 1px 2px rgba(255, 255, 255, 0.25);
+    0 4px 12px rgba(34, 197, 94, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.15);
   transform: translateY(-1px);
+  border-color: rgba(34, 197, 94, 0.6);
+}
+
+.host-button-success:not(:disabled):hover svg {
+  transform: scale(1.1);
+}
+
+.host-button-success:disabled:hover {
+  transform: none;
+}
+
+.host-button-success:disabled:hover svg {
+  transform: none;
 }
 
 .host-button-danger {
-  background: rgba(239, 68, 68, 0.85);
+  background: rgba(239, 68, 68, 0.25);
+  color: rgba(239, 68, 68, 0.9);
   box-shadow: 
-    0 4px 8px rgba(239, 68, 68, 0.3),
-    inset 0 1px 2px rgba(255, 255, 255, 0.2);
+    0 2px 8px rgba(239, 68, 68, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+  border: 1.5px solid rgba(239, 68, 68, 0.4);
 }
 
 .host-button-danger:not(:disabled):hover {
-  background: rgba(239, 68, 68, 1);
+  background: rgba(239, 68, 68, 0.35);
+  color: rgba(239, 68, 68, 1);
   box-shadow: 
-    0 6px 12px rgba(239, 68, 68, 0.4),
-    inset 0 1px 2px rgba(255, 255, 255, 0.25);
+    0 4px 12px rgba(239, 68, 68, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.15);
   transform: translateY(-1px);
+  border-color: rgba(239, 68, 68, 0.6);
+}
+
+.host-button-danger:not(:disabled):hover svg {
+  transform: scale(1.1);
+}
+
+.host-button-danger:disabled:hover {
+  transform: none;
+}
+
+.host-button-danger:disabled:hover svg {
+  transform: none;
 }
 
 .host-button:disabled {
@@ -809,32 +1593,188 @@ function avatarEmoji(avatarId: string): string {
   transform: none;
 }
 
-.responder-card {
+.responder-info-card {
   width: 100%;
-  background: rgba(15, 23, 42, 0.5);
-  border: 1px solid rgba(56, 189, 248, 0.2);
-  border-radius: 12px;
-  padding: 0.85rem;
+  max-width: 100%;
+  margin-top: 1.5rem;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 0.75rem;
-  backdrop-filter: blur(10px);
-  box-shadow: 
-    0 4px 12px rgba(2, 6, 23, 0.2),
-    inset 0 1px 2px rgba(255, 255, 255, 0.08);
+  box-sizing: border-box;
 }
 
-.responder-card-avatar {
+.responder-card-content {
+  width: 100%;
+  max-width: 100%;
+  min-height: 80px;
+  height: 80px;
+  background: linear-gradient(
+    135deg,
+    rgba(30, 41, 59, 0.8) 0%,
+    rgba(15, 23, 42, 0.9) 100%
+  );
+  border: 1.5px solid rgba(139, 92, 246, 0.4);
+  border-radius: 16px;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  backdrop-filter: blur(15px);
+  box-shadow: 
+    0 8px 24px rgba(139, 92, 246, 0.2),
+    0 4px 12px rgba(2, 6, 23, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.responder-card-content::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(139, 92, 246, 0.1) 0%,
+    transparent 50%,
+    rgba(59, 130, 246, 0.1) 100%
+  );
+  pointer-events: none;
+}
+
+.responder-avatar {
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: rgba(56, 189, 248, 0.15);
+  background: rgba(139, 92, 246, 0.2);
+  border: 2px solid rgba(139, 92, 246, 0.4);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
+  font-size: 1.75rem;
   flex-shrink: 0;
-  border: 1px solid rgba(56, 189, 248, 0.3);
+  position: relative;
+  z-index: 1;
+}
+
+.responder-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.responder-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #f8fafc;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.responder-label {
+  font-size: 0.75rem;
+  color: rgba(186, 230, 253, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.responder-empty {
+  width: 100%;
+  max-width: 100%;
+  min-height: 80px;
+  height: 80px;
+  background: linear-gradient(
+    135deg,
+    rgba(30, 41, 59, 0.6) 0%,
+    rgba(15, 23, 42, 0.7) 100%
+  );
+  border: 1.5px solid rgba(148, 163, 184, 0.2);
+  border-radius: 16px;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(15px);
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  box-sizing: border-box;
+}
+
+.responder-empty span {
+  font-size: 0.875rem;
+  color: rgba(148, 163, 184, 0.7);
+  font-style: italic;
+}
+
+.responder-card {
+  width: 100%;
+  background: linear-gradient(
+    135deg,
+    rgba(30, 41, 59, 0.8) 0%,
+    rgba(15, 23, 42, 0.9) 100%
+  );
+  border: 1.5px solid rgba(139, 92, 246, 0.4);
+  border-radius: 16px;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  backdrop-filter: blur(15px);
+  box-shadow: 
+    0 8px 24px rgba(139, 92, 246, 0.2),
+    0 4px 12px rgba(2, 6, 23, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.responder-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(139, 92, 246, 0.1) 0%,
+    transparent 50%,
+    rgba(59, 130, 246, 0.1) 100%
+  );
+  pointer-events: none;
+}
+
+.responder-card-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(
+    135deg,
+    rgba(139, 92, 246, 0.3) 0%,
+    rgba(59, 130, 246, 0.2) 100%
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.75rem;
+  flex-shrink: 0;
+  border: 2px solid rgba(139, 92, 246, 0.5);
+  box-shadow: 
+    0 4px 12px rgba(139, 92, 246, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  position: relative;
+  z-index: 1;
 }
 
 .responder-card-info {
@@ -862,19 +1802,50 @@ function avatarEmoji(avatarId: string): string {
 }
 
 .modal-title {
-  font-size: clamp(1.25rem, 2.5vw, 2rem);
+  font-size: clamp(1.5rem, 3vw, 2.5rem);
   margin: 0;
-  line-height: 1.3;
-  color: #f8fafc;
+  line-height: 1.4;
+  background: linear-gradient(
+    135deg,
+    #f8fafc 0%,
+    #e2e8f0 50%,
+    #cbd5e1 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   text-align: center;
-  text-shadow: 0 0 25px rgba(34, 211, 238, 0.4);
   word-wrap: break-word;
   overflow-wrap: break-word;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  position: relative;
+  z-index: 1;
 }
 
 .modal-title.answer {
-  color: #facc15;
-  text-shadow: 0 0 25px rgba(250, 204, 21, 0.4);
+  background: linear-gradient(
+    135deg,
+    #fbbf24 0%,
+    #f59e0b 50%,
+    #facc15 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 
+    0 0 40px rgba(250, 204, 21, 0.6),
+    0 0 80px rgba(251, 191, 36, 0.4);
+  animation: answerGlow 2s ease-in-out infinite;
+}
+
+@keyframes answerGlow {
+  0%, 100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.2);
+  }
 }
 
 .finish-actions {
@@ -908,6 +1879,10 @@ function avatarEmoji(avatarId: string): string {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+.fade-move {
+  transition: transform 0.3s ease;
 }
 
 .modal-enter-active,
@@ -955,7 +1930,7 @@ function avatarEmoji(avatarId: string): string {
   .modal-content {
     width: 100%;
     height: 100%;
-    border-radius: 1rem;
+    border-radius: 16px;
   }
 
   .media-grid {
@@ -966,7 +1941,10 @@ function avatarEmoji(avatarId: string): string {
   
   .question-body.has-media .media-grid {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
   }
 
   .admin-panel {

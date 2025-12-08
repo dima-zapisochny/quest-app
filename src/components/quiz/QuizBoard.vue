@@ -32,7 +32,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import CategoryColumn from './CategoryColumn.vue'
 import QuestionModal from './QuestionModal.vue'
 import { useQuizStore } from '@/store/quizStore'
@@ -48,24 +48,36 @@ const props = defineProps<Props>()
 
 const quizStore = useQuizStore()
 const isModalOpen = ref(false)
-const selectedQuestion = ref<Question | null>(null)
+const selectedQuestionId = ref<string | null>(null)
 const selectedCategoryId = ref<string | null>(null)
 
+// Реактивно получаем вопрос из store по ID
+const selectedQuestion = computed<Question | null>(() => {
+  if (!selectedQuestionId.value || !selectedCategoryId.value || !props.round) {
+    return null
+  }
+  
+  const category = props.round.categories?.find(c => c.id === selectedCategoryId.value)
+  if (!category) return null
+  
+  return category.questions?.find(q => q.id === selectedQuestionId.value) || null
+})
+
 function handleQuestionClick(question: Question, categoryId: string) {
-  selectedQuestion.value = question
+  selectedQuestionId.value = question.id
   selectedCategoryId.value = categoryId
   isModalOpen.value = true
 }
 
 function handleModalClose() {
   isModalOpen.value = false
-  selectedQuestion.value = null
+  selectedQuestionId.value = null
   selectedCategoryId.value = null
 }
 
 function handleFinished() {
-  if (selectedQuestion.value && selectedCategoryId.value) {
-    quizStore.markQuestionAsPlayed(props.questId, props.round.id, selectedCategoryId.value, selectedQuestion.value.id)
+  if (selectedQuestionId.value && selectedCategoryId.value) {
+    quizStore.markQuestionAsPlayed(props.questId, props.round.id, selectedCategoryId.value, selectedQuestionId.value)
   }
 }
 </script>

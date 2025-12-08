@@ -397,7 +397,16 @@ export const useQuizStore = defineStore('quiz', () => {
     const round = findRound(quest, roundId)
     const category = findCategory(round, categoryId)
     const question = findQuestion(category, questionId)
-    Object.assign(question, payload)
+    // Если обновляется questionMedia или answerMedia, заменяем полностью
+    if (payload.questionMedia) {
+      question.questionMedia = payload.questionMedia
+    }
+    if (payload.answerMedia) {
+      question.answerMedia = payload.answerMedia
+    }
+    // Остальные поля обновляем через Object.assign
+    const { questionMedia, answerMedia, ...rest } = payload
+    Object.assign(question, rest)
     await saveToStorage()
   }
 
@@ -458,6 +467,17 @@ export const useQuizStore = defineStore('quiz', () => {
     const mediaAssets = await Promise.all(promises)
     const key = target === 'question' ? 'questionMedia' : 'answerMedia'
     const current = question[key] ?? []
+    
+    // Для первого изображения в вопросе устанавливаем delay = 0
+    if (target === 'question') {
+      const imageAssets = current.filter(m => m.type === 'image')
+      mediaAssets.forEach((asset, index) => {
+        if (asset.type === 'image' && imageAssets.length === 0 && index === 0) {
+          asset.delay = 0
+        }
+      })
+    }
+    
     question[key] = [...current, ...mediaAssets]
     await saveToStorage()
     return mediaAssets

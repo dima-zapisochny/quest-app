@@ -36,9 +36,9 @@
         </p>
         <div v-else class="question-content">
           <h2>{{ currentQuestion?.question ?? 'Вопрос скрыт' }}</h2>
-          <div v-if="currentQuestionMedia.length" class="media-grid">
+          <div v-if="currentQuestionMediaImages.length" class="media-grid">
             <QuestionMediaPreview
-              v-for="media in currentQuestionMedia"
+              v-for="media in currentQuestionMediaImages"
               :key="media.id"
               :media="media"
             />
@@ -163,6 +163,11 @@ const currentQuestion = computed(() => {
 })
 
 const currentQuestionMedia = computed<MediaAsset[]>(() => currentQuestion.value?.questionMedia ?? [])
+
+// Только изображения для участников (без аудио)
+const currentQuestionMediaImages = computed(() => {
+  return currentQuestionMedia.value.filter(media => media.type === 'image')
+})
 
 const canBuzz = computed(() => {
   if (!player.value || !activeQuestion.value) return false

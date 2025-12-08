@@ -29,9 +29,7 @@
         :class="{ 'timer-animate': autoStart }"
       />
     </svg>
-    <Transition name="timer-number" mode="out-in">
-      <div :key="timeLeft" class="timer-text">{{ timeLeft }}</div>
-    </Transition>
+    <div class="timer-text">{{ timeLeft }}</div>
   </div>
 </template>
 
@@ -191,40 +189,5 @@ defineExpose({
   text-shadow: 0 0 10px rgba(239, 68, 68, 0.6);
 }
 
-.timer-number-enter-active {
-  animation: heartbeat-enter 0.6s ease-out;
-}
-
-.timer-number-leave-active {
-  animation: heartbeat-leave 0.4s ease-in;
-}
-
-@keyframes heartbeat-enter {
-  0% {
-    opacity: 0;
-    transform: translateY(-15px) scale(0.7);
-  }
-  50% {
-    transform: translateY(0) scale(1.15);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-@keyframes heartbeat-leave {
-  0% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-  50% {
-    transform: translateY(10px) scale(0.85);
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(15px) scale(0.7);
-  }
-}
 </style>
 

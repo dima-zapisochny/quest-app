@@ -135,8 +135,7 @@ BEGIN
                 "id": "q-1-3-5",
                 "value": 500,
                 "question": "Какое произведение написал Рахманинов для фортепиано?",
-                "answer": "Концерт для фортепиано с оркестром №2",
-                "questionMedia": [{"id": "m15", "type": "audio", "name": "rachmaninoff2.mp3", "url": "https://example.com/audio/rachmaninoff2.mp3"}]
+                "answer": "Концерт для фортепиано с оркестром №2"
               }
             ]
           },

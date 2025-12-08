@@ -105,6 +105,7 @@ const store = useQuizStore()
 const openQuestionId = ref<string | null>(null)
 const isAddingQuestion = ref(false)
 const newlyAddedQuestionId = ref<string | null>(null)
+const userCollapsedAll = ref(false) // Флаг, что пользователь явно свернул все вопросы
 
 const categoryTitle = computed({
   get: () => props.category.title,
@@ -146,6 +147,7 @@ watchEffect(() => {
   if (newlyAddedQuestionId.value && ids.includes(newlyAddedQuestionId.value)) {
     openQuestionId.value = newlyAddedQuestionId.value
     newlyAddedQuestionId.value = null
+    userCollapsedAll.value = false // Сбрасываем флаг при создании нового вопроса
     return
   }
   
@@ -154,26 +156,49 @@ watchEffect(() => {
   
   if (ids.length === 0) {
     openQuestionId.value = null
+    userCollapsedAll.value = false
     return
   }
+  
   // Не перезаписываем, если вопрос уже открыт и существует
   if (openQuestionId.value && ids.includes(openQuestionId.value)) {
     return
   }
-  // Устанавливаем первый вопрос только если ничего не открыто
-  if (!openQuestionId.value) {
-    openQuestionId.value = ids[0]
+  
+  // Если открытый вопрос был удален, открываем первый доступный только если пользователь не свернул все
+  if (openQuestionId.value && !ids.includes(openQuestionId.value)) {
+    if (!userCollapsedAll.value) {
+      openQuestionId.value = ids[0] ?? null
+    } else {
+      openQuestionId.value = null
+    }
+    return
   }
+  
+  // НЕ открываем автоматически, если пользователь явно свернул все вопросы
 })
 
 function toggleQuestion(questionId: string) {
-  openQuestionId.value = openQuestionId.value === questionId ? null : questionId
+  if (openQuestionId.value === questionId) {
+    // Сворачиваем вопрос
+    openQuestionId.value = null
+    userCollapsedAll.value = true // Устанавливаем флаг, что пользователь явно свернул
+  } else {
+    // Разворачиваем вопрос
+    openQuestionId.value = questionId
+    userCollapsedAll.value = false // Сбрасываем флаг при открытии
+  }
 }
 
 function handleQuestionDeleted(questionId: string) {
   if (openQuestionId.value !== questionId) return
   const remaining = props.category.questions.filter(question => question.id !== questionId)
-  openQuestionId.value = remaining[0]?.id ?? null
+  // Если пользователь свернул все вопросы, не открываем автоматически
+  if (userCollapsedAll.value) {
+    openQuestionId.value = null
+  } else {
+    openQuestionId.value = remaining[0]?.id ?? null
+  }
 }
 </script>
 

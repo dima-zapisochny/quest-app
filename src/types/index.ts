@@ -3,6 +3,7 @@ export type MediaAsset = {
   type: 'image' | 'audio'
   name: string
   url: string
+  delay?: number // Время появления в секундах (только для изображений)
 }
 
 export type Question = {
