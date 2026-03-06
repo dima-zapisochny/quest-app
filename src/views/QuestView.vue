@@ -3,14 +3,22 @@
     <AppHeader
       button-variant="back"
       button-label="Назад"
-      :show-session-code="!!session"
+      :show-session-code="!!session && !isMobileViewport"
       :session-code="session?.code"
       :user-name="userProfile?.name"
       :user-avatar="userProfile?.avatar"
       @button-click="goBack"
     />
 
-    <main v-if="activeRound" class="quest-layout">
+    <section v-if="isMobileViewport" class="desktop-only-stub" aria-live="polite">
+      <div class="desktop-only-stub__content">
+        <div class="desktop-only-stub__icon" aria-hidden="true">🖥️</div>
+        <h2 class="desktop-only-stub__title">Игровое поле доступно только с десктопных устройств</h2>
+        <p class="desktop-only-stub__text">Откройте эту страницу на компьютере или планшете, чтобы вести игру. Участники могут подключаться с телефона по коду игры.</p>
+      </div>
+    </section>
+
+    <main v-else-if="activeRound" class="quest-layout">
       <section class="quest-stage">
         <nav class="rounds-nav rounds-nav--stage">
       <div class="rounds-track">
@@ -95,7 +103,7 @@
       </aside>
     </main>
 
-    <section v-if="activeRound && leaderboardEntries.length" class="quest-leaderboard">
+    <section v-if="!isMobileViewport && activeRound && leaderboardEntries.length" class="quest-leaderboard">
       <div class="leaderboard-card">
         <header class="leaderboard-header">
           <span class="leaderboard-label">Участники</span>
@@ -140,7 +148,7 @@
     </section>
 
     <!-- Показувати, коли в квесті взагалі немає раундів (не плутати з порожнім лідербордом) -->
-    <section v-if="quest && (!quest.rounds || !quest.rounds.length)" class="empty-round">
+    <section v-if="!isMobileViewport && quest && (!quest.rounds || !quest.rounds.length)" class="empty-round">
       <p>Для этого квеста ещё не создано ни одного раунда.</p>
       <router-link to="/host/setup" class="empty-round__link">Перейти к управлению квестами</router-link>
     </section>
@@ -282,6 +290,7 @@ import { useQuizStore } from '@/store/quizStore'
 import { useGameSessionStore } from '@/store/gameSessionStore'
 import QuizBoard from '@/components/quiz/QuizBoard.vue'
 import AppHeader from '@/components/common/AppHeader.vue'
+import { useIsMobileViewport } from '@/composables/useIsMobileViewport'
 
 interface Props {
   questId?: string
@@ -297,6 +306,7 @@ const quizStore = useQuizStore()
 const sessionStore = useGameSessionStore()
 
 const isLoadingQuest = ref(true)
+const { isMobileViewport } = useIsMobileViewport()
 
 // Получаем сессию по коду или ID
 const session = computed(() => {
@@ -373,6 +383,7 @@ const hoveredPlayerId = ref<string | null>(null)
 const manualScoreInput = ref(0)
 const selectedStep = ref(5)
 const STEP_OPTIONS = [5, 10, 15, 20] as const
+const selectedScoreAction = ref<'subtract' | 'add' | null>(null)
 const popoverAnchor = ref<{ left: number; top: number } | null>(null)
 let leavePopoverTimeout: ReturnType<typeof setTimeout> | null = null
 
@@ -382,6 +393,7 @@ function setPopoverAnchor(playerId: string, el: HTMLElement) {
     leavePopoverTimeout = null
   }
   hoveredPlayerId.value = playerId
+  selectedScoreAction.value = null
   const rect = el.getBoundingClientRect()
   popoverAnchor.value = { left: rect.left + rect.width / 2, top: rect.top }
 }
@@ -572,10 +584,26 @@ const activeRound = computed(() => {
 })
 
 const questProgress = computed(() => {
-  if (!quest.value) {
+  const q = quest.value
+  if (!q || !Array.isArray(q.rounds)) {
     return { totalRounds: 0, totalQuestions: 0, playedQuestions: 0 }
   }
-  return quizStore.getQuestProgress(questId.value)
+  const totalRounds = q.rounds.length
+  const totalQuestions = q.rounds.reduce((sum, round) => {
+    const categories = Array.isArray(round.categories) ? round.categories : []
+    return sum + categories.reduce((catSum, cat) => catSum + (cat.questions?.length ?? 0), 0)
+  }, 0)
+  const playedQuestions = q.rounds.reduce((sum, round) => {
+    const categories = Array.isArray(round.categories) ? round.categories : []
+    return (
+      sum +
+      categories.reduce(
+        (catSum, cat) => catSum + (cat.questions?.filter(qu => qu.played).length ?? 0),
+        0
+      )
+    )
+  }, 0)
+  return { totalRounds, totalQuestions, playedQuestions }
 })
 
 const questProgressPercent = computed(() => {
@@ -869,6 +897,43 @@ async function confirmReset() {
   padding: 0 clamp(1rem, 4vw, 3rem) 0;
   box-sizing: border-box;
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.desktop-only-stub {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  padding: 2rem 1.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.desktop-only-stub__content {
+  text-align: center;
+  max-width: 420px;
+}
+
+.desktop-only-stub__icon {
+  font-size: 3.5rem;
+  margin-bottom: 1.25rem;
+  opacity: 0.9;
+}
+
+.desktop-only-stub__title {
+  margin: 0 0 0.75rem;
+  font-size: clamp(1.15rem, 3.5vw, 1.4rem);
+  font-weight: 700;
+  color: #f8fafc;
+  line-height: 1.3;
+}
+
+.desktop-only-stub__text {
+  margin: 0;
+  font-size: clamp(0.9rem, 2.5vw, 1rem);
+  color: #94a3b8;
+  line-height: 1.5;
 }
 
 .quest-view::before,
@@ -1906,35 +1971,11 @@ async function confirmReset() {
 }
 
 .participant-popover__btn--step-active {
-  background: rgba(56, 189, 248, 0.25);
-  border-color: rgba(56, 189, 248, 0.6);
+  background: rgba(56, 189, 248, 0.35);
+  border-color: rgba(56, 189, 248, 0.85);
   color: #22d3ee;
-}
-
-.participant-popover__btn--subtract {
-  width: 100%;
-  margin-top: 0.15rem;
-  background: rgba(248, 113, 113, 0.15);
-  border-color: rgba(248, 113, 113, 0.5);
-  color: #fca5a5;
-}
-
-.participant-popover__btn--subtract:hover:not(:disabled) {
-  background: rgba(248, 113, 113, 0.25);
-  border-color: rgba(248, 113, 113, 0.7);
-}
-
-.participant-popover__btn--add {
-  width: 100%;
-  margin-top: 0.15rem;
-  background: rgba(34, 197, 94, 0.2);
-  border-color: rgba(34, 197, 94, 0.5);
-  color: #4ade80;
-}
-
-.participant-popover__btn--add:hover:not(:disabled) {
-  background: rgba(34, 197, 94, 0.3);
-  border-color: rgba(34, 197, 94, 0.7);
+  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.35);
+  font-weight: 700;
 }
 
 .participant-popover__btn {
@@ -1952,6 +1993,32 @@ async function confirmReset() {
 .participant-popover__btn:hover:not(:disabled) {
   background: rgba(56, 189, 248, 0.2);
   border-color: rgba(56, 189, 248, 0.5);
+}
+
+.participant-popover__btn--subtract {
+  width: 100%;
+  margin-top: 0.15rem;
+  background: rgba(239, 68, 68, 0.25);
+  border-color: rgba(239, 68, 68, 0.6);
+  color: #fecaca;
+}
+
+.participant-popover__btn--subtract:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.35);
+  border-color: rgba(239, 68, 68, 0.8);
+}
+
+.participant-popover__btn--add {
+  width: 100%;
+  margin-top: 0.15rem;
+  background: rgba(34, 197, 94, 0.25);
+  border-color: rgba(34, 197, 94, 0.6);
+  color: #86efac;
+}
+
+.participant-popover__btn--add:hover:not(:disabled) {
+  background: rgba(34, 197, 94, 0.4);
+  border-color: rgba(34, 197, 94, 0.85);
 }
 
 .participant-popover__btn:disabled {

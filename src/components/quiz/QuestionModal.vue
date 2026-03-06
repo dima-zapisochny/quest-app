@@ -10,9 +10,6 @@
           <div class="question-body" :class="{ 'has-visible-images': visibleImages.length > 0 }">
             <div class="question-header">
             <h2 class="modal-title">{{ question.question }}</h2>
-              <div v-if="currentResponder" class="responder-banner">
-                Отвечает: <strong>{{ currentResponder.name }}</strong>
-              </div>
             </div>
             <div 
               v-if="visibleImages.length" 
@@ -90,7 +87,7 @@
                 ref="timerRef"
                 @finished="handleReveal"
               />
-              <div v-if="isHostSession" class="host-actions">
+              <div v-if="isHostSession" class="host-buttons-row">
                 <button 
                   class="host-button host-button-success" 
                   type="button" 
@@ -100,6 +97,21 @@
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </button>
+                <button
+                  v-if="!showAnswer"
+                  type="button"
+                  class="host-button host-button-pause"
+                  :aria-label="isTimerPaused ? 'Продолжить' : 'Пауза'"
+                  @click="togglePause"
+                >
+                  <svg v-if="!isTimerPaused" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="6" y="4" width="4" height="16"></rect>
+                    <rect x="14" y="4" width="4" height="16"></rect>
+                  </svg>
+                  <svg v-else xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
                   </svg>
                 </button>
                 <button 
@@ -126,16 +138,6 @@
               </div>
               <div v-else class="responder-empty">
                 <span>Ожидание ответа</span>
-              </div>
-            </div>
-            <!-- Debug: responderId={{ responderId }}, currentResponder={{ currentResponder?.name }} -->
-            <div v-if="currentResponder" class="responder-card">
-              <div class="responder-card-avatar">
-                <span>{{ avatarEmoji(currentResponder.avatar) }}</span>
-              </div>
-              <div class="responder-card-info">
-                <span class="responder-card-name">{{ currentResponder.name }}</span>
-                <span class="responder-card-label">Отвечает</span>
               </div>
             </div>
           </aside>
@@ -421,6 +423,17 @@ const canResolve = computed(() => {
   return responderId.value !== null && timerRef.value !== null
 })
 
+const isTimerPaused = computed(() => activeQuestion.value?.timerPaused ?? false)
+
+function togglePause() {
+  if (!props.sessionId) return
+  if (isTimerPaused.value) {
+    gameSessionStore.resumeTimer(props.sessionId)
+  } else {
+    gameSessionStore.pauseTimer(props.sessionId)
+  }
+}
+
 watch(
   () => props.isOpen,
   async (newVal) => {
@@ -593,8 +606,8 @@ function handleResolve(correct: boolean) {
   }
   gameSessionStore.resolveQuestion(props.sessionId, correct)
   if (correct) {
+    showAnswer.value = true
     emit('finished')
-    emit('close')
   } else {
     // При неправильном ответе возобновляем таймер для нового раунда
     nextTick(() => {
@@ -1390,6 +1403,16 @@ onBeforeUnmount(() => {
   border-color: rgba(251, 146, 60, 0.7);
 }
 
+.host-buttons-row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
+}
+
 .host-actions {
   display: flex;
   flex-direction: row;
@@ -1507,6 +1530,22 @@ onBeforeUnmount(() => {
 
 .host-button-danger:disabled:hover svg {
   transform: none;
+}
+
+.host-button-pause {
+  background: rgba(56, 189, 248, 0.25);
+  color: rgba(56, 189, 248, 0.95);
+  box-shadow: 0 2px 8px rgba(56, 189, 248, 0.2);
+}
+
+.host-button-pause:hover {
+  background: rgba(56, 189, 248, 0.35);
+  color: #22d3ee;
+  box-shadow: 0 2px 10px rgba(56, 189, 248, 0.3);
+}
+
+.host-button-pause:hover svg {
+  transform: scale(1.1);
 }
 
 .host-button:disabled {
@@ -1867,6 +1906,7 @@ onBeforeUnmount(() => {
     gap: 1rem;
   }
 
+  .host-buttons-row,
   .host-actions {
     gap: 0.6rem;
   }

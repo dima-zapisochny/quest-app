@@ -182,13 +182,13 @@ export async function getSessionById(sessionId: string): Promise<GameSession | n
     .from('game_sessions')
     .select('*')
     .eq('id', sessionId)
-    .single()
+    .maybeSingle()
 
   if (error) {
-    if (error.code === 'PGRST116') return null // Not found
     console.error('Error fetching session:', error)
     return null
   }
+  if (!data) return null
 
   return {
     id: data.id,
@@ -219,13 +219,13 @@ export async function getSessionByCode(code: string): Promise<GameSession | null
     .from('game_sessions')
     .select('*')
     .eq('code', code.toUpperCase())
-    .single()
+    .maybeSingle()
 
   if (error) {
-    if (error.code === 'PGRST116') return null // Not found
     console.error('Error fetching session by code:', error)
     return null
   }
+  if (!data) return null
 
   return mapSessionRow(data as Parameters<typeof mapSessionRow>[0])
 }
@@ -290,6 +290,7 @@ export async function updateSession(session: GameSession): Promise<GameSession> 
     .update({
       code: session.code,
       quest_id: session.questId,
+      quest_data: session.quest || null,
       host_id: session.hostId,
       host_name: session.hostName,
       host_avatar: session.hostAvatar,

@@ -47,10 +47,10 @@ const buttonClass = computed(() => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.35rem;
-  font-size: 0.9rem;
-  padding: 0.4rem 1.15rem;
-  min-height: 40px;
+  gap: 0.4rem;
+  font-size: 1.05rem;
+  padding: 0.55rem 1.45rem;
+  min-height: 48px;
   box-sizing: border-box;
 }
 
@@ -117,25 +117,25 @@ const buttonClass = computed(() => {
 
 @media (max-width: 768px) {
   .nav-button {
-    min-height: 36px;
-    padding: 0.35rem 1rem;
-    font-size: 0.85rem;
+    min-height: 44px;
+    padding: 0.5rem 1.2rem;
+    font-size: 1rem;
   }
 }
 
 @media (max-width: 480px) {
   .nav-button {
-    min-height: 34px;
-    padding: 0.3rem 0.9rem;
-    font-size: 0.8rem;
+    min-height: 42px;
+    padding: 0.45rem 1.05rem;
+    font-size: 0.95rem;
   }
 }
 
 @media (max-width: 360px) {
   .nav-button {
-    min-height: 32px;
-    padding: 0.28rem 0.75rem;
-    font-size: 0.75rem;
+    min-height: 40px;
+    padding: 0.4rem 0.9rem;
+    font-size: 0.9rem;
   }
 }
 </style>

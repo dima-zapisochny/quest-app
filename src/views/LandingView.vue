@@ -41,7 +41,13 @@
       </div>
 
       <div class="actions">
-        <button class="primary" type="button" @click="handleCreateGame">
+        <button
+          class="primary"
+          type="button"
+          :disabled="isMobileViewport"
+          :title="isMobileViewport ? 'Доступно только с компьютера или планшета' : undefined"
+          @click="handleCreateGame"
+        >
           <span class="btn-glow"></span>
           <span class="btn-text">Создать игру</span>
         </button>
@@ -73,8 +79,10 @@ import { ref, watch, computed, onBeforeUnmount, onMounted, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import AvatarPicker from '@/components/common/AvatarPicker.vue'
 import { useGameSessionStore } from '@/store/gameSessionStore'
+import { useIsMobileViewport } from '@/composables/useIsMobileViewport'
 
 const router = useRouter()
+const { isMobileViewport } = useIsMobileViewport()
 const route = useRoute()
 const sessionStore = useGameSessionStore()
 

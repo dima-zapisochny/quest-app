@@ -50,8 +50,8 @@ const avatarInitial = computed(() => displayName.value.charAt(0).toUpperCase())
 .user-pill {
   display: inline-flex;
   align-items: center;
-  gap: 1rem;
-  padding: 0.625rem 1.45rem;
+  gap: 1.1rem;
+  padding: 0.75rem 1.75rem;
   border-radius: 9999px;
   border: 1px solid rgba(148, 163, 184, 0.2);
   background: rgba(15, 23, 42, 0.25);
@@ -64,8 +64,8 @@ const avatarInitial = computed(() => displayName.value.charAt(0).toUpperCase())
     0 2px 6px rgba(2, 6, 23, 0.2),
     inset 0 2px 4px rgba(255, 255, 255, 0.15),
     inset 0 -2px 4px rgba(0, 0, 0, 0.25);
-  height: 60px;
-  min-height: 60px;
+  height: 72px;
+  min-height: 72px;
   box-sizing: border-box;
 }
 
@@ -88,21 +88,21 @@ const avatarInitial = computed(() => displayName.value.charAt(0).toUpperCase())
 }
 
 .user-name {
-  font-size: 0.9rem;
+  font-size: 1.05rem;
   font-weight: 700;
   letter-spacing: 0.02em;
 }
 
 .user-avatar {
-  width: 40px;
-  height: 40px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   border: 2px solid rgba(56, 189, 248, 0.45);
   background: rgba(8, 47, 73, 0.75);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.4rem;
+  font-size: 1.65rem;
   color: #e2e8f0;
   flex-shrink: 0;
 }
@@ -114,58 +114,58 @@ const avatarInitial = computed(() => displayName.value.charAt(0).toUpperCase())
 
 @media (max-width: 768px) {
   .user-pill {
-    height: 48px;
-    min-height: 48px;
-    padding: 0.45rem 1.1rem;
-    gap: 0.7rem;
+    height: 60px;
+    min-height: 60px;
+    padding: 0.55rem 1.35rem;
+    gap: 0.85rem;
   }
 
   .user-avatar {
-    width: 34px;
-    height: 34px;
-    font-size: 1.2rem;
+    width: 42px;
+    height: 42px;
+    font-size: 1.45rem;
   }
 
   .user-name {
-    font-size: 0.82rem;
+    font-size: 0.95rem;
   }
 }
 
 @media (max-width: 480px) {
   .user-pill {
-    height: 42px;
-    min-height: 42px;
-    padding: 0.35rem 0.85rem;
-    gap: 0.5rem;
+    height: 56px;
+    min-height: 56px;
+    padding: 0.5rem 1.1rem;
+    gap: 0.65rem;
   }
 
   .user-avatar {
-    width: 30px;
-    height: 30px;
-    font-size: 1.05rem;
+    width: 38px;
+    height: 38px;
+    font-size: 1.3rem;
   }
 
   .user-name {
-    font-size: 0.78rem;
+    font-size: 0.9rem;
   }
 }
 
 @media (max-width: 360px) {
   .user-pill {
-    height: 38px;
-    min-height: 38px;
-    padding: 0.3rem 0.7rem;
-    gap: 0.4rem;
+    height: 52px;
+    min-height: 52px;
+    padding: 0.45rem 0.95rem;
+    gap: 0.55rem;
   }
 
   .user-avatar {
-    width: 26px;
-    height: 26px;
-    font-size: 0.95rem;
+    width: 34px;
+    height: 34px;
+    font-size: 1.15rem;
   }
 
   .user-name {
-    font-size: 0.72rem;
+    font-size: 0.85rem;
   }
 }
 </style>

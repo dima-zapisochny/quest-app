@@ -51,8 +51,8 @@ defineEmits<{
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.9rem;
-  padding: 0.75rem 1.5rem;
+  gap: 1.5rem;
+  padding: 1.2rem 1.5rem 0.75rem;
   margin: 0;
   position: relative;
   z-index: 1;
@@ -85,7 +85,7 @@ defineEmits<{
 
 @media (max-width: 768px) {
   .app-header {
-    padding: 0.5rem 1rem;
+    padding: 1rem 1rem 0.5rem;
     gap: 0.5rem;
   }
 
@@ -101,7 +101,7 @@ defineEmits<{
 
 @media (max-width: 480px) {
   .app-header {
-    padding: 0.4rem 0.75rem;
+    padding: 0.85rem 0.75rem 0.4rem;
     gap: 0.4rem;
   }
 
@@ -113,7 +113,7 @@ defineEmits<{
 
 @media (max-width: 360px) {
   .app-header {
-    padding: 0.35rem 0.5rem;
+    padding: 0.75rem 0.5rem 0.35rem;
     gap: 0.35rem;
   }
 

@@ -82,7 +82,12 @@
       </section>
 
       <section class="actions actions--fixed">
-        <button class="primary" :disabled="!selectedQuestId" @click="handleStart">Начать игру</button>
+        <button
+          class="primary"
+          :disabled="!selectedQuestId || isMobileViewport"
+          :title="isMobileViewport ? 'Доступно только с компьютера или планшета' : undefined"
+          @click="handleStart"
+        >Начать игру</button>
         <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
       </section>
     </template>
@@ -144,10 +149,12 @@ import { useRouter } from 'vue-router'
 import { useQuizStore } from '@/store/quizStore'
 import { useGameSessionStore } from '@/store/gameSessionStore'
 import AppHeader from '@/components/common/AppHeader.vue'
+import { useIsMobileViewport } from '@/composables/useIsMobileViewport'
 
 const router = useRouter()
 const quizStore = useQuizStore()
 const sessionStore = useGameSessionStore()
+const { isMobileViewport } = useIsMobileViewport()
 
 const quests = computed(() => quizStore.quests)
 const selectedQuestId = ref<string | null>(null)

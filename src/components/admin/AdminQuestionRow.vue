@@ -84,26 +84,47 @@
           rows="3"
           placeholder="Текст ответа"
         ></textarea>
-        <div class="media-row">
-          <span v-if="answerMediaList.length" class="media-name">
-            {{ answerMediaList[0].name }}
-            <button
-              type="button"
-              class="media-remove"
-              @click="removeMedia('answer', answerMediaList[0].id)"
-              title="Удалить медиа"
-              aria-label="Удалить медиа ответа"
-            >✕</button>
-          </span>
-          <label v-if="!answerMediaList.length" class="upload-chip">
-            <input
-              type="file"
-              accept="image/*,audio/*"
-              :disabled="isUploadingAnswerMedia"
-              @change="handleUpload('answer', $event)"
-            />
-            <span>{{ isUploadingAnswerMedia ? 'Загрузка…' : 'Загрузить медиа' }}</span>
-          </label>
+        <div class="media-section">
+          <div v-for="media in answerMediaList" :key="media.id" class="media-item">
+            <div class="media-item-row">
+              <span class="media-name">{{ media.name }}</span>
+              <button
+                type="button"
+                class="media-remove"
+                @click="removeMedia('answer', media.id)"
+                title="Удалить медиа"
+                aria-label="Удалить медиа ответа"
+              >✕</button>
+            </div>
+          </div>
+          <div class="media-upload-buttons">
+            <label
+              v-if="answerMediaImages.length < 3"
+              class="upload-chip"
+              :class="{ 'upload-chip--disabled': isUploadingAnswerMedia }"
+            >
+              <input
+                type="file"
+                accept="image/*"
+                :disabled="isUploadingAnswerMedia"
+                @change="handleUpload('answer', $event, 'image')"
+              />
+              <span>{{ isUploadingAnswerMedia ? 'Загрузка…' : `Изображение (${answerMediaImages.length + 1}/3)` }}</span>
+            </label>
+            <label
+              v-if="!answerMediaAudio.length"
+              class="upload-chip"
+              :class="{ 'upload-chip--disabled': isUploadingAnswerMedia }"
+            >
+              <input
+                type="file"
+                accept="audio/*"
+                :disabled="isUploadingAnswerMedia"
+                @change="handleUpload('answer', $event, 'audio')"
+              />
+              <span>{{ isUploadingAnswerMedia ? 'Загрузка…' : 'Музыка / аудио' }}</span>
+            </label>
+          </div>
         </div>
       </div>
     </div>
@@ -180,6 +201,8 @@ const questionMediaAudio = computed(() => {
   return questionMediaList.value.filter(m => m.type === 'audio')
 })
 const answerMediaList = computed(() => props.question.answerMedia ?? [])
+const answerMediaImages = computed(() => answerMediaList.value.filter(m => m.type === 'image'))
+const answerMediaAudio = computed(() => answerMediaList.value.filter(m => m.type === 'audio'))
 
 function handleDelete() {
   if (confirm('Удалить вопрос?')) {
@@ -223,10 +246,18 @@ function handleUpload(target: 'question' | 'answer', event: Event, mediaType?: '
     }
   }
   
-  // Для ответов: одно медиа
-  if (target === 'answer' && answerMediaList.value.length >= 1) {
-    input.value = ''
-    return
+  // Для ответов: до 3 изображений и 1 аудио
+  if (target === 'answer') {
+    if (mediaType === 'image' && answerMediaImages.value.length >= 3) {
+      input.value = ''
+      alert('Можно добавить максимум 3 изображения в ответ')
+      return
+    }
+    if (mediaType === 'audio' && answerMediaAudio.value.length >= 1) {
+      input.value = ''
+      alert('Можно добавить только одно аудио в ответ')
+      return
+    }
   }
 
   if (target === 'question') {

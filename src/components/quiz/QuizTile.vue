@@ -20,8 +20,9 @@
       </span>
       <div v-else class="quiz-tile-played">
         <div v-if="question.answeredBy" class="quiz-tile-user-pill">
-          <span class="quiz-tile-user-name">{{ question.answeredBy.playerName }}</span>
           <span class="quiz-tile-user-avatar">{{ avatarEmoji(question.answeredBy.playerAvatar) }}</span>
+          <span class="quiz-tile-user-name">{{ question.answeredBy.playerName }}</span>
+          <span class="quiz-tile-user-check" aria-hidden="true">✓</span>
         </div>
         <span v-else class="quiz-tile-cross">✕</span>
       </div>
@@ -294,6 +295,21 @@ function avatarEmoji(avatarId: string): string {
     inset 0 1px 2px rgba(255, 255, 255, 0.1),
     0 2px 4px rgba(0, 0, 0, 0.3);
   flex-shrink: 0;
+}
+
+.quiz-tile-user-check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(22px, 3vw, 26px);
+  height: clamp(22px, 3vw, 26px);
+  border-radius: 50%;
+  background: rgba(34, 197, 94, 0.9);
+  color: #fff;
+  font-size: clamp(0.75rem, 2vw, 0.9rem);
+  font-weight: 700;
+  flex-shrink: 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 .quiz-tile-cross {

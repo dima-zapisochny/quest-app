@@ -17,6 +17,14 @@
               <span class="stats-label">Место</span>
               <span class="stats-value">{{ playerRank }}</span>
             </div>
+            <div class="stats-timer" :class="{ 'stats-timer--inactive': !shouldShowResponderTimer }" aria-label="Таймер ответа">
+              <TimerCircle
+                :duration-sec="10"
+                :auto-start="shouldShowResponderTimer"
+                ref="responderTimerRef"
+                @finished="handleResponderTimeout"
+              />
+            </div>
             <div class="stats-col">
               <span class="stats-label">Очки</span>
               <span class="stats-value">{{ player.score ?? 0 }}</span>
@@ -27,40 +35,15 @@
 
       <section class="question-panel">
         <p v-if="!activeQuestion" class="question-placeholder">
-          Ожидаем, когда ведущий откроет вопрос…
+          Ожидаем, когда ведущий<br /> откроет вопрос…
         </p>
         <div v-else class="question-content">
-          <h2>{{ currentQuestion?.question ?? 'Вопрос скрыт' }}</h2>
-          <div v-if="currentQuestionMediaImages.length" class="media-grid">
-            <QuestionMediaPreview
-              v-for="media in currentQuestionMediaImages"
-              :key="media.id"
-              :media="media"
-            />
-          </div>
-          <div class="responder-container" :class="{ 'responder-container--hidden': !currentResponder }">
-            <div v-if="currentResponder" class="responder-info">
-              <div class="responder-avatar">
-                <span>{{ avatarEmoji(currentResponder.avatar || 'fox') }}</span>
-              </div>
-              <div class="responder-details">
-                <span class="responder-name">{{ currentResponder.name }}</span>
-                <span class="responder-label">отвечает</span>
-              </div>
-            </div>
-            <div v-if="currentResponder" class="responder-timer">
-              <TimerCircle
-                v-if="shouldShowResponderTimer"
-                :duration-sec="10"
-                :auto-start="true"
-                ref="responderTimerRef"
-                @finished="handleResponderTimeout"
-              />
-            </div>
-          </div>
-          <div v-if="activeQuestion.showAnswer" class="answer-reveal">
-            Ответ: <strong>{{ currentQuestion?.answer }}</strong>
-          </div>
+          <template v-if="activeQuestion.showAnswer">
+            <h2 class="answer-only">{{ currentQuestion?.answer ?? '—' }}</h2>
+          </template>
+          <template v-else>
+            <h2>{{ currentQuestion?.question ?? 'Вопрос скрыт' }}</h2>
+          </template>
         </div>
       </section>
 
@@ -118,12 +101,10 @@
 <script setup lang="ts">
 import { computed, onMounted, onBeforeUnmount, ref, watch, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import QuestionMediaPreview from '@/components/quiz/QuestionMediaPreview.vue'
 import TimerCircle from '@/components/quiz/TimerCircle.vue'
 import { useGameSessionStore } from '@/store/gameSessionStore'
 import { useQuizStore } from '@/store/quizStore'
 import AppHeader from '@/components/common/AppHeader.vue'
-import type { MediaAsset } from '@/types'
 
 const route = useRoute()
 const router = useRouter()
@@ -160,15 +141,10 @@ const currentQuestion = computed(() => {
     .find(question => question.id === activeQuestion.value?.questionId)
 })
 
-const currentQuestionMedia = computed<MediaAsset[]>(() => currentQuestion.value?.questionMedia ?? [])
-
-// Только изображения для участников (без аудио)
-const currentQuestionMediaImages = computed(() => {
-  return currentQuestionMedia.value.filter(media => media.type === 'image')
-})
-
 const canBuzz = computed(() => {
   if (!player.value || !activeQuestion.value) return false
+  if (activeQuestion.value.showAnswer) return false // таймер вичерпано або відповідь вже показано
+  if (activeQuestion.value.timerPaused) return false // ведучий поставив на паузу — кнопка «Відповісти» неактивна
   if (player.value.status === 'locked') return false
   if (player.value.status === 'buzzed') return false
   if (activeQuestion.value.currentResponderId && activeQuestion.value.currentResponderId !== player.value.id) return false
@@ -185,7 +161,7 @@ const buzzerLabel = computed(() => {
     case 'locked':
       return 'Ответ уже дан'
     default:
-      return activeQuestion.value ? 'Ответить' : 'Ждем вопрос'
+      return activeQuestion.value ? 'Відповісти' : 'Ждем вопрос'
   }
 })
 
@@ -208,15 +184,15 @@ const playerRank = computed(() => {
   return rank || '-'
 })
 
-const currentResponder = computed(() => {
-  if (!session.value || !activeQuestion.value?.currentResponderId) return null
-  return session.value.players.find(p => p.id === activeQuestion.value?.currentResponderId) ?? null
+const isCurrentResponder = computed(() => {
+  if (!player.value || !activeQuestion.value?.currentResponderId) return false
+  return activeQuestion.value.currentResponderId === player.value.id
 })
 
 const responderTimerRef = ref<InstanceType<typeof TimerCircle> | null>(null)
 
 const shouldShowResponderTimer = computed(() => {
-  return !!currentResponder.value && !!activeQuestion.value?.responderStartedAt && !activeQuestion.value?.showAnswer
+  return isCurrentResponder.value && !!activeQuestion.value?.responderStartedAt && !activeQuestion.value?.showAnswer
 })
 
 function handleResponderTimeout() {
@@ -225,11 +201,25 @@ function handleResponderTimeout() {
   sessionStore.timeoutResponder(session.value.id)
 }
 
-// Отслеживаем изменения currentResponderId для сброса таймера
+// Сброс таймера при смене отвечающего или когда ответ уже дан
 watch(
   () => activeQuestion.value?.currentResponderId,
   (newResponderId, oldResponderId) => {
     if (newResponderId !== oldResponderId) {
+      nextTick(() => {
+        if (responderTimerRef.value) {
+          responderTimerRef.value.reset()
+        }
+      })
+    }
+  }
+)
+
+// Когда ответ показан (правильно/неправильно или время вышло) — обнуляем таймер до начального
+watch(
+  () => activeQuestion.value?.showAnswer,
+  (showAnswer) => {
+    if (showAnswer) {
       nextTick(() => {
         if (responderTimerRef.value) {
           responderTimerRef.value.reset()
@@ -572,6 +562,7 @@ onBeforeUnmount(() => {
   gap: 0;
   overflow: hidden;
   box-sizing: border-box;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 /* Fallback для старых браузеров */
@@ -587,8 +578,8 @@ onBeforeUnmount(() => {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 4.5rem;
-  padding: 1rem 1.5rem;
+  gap: 5.5rem;
+  padding: 3rem 1.5rem 1.5rem;
   margin: 0;
   min-height: 0;
   overflow: hidden;
@@ -626,6 +617,34 @@ onBeforeUnmount(() => {
   align-items: center;
 }
 
+.stats-timer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.stats-timer :deep(.timer-circle-container) {
+  transform: scale(0.6);
+  transition: filter 0.3s ease, opacity 0.3s ease;
+}
+
+.stats-timer--inactive :deep(.timer-circle-container) {
+  filter: grayscale(1);
+  opacity: 0.35;
+}
+
+.stats-timer--inactive :deep(.timer-text) {
+  color: #64748b;
+  text-shadow: none;
+}
+
+.stats-timer--inactive :deep(.timer-progress) {
+  color: #475569;
+}
+
 .stats-col {
   display: flex;
   flex-direction: column;
@@ -655,7 +674,7 @@ onBeforeUnmount(() => {
 }
 
 .stats-label {
-  font-size: clamp(0.85rem, 2vw, 0.95rem);
+  font-size: clamp(1rem, 2.5vw, 1.15rem);
   color: #94a3b8;
   font-weight: 600;
   text-transform: uppercase;
@@ -665,7 +684,7 @@ onBeforeUnmount(() => {
 }
 
 .stats-value {
-  font-size: clamp(1.5rem, 4vw, 2rem);
+  font-size: clamp(1.75rem, 5vw, 2.4rem);
   color: #f8fafc;
   font-weight: 700;
   position: relative;
@@ -678,7 +697,7 @@ onBeforeUnmount(() => {
   border-radius: 1.5rem;
   border: 1px solid rgba(148, 163, 184, 0.2);
   padding: 2rem;
-  margin: 0;
+  margin: 2rem 0 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -717,7 +736,7 @@ onBeforeUnmount(() => {
   margin: 0;
   text-align: center;
   color: #94a3b8;
-  font-size: clamp(0.95rem, 2.5vw, 1.1rem);
+  font-size: clamp(1.2rem, 3.5vw, 1.45rem);
   position: relative;
   z-index: 1;
 }
@@ -738,9 +757,15 @@ onBeforeUnmount(() => {
 .question-content h2 {
   margin: 0;
   text-align: center;
-  font-size: clamp(1.2rem, 4vw, 1.75rem);
+  font-size: clamp(1.85rem, 6vw, 2.6rem);
   line-height: 1.3;
   flex-shrink: 0;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.question-content h2.answer-only {
+  color: #facc15;
+  font-weight: 700;
 }
 
 .responder-container {
@@ -892,8 +917,8 @@ onBeforeUnmount(() => {
   flex-direction: column;
   align-items: center;
   gap: 0.75rem;
-  margin: 0;
-  padding: 0;
+  margin: 2rem 0 0;
+  padding: 3rem 0;
   flex-shrink: 0;
   box-sizing: border-box;
 }
@@ -941,6 +966,8 @@ onBeforeUnmount(() => {
 .buzzer-button .button-label {
   position: relative;
   z-index: 1;
+  font-weight: 600;
+  font-size: 1em;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
@@ -1269,7 +1296,7 @@ onBeforeUnmount(() => {
 @media (max-width: 1024px) and (min-width: 769px) {
 
   .player-main {
-    padding: 1.25rem 1.75rem;
+    padding: 2rem 1.75rem 1.25rem;
     gap: 1.875rem;
   }
 
@@ -1312,7 +1339,7 @@ onBeforeUnmount(() => {
 
 
   .player-main {
-    padding: 0.625rem 1.25rem;
+    padding: 1.25rem 1.25rem 0.625rem;
     gap: 0.9375rem;
     flex: 1;
     min-height: 0;
@@ -1368,11 +1395,11 @@ onBeforeUnmount(() => {
   }
 
   .stats-label {
-    font-size: 0.75rem;
+    font-size: 0.95rem;
   }
 
   .stats-value {
-    font-size: 1.15rem;
+    font-size: 1.45rem;
   }
 
   .question-panel {
@@ -1392,7 +1419,7 @@ onBeforeUnmount(() => {
   }
 
   .question-content h2 {
-    font-size: clamp(1rem, 4vw, 1.3rem);
+    font-size: clamp(1.5rem, 5.5vw, 1.95rem);
     line-height: 1.35;
     flex-shrink: 0;
   }
@@ -1447,7 +1474,7 @@ onBeforeUnmount(() => {
   }
 
   .buzzer-section {
-    padding: 0.625rem;
+    padding: 2.5rem 0.625rem;
     flex-shrink: 0;
   }
 
@@ -1459,7 +1486,8 @@ onBeforeUnmount(() => {
   }
 
   .button-label {
-    font-size: 0.95rem;
+    font-size: 1.05rem;
+    font-weight: 600;
   }
 
   .buzzer-hint {
@@ -1492,7 +1520,7 @@ onBeforeUnmount(() => {
 
 
   .player-main {
-    padding: 0.25rem 1rem;
+    padding: 1.25rem 1rem 0.5rem;
     gap: 0.375rem;
     flex: 1;
     min-height: 0;
@@ -1539,16 +1567,16 @@ onBeforeUnmount(() => {
   }
 
   .stats-label {
-    font-size: 0.7rem;
+    font-size: 0.88rem;
   }
 
   .stats-value {
-    font-size: 1rem;
+    font-size: 1.25rem;
   }
 
   .question-panel {
     padding: 0.4rem;
-    margin: 0;
+    margin: 1.5rem 0 0;
     flex: 1;
     min-height: 0;
     display: flex;
@@ -1565,7 +1593,7 @@ onBeforeUnmount(() => {
   }
 
   .question-content h2 {
-    font-size: clamp(0.85rem, 3.5vw, 1rem);
+    font-size: clamp(1.35rem, 4.8vw, 1.65rem);
     line-height: 1.25;
     flex-shrink: 0;
     margin: 0;
@@ -1618,8 +1646,8 @@ onBeforeUnmount(() => {
   }
 
   .buzzer-section {
-    padding: 0.25rem;
-    margin: 0;
+    padding: 2rem 0.25rem;
+    margin: 1.5rem 0 0;
     flex-shrink: 0;
     box-sizing: border-box;
   }
@@ -1632,7 +1660,8 @@ onBeforeUnmount(() => {
   }
 
   .button-label {
-    font-size: 0.9rem;
+    font-size: 0.95rem;
+    font-weight: 600;
   }
 
   .buzzer-hint {
@@ -1672,11 +1701,11 @@ onBeforeUnmount(() => {
   }
 
   .stats-label {
-    font-size: 0.65rem;
+    font-size: 0.82rem;
   }
 
   .stats-value {
-    font-size: 0.85rem;
+    font-size: 1.1rem;
   }
 
   .question-panel {
@@ -1696,7 +1725,7 @@ onBeforeUnmount(() => {
   }
 
   .question-content h2 {
-    font-size: clamp(0.8rem, 3vw, 0.95rem);
+    font-size: clamp(1.2rem, 4vw, 1.5rem);
     line-height: 1.2;
   }
 
@@ -1740,12 +1769,12 @@ onBeforeUnmount(() => {
   }
 
   .question-content h2 {
-    font-size: clamp(0.8rem, 4vw, 0.95rem);
+    font-size: clamp(1.2rem, 4.5vw, 1.45rem);
     line-height: 1.3;
   }
 
   .question-placeholder {
-    font-size: clamp(0.8rem, 3vw, 0.9rem);
+    font-size: clamp(1rem, 3.5vw, 1.15rem);
   }
 
   .answer-reveal {
@@ -1769,7 +1798,8 @@ onBeforeUnmount(() => {
   }
 
   .button-label {
-    font-size: 0.8rem;
+    font-size: 0.9rem;
+    font-weight: 600;
   }
 
   .buzzer-hint {
@@ -1781,7 +1811,7 @@ onBeforeUnmount(() => {
 @media (max-width: 320px) {
 
   .player-main {
-    padding: 0.2rem 0.875rem;
+    padding: 1rem 0.875rem 0.5rem;
     gap: 0.3rem;
     flex: 1;
     min-height: 0;
@@ -1809,16 +1839,16 @@ onBeforeUnmount(() => {
   }
 
   .stats-label {
-    font-size: 0.6rem;
+    font-size: 0.78rem;
   }
 
   .stats-value {
-    font-size: 0.75rem;
+    font-size: 0.95rem;
   }
 
   .question-panel {
     padding: 0.3rem;
-    margin: 0;
+    margin: 1.25rem 0 0;
     flex: 1;
     min-height: 0;
     display: flex;
@@ -1835,7 +1865,7 @@ onBeforeUnmount(() => {
   }
 
   .question-content h2 {
-    font-size: clamp(0.75rem, 2.8vw, 0.9rem);
+    font-size: clamp(1.15rem, 3.8vw, 1.35rem);
     line-height: 1.2;
     margin: 0;
   }
@@ -1877,7 +1907,7 @@ onBeforeUnmount(() => {
   }
 
   .question-placeholder {
-    font-size: clamp(0.75rem, 2.8vw, 0.85rem);
+    font-size: clamp(0.95rem, 3.2vw, 1.05rem);
   }
 
   .answer-reveal {
@@ -1886,8 +1916,8 @@ onBeforeUnmount(() => {
   }
 
   .buzzer-section {
-    padding: 0.2rem;
-    margin: 0;
+    padding: 1.75rem 0.2rem;
+    margin: 1.25rem 0 0;
     flex-shrink: 0;
     box-sizing: border-box;
   }
@@ -1900,7 +1930,8 @@ onBeforeUnmount(() => {
   }
 
   .button-label {
-    font-size: 0.75rem;
+    font-size: 0.85rem;
+    font-weight: 600;
   }
 
   .buzzer-hint {

@@ -659,6 +659,7 @@ export const useQuizStore = defineStore('quiz', () => {
       round.categories.forEach(category => {
         category.questions.forEach(question => {
           question.played = false
+          question.answeredBy = undefined
         })
       })
     })
@@ -674,6 +675,7 @@ export const useQuizStore = defineStore('quiz', () => {
     }
     
     await saveToStorage()
+    await sessionStore.syncSessionQuestSnapshot(questId, quest)
   }
 
   // Export / Import ----------------------------------------------------------

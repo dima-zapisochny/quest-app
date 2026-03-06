@@ -618,7 +618,18 @@ export const useGameSessionStore = defineStore('game-session', () => {
   async function closeQuestion(sessionId: string) {
     const session = getSessionById(sessionId)
     if (!session) return
-    
+
+    const aq = session.activeQuestion
+    if (aq?.showAnswer && session.quest?.rounds) {
+      const round = session.quest.rounds.find(r => r.id === aq.roundId)
+      const category = round?.categories?.find(c => c.id === aq.categoryId)
+      const q = category?.questions?.find(q => q.id === aq.questionId)
+      if (q) {
+        q.played = true
+        // Не скидаємо answeredBy — якщо була правильна відповідь, resolveQuestion вже його встановив
+      }
+    }
+
     session.activeQuestion = undefined
     resetPlayersStatuses(session)
     session.updatedAt = now()
@@ -647,6 +658,26 @@ export const useGameSessionStore = defineStore('game-session', () => {
       console.error('Error updating session:', error)
       // Fallback: обновляем локально
       updateSessionInArray(session)
+    }
+  }
+
+  async function syncSessionQuestSnapshot(questId: string, quest: Quest) {
+    const clearedSnapshot = JSON.parse(JSON.stringify(quest)) as Quest
+    const list = sessions.value.filter(s => s.questId === questId)
+    for (const session of list) {
+      const sessionToUpdate: GameSession = {
+        ...session,
+        quest: clearedSnapshot,
+        updatedAt: now()
+      }
+      try {
+        const updated = await updateSession(sessionToUpdate)
+        const withQuest = { ...updated, quest: clearedSnapshot }
+        updateSessionInArray(withQuest)
+      } catch (error) {
+        console.error('Error syncing session quest snapshot:', error)
+        updateSessionInArray({ ...session, quest: clearedSnapshot, updatedAt: now() })
+      }
     }
   }
 
@@ -789,9 +820,27 @@ export const useGameSessionStore = defineStore('game-session', () => {
         } : undefined
       )
       
-      // Обновляем сессию с новыми баллами
+      // Обновляем снепшот квеста в сессии, чтобы на плитках сразу отображалось «кто ответил»
+      if (session.quest?.rounds) {
+        const round = session.quest.rounds.find(r => r.id === roundId)
+        const category = round?.categories?.find(c => c.id === categoryId)
+        const q = category?.questions?.find(q => q.id === questionId)
+        if (q) {
+          q.played = true
+          if (responder) {
+            q.answeredBy = {
+              playerId: responder.id,
+              playerName: responder.name,
+              playerAvatar: responder.avatar
+            }
+          }
+        }
+      }
+      
+      // Показываем правильный ответ участникам и обновляем сессию
+      session.activeQuestion.showAnswer = true
       session.updatedAt = now()
-      console.log('💾 Saving session with updated scores:', {
+      console.log('💾 Saving session with updated scores and showAnswer:', {
         sessionId: session.id,
         players: session.players.map(p => ({ id: p.id, name: p.name, score: p.score }))
       })
@@ -802,7 +851,6 @@ export const useGameSessionStore = defineStore('game-session', () => {
         updateSessionInArray(updated)
       } catch (error) {
         console.error('❌ Error updating session:', error)
-        // Fallback: обновляем локально
         updateSessionInArray(session)
       }
       
@@ -851,6 +899,22 @@ export const useGameSessionStore = defineStore('game-session', () => {
     } catch (error) {
       console.error('Error updating session:', error)
       // Fallback: обновляем локально
+      updateSessionInArray(session)
+    }
+  }
+
+  async function pauseTimer(sessionId: string) {
+    const session = getSessionById(sessionId)
+    if (!session || !session.activeQuestion) return
+    
+    session.activeQuestion.timerPaused = true
+    session.updatedAt = now()
+    
+    try {
+      const updated = await updateSession(session)
+      updateSessionInArray(updated)
+    } catch (error) {
+      console.error('Error updating session:', error)
       updateSessionInArray(session)
     }
   }
@@ -1130,8 +1194,10 @@ export const useGameSessionStore = defineStore('game-session', () => {
     openQuestion,
     closeQuestion,
     revealAnswer,
+    syncSessionQuestSnapshot,
     buzz,
     resolveQuestion,
+    pauseTimer,
     resumeTimer,
     timeoutResponder,
     resetPlayersScores,
