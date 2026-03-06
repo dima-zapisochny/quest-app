@@ -98,6 +98,10 @@
       </section>
     </section>
   </div>
+  <div v-else-if="showLoading" class="not-found admin-quest-loading">
+    <div class="loader"></div>
+    <p>Загрузка квеста…</p>
+  </div>
   <div v-else class="not-found">
     <h1>Квест не найден</h1>
     <router-link to="/host/setup" class="back-link">← Вернуться к списку квестов</router-link>
@@ -122,6 +126,14 @@ const store = useQuizStore()
 const sessionStore = useGameSessionStore()
 
 const quest = computed(() => store.getQuestById(props.questId))
+
+const showLoading = computed(() => {
+  if (store.isLoading) return true
+  if (quest.value) return false
+  if (!sessionStore.userProfile?.id) return false
+  if (store.quests.length > 0) return false
+  return true
+})
 
 const editingRoundId = ref<string | null>(null)
 const isAddingRound = ref(false)
@@ -597,6 +609,24 @@ function goBack() {
   align-items: center;
   justify-content: center;
   gap: 1rem;
+}
+
+.admin-quest-loading {
+  gap: 1.25rem;
+}
+.admin-quest-loading p {
+  margin: 0;
+  color: #94a3b8;
+  font-size: 1rem;
+}
+
+.loader {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 3px solid rgba(56, 189, 248, 0.25);
+  border-top-color: #38bdf8;
+  animation: spin 0.8s linear infinite;
 }
 
 .not-found h1 {

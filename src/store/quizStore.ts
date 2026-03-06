@@ -786,6 +786,53 @@ export const useQuizStore = defineStore('quiz', () => {
     return addSeedQuest(createKinokvest)
   }
 
+  /** Клонирует квест с новыми id и сохраняет для текущего пользователя (импорт из JSON). */
+  async function importQuest(questData: Quest): Promise<string> {
+    const sessionStore = useGameSessionStore()
+    const userId = sessionStore.userProfile?.id
+    if (!userId) throw new Error('User must be authenticated to import quests')
+
+    const clone = JSON.parse(JSON.stringify(questData)) as Quest
+    const oldToNewId = new Map<string, string>()
+
+    function newId(old: string, prefix: string): string {
+      let id = oldToNewId.get(old)
+      if (!id) {
+        id = generateId(prefix)
+        oldToNewId.set(old, id)
+      }
+      return id
+    }
+
+    clone.id = generateId('quest')
+    clone.rounds = (clone.rounds || []).map((r) => {
+      const round = { ...r, id: newId(r.id, 'round'), categories: r.categories || [] }
+      round.categories = round.categories.map((c) => {
+        const cat = { ...c, id: newId(c.id, 'category'), questions: c.questions || [] }
+        cat.questions = cat.questions.map((q) => ({
+          ...q,
+          id: newId(q.id, 'q'),
+          played: false,
+          answeredBy: undefined,
+          questionMedia: (q.questionMedia || []).map((m) => ({ ...m, id: generateId('media') })),
+          answerMedia: (q.answerMedia || []).map((m) => ({ ...m, id: generateId('media') }))
+        }))
+        return cat
+      })
+      return round
+    })
+
+    quests.value.push(clone)
+    try {
+      await createQuestInDb(clone, userId)
+    } catch (error) {
+      console.error('Error importing quest:', error)
+      quests.value = quests.value.filter((q) => q.id !== clone.id)
+      throw error
+    }
+    return clone.id
+  }
+
   return {
     quests,
     isLoading,
@@ -821,7 +868,8 @@ export const useQuizStore = defineStore('quiz', () => {
     importData,
     clearAllData,
     addSeedQuest,
-    addKinokQuest
+    addKinokQuest,
+    importQuest
   }
 })
 

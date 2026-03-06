@@ -74,6 +74,18 @@
             <div class="new-quest-circle">+</div>
             <span>Создать новый квест</span>
           </article>
+          <article class="quest-card quest-card--import" @click.stop="triggerImportQuest">
+            <input
+              ref="importQuestInputRef"
+              type="file"
+              accept=".json,application/json"
+              class="quest-import-input"
+              :disabled="importingQuest"
+              @change="onImportQuestFile"
+            />
+            <div class="new-quest-circle import-icon">📂</div>
+            <span>{{ importingQuest ? 'Импорт…' : 'Импортировать квест из файла' }}</span>
+          </article>
         </div>
       </section>
 
@@ -146,6 +158,9 @@ import { useQuizStore } from '@/store/quizStore'
 import { useGameSessionStore } from '@/store/gameSessionStore'
 import AppHeader from '@/components/common/AppHeader.vue'
 import { useIsMobileViewport } from '@/composables/useIsMobileViewport'
+
+const importingQuest = ref(false)
+const importQuestInputRef = ref<HTMLInputElement | null>(null)
 
 const router = useRouter()
 const quizStore = useQuizStore()
@@ -339,6 +354,37 @@ function confirmDeleteQuest() {
 
 function cancelDeleteQuest() {
   confirmDeleteModal.value = { visible: false, questId: null, questTitle: '' }
+}
+
+function triggerImportQuest() {
+  if (importingQuest.value) return
+  importQuestInputRef.value?.click()
+}
+
+async function onImportQuestFile(event: Event) {
+  const input = event.target as HTMLInputElement
+  importingQuest.value = true
+  const file = input.files?.[0]
+  input.value = ''
+  if (!file) {
+    importingQuest.value = false
+    return
+  }
+  errorMessage.value = ''
+  try {
+    const text = await file.text()
+    const data = JSON.parse(text)
+    if (!data || typeof data.title !== 'string' || !Array.isArray(data.rounds)) {
+      errorMessage.value = 'Неверный формат файла: нужен JSON квеста с полями title и rounds'
+      return
+    }
+    const questId = await quizStore.importQuest(data)
+    selectedQuestId.value = questId
+  } catch (err: any) {
+    errorMessage.value = err?.message ?? 'Не удалось импортировать квест'
+  } finally {
+    importingQuest.value = false
+  }
 }
 
 </script>
@@ -748,11 +794,41 @@ function cancelDeleteQuest() {
   font-size: 2.4rem;
 }
 
-.quest-card--new span {
+.quest-card--new span,
+.quest-card--import span {
   font-size: 0.92rem;
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
+}
+
+.quest-card--import {
+  border: 1px dashed rgba(59, 130, 246, 0.5);
+  background: rgba(15, 23, 42, 0.6);
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  text-align: center;
+  color: rgba(226, 232, 240, 0.9);
+  position: relative;
+}
+.quest-card--import:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(148, 163, 184, 0.1);
+  border-color: rgba(148, 163, 184, 0.5);
+}
+.quest-import-input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  font-size: 0;
+}
+.quest-import-input:disabled {
+  cursor: not-allowed;
+  pointer-events: none;
 }
 
 .quest-card::before {

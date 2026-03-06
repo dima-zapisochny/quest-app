@@ -671,7 +671,7 @@ export const useGameSessionStore = defineStore('game-session', () => {
         updatedAt: now()
       }
       try {
-        const updated = await updateSession(sessionToUpdate)
+        const updated = await updateSession(sessionToUpdate, { includeQuestData: true })
         const withQuest = { ...updated, quest: clearedSnapshot }
         updateSessionInArray(withQuest)
       } catch (error) {
