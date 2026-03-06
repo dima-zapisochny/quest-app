@@ -7,7 +7,7 @@
         </header>
 
         <section v-if="!showAnswer" class="question-pane">
-          <div class="question-body" :class="{ 'has-media': hasQuestionImage }">
+          <div class="question-body" :class="{ 'has-visible-images': visibleImages.length > 0 }">
             <div class="question-header">
             <h2 class="modal-title">{{ question.question }}</h2>
               <div v-if="currentResponder" class="responder-banner">
@@ -15,9 +15,12 @@
               </div>
             </div>
             <div 
-              v-if="questionMediaImages.length" 
+              v-if="visibleImages.length" 
               class="media-grid"
-              :class="{ 'media-grid--multiple': visibleImages.length > 1 }"
+              :class="{ 
+                'media-grid--multiple': visibleImages.length > 1,
+                'media-grid--three': visibleImages.length === 3
+              }"
             >
               <TransitionGroup name="fade">
                 <QuestionMediaPreview
@@ -81,23 +84,6 @@
           </div>
           <aside class="admin-panel">
             <div class="admin-controls-block">
-              <div class="question-type-wrapper">
-                <div class="question-type-icon" :class="questionTypeClass" :title="questionTypeTitle">
-                  <svg v-if="questionType === 'audio'" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M9 18V5l12-2v13"></path>
-                    <circle cx="6" cy="18" r="3"></circle>
-                    <circle cx="18" cy="16" r="3"></circle>
-                  </svg>
-                  <svg v-else-if="questionType === 'image'" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                    <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                    <polyline points="21 15 16 10 5 21"></polyline>
-                  </svg>
-                  <svg v-else xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M4 7h16M4 12h16M4 17h16"></path>
-                  </svg>
-                </div>
-              </div>
               <TimerCircle
                 :duration-sec="30"
                 :auto-start="true"
@@ -391,31 +377,6 @@ const hasAudio = computed(() => {
   return allValid
 })
 
-// Тип вопроса для отображения иконки
-const questionType = computed(() => {
-  const hasImages = questionMediaImages.value.length > 0
-  
-  // Если есть аудио - музыкальный вопрос
-  if (hasAudio.value) return 'audio'
-  // Если есть изображения - вопрос с изображением
-  if (hasImages) return 'image'
-  // Если нет ни аудио, ни изображений - текстовый вопрос
-  return 'text'
-})
-
-const questionTypeClass = computed(() => `question-type--${questionType.value}`)
-
-const questionTypeTitle = computed(() => {
-  switch (questionType.value) {
-    case 'audio':
-      return 'Музыкальный вопрос'
-    case 'image':
-      return 'Вопрос с изображением'
-    default:
-      return 'Текстовый вопрос'
-  }
-})
-
 function setAudioRef(id: string, el: HTMLAudioElement | null) {
   if (el) {
     audioRefs.value[id] = el
@@ -582,7 +543,13 @@ watch(
 )
 
 function resetModal() {
-  showAnswer.value = !!activeQuestion.value?.showAnswer
+  // Показывать ответ только если в сессии активен именно этот вопрос и ответ уже раскрыт (таймер истёк)
+  showAnswer.value = !!(
+    props.question &&
+    activeQuestion.value &&
+    activeQuestion.value.questionId === props.question.id &&
+    activeQuestion.value.showAnswer
+  )
   
   // Очищаем интервал отсчета времени
   if (elapsedTimeInterval) {
@@ -687,7 +654,14 @@ function avatarEmoji(avatarId: string): string {
     whale: '🐳',
     parrot: '🦜',
     koala: '🐨',
-    dino: '🦕'
+    dino: '🦕',
+    crocodile: '🐊',
+    lion: '🦁',
+    penguin: '🐧',
+    elephant: '🐘',
+    seal: '🦭',
+    hedgehog: '🦔',
+    lily: '🌸'
   }
   return map[avatarId] ?? '🙂'
 }
@@ -866,7 +840,7 @@ onBeforeUnmount(() => {
   background: rgba(139, 92, 246, 0.6);
 }
 
-.question-body.has-media {
+.question-body.has-visible-images {
   justify-content: flex-start;
   align-items: stretch;
   text-align: left;
@@ -886,7 +860,7 @@ onBeforeUnmount(() => {
   min-height: 0;
 }
 
-.question-body.has-media .question-header {
+.question-body.has-visible-images .question-header {
   flex: 0 0 auto;
   order: 1;
   justify-content: flex-start;
@@ -895,7 +869,7 @@ onBeforeUnmount(() => {
   overflow-x: hidden;
 }
 
-.question-body.has-media .media-grid {
+.question-body.has-visible-images .media-grid {
   flex: 1 1 0;
   order: 2;
   min-height: 0;
@@ -904,16 +878,23 @@ onBeforeUnmount(() => {
   flex-direction: row;
   gap: 1rem;
   overflow: visible;
-  align-items: center;
+  align-items: stretch;
   justify-content: center;
 }
 
-.question-body.has-media .media-grid--multiple {
-  justify-content: space-around;
+.question-body.has-visible-images .media-grid--multiple {
+  justify-content: center;
+  gap: 1rem;
 }
 
-.question-body.has-media .media-grid :deep(.media-card) {
+.question-body.has-visible-images .media-grid--three {
+  gap: 0.4rem;
+  justify-content: space-between;
+}
+
+.question-body.has-visible-images .media-grid :deep(.media-card) {
   flex: 1;
+  min-width: 0;
   min-height: 0;
   max-height: 100%;
   height: 100%;
@@ -926,7 +907,12 @@ onBeforeUnmount(() => {
   box-shadow: none;
 }
 
-.question-body.has-media .media-grid :deep(.image-wrapper) {
+.question-body.has-visible-images .media-grid--three :deep(.media-card) {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.question-body.has-visible-images .media-grid :deep(.image-wrapper) {
   flex: 1;
   min-height: 0;
   max-height: 100%;
@@ -938,7 +924,7 @@ onBeforeUnmount(() => {
   justify-content: center;
 }
 
-.question-body.has-media .media-grid :deep(.image-wrapper img) {
+.question-body.has-visible-images .media-grid :deep(.image-wrapper img) {
   max-width: 100%;
   max-height: 100%;
   width: auto;
@@ -948,7 +934,7 @@ onBeforeUnmount(() => {
   display: block;
 }
 
-.question-body.has-media .media-grid :deep(.media-name) {
+.question-body.has-visible-images .media-grid :deep(.media-name) {
   display: none;
 }
 
@@ -1229,71 +1215,7 @@ onBeforeUnmount(() => {
     0 4px 12px rgba(0, 0, 0, 0.2),
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
   box-sizing: border-box;
-}
-
-.question-type-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.question-type-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(
-    135deg,
-    rgba(30, 41, 59, 0.6) 0%,
-    rgba(15, 23, 42, 0.7) 100%
-  );
-  border: 1.5px solid rgba(148, 163, 184, 0.2);
-  backdrop-filter: blur(15px);
-  box-shadow: 
-    0 4px 12px rgba(0, 0, 0, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  cursor: help;
-  position: relative;
-  overflow: hidden;
-}
-
-.question-type-icon::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(
-    135deg,
-    rgba(139, 92, 246, 0.1) 0%,
-    transparent 50%,
-    rgba(59, 130, 246, 0.1) 100%
-  );
-  pointer-events: none;
-  border-radius: 50%;
-}
-
-.question-type-icon svg {
-  width: 24px;
-  height: 24px;
-  color: rgba(148, 163, 184, 0.7);
-  position: relative;
-  z-index: 1;
-}
-
-.question-type-icon.question-type--audio,
-.question-type-icon.question-type--image,
-.question-type-icon.question-type--text {
-  border-color: rgba(148, 163, 184, 0.2);
-}
-
-.question-type-icon.question-type--audio svg,
-.question-type-icon.question-type--image svg,
-.question-type-icon.question-type--text svg {
-  color: rgba(148, 163, 184, 0.7);
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 .admin-panel :deep(.timer-circle-container) {
@@ -1802,7 +1724,8 @@ onBeforeUnmount(() => {
 }
 
 .modal-title {
-  font-size: clamp(1.5rem, 3vw, 2.5rem);
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: clamp(1.75rem, 3.5vw, 2.9rem);
   margin: 0;
   line-height: 1.4;
   background: linear-gradient(
@@ -1931,6 +1854,61 @@ onBeforeUnmount(() => {
     width: 100%;
     height: 100%;
     border-radius: 16px;
+    padding: 1.5rem 1.25rem;
+  }
+
+  .modal-title {
+    font-size: clamp(1.45rem, 4vw, 2rem);
+  }
+
+  .admin-controls-block {
+    min-height: 280px;
+    padding: 1.5rem 1rem;
+    gap: 1rem;
+  }
+
+  .host-actions {
+    gap: 0.6rem;
+  }
+
+  .host-button {
+    width: 48px;
+    height: 48px;
+  }
+
+  .host-button svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .responder-info-card {
+    padding: 0.75rem 1rem;
+  }
+
+  .responder-card-content,
+  .responder-empty {
+    min-height: 70px;
+    height: 70px;
+    padding: 0.65rem 0.85rem;
+  }
+
+  .audio-control-block {
+    padding: 0.75rem 1rem;
+    min-width: 280px;
+  }
+
+  .audio-play-button {
+    width: 36px;
+    height: 36px;
+  }
+
+  .audio-play-button svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .audio-equalizer {
+    height: 20px;
   }
 
   .media-grid {
@@ -1939,7 +1917,7 @@ onBeforeUnmount(() => {
     gap: 1rem;
   }
   
-  .question-body.has-media .media-grid {
+  .question-body.has-visible-images .media-grid {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
@@ -1953,6 +1931,192 @@ onBeforeUnmount(() => {
 
   .admin-button {
     width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-overlay {
+    padding: 0.75rem;
+  }
+
+  .modal-content {
+    padding: 1.25rem 1rem;
+    border-radius: 14px;
+  }
+
+  .modal-title {
+    font-size: clamp(1.3rem, 4vw, 1.75rem);
+  }
+
+  .admin-controls-block {
+    min-height: 260px;
+    padding: 1.25rem 0.875rem;
+    gap: 0.875rem;
+  }
+
+  .host-button {
+    width: 44px;
+    height: 44px;
+  }
+
+  .host-button svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .responder-card-content,
+  .responder-empty {
+    min-height: 65px;
+    height: 65px;
+    padding: 0.6rem 0.75rem;
+  }
+
+  .audio-control-block {
+    padding: 0.65rem 0.875rem;
+    min-width: 260px;
+  }
+
+  .audio-play-button {
+    width: 34px;
+    height: 34px;
+  }
+
+  .audio-play-button svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  .audio-equalizer {
+    height: 18px;
+  }
+
+  .media-grid {
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 0.75rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .modal-overlay {
+    padding: 0.5rem;
+  }
+
+  .modal-content {
+    padding: 1rem 0.875rem;
+    border-radius: 12px;
+  }
+
+  .modal-title {
+    font-size: clamp(1.15rem, 4vw, 1.5rem);
+  }
+
+  .admin-controls-block {
+    min-height: 240px;
+    padding: 1rem 0.75rem;
+    gap: 0.75rem;
+  }
+
+  .host-button {
+    width: 40px;
+    height: 40px;
+  }
+
+  .host-button svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .responder-card-content,
+  .responder-empty {
+    min-height: 60px;
+    height: 60px;
+    padding: 0.55rem 0.65rem;
+  }
+
+  .audio-control-block {
+    padding: 0.6rem 0.75rem;
+    min-width: 240px;
+  }
+
+  .audio-play-button {
+    width: 32px;
+    height: 32px;
+  }
+
+  .audio-play-button svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .audio-equalizer {
+    height: 16px;
+  }
+
+  .media-grid {
+    grid-template-columns: repeat(auto-fit, minmax(85px, 1fr));
+    gap: 0.6rem;
+  }
+}
+
+@media (max-width: 320px) {
+  .modal-overlay {
+    padding: 0.375rem;
+  }
+
+  .modal-content {
+    padding: 0.875rem 0.75rem;
+    border-radius: 10px;
+  }
+
+  .modal-title {
+    font-size: clamp(1.1rem, 4vw, 1.4rem);
+  }
+
+  .admin-controls-block {
+    min-height: 220px;
+    padding: 0.875rem 0.65rem;
+    gap: 0.65rem;
+  }
+
+  .host-button {
+    width: 36px;
+    height: 36px;
+  }
+
+  .host-button svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .responder-card-content,
+  .responder-empty {
+    min-height: 55px;
+    height: 55px;
+    padding: 0.5rem 0.6rem;
+  }
+
+  .audio-control-block {
+    padding: 0.55rem 0.65rem;
+    min-width: 220px;
+  }
+
+  .audio-play-button {
+    width: 30px;
+    height: 30px;
+  }
+
+  .audio-play-button svg {
+    width: 13px;
+    height: 13px;
+  }
+
+  .audio-equalizer {
+    height: 14px;
+  }
+
+  .media-grid {
+    grid-template-columns: repeat(auto-fit, minmax(75px, 1fr));
+    gap: 0.5rem;
   }
 }
 </style>

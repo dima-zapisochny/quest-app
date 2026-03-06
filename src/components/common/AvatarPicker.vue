@@ -32,7 +32,8 @@ const avatars: AvatarOption[] = [
   { id: 'penguin', emoji: '🐧', label: 'Пингвин' },
   { id: 'elephant', emoji: '🐘', label: 'Слон' },
   { id: 'seal', emoji: '🦭', label: 'Тюлень' },
-  { id: 'hedgehog', emoji: '🦔', label: 'Ёж' }
+  { id: 'hedgehog', emoji: '🦔', label: 'Ёж' },
+  { id: 'lily', emoji: '🌸', label: 'Лілія' }
 ]
 
 const props = defineProps<{
@@ -131,6 +132,61 @@ defineExpose({ randomize })
   }
   50% {
     box-shadow: 0 20px 40px rgba(14, 165, 233, 0.32);
+  }
+}
+
+@media (max-width: 768px) {
+  .avatar-preview {
+    width: 80px;
+    height: 80px;
+  }
+
+  .avatar-emoji {
+    font-size: 2.5rem;
+  }
+
+  .avatar-refresh {
+    width: 34px;
+    height: 34px;
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .avatar-preview {
+    width: 68px;
+    height: 68px;
+  }
+
+  .avatar-emoji {
+    font-size: 2.2rem;
+  }
+
+  .avatar-refresh {
+    width: 30px;
+    height: 30px;
+    font-size: 1.3rem;
+    bottom: -4px;
+    right: -4px;
+  }
+}
+
+@media (max-width: 360px) {
+  .avatar-preview {
+    width: 60px;
+    height: 60px;
+  }
+
+  .avatar-emoji {
+    font-size: 2rem;
+  }
+
+  .avatar-refresh {
+    width: 28px;
+    height: 28px;
+    font-size: 1.2rem;
+    bottom: -3px;
+    right: -3px;
   }
 }
 </style>

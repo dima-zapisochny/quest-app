@@ -52,10 +52,11 @@ export async function upsertUserProfile(profile: UserProfile): Promise<UserProfi
 // Quests
 // ============================================================================
 
-export async function getAllQuests(): Promise<Quest[]> {
+export async function getAllQuests(userId: string): Promise<Quest[]> {
   const { data, error } = await supabase
     .from('quests')
     .select('*')
+    .eq('user_id', userId)
     .order('created_at', { ascending: false })
 
   if (error) {
@@ -66,11 +67,12 @@ export async function getAllQuests(): Promise<Quest[]> {
   return data.map(row => row.data as Quest)
 }
 
-export async function getQuestById(questId: string): Promise<Quest | null> {
+export async function getQuestById(questId: string, userId: string): Promise<Quest | null> {
   const { data, error } = await supabase
     .from('quests')
     .select('*')
     .eq('id', questId)
+    .eq('user_id', userId)
     .single()
 
   if (error) {
@@ -82,14 +84,15 @@ export async function getQuestById(questId: string): Promise<Quest | null> {
   return data.data as Quest
 }
 
-export async function createQuest(quest: Quest): Promise<Quest> {
+export async function createQuest(quest: Quest, userId: string): Promise<Quest> {
   const { data, error } = await supabase
     .from('quests')
     .insert({
       id: quest.id,
       title: quest.title,
       description: quest.description || null,
-      data: quest
+      data: quest,
+      user_id: userId
     })
     .select()
     .single()
@@ -102,7 +105,7 @@ export async function createQuest(quest: Quest): Promise<Quest> {
   return data.data as Quest
 }
 
-export async function updateQuest(quest: Quest): Promise<Quest> {
+export async function updateQuest(quest: Quest, userId: string): Promise<Quest> {
   const { data, error } = await supabase
     .from('quests')
     .update({
@@ -111,10 +114,14 @@ export async function updateQuest(quest: Quest): Promise<Quest> {
       data: quest
     })
     .eq('id', quest.id)
+    .eq('user_id', userId) // Проверяем, что квест принадлежит пользователю
     .select()
     .single()
 
   if (error) {
+    if (error.code === 'PGRST116') {
+      throw new Error('Quest not found or you do not have permission to update it')
+    }
     console.error('Error updating quest:', error)
     throw error
   }
@@ -122,11 +129,12 @@ export async function updateQuest(quest: Quest): Promise<Quest> {
   return data.data as Quest
 }
 
-export async function deleteQuest(questId: string): Promise<void> {
+export async function deleteQuest(questId: string, userId: string): Promise<void> {
   const { error } = await supabase
     .from('quests')
     .delete()
     .eq('id', questId)
+    .eq('user_id', userId) // Проверяем, что квест принадлежит пользователю
 
   if (error) {
     console.error('Error deleting quest:', error)
@@ -153,6 +161,7 @@ export async function getAllSessions(): Promise<GameSession[]> {
     id: row.id,
     code: row.code,
     questId: row.quest_id,
+    quest: (row as { quest_data?: Quest }).quest_data || undefined,
     hostId: row.host_id,
     hostName: row.host_name,
     hostAvatar: row.host_avatar,
@@ -185,6 +194,7 @@ export async function getSessionById(sessionId: string): Promise<GameSession | n
     id: data.id,
     code: data.code,
     questId: data.quest_id,
+    quest: (data as { quest_data?: Quest }).quest_data || undefined,
     hostId: data.host_id,
     hostName: data.host_name,
     hostAvatar: data.host_avatar,
@@ -217,27 +227,7 @@ export async function getSessionByCode(code: string): Promise<GameSession | null
     return null
   }
 
-  return {
-    id: data.id,
-    code: data.code,
-    questId: data.quest_id,
-    hostId: data.host_id,
-    hostName: data.host_name,
-    hostAvatar: data.host_avatar,
-    state: data.state,
-    roundId: data.round_id || undefined,
-    players: (data.players as Player[]).map(player => {
-      const mappedPlayer = {
-        ...player,
-        score: player.score ?? 0
-      }
-      console.log('📊 Player loaded from database:', { id: mappedPlayer.id, name: mappedPlayer.name, score: mappedPlayer.score })
-      return mappedPlayer
-    }),
-    activeQuestion: data.active_question as GameSession['activeQuestion'],
-    createdAt: new Date(data.created_at).getTime(),
-    updatedAt: new Date(data.updated_at).getTime()
-  }
+  return mapSessionRow(data as Parameters<typeof mapSessionRow>[0])
 }
 
 export async function createSession(session: GameSession): Promise<GameSession> {
@@ -247,6 +237,7 @@ export async function createSession(session: GameSession): Promise<GameSession> 
       id: session.id,
       code: session.code,
       quest_id: session.questId,
+      quest_data: session.quest || null,
       host_id: session.hostId,
       host_name: session.hostName,
       host_avatar: session.hostAvatar,
@@ -263,14 +254,19 @@ export async function createSession(session: GameSession): Promise<GameSession> 
     throw error
   }
 
+  return mapSessionRow(data)
+}
+
+function mapSessionRow(data: { id: string; code: string; quest_id: string; quest_data?: Quest | null; host_id: string; host_name: string; host_avatar: string; state: string; round_id: string | null; players: Player[]; active_question: unknown; created_at: string; updated_at: string }): GameSession {
   return {
     id: data.id,
     code: data.code,
     questId: data.quest_id,
+    quest: data.quest_data || undefined,
     hostId: data.host_id,
     hostName: data.host_name,
     hostAvatar: data.host_avatar,
-    state: data.state,
+    state: data.state as GameSession['state'],
     roundId: data.round_id || undefined,
     players: (data.players as Player[]).map(player => ({
       ...player,
@@ -311,10 +307,11 @@ export async function updateSession(session: GameSession): Promise<GameSession> 
     throw error
   }
 
-  const updated = {
+  const updated: GameSession = {
     id: data.id,
     code: data.code,
     questId: data.quest_id,
+    quest: (data as { quest_data?: Quest }).quest_data || undefined,
     hostId: data.host_id,
     hostName: data.host_name,
     hostAvatar: data.host_avatar,
@@ -332,9 +329,9 @@ export async function updateSession(session: GameSession): Promise<GameSession> 
     createdAt: new Date(data.created_at).getTime(),
     updatedAt: new Date(data.updated_at).getTime()
   }
-  
+
   console.log('✅ Session updated successfully, players with scores:', updated.players.map(p => ({ id: p.id, name: p.name, score: p.score })))
-  
+
   return updated
 }
 
@@ -536,6 +533,7 @@ export function subscribeToSessions(
 }
 
 export function subscribeToQuests(
+  userId: string,
   callback: (quest: Quest) => void
 ): () => void {
   const channel = supabase
@@ -545,11 +543,12 @@ export function subscribeToQuests(
       {
         event: '*',
         schema: 'public',
-        table: 'quests'
+        table: 'quests',
+        filter: `user_id=eq.${userId}` // Подписываемся только на изменения квестов текущего пользователя
       },
       async (payload) => {
         if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
-          const quest = await getQuestById(payload.new.id)
+          const quest = await getQuestById(payload.new.id, userId)
           if (quest) callback(quest)
         }
       }

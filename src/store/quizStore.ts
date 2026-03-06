@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import type { Quest, Round, Category, Question, MediaAsset } from '@/types'
 import { generateId } from '@/utils/id'
 import {
@@ -15,6 +15,7 @@ import {
   subscribeToQuests
 } from '@/services/supabaseService'
 import { useGameSessionStore } from './gameSessionStore'
+import { createMusicQuest } from '@/data/seedQuests'
 
 function createMediaAsset(file: File, dataUrl: string): MediaAsset {
   const extension = file.name.split('.').pop()?.toLowerCase()
@@ -35,14 +36,21 @@ export const useQuizStore = defineStore('quiz', () => {
 
   // Helpers ------------------------------------------------------------------
   async function saveToStorage() {
+    const sessionStore = useGameSessionStore()
+    const userId = sessionStore.userProfile?.id
+    if (!userId) {
+      console.warn('Cannot save quests: user not authenticated')
+      return
+    }
+    
     // Сохраняем каждый квест в Supabase
     for (const quest of quests.value) {
       try {
-        const existing = await getQuestByIdFromDb(quest.id)
+        const existing = await getQuestByIdFromDb(quest.id, userId)
         if (existing) {
-          await updateQuestInDb(quest)
+          await updateQuestInDb(quest, userId)
         } else {
-          await createQuestInDb(quest)
+          await createQuestInDb(quest, userId)
         }
       } catch (error) {
         console.error('Failed to save quest to Supabase:', error)
@@ -54,17 +62,39 @@ export const useQuizStore = defineStore('quiz', () => {
         }
       }
     }
+    
+    // Также сохраняем все квесты пользователя в localStorage как fallback
+    try {
+      localStorage.setItem(`quiz-app-data-${userId}`, JSON.stringify(quests.value))
+    } catch (e) {
+      console.error('Failed to save all quests to localStorage:', e)
+    }
   }
 
   async function loadFromStorage() {
     isLoading.value = true
     try {
-      // Загружаем из Supabase
-      const dbQuests = await getAllQuests()
-      if (dbQuests.length > 0) {
-        quests.value = dbQuests
+      const sessionStore = useGameSessionStore()
+      const userId = sessionStore.userProfile?.id
+      
+      if (userId) {
+        // Загружаем из Supabase только квесты текущего пользователя
+        const dbQuests = await getAllQuests(userId)
+        if (dbQuests.length > 0) {
+          quests.value = dbQuests
+        } else {
+          // Fallback: загружаем из localStorage только квесты текущего пользователя
+          const stored = localStorage.getItem(`quiz-app-data-${userId}`)
+          if (stored) {
+            try {
+              quests.value = JSON.parse(stored)
+            } catch (error) {
+              console.error('Failed to parse localStorage data:', error)
+            }
+          }
+        }
       } else {
-        // Fallback: загружаем из localStorage
+        // Если пользователь не авторизован, загружаем из старого формата localStorage (для совместимости)
         const stored = localStorage.getItem('quiz-app-data')
         if (stored) {
           try {
@@ -77,10 +107,17 @@ export const useQuizStore = defineStore('quiz', () => {
       
       // Загружаем прогресс для каждого квеста
       await loadQuestProgress()
+      
+      // Инициализируем подписку на изменения после загрузки данных
+      initializeSubscription()
     } catch (error) {
       console.error('Failed to load data:', error)
       // Fallback: загружаем из localStorage
-      const stored = localStorage.getItem('quiz-app-data')
+      const sessionStore = useGameSessionStore()
+      const userId = sessionStore.userProfile?.id
+      const stored = userId 
+        ? localStorage.getItem(`quiz-app-data-${userId}`)
+        : localStorage.getItem('quiz-app-data')
       if (stored) {
         try {
           quests.value = JSON.parse(stored)
@@ -88,6 +125,8 @@ export const useQuizStore = defineStore('quiz', () => {
           console.error('Failed to parse localStorage data:', e)
         }
       }
+      // Инициализируем подписку даже после fallback
+      initializeSubscription()
     } finally {
       isLoading.value = false
     }
@@ -122,10 +161,40 @@ export const useQuizStore = defineStore('quiz', () => {
 
   // Инициализация при создании store
   if (typeof window !== 'undefined') {
-    loadFromStorage()
-
-    // Подписываемся на изменения квестов через real-time
-    unsubscribeQuests = subscribeToQuests((quest) => {
+    // Следим за изменениями userProfile и загружаем квесты при авторизации
+    const sessionStore = useGameSessionStore()
+    watch(
+      () => sessionStore.userProfile?.id,
+      (userId) => {
+        if (userId) {
+          loadFromStorage()
+        } else {
+          // Если пользователь вышел, очищаем квесты
+          quests.value = []
+          if (unsubscribeQuests) {
+            unsubscribeQuests()
+            unsubscribeQuests = null
+          }
+        }
+      },
+      { immediate: true }
+    )
+  }
+  
+  // Функция для инициализации подписки на изменения квестов
+  function initializeSubscription() {
+    const sessionStore = useGameSessionStore()
+    const userId = sessionStore.userProfile?.id
+    if (!userId) return
+    
+    // Отписываемся от старой подписки, если она есть
+    if (unsubscribeQuests) {
+      unsubscribeQuests()
+      unsubscribeQuests = null
+    }
+    
+    // Подписываемся на изменения квестов текущего пользователя через real-time
+    unsubscribeQuests = subscribeToQuests(userId, (quest) => {
       const existingIndex = quests.value.findIndex(q => q.id === quest.id)
       if (existingIndex >= 0) {
         quests.value[existingIndex] = quest
@@ -212,6 +281,12 @@ export const useQuizStore = defineStore('quiz', () => {
 
   // Quest actions -------------------------------------------------------------
   async function createQuest(title: string, description = ''): Promise<string> {
+    const sessionStore = useGameSessionStore()
+    const userId = sessionStore.userProfile?.id
+    if (!userId) {
+      throw new Error('User must be authenticated to create quests')
+    }
+    
     const newQuest: Quest = {
       id: generateId('quest'),
       title,
@@ -220,48 +295,74 @@ export const useQuizStore = defineStore('quiz', () => {
     }
     quests.value.push(newQuest)
     try {
-      await createQuestInDb(newQuest)
+      await createQuestInDb(newQuest, userId)
     } catch (error) {
       console.error('Error creating quest:', error)
-      // Fallback: сохраняем локально
-      await saveToStorage()
+      // Откатываем добавление квеста, если не удалось сохранить
+      quests.value = quests.value.filter(q => q.id !== newQuest.id)
+      throw error
     }
     return newQuest.id
   }
 
   async function updateQuest(questId: string, payload: Partial<Omit<Quest, 'id' | 'rounds'>>) {
+    const sessionStore = useGameSessionStore()
+    const userId = sessionStore.userProfile?.id
+    if (!userId) {
+      throw new Error('User must be authenticated to update quests')
+    }
+    
     const quest = findQuest(questId)
     Object.assign(quest, payload)
     try {
-      await updateQuestInDb(quest)
+      await updateQuestInDb(quest, userId)
     } catch (error) {
       console.error('Error updating quest:', error)
-      // Fallback: сохраняем локально
-      await saveToStorage()
+      // Откатываем изменения, если не удалось сохранить
+      await loadFromStorage()
+      throw error
     }
   }
 
   async function replaceQuest(updatedQuest: Quest) {
+    const sessionStore = useGameSessionStore()
+    const userId = sessionStore.userProfile?.id
+    if (!userId) {
+      throw new Error('User must be authenticated to replace quests')
+    }
+    
     const index = quests.value.findIndex(q => q.id === updatedQuest.id)
     if (index === -1) throw new Error('Quest not found')
+    const oldQuest = quests.value[index]
     quests.value[index] = updatedQuest
     try {
-      await updateQuestInDb(updatedQuest)
+      await updateQuestInDb(updatedQuest, userId)
     } catch (error) {
       console.error('Error replacing quest:', error)
-      // Fallback: сохраняем локально
-      await saveToStorage()
+      // Откатываем изменения, если не удалось сохранить
+      quests.value[index] = oldQuest
+      throw error
     }
   }
 
   async function deleteQuest(questId: string) {
+    const sessionStore = useGameSessionStore()
+    const userId = sessionStore.userProfile?.id
+    if (!userId) {
+      throw new Error('User must be authenticated to delete quests')
+    }
+    
+    const questToDelete = quests.value.find(q => q.id === questId)
     quests.value = quests.value.filter(q => q.id !== questId)
     try {
-      await deleteQuestInDb(questId)
+      await deleteQuestInDb(questId, userId)
     } catch (error) {
       console.error('Error deleting quest:', error)
-      // Fallback: сохраняем локально
-      await saveToStorage()
+      // Откатываем удаление, если не удалось сохранить
+      if (questToDelete) {
+        quests.value.push(questToDelete)
+      }
+      throw error
     }
   }
 
@@ -271,7 +372,7 @@ export const useQuizStore = defineStore('quiz', () => {
     if (!Array.isArray(quest.rounds)) {
       quest.rounds = []
     }
-    if (quest.rounds.length >= 10) throw new Error('Maximum 10 rounds per quest')
+    if (quest.rounds.length >= 5) throw new Error('Максимум 5 раундов в квесте')
     const newRound: Round = {
       id: generateId('round'),
       title,
@@ -596,16 +697,46 @@ export const useQuizStore = defineStore('quiz', () => {
   }
 
   async function clearAllData() {
-    // Удаляем все квесты из Supabase
+    const sessionStore = useGameSessionStore()
+    const userId = sessionStore.userProfile?.id
+    if (!userId) {
+      console.warn('Cannot clear data: user not authenticated')
+      return
+    }
+    
+    // Удаляем все квесты текущего пользователя из Supabase
     for (const quest of quests.value) {
       try {
-        await deleteQuestInDb(quest.id)
+        await deleteQuestInDb(quest.id, userId)
       } catch (error) {
         console.error('Error deleting quest:', error)
       }
     }
     quests.value = []
-    localStorage.removeItem('quiz-app-data')
+    localStorage.removeItem(`quiz-app-data-${userId}`)
+    localStorage.removeItem('quiz-app-data') // Удаляем старый формат для совместимости
+  }
+
+  async function addSeedQuest(seedFn: () => Quest): Promise<string> {
+    const sessionStore = useGameSessionStore()
+    const userId = sessionStore.userProfile?.id
+    if (!userId) {
+      throw new Error('User must be authenticated to add seed quests')
+    }
+    const quest = seedFn()
+    quests.value.push(quest)
+    try {
+      await createQuestInDb(quest, userId)
+    } catch (error) {
+      console.error('Error saving seed quest:', error)
+      quests.value = quests.value.filter(q => q.id !== quest.id)
+      throw error
+    }
+    return quest.id
+  }
+
+  async function addMusicQuest(): Promise<string> {
+    return addSeedQuest(createMusicQuest)
   }
 
   return {
@@ -613,6 +744,7 @@ export const useQuizStore = defineStore('quiz', () => {
     isLoading,
     loadFromStorage,
     saveToStorage,
+    initializeSubscription,
     getQuestById,
     getRoundById,
     getRoundStats,
@@ -640,7 +772,9 @@ export const useQuizStore = defineStore('quiz', () => {
     resetQuestProgress,
     exportData,
     importData,
-    clearAllData
+    clearAllData,
+    addSeedQuest,
+    addMusicQuest
   }
 })
 

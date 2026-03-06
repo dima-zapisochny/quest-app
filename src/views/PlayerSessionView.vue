@@ -1,18 +1,13 @@
 <template>
   <div v-if="session && quest" class="player-view">
-    <header class="player-topbar">
-      <div class="player-topbar-left">
-        <button class="exit-button" @click="handleExit">Выйти</button>
-      </div>
-      <div class="topbar-actions">
-        <div v-if="player" class="player-user-pill">
-          <span class="player-user-name">{{ player.name }}</span>
-          <div class="player-user-avatar" :class="{ 'player-user-avatar--placeholder': !player.avatar }" aria-hidden="true">
-            <span>{{ avatarEmoji(player.avatar || 'fox') }}</span>
-          </div>
-        </div>
-      </div>
-    </header>
+    <AppHeader
+      button-variant="exit"
+      :button-label="isExiting ? 'Выход...' : 'Выйти'"
+      :button-disabled="isExiting"
+      :user-name="player?.name"
+      :user-avatar="player?.avatar"
+      @button-click="handleExit"
+    />
 
     <main class="player-main">
       <section v-if="player" class="player-stats">
@@ -127,6 +122,7 @@ import QuestionMediaPreview from '@/components/quiz/QuestionMediaPreview.vue'
 import TimerCircle from '@/components/quiz/TimerCircle.vue'
 import { useGameSessionStore } from '@/store/gameSessionStore'
 import { useQuizStore } from '@/store/quizStore'
+import AppHeader from '@/components/common/AppHeader.vue'
 import type { MediaAsset } from '@/types'
 
 const route = useRoute()
@@ -142,7 +138,9 @@ const props = defineProps<{
 const sessionId = (props.sessionId || route.params.sessionId) as string
 
 const session = computed(() => sessionStore.getSessionById(sessionId))
-const quest = computed(() => (session.value ? quizStore.getQuestById(session.value.questId) : undefined))
+const quest = computed(() =>
+  session.value ? (session.value.quest ?? quizStore.getQuestById(session.value.questId)) : undefined
+)
 const activeRound = computed(() => {
   if (!session.value?.roundId) return undefined
   return quest.value?.rounds.find(round => round.id === session.value?.roundId)
@@ -307,7 +305,8 @@ function avatarEmoji(avatarId?: string) {
     penguin: '🐧',
     elephant: '🐘',
     seal: '🦭',
-    hedgehog: '🦔'
+    hedgehog: '🦔',
+    lily: '🌸'
   }
   return map[avatarId || 'fox'] ?? '🦊'
 }
@@ -583,150 +582,6 @@ onBeforeUnmount(() => {
   }
 }
 
-.player-topbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.9rem;
-  padding: 0.75rem 1.5rem;
-  margin: 0;
-  position: relative;
-  z-index: 1;
-  flex-shrink: 0;
-  box-sizing: border-box;
-}
-
-.player-topbar-left {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  min-width: 0;
-}
-
-.topbar-actions {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.exit-button {
-  background: rgba(239, 68, 68, 0.25);
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  color: #f8fafc;
-  font-size: 0.95rem;
-  padding: 1rem 1.25rem;
-  border-radius: 9999px;
-  cursor: pointer;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  backdrop-filter: blur(12px);
-  position: relative;
-  overflow: hidden;
-  box-shadow: 
-    0 4px 12px rgba(2, 6, 23, 0.3),
-    0 2px 6px rgba(2, 6, 23, 0.2),
-    inset 0 2px 4px rgba(255, 255, 255, 0.15),
-    inset 0 -2px 4px rgba(0, 0, 0, 0.25);
-}
-
-.exit-button::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.1) 0%,
-    transparent 50%,
-    rgba(255, 255, 255, 0.05) 100%
-  );
-  border-radius: 9999px;
-  pointer-events: none;
-  opacity: 0.6;
-}
-
-.exit-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 
-    0 6px 16px rgba(239, 68, 68, 0.35),
-    0 3px 8px rgba(239, 68, 68, 0.25),
-    inset 0 2px 4px rgba(255, 255, 255, 0.2),
-    inset 0 -2px 4px rgba(0, 0, 0, 0.25);
-  background: rgba(239, 68, 68, 0.3);
-}
-
-.session-chip {
-  background: rgba(34, 211, 238, 0.15);
-  border: 1px solid rgba(34, 211, 238, 0.4);
-  padding: 0.6rem 1.25rem;
-  border-radius: 9999px;
-  font-weight: 600;
-  color: #f8fafc;
-}
-
-.player-user-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 0.45rem 1.1rem;
-  border-radius: 9999px;
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  background: rgba(15, 23, 42, 0.25);
-  backdrop-filter: blur(12px);
-  position: relative;
-  overflow: hidden;
-  transform: perspective(1000px) rotateY(-5deg) rotateX(2deg);
-  box-shadow: 
-    0 4px 12px rgba(2, 6, 23, 0.3),
-    0 2px 6px rgba(2, 6, 23, 0.2),
-    inset 0 2px 4px rgba(255, 255, 255, 0.15),
-    inset 0 -2px 4px rgba(0, 0, 0, 0.25);
-}
-
-.player-user-pill::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.1) 0%,
-    transparent 50%,
-    rgba(255, 255, 255, 0.05) 100%
-  );
-  border-radius: 9999px;
-  pointer-events: none;
-  opacity: 0.6;
-}
-
-.player-user-name {
-  font-size: 0.9rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-}
-
-.player-user-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: 2px solid rgba(56, 189, 248, 0.45);
-  background: rgba(8, 47, 73, 0.75);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.4rem;
-  color: #e2e8f0;
-}
-
-.player-user-avatar--placeholder {
-  border-style: dashed;
-  color: #bae6fd;
-}
 
 .player-main {
   flex: 1;
@@ -1390,11 +1245,6 @@ onBeforeUnmount(() => {
 }
 
 @media (min-width: 1024px) {
-  .player-topbar {
-    max-width: 768px;
-    margin: 0 auto;
-    width: 100%;
-  }
 
   .player-main {
     max-width: 768px;
@@ -1417,9 +1267,6 @@ onBeforeUnmount(() => {
 
 /* Планшеты (768px - 1024px) */
 @media (max-width: 1024px) and (min-width: 769px) {
-  .player-topbar {
-    padding: 0.75rem 1.25rem;
-  }
 
   .player-main {
     padding: 1.25rem 1.75rem;
@@ -1463,35 +1310,6 @@ onBeforeUnmount(() => {
     }
   }
 
-  .player-topbar {
-    padding: 0.6rem 0.875rem;
-    gap: 0.625rem;
-    flex-shrink: 0;
-  }
-
-  .player-topbar-left {
-    gap: 0.4rem;
-  }
-
-  .exit-button {
-    padding: 0.7rem 0.9rem;
-    font-size: 0.8rem;
-  }
-
-  .player-user-pill {
-    gap: 0.4rem;
-    padding: 0.35rem 0.75rem;
-  }
-
-  .player-user-name {
-    font-size: 0.8rem;
-  }
-
-  .player-user-avatar {
-    width: 28px;
-    height: 28px;
-    font-size: 0.9rem;
-  }
 
   .player-main {
     padding: 0.625rem 1.25rem;
@@ -1672,30 +1490,6 @@ onBeforeUnmount(() => {
     }
   }
 
-  .player-topbar {
-    padding: 0.5rem 0.75rem;
-    flex-shrink: 0;
-  }
-
-  .exit-button {
-    padding: 0.6rem 0.875rem;
-    font-size: 0.75rem;
-  }
-
-  .player-user-pill {
-    padding: 0.3rem 0.65rem;
-    gap: 0.4rem;
-  }
-
-  .player-user-name {
-    font-size: 0.75rem;
-  }
-
-  .player-user-avatar {
-    width: 24px;
-    height: 24px;
-    font-size: 0.8rem;
-  }
 
   .player-main {
     padding: 0.25rem 1rem;
@@ -1853,28 +1647,6 @@ onBeforeUnmount(() => {
 
 /* Очень маленькие экраны (до 360px) */
 @media (max-width: 360px) {
-  .player-topbar {
-    padding: 0.4rem 0.5rem;
-  }
-
-  .exit-button {
-    padding: 0.5rem 0.75rem;
-    font-size: 0.7rem;
-  }
-
-  .player-user-pill {
-    padding: 0.25rem 0.5rem;
-  }
-
-  .player-user-name {
-    font-size: 0.7rem;
-  }
-
-  .player-user-avatar {
-    width: 20px;
-    height: 20px;
-    font-size: 0.75rem;
-  }
 
   .player-main {
     padding: 0.375rem 0.875rem;
@@ -2007,28 +1779,6 @@ onBeforeUnmount(() => {
 
 /* Экстремально маленькие экраны (до 320px) */
 @media (max-width: 320px) {
-  .player-topbar {
-    padding: 0.35rem 0.4rem;
-  }
-
-  .exit-button {
-    padding: 0.45rem 0.65rem;
-    font-size: 0.65rem;
-  }
-
-  .player-user-pill {
-    padding: 0.2rem 0.4rem;
-  }
-
-  .player-user-name {
-    font-size: 0.65rem;
-  }
-
-  .player-user-avatar {
-    width: 18px;
-    height: 18px;
-    font-size: 0.7rem;
-  }
 
   .player-main {
     padding: 0.2rem 0.875rem;

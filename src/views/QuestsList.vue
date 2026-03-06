@@ -128,7 +128,7 @@ function goToQuest(questId: string) {
 
 .quests-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr));
   gap: 1.5rem;
 }
 
@@ -211,10 +211,182 @@ function goToQuest(questId: string) {
   .quests-header {
     flex-direction: column;
     align-items: flex-start;
+    margin-bottom: 1.25rem;
   }
 
   .quests-grid {
     grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .quest-card {
+    padding: 1.25rem;
+    gap: 1rem;
+  }
+
+  .quest-card__header h2 {
+    font-size: 1.25rem;
+  }
+
+  .quest-stats {
+    gap: 0.75rem;
+  }
+
+  .quest-stats div {
+    padding: 0.6rem 0.75rem;
+  }
+
+  .quest-stats dd {
+    font-size: 1.1rem;
+  }
+
+  .admin-link {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .quests-view {
+    padding: 0.75rem;
+  }
+
+  .page-title {
+    font-size: clamp(1.5rem, 5vw, 2rem);
+  }
+
+  .quests-header {
+    margin-bottom: 1rem;
+    gap: 0.75rem;
+  }
+
+  .quest-card {
+    padding: 1rem;
+    gap: 0.75rem;
+    border-radius: 0.75rem;
+  }
+
+  .quest-card__header h2 {
+    font-size: 1.1rem;
+  }
+
+  .quest-description {
+    font-size: 0.85rem;
+  }
+
+  .quest-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.5rem;
+  }
+
+  .quest-stats div {
+    padding: 0.5rem 0.6rem;
+    border-radius: 0.5rem;
+  }
+
+  .quest-stats dt {
+    font-size: 0.65rem;
+  }
+
+  .quest-stats dd {
+    font-size: 1rem;
+  }
+
+  .admin-link {
+    padding: 0.5rem 1rem;
+    font-size: 0.82rem;
+    border-radius: 0.5rem;
+  }
+
+  .empty-state {
+    padding: 2rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .quests-view {
+    padding: 0.5rem;
+  }
+
+  .page-title {
+    font-size: clamp(1.2rem, 5vw, 1.6rem);
+  }
+
+  .quest-card {
+    padding: 0.85rem;
+    gap: 0.6rem;
+  }
+
+  .quest-card__header h2 {
+    font-size: 1rem;
+  }
+
+  .quest-description {
+    font-size: 0.8rem;
+  }
+
+  .quest-stats div {
+    padding: 0.4rem 0.5rem;
+  }
+
+  .quest-stats dt {
+    font-size: 0.6rem;
+  }
+
+  .quest-stats dd {
+    font-size: 0.9rem;
+  }
+
+  .quest-footer {
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 320px) {
+  .quests-view {
+    padding: 0.375rem;
+  }
+
+  .page-title {
+    font-size: clamp(1rem, 5vw, 1.4rem);
+  }
+
+  .quests-header {
+    margin-bottom: 0.75rem;
+  }
+
+  .quest-card {
+    padding: 0.7rem;
+    gap: 0.5rem;
+  }
+
+  .quest-card__header h2 {
+    font-size: 0.9rem;
+  }
+
+  .quest-description {
+    font-size: 0.75rem;
+  }
+
+  .quest-stats {
+    gap: 0.4rem;
+  }
+
+  .quest-stats div {
+    padding: 0.35rem 0.4rem;
+  }
+
+  .quest-stats dt {
+    font-size: 0.55rem;
+  }
+
+  .quest-stats dd {
+    font-size: 0.82rem;
+  }
+
+  .admin-link {
+    padding: 0.45rem 0.85rem;
+    font-size: 0.75rem;
   }
 }
 </style>

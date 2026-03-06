@@ -1,21 +1,14 @@
 <template>
   <div v-if="quest" class="quest-view">
-    <header class="quest-topbar">
-      <div class="quest-topbar-left">
-        <button class="back-button" @click="goBack"><span class="back-arrow">←</span> Назад</button>
-      </div>
-      <div class="topbar-actions">
-        <div v-if="session" class="session-chip">
-          Код игры: <strong>{{ session.code }}</strong>
-        </div>
-        <div class="quest-user-pill">
-          <span class="quest-user-name">{{ displayName }}</span>
-          <div class="quest-user-avatar" :class="{ 'quest-user-avatar--placeholder': !hasAvatar }" aria-hidden="true">
-            <span>{{ hasAvatar ? avatarEmoji : avatarInitial }}</span>
-          </div>
-        </div>
-      </div>
-    </header>
+    <AppHeader
+      button-variant="back"
+      button-label="Назад"
+      :show-session-code="!!session"
+      :session-code="session?.code"
+      :user-name="userProfile?.name"
+      :user-avatar="userProfile?.avatar"
+      @button-click="goBack"
+    />
 
     <main v-if="activeRound" class="quest-layout">
       <section class="quest-stage">
@@ -25,9 +18,10 @@
           v-for="round in quest.rounds"
           :key="round.id"
           :class="['round-chip', { active: round.id === activeRoundId } ]"
+          :title="round.title"
           @click="selectRound(round.id)"
         >
-          {{ round.title }}
+          <span class="round-chip__label">{{ round.title }}</span>
         </button>
       </div>
     </nav>
@@ -101,7 +95,7 @@
       </aside>
     </main>
 
-    <section v-if="leaderboardEntries.length" class="quest-leaderboard">
+    <section v-if="activeRound && leaderboardEntries.length" class="quest-leaderboard">
       <div class="leaderboard-card">
         <header class="leaderboard-header">
           <span class="leaderboard-label">Участники</span>
@@ -110,36 +104,43 @@
           <li
             v-for="(player, index) in leaderboardEntries"
             :key="player.id"
-            :class="[
-              'leaderboard-item',
-              {
-                'leaderboard-item--first': index === 0 && player.score > 0,
-                'leaderboard-item--second': index === 1 && player.score > 0,
-                'leaderboard-item--third': index === 2 && player.score > 0,
-                'leaderboard-item--answered': isPlayerAnswered(player.id)
-              }
-            ]"
+            class="leaderboard-item-wrap"
+            @mouseenter="(e) => setPopoverAnchor(player.id, e.currentTarget as HTMLElement)"
+            @mouseleave="clearPopoverAnchor()"
           >
-            <span v-if="index === 0 && player.score > 0" class="leaderboard-medal leaderboard-medal--gold">🥇</span>
-            <span v-else-if="index === 1 && player.score > 0" class="leaderboard-medal leaderboard-medal--silver">🥈</span>
-            <span v-else-if="index === 2 && player.score > 0" class="leaderboard-medal leaderboard-medal--bronze">🥉</span>
-            <span class="leaderboard-rank">{{ index + 1 }}</span>
-            <span class="leaderboard-avatar" :class="{ 'leaderboard-avatar--placeholder': !player.avatar }">
-              <span>{{ player.avatar || player.name.charAt(0).toUpperCase() }}</span>
-            </span>
-            <div class="leaderboard-info">
-              <span class="leaderboard-name">{{ player.name }}</span>
-              <span class="leaderboard-score">
-                <strong>{{ player.score.toLocaleString('ru-RU') }}</strong>
-                <span>баллов</span>
+            <div
+              :class="[
+                'leaderboard-item',
+                {
+                  'leaderboard-item--first': index === 0 && player.score > 0,
+                  'leaderboard-item--second': index === 1 && player.score > 0,
+                  'leaderboard-item--third': index === 2 && player.score > 0,
+                  'leaderboard-item--answered': isPlayerAnswered(player.id)
+                }
+              ]"
+            >
+              <span v-if="index === 0 && player.score > 0" class="leaderboard-medal leaderboard-medal--gold">🥇</span>
+              <span v-else-if="index === 1 && player.score > 0" class="leaderboard-medal leaderboard-medal--silver">🥈</span>
+              <span v-else-if="index === 2 && player.score > 0" class="leaderboard-medal leaderboard-medal--bronze">🥉</span>
+              <span class="leaderboard-rank">{{ index + 1 }}</span>
+              <span class="leaderboard-avatar" :class="{ 'leaderboard-avatar--placeholder': !player.avatar }">
+                <span>{{ player.avatar || player.name.charAt(0).toUpperCase() }}</span>
               </span>
+              <div class="leaderboard-info">
+                <span class="leaderboard-name">{{ player.name }}</span>
+                <span class="leaderboard-score">
+                  <strong>{{ player.score.toLocaleString('ru-RU') }}</strong>
+                  <span>баллов</span>
+                </span>
+              </div>
             </div>
           </li>
         </TransitionGroup>
       </div>
     </section>
 
-    <section v-else class="empty-round">
+    <!-- Показувати, коли в квесті взагалі немає раундів (не плутати з порожнім лідербордом) -->
+    <section v-if="quest && (!quest.rounds || !quest.rounds.length)" class="empty-round">
       <p>Для этого квеста ещё не создано ни одного раунда.</p>
       <router-link to="/host/setup" class="empty-round__link">Перейти к управлению квестами</router-link>
     </section>
@@ -186,6 +187,74 @@
     </div>
   </teleport>
 
+  <!-- Мини-окно участника поверх полосы с участниками -->
+  <teleport to="body">
+    <Transition name="popover">
+      <div
+        v-if="hoveredPlayer && popoverAnchor"
+        class="participant-popover participant-popover--fixed"
+        :style="{
+          left: `${popoverAnchor.left}px`,
+          top: `${popoverAnchor.top}px`
+        }"
+        @mouseenter="cancelClearPopoverAnchor()"
+        @mouseleave="clearPopoverAnchor()"
+      >
+        <div class="participant-popover__header">
+          <span class="participant-popover__avatar">{{ hoveredPlayer.avatar || hoveredPlayer.name.charAt(0).toUpperCase() }}</span>
+          <div class="participant-popover__info">
+            <span class="participant-popover__name">{{ hoveredPlayer.name }}</span>
+            <span class="participant-popover__score">{{ hoveredPlayer.score.toLocaleString('ru-RU') }} баллов</span>
+          </div>
+        </div>
+        <div class="participant-popover__actions">
+          <p class="participant-popover__label">Шаг (кратно 5):</p>
+          <div class="participant-popover__step-select">
+            <button
+              v-for="step in STEP_OPTIONS"
+              :key="step"
+              type="button"
+              class="participant-popover__btn participant-popover__btn--step"
+              :class="{ 'participant-popover__btn--step-active': selectedStep === step }"
+              :disabled="hoveredPlayer.score < step"
+              @click.stop="selectedStep = step"
+            >{{ step }}</button>
+          </div>
+          <p class="participant-popover__sublabel participant-popover__sublabel--minus">Отнять баллы</p>
+          <button
+            type="button"
+            class="participant-popover__btn participant-popover__btn--subtract"
+            :disabled="hoveredPlayer.score < selectedStep"
+            @click.stop="subtractScore(hoveredPlayer.id)"
+          >
+            <span class="participant-popover__btn-icon">−</span> Отнять {{ selectedStep }} баллов
+          </button>
+          <p class="participant-popover__sublabel participant-popover__sublabel--plus">Прибавить баллы</p>
+          <button
+            type="button"
+            class="participant-popover__btn participant-popover__btn--add"
+            @click.stop="addScore(hoveredPlayer.id)"
+          >
+            <span class="participant-popover__btn-icon">+</span> Прибавить {{ selectedStep }} баллов
+          </button>
+          <p class="participant-popover__label">Задать баллы вручную:</p>
+          <div class="participant-popover__manual">
+            <input
+              v-model.number="manualScoreInput"
+              type="number"
+              min="0"
+              step="5"
+              class="participant-popover__input"
+              placeholder="0"
+              @keydown.enter="handleApplyClick()"
+            />
+            <button type="button" class="participant-popover__btn participant-popover__btn--apply" @click.stop="handleApplyClick()">Применить</button>
+          </div>
+        </div>
+      </div>
+    </Transition>
+  </teleport>
+
   <!-- Модальное окно подтверждения сброса прогресса -->
   <teleport to="body">
     <div v-if="showResetConfirm" class="quest-modal-backdrop" @click="cancelReset">
@@ -207,11 +276,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, watch, onMounted, onBeforeUnmount, ref } from 'vue'
+import { computed, watch, onMounted, onBeforeUnmount, ref, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useQuizStore } from '@/store/quizStore'
 import { useGameSessionStore } from '@/store/gameSessionStore'
 import QuizBoard from '@/components/quiz/QuizBoard.vue'
+import AppHeader from '@/components/common/AppHeader.vue'
 
 interface Props {
   questId?: string
@@ -250,28 +320,23 @@ const questId = computed(() => {
   return ''
 })
 
-const quest = computed(() => questId.value ? quizStore.getQuestById(questId.value) : null)
+const quest = computed(() => {
+  if (session.value?.quest) return session.value.quest
+  return questId.value ? quizStore.getQuestById(questId.value) ?? null : null
+})
 const sessionId = computed(() => session.value?.id)
 const showExitConfirm = ref(false)
 const showResetConfirm = ref(false)
 const isExiting = ref(false)
 
 const userProfile = computed(() => sessionStore.userProfile)
-const displayName = computed(() => {
-  const name = userProfile.value?.name?.trim()
-  return name && name.length ? name : 'Гость'
-})
+
+// avatarEmojiMap используется для leaderboard
 const avatarEmojiMap: Record<string, string> = {
   fox: '🦊', panda: '🐼', tiger: '🐯', owl: '🦉', whale: '🐳', parrot: '🦜',
   koala: '🐨', dino: '🦕', crocodile: '🐊', lion: '🦁', penguin: '🐧',
-  elephant: '🐘', seal: '🦭', hedgehog: '🦔'
+  elephant: '🐘', seal: '🦭', hedgehog: '🦔', lily: '🌸'
 }
-const avatarEmoji = computed(() => {
-  const avatarId = userProfile.value?.avatar ?? ''
-  return avatarEmojiMap[avatarId] ?? ''
-})
-const hasAvatar = computed(() => Boolean(avatarEmoji.value))
-const avatarInitial = computed(() => displayName.value.charAt(0).toUpperCase())
 
 interface LeaderboardEntry {
   id: string
@@ -295,10 +360,118 @@ const fallbackLeaderboard: LeaderboardEntry[] = [
   { id: 'mock-player-12', name: 'Павел', avatar: '🦭', score: 1740 },
   { id: 'mock-player-13', name: 'Рита', avatar: '🦔', score: 1620 },
   { id: 'mock-player-14', name: 'Слава', avatar: '🐸', score: 1510 },
-  { id: 'mock-player-15', name: 'Таня', avatar: '🦢', score: 1390 }
+  { id: 'mock-player-15', name: 'Таня', avatar: '🦢', score: 1390 },
+  { id: 'mock-player-16', name: 'Ульяна', avatar: '🌸', score: 1280 },
+  { id: 'mock-player-17', name: 'Федор', avatar: '🐺', score: 1170 },
+  { id: 'mock-player-18', name: 'Хлоя', avatar: '🐱', score: 1060 },
+  { id: 'mock-player-19', name: 'Цветан', avatar: '🦎', score: 950 },
+  { id: 'mock-player-20', name: 'Юлия', avatar: '🐰', score: 840 }
 ]
 
 const leaderboardState = ref<LeaderboardEntry[]>([])
+const hoveredPlayerId = ref<string | null>(null)
+const manualScoreInput = ref(0)
+const selectedStep = ref(5)
+const STEP_OPTIONS = [5, 10, 15, 20] as const
+const popoverAnchor = ref<{ left: number; top: number } | null>(null)
+let leavePopoverTimeout: ReturnType<typeof setTimeout> | null = null
+
+function setPopoverAnchor(playerId: string, el: HTMLElement) {
+  if (leavePopoverTimeout) {
+    clearTimeout(leavePopoverTimeout)
+    leavePopoverTimeout = null
+  }
+  hoveredPlayerId.value = playerId
+  const rect = el.getBoundingClientRect()
+  popoverAnchor.value = { left: rect.left + rect.width / 2, top: rect.top }
+}
+
+function clearPopoverAnchor() {
+  leavePopoverTimeout = setTimeout(() => {
+    hoveredPlayerId.value = null
+    popoverAnchor.value = null
+    leavePopoverTimeout = null
+  }, 120)
+}
+
+function cancelClearPopoverAnchor() {
+  if (leavePopoverTimeout) {
+    clearTimeout(leavePopoverTimeout)
+    leavePopoverTimeout = null
+  }
+}
+
+const hoveredPlayer = computed(() =>
+  hoveredPlayerId.value ? leaderboardEntries.value.find(p => p.id === hoveredPlayerId.value) ?? null : null
+)
+
+watch(hoveredPlayerId, (id) => {
+  if (id) {
+    const entry = leaderboardEntries.value.find(e => e.id === id)
+    manualScoreInput.value = entry ? entry.score : 0
+  }
+})
+
+function updateLeaderboardScore(playerId: string, newScore: number) {
+  const list = leaderboardState.value.map(p =>
+    p.id === playerId ? { ...p, score: newScore } : { ...p }
+  )
+  // Присваиваем новый массив для гарантированной реактивности Vue
+  leaderboardState.value = [...list]
+}
+
+async function subtractScore(playerId: string, amount?: number) {
+  const value = amount ?? selectedStep.value
+  const entry = leaderboardEntries.value.find(e => e.id === playerId)
+  if (!entry) return
+  const newScore = Math.max(0, entry.score - value)
+  updateLeaderboardScore(playerId, newScore)
+  const playerInSession = session.value?.players?.some(p => p.id === playerId)
+  if (session.value && playerInSession) {
+    await sessionStore.setPlayerScore(session.value.id, playerId, newScore)
+    await nextTick()
+    buildLeaderboardFromSession()
+  }
+}
+
+async function addScore(playerId: string, amount?: number) {
+  const value = amount ?? selectedStep.value
+  const entry = leaderboardEntries.value.find(e => e.id === playerId)
+  if (!entry) return
+  const newScore = entry.score + value
+  updateLeaderboardScore(playerId, newScore)
+  const playerInSession = session.value?.players?.some(p => p.id === playerId)
+  if (session.value && playerInSession) {
+    await sessionStore.setPlayerScore(session.value.id, playerId, newScore)
+    await nextTick()
+    buildLeaderboardFromSession()
+  }
+}
+
+async function applyManualScore(playerId: string) {
+  const newScore = Math.max(0, Math.round(manualScoreInput.value))
+  // Сразу обновляем карточку (оптимистичное обновление)
+  updateLeaderboardScore(playerId, newScore)
+  const playerInSession = session.value?.players?.some(p => p.id === playerId)
+  if (session.value && playerInSession) {
+    await sessionStore.setPlayerScore(session.value.id, playerId, newScore)
+    await nextTick()
+    buildLeaderboardFromSession()
+  }
+  // В мок-режиме (fallback-список) не вызываем buildLeaderboardFromSession — иначе перезапишет счёт
+}
+
+/** Применить: если введено другое число — задать баллы; иначе отнять выбранный шаг (−5/−10/−15/−20) */
+function handleApplyClick() {
+  if (!hoveredPlayer.value) return
+  const currentScore = hoveredPlayer.value.score
+  const manualScore = Math.max(0, Math.round(manualScoreInput.value))
+  if (manualScore !== currentScore) {
+    applyManualScore(hoveredPlayer.value.id)
+  } else {
+    subtractScore(hoveredPlayer.value.id)
+  }
+}
 
 const joinCodeInput = ref('')
 const joinError = ref('')
@@ -435,6 +608,7 @@ function buildLeaderboardFromSession() {
 watch(
   () => session.value?.players ?? [],
   (newPlayers, oldPlayers) => {
+    if (isMockSession.value && leaderboardState.value.length > 0) return
     console.log('👥 Players list changed:', {
       oldCount: oldPlayers?.length || 0,
       newCount: newPlayers?.length || 0,
@@ -449,7 +623,7 @@ watch(
 watch(
   () => session.value?.players?.map(p => ({ id: p.id, score: p.score ?? 0 })) ?? [],
   (newScores, oldScores) => {
-    // Проверяем, изменились ли баллы
+    if (isMockSession.value && leaderboardState.value.length > 0) return
     const scoresChanged = newScores.some((newScore, index) => {
       const oldScore = oldScores?.[index]
       return !oldScore || oldScore.score !== newScore.score
@@ -466,6 +640,8 @@ watch(
 watch(
   () => session.value,
   (newSession, oldSession) => {
+    // В мок-режиме не перезаписывать лидерборд — там уже могут быть ручные правки баллов
+    if (isMockSession.value && leaderboardState.value.length > 0) return
     if (newSession && oldSession) {
       const oldPlayersCount = oldSession.players?.length || 0
       const newPlayersCount = newSession.players?.length || 0
@@ -509,7 +685,12 @@ watch(
 
 onMounted(async () => {
   buildLeaderboardFromSession()
-  
+
+  // Встановити активний раунд для сесії, якщо ще не встановлено
+  if (session.value && !session.value.roundId && quest.value?.rounds?.length) {
+    sessionStore.setActiveRound(session.value.id, quest.value.rounds[0].id)
+  }
+
   // Загружаем квест, если его нет в store
   if (!quest.value) {
     try {
@@ -664,17 +845,16 @@ function cancelReset() {
   showResetConfirm.value = false
 }
 
-function confirmReset() {
+async function confirmReset() {
   if (!quest.value) return
-  quizStore.resetQuestProgress(questId.value)
   showResetConfirm.value = false
-}
 
-onMounted(() => {
-  if (session.value && !session.value.roundId && quest.value?.rounds.length) {
-    sessionStore.setActiveRound(session.value.id, quest.value.rounds[0].id)
+  // Сбрасываем прогресс квеста и баллы участников после закрытия попапа
+  await quizStore.resetQuestProgress(questId.value)
+  if (session.value) {
+    await sessionStore.resetPlayersScores(session.value.id)
   }
-})
+}
 </script>
 
 <style scoped>
@@ -686,6 +866,9 @@ onMounted(() => {
   color: #e2e8f0;
   position: relative;
   overflow: hidden;
+  padding: 0 clamp(1rem, 4vw, 3rem) 0;
+  box-sizing: border-box;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 .quest-view::before,
@@ -799,121 +982,6 @@ onMounted(() => {
   }
 }
 
-.quest-topbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.9rem;
-  padding: 0.75rem 1.5rem 0.5rem;
-  position: relative;
-  z-index: 1;
-}
-
-.quest-topbar-left {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  min-width: 0;
-}
-
-.topbar-actions {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.back-button {
-  background: rgba(15, 118, 110, 0.12);
-  border: 1px solid rgba(34, 211, 238, 0.4);
-  color: #f8fafc;
-  font-size: 0.95rem;
-  padding: 0.65rem 1.25rem;
-  border-radius: 9999px;
-  cursor: pointer;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.back-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(34, 211, 238, 0.25);
-}
-
-.back-arrow {
-  font-weight: 900;
-  display: inline-block;
-}
-
-.session-chip {
-  background: rgba(34, 211, 238, 0.15);
-  border: 1px solid rgba(34, 211, 238, 0.4);
-  padding: 0.6rem 1.25rem;
-  border-radius: 9999px;
-  font-weight: 600;
-  color: #f8fafc;
-}
-
-.quest-user-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 0.45rem 1.1rem;
-  border-radius: 9999px;
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  background: rgba(15, 23, 42, 0.25);
-  backdrop-filter: blur(12px);
-  position: relative;
-  overflow: hidden;
-  transform: perspective(1000px) rotateY(-5deg) rotateX(2deg);
-  box-shadow: 
-    0 4px 12px rgba(2, 6, 23, 0.3),
-    0 2px 6px rgba(2, 6, 23, 0.2),
-    inset 0 2px 4px rgba(255, 255, 255, 0.15),
-    inset 0 -2px 4px rgba(0, 0, 0, 0.25);
-}
-
-.quest-user-pill::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.1) 0%,
-    transparent 50%,
-    rgba(255, 255, 255, 0.05) 100%
-  );
-  border-radius: 9999px;
-  pointer-events: none;
-  opacity: 0.6;
-}
-
-.quest-user-name {
-  font-size: 0.9rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-}
-
-.quest-user-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: 2px solid rgba(56, 189, 248, 0.45);
-  background: rgba(8, 47, 73, 0.75);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.4rem;
-  color: #e2e8f0;
-}
-
-.quest-user-avatar--placeholder {
-  border-style: dashed;
-  color: #bae6fd;
-}
 
 .rounds-nav {
   display: flex;
@@ -922,6 +990,11 @@ onMounted(() => {
   gap: 0.75rem;
   padding: 0.5rem 1.5rem;
   background: transparent;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 
 .rounds-label {
@@ -937,21 +1010,40 @@ onMounted(() => {
   justify-content: center;
   align-items: center;
   gap: 0.75rem;
-  overflow-x: visible;
+  overflow-x: auto;
+  overflow-y: hidden;
   padding: 0.25rem 0;
   width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(34, 211, 238, 0.4) transparent;
 }
 
+.rounds-nav::-webkit-scrollbar,
 .rounds-track::-webkit-scrollbar {
   height: 6px;
 }
 
+.rounds-nav::-webkit-scrollbar-thumb,
 .rounds-track::-webkit-scrollbar-thumb {
   background: rgba(34, 211, 238, 0.4);
   border-radius: 9999px;
 }
 
+.rounds-nav::-webkit-scrollbar-thumb:hover,
+.rounds-track::-webkit-scrollbar-thumb:hover {
+  background: rgba(34, 211, 238, 0.6);
+}
+
+.rounds-nav {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(34, 211, 238, 0.4) transparent;
+}
+
 .round-chip {
+  position: relative;
+  z-index: 10;
   background: rgba(15, 23, 42, 0.3);
   border: 1px solid rgba(56, 189, 248, 0.2);
   color: #94a3b8;
@@ -959,28 +1051,35 @@ onMounted(() => {
   border-radius: 0.55rem;
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, color 0.2s ease;
-  white-space: nowrap;
-  font-family: 'Press Start 2P', 'Nunito', cursive;
-  font-size: 0.65rem;
-  font-weight: 600;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 160px;
+  min-width: 100px;
   min-height: 44px;
-  flex: 0 0 auto;
-  position: relative;
+  flex: 1 1 160px;
   overflow: hidden;
+  box-sizing: border-box;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   box-shadow: 
-    0 3px 6px rgba(2, 6, 23, 0.2),
-    0 2px 3px rgba(2, 6, 23, 0.15),
-    inset 0 2px 4px rgba(255, 255, 255, 0.1),
-    inset 0 -2px 4px rgba(0, 0, 0, 0.2);
+    0 1px 3px rgba(2, 6, 23, 0.15),
+    0 1px 2px rgba(2, 6, 23, 0.1),
+    inset 0 1px 2px rgba(255, 255, 255, 0.08),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.15);
   transform: perspective(1000px) rotateX(1deg);
+}
+
+.round-chip__label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+  display: block;
 }
 
 .round-chip::before {
@@ -1026,20 +1125,20 @@ onMounted(() => {
   border-color: rgba(56, 189, 248, 0.3);
   transform: perspective(1000px) rotateX(1deg) translateY(-1px);
   box-shadow: 
-    0 6px 12px rgba(2, 6, 23, 0.25),
-    0 3px 6px rgba(2, 6, 23, 0.2),
-    inset 0 2px 4px rgba(255, 255, 255, 0.15),
-    inset 0 -2px 4px rgba(0, 0, 0, 0.2);
+    0 2px 4px rgba(2, 6, 23, 0.2),
+    0 1px 3px rgba(2, 6, 23, 0.15),
+    inset 0 1px 2px rgba(255, 255, 255, 0.1),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.18);
 }
 
 .round-chip.active {
   border-color: rgba(34, 211, 238, 0.5);
   color: #bae6fd;
   box-shadow: 
-    0 6px 12px rgba(34, 211, 238, 0.25),
-    0 3px 6px rgba(34, 211, 238, 0.2),
-    inset 0 2px 4px rgba(255, 255, 255, 0.15),
-    inset 0 -2px 4px rgba(0, 0, 0, 0.2);
+    0 2px 4px rgba(34, 211, 238, 0.2),
+    0 1px 3px rgba(34, 211, 238, 0.15),
+    inset 0 1px 2px rgba(255, 255, 255, 0.1),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.18);
   transform: perspective(1000px) rotateX(1deg) translateY(-2px);
 }
 
@@ -1063,6 +1162,14 @@ onMounted(() => {
 
 .quest-stage :deep(.board-container) {
   flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.quest-stage :deep(.board-grid) {
+  flex: 1;
+  min-height: 0;
 }
 
 .rounds-nav--stage {
@@ -1070,6 +1177,11 @@ onMounted(() => {
   padding: 0 1rem;
   background: transparent;
   border-radius: 16px;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 
 .quest-sidebar {
@@ -1103,16 +1215,19 @@ onMounted(() => {
 }
 
 .sidebar-chip {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   align-self: flex-start;
-  font-size: 0.68rem;
+  font-size: 0.7rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: rgba(94, 234, 212, 0.8);
 }
 
 .sidebar-title {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   margin: 0;
-  font-size: clamp(1rem, 2vw, 1.35rem);
+  font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+  font-weight: 600;
   color: #f8fafc;
   line-height: 1.25;
   overflow: hidden;
@@ -1123,9 +1238,10 @@ onMounted(() => {
 }
 
 .sidebar-description {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   margin: 0;
-  font-size: 0.78rem;
-  line-height: 1.45;
+  font-size: 0.8rem;
+  line-height: 1.5;
   color: rgba(226, 232, 240, 0.86);
   max-height: 7rem;
   overflow: hidden;
@@ -1274,7 +1390,7 @@ onMounted(() => {
   letter-spacing: 0.15em;
   text-align: center;
   text-transform: uppercase;
-  font-family: 'Press Start 2P', 'Nunito', cursive;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   transition: all 0.2s ease;
 }
 
@@ -1300,7 +1416,7 @@ onMounted(() => {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
-  font-family: 'Press Start 2P', 'Nunito', cursive;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   white-space: nowrap;
@@ -1367,13 +1483,12 @@ onMounted(() => {
     inset 0 -2px 4px rgba(0, 0, 0, 0.2);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  transform: perspective(1000px) rotateX(1deg);
   display: flex;
   flex-direction: column;
   gap: 0.65rem;
   width: 100%;
   box-sizing: border-box;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .leaderboard-list {
@@ -1411,16 +1526,22 @@ onMounted(() => {
   background: transparent;
 }
 
+.leaderboard-item-wrap {
+  position: relative;
+  flex: 0 0 calc((100% - 9 * 0.5rem) / 10);
+  width: calc((100% - 9 * 0.5rem) / 10);
+  max-width: calc((100% - 9 * 0.5rem) / 10);
+  min-width: 0;
+  flex-shrink: 0;
+  list-style: none;
+}
+
 .leaderboard-item {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0.45rem;
-  flex: 0 0 calc((100% - 9 * 0.5rem) / 10);
-  min-width: 0;
-  width: calc((100% - 9 * 0.5rem) / 10);
-  max-width: calc((100% - 9 * 0.5rem) / 10);
-  flex-shrink: 0;
+  width: 100%;
   padding: 0.65rem 0.4rem;
   border-radius: 16px;
   border: 1px solid rgba(56, 189, 248, 0.18);
@@ -1430,12 +1551,11 @@ onMounted(() => {
     0 2px 3px rgba(2, 6, 23, 0.15),
     inset 0 2px 4px rgba(255, 255, 255, 0.1),
     inset 0 -2px 4px rgba(0, 0, 0, 0.2);
-  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
   position: relative;
   overflow: hidden;
-  backdrop-filter: blur(10px);
-  transform: perspective(1000px) rotateX(2deg);
   box-sizing: border-box;
+  /* без transform і backdrop-filter — усуває фіолетовий артефакт при скролі */
 }
 
 .leaderboard-item::before {
@@ -1463,9 +1583,6 @@ onMounted(() => {
   opacity: 0;
 }
 
-.leaderboard-item--answered:hover {
-  transform: perspective(1000px) rotateX(2deg);
-}
 
 .leaderboard-item::after {
   content: '';
@@ -1542,7 +1659,6 @@ onMounted(() => {
     inset 0 3px 6px rgba(255, 255, 255, 0.25),
     inset 0 -3px 6px rgba(0, 0, 0, 0.25),
     inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  transform: perspective(1000px) rotateX(2deg) scale(1.02);
 }
 
 .leaderboard-item--first::after {
@@ -1566,7 +1682,6 @@ onMounted(() => {
     inset 0 2px 4px rgba(255, 255, 255, 0.2),
     inset 0 -2px 4px rgba(0, 0, 0, 0.2),
     inset 0 1px 0 rgba(255, 255, 255, 0.25);
-  transform: perspective(1000px) rotateX(2deg) scale(1.01);
 }
 
 .leaderboard-item--second::after {
@@ -1590,7 +1705,6 @@ onMounted(() => {
     inset 0 2px 4px rgba(255, 255, 255, 0.15),
     inset 0 -2px 4px rgba(0, 0, 0, 0.2),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  transform: perspective(1000px) rotateX(2deg) scale(1.005);
 }
 
 .leaderboard-item--third::after {
@@ -1674,6 +1788,225 @@ onMounted(() => {
 
 .leaderboard-move {
   transition: transform 0.6s ease;
+}
+
+/* Мини-окно при наведении на участника — поверх полосы с участниками */
+.participant-popover {
+  min-width: 220px;
+  z-index: 500;
+  background: linear-gradient(165deg, rgba(30, 41, 59, 0.98), rgba(15, 23, 42, 0.98));
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  border-radius: 14px;
+  padding: 0.85rem 1rem;
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.4),
+    0 4px 16px rgba(56, 189, 248, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  pointer-events: auto;
+}
+
+.participant-popover--fixed {
+  position: fixed;
+  transform: translate(-50%, calc(-100% - 10px));
+  left: 0;
+  top: 0;
+}
+
+.participant-popover__header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.participant-popover__avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.participant-popover__info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.participant-popover__name {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #f1f5f9;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.participant-popover__score {
+  font-size: 0.8rem;
+  color: #22d3ee;
+  font-weight: 600;
+}
+
+.participant-popover__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.participant-popover__label {
+  margin: 0;
+  font-size: 0.7rem;
+  color: rgba(148, 163, 184, 0.9);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.participant-popover__sublabel {
+  margin: 0.25rem 0 0.15rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.participant-popover__sublabel--minus {
+  color: #f87171;
+}
+
+.participant-popover__sublabel--plus {
+  color: #4ade80;
+}
+
+.participant-popover__btn-icon {
+  display: inline-block;
+  min-width: 1.1em;
+  font-weight: 800;
+  opacity: 0.95;
+}
+
+.participant-popover__step-select {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.participant-popover__btn--step {
+  min-width: 2.5rem;
+}
+
+.participant-popover__btn--step-active {
+  background: rgba(56, 189, 248, 0.25);
+  border-color: rgba(56, 189, 248, 0.6);
+  color: #22d3ee;
+}
+
+.participant-popover__btn--subtract {
+  width: 100%;
+  margin-top: 0.15rem;
+  background: rgba(248, 113, 113, 0.15);
+  border-color: rgba(248, 113, 113, 0.5);
+  color: #fca5a5;
+}
+
+.participant-popover__btn--subtract:hover:not(:disabled) {
+  background: rgba(248, 113, 113, 0.25);
+  border-color: rgba(248, 113, 113, 0.7);
+}
+
+.participant-popover__btn--add {
+  width: 100%;
+  margin-top: 0.15rem;
+  background: rgba(34, 197, 94, 0.2);
+  border-color: rgba(34, 197, 94, 0.5);
+  color: #4ade80;
+}
+
+.participant-popover__btn--add:hover:not(:disabled) {
+  background: rgba(34, 197, 94, 0.3);
+  border-color: rgba(34, 197, 94, 0.7);
+}
+
+.participant-popover__btn {
+  padding: 0.35rem 0.6rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 8px;
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  background: rgba(15, 23, 42, 0.8);
+  color: #e2e8f0;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.participant-popover__btn:hover:not(:disabled) {
+  background: rgba(56, 189, 248, 0.2);
+  border-color: rgba(56, 189, 248, 0.5);
+}
+
+.participant-popover__btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.participant-popover__btn--apply {
+  background: rgba(34, 211, 238, 0.2);
+  color: #22d3ee;
+}
+
+.participant-popover__btn--apply:hover {
+  background: rgba(34, 211, 238, 0.3);
+}
+
+.participant-popover__manual {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.participant-popover__input {
+  width: 72px;
+  padding: 0.35rem 0.5rem;
+  font-size: 0.8rem;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.8);
+  color: #f8fafc;
+  -moz-appearance: textfield;
+  box-sizing: border-box;
+}
+
+.participant-popover__input:focus {
+  outline: none;
+  border-color: rgba(56, 189, 248, 0.6);
+  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+}
+
+.participant-popover__input::-webkit-inner-spin-button,
+.participant-popover__input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.popover-enter-active,
+.popover-leave-active {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.popover-enter-from,
+.popover-leave-to {
+  opacity: 0;
+  transform: translate(-50%, calc(-100% - 14px));
 }
 
 .empty-round,
@@ -1948,57 +2281,48 @@ onMounted(() => {
 }
 
 @media (max-width: 768px) {
-  .quest-topbar {
-    padding: 1rem;
-    gap: 1rem;
+  .quest-view {
+    padding: 0 1rem 0;
   }
 
   .quest-layout {
     flex-direction: column;
-    padding: 0 1rem 1rem;
+    padding: 0 0.75rem 1rem;
+    gap: 1.5rem;
   }
 
   .quest-sidebar {
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: space-between;
+    min-width: 100%;
   }
 
   .sidebar-card {
     flex: 1 1 240px;
-  }
-
-  .quest-topbar-left {
-    width: 100%;
-    justify-content: space-between;
-    gap: 0.5rem;
-  }
-
-  .topbar-actions {
-    width: 100%;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-  }
-
-  .quest-user-pill {
-    width: 100%;
-    justify-content: space-between;
+    padding: 0.75rem 0.85rem;
   }
 
   .rounds-nav {
-    flex-direction: column;
-    align-items: flex-start;
     padding: 0.75rem 1rem;
     gap: 0.5rem;
+    justify-content: flex-start;
   }
 
-  .session-chip {
-    margin-left: 0;
+  .rounds-track {
+    justify-content: flex-start;
+  }
+
+  .round-chip {
+    min-width: 140px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.45rem 0.85rem;
+    min-height: 40px;
   }
 
   .quest-leaderboard {
-    padding: 0 1rem 1.25rem;
+    padding: 0 0.75rem 1rem;
   }
 
   .leaderboard-list {
@@ -2009,14 +2333,40 @@ onMounted(() => {
 }
 
 @media (max-width: 640px) {
+  .quest-view {
+    padding: 0 0.75rem 0;
+  }
+
+  .quest-layout {
+    padding: 0 0.5rem 0.75rem;
+    gap: 1.25rem;
+  }
+
   .quest-sidebar {
     flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .sidebar-card {
+    flex: 1 1 auto;
+    padding: 0.65rem 0.75rem;
+  }
+
+  .round-chip {
+    min-width: 120px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 0.4rem 0.75rem;
+    min-height: 36px;
+  }
+
+  .leaderboard-item-wrap {
+    flex: 0 0 calc((100% - 9 * 0.5rem) / 10);
+    min-width: 100px;
   }
 
   .leaderboard-item {
     padding: 0.55rem 0.7rem;
-    flex: 0 0 calc((100% - 9 * 0.5rem) / 10);
-    min-width: 100px;
   }
 
   .leaderboard-name {
@@ -2025,9 +2375,155 @@ onMounted(() => {
 }
 
 @media (max-width: 480px) {
-  .leaderboard-item {
+  .quest-view {
+    padding: 0 0.5rem 0;
+  }
+
+  .quest-layout {
+    padding: 0 0.375rem 0.625rem;
+    gap: 1rem;
+  }
+
+  .quest-stage {
+    gap: 0.75rem;
+  }
+
+  .rounds-nav {
+    padding: 0.625rem 0.75rem;
+    gap: 0.4rem;
+  }
+
+  .round-chip {
+    min-width: 100px;
+    font-size: 0.6rem;
+    font-weight: 700;
+    padding: 0.35rem 0.65rem;
+    min-height: 32px;
+  }
+
+  .sidebar-card {
+    padding: 0.6rem 0.65rem;
+    gap: 0.5rem;
+    border-radius: 14px;
+  }
+
+  .quest-leaderboard {
+    padding: 0 0.5rem 0.875rem;
+  }
+
+  .leaderboard-list {
+    gap: 0.4rem;
+    padding: 0.2rem 0.3rem 0.5rem;
+  }
+
+  .leaderboard-item-wrap {
     flex: 1 1 auto;
     min-width: 80px;
+  }
+
+  .leaderboard-item {
+    padding: 0.5rem 0.6rem;
+  }
+
+  .leaderboard-name {
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .quest-view {
+    padding: 0 0.375rem 0;
+  }
+
+  .quest-layout {
+    padding: 0 0.25rem 0.5rem;
+    gap: 0.875rem;
+  }
+
+  .rounds-nav {
+    padding: 0.5rem 0.625rem;
+  }
+
+  .round-chip {
+    min-width: 90px;
+    font-size: 0.55rem;
+    font-weight: 700;
+    padding: 0.3rem 0.55rem;
+    min-height: 30px;
+  }
+
+  .sidebar-card {
+    padding: 0.55rem 0.6rem;
+    border-radius: 12px;
+  }
+
+  .quest-leaderboard {
+    padding: 0 0.375rem 0.75rem;
+  }
+
+  .leaderboard-list {
+    gap: 0.35rem;
+    padding: 0.15rem 0.25rem 0.45rem;
+  }
+
+  .leaderboard-item-wrap {
+    min-width: 70px;
+  }
+
+  .leaderboard-item {
+    padding: 0.45rem 0.5rem;
+  }
+
+  .leaderboard-name {
+    font-size: 0.7rem;
+  }
+}
+
+@media (max-width: 320px) {
+  .quest-view {
+    padding: 0 0.25rem 0;
+  }
+
+  .quest-layout {
+    padding: 0 0.2rem 0.45rem;
+    gap: 0.75rem;
+  }
+
+  .rounds-nav {
+    padding: 0.45rem 0.5rem;
+  }
+
+  .round-chip {
+    min-width: 80px;
+    font-size: 0.5rem;
+    font-weight: 700;
+    padding: 0.25rem 0.5rem;
+    min-height: 28px;
+  }
+
+  .sidebar-card {
+    padding: 0.5rem 0.55rem;
+  }
+
+  .quest-leaderboard {
+    padding: 0 0.25rem 0.625rem;
+  }
+
+  .leaderboard-list {
+    gap: 0.3rem;
+    padding: 0.15rem 0.2rem 0.4rem;
+  }
+
+  .leaderboard-item-wrap {
+    min-width: 60px;
+  }
+
+  .leaderboard-item {
+    padding: 0.4rem 0.45rem;
+  }
+
+  .leaderboard-name {
+    font-size: 0.65rem;
   }
 }
 

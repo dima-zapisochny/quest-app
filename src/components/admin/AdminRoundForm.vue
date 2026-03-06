@@ -463,5 +463,95 @@ function handleCategorySlotClick(index: number) {
   color: #f8fafc;
   text-align: center;
 }
+
+@media (max-width: 768px) {
+  .round-section--meta,
+  .round-section--categories {
+    padding: 1.1rem 1.2rem;
+    border-radius: 18px;
+  }
+
+  .round-title-input {
+    font-size: 0.88rem;
+    padding: 0.5rem 0.7rem;
+  }
+
+  .category-cards {
+    padding: 0.75rem;
+    border-radius: 14px;
+  }
+
+  .category-slot {
+    font-size: 0.9rem;
+    border-radius: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .round-section--meta,
+  .round-section--categories {
+    padding: 0.85rem 0.9rem;
+    border-radius: 14px;
+  }
+
+  .round-section-chip {
+    font-size: 0.62rem;
+    padding: 0.3rem 0.7rem;
+  }
+
+  .round-title-input {
+    font-size: 0.82rem;
+    padding: 0.45rem 0.6rem;
+    border-radius: 12px;
+  }
+
+  .delete-round-text {
+    font-size: 0.78rem;
+    padding: 0.4rem 1.15rem;
+    border-radius: 12px;
+  }
+
+  .category-cards {
+    padding: 0.6rem;
+    border-radius: 12px;
+  }
+
+  .category-slot {
+    font-size: 0.82rem;
+    border-radius: 12px;
+  }
+
+  .category-heading {
+    font-size: clamp(0.85rem, 1.8vw, 1rem);
+    margin: 0.8rem 0 0.3rem;
+  }
+
+  .empty-categories {
+    font-size: 0.82rem;
+    padding: 0.7rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .round-section--meta,
+  .round-section--categories {
+    padding: 0.7rem;
+    border-radius: 12px;
+  }
+
+  .round-title-input {
+    font-size: 0.78rem;
+    padding: 0.4rem 0.55rem;
+  }
+
+  .category-cards {
+    padding: 0.5rem;
+  }
+
+  .category-slot {
+    font-size: 0.75rem;
+    border-radius: 10px;
+  }
+}
 </style>
 

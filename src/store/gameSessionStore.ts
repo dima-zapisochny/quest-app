@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import type {
   GameSession,
+  Quest,
   UserProfile,
   Player,
   ActiveQuestionState,
@@ -161,6 +162,7 @@ export const useGameSessionStore = defineStore('game-session', () => {
           id: session.id,
           code: session.code,
           questId: session.questId,
+          quest: session.quest,
           hostId: session.hostId,
           hostName: session.hostName,
           hostAvatar: session.hostAvatar,
@@ -254,6 +256,7 @@ export const useGameSessionStore = defineStore('game-session', () => {
         id: updatedSession.id,
         code: updatedSession.code,
         questId: updatedSession.questId,
+        quest: updatedSession.quest,
         hostId: updatedSession.hostId,
         hostName: updatedSession.hostName,
         hostAvatar: updatedSession.hostAvatar,
@@ -286,12 +289,13 @@ export const useGameSessionStore = defineStore('game-session', () => {
     return false
   }
 
-  async function createSession(questId: string) {
+  async function createSession(questId: string, questSnapshot?: Quest) {
     const profile = ensureProfile()
     const session: GameSession = {
       id: generateId('session'),
       code: generateCode(),
       questId,
+      quest: questSnapshot,
       hostId: profile.id,
       hostName: profile.name,
       hostAvatar: profile.avatar,
@@ -811,6 +815,20 @@ export const useGameSessionStore = defineStore('game-session', () => {
       const player = session.players.find(p => p.id === failedPlayerId)
       if (player) {
         player.status = 'locked'
+        // За неправильну відповідь мінусуємо половину балів
+        const oldScore = player.score || 0
+        player.score = Math.max(0, Math.floor(oldScore / 2))
+        if (typeof window !== 'undefined') {
+          const scoreKey = `quiz-app-player-score-${sessionId}-${player.id}`
+          try {
+            localStorage.setItem(scoreKey, JSON.stringify({
+              score: player.score,
+              savedAt: now()
+            }))
+          } catch (e) {
+            console.error('Error saving player score after wrong answer:', e)
+          }
+        }
       }
     }
     
@@ -888,6 +906,70 @@ export const useGameSessionStore = defineStore('game-session', () => {
     } catch (error) {
       console.error('Error updating session:', error)
       // Fallback: обновляем локально
+      updateSessionInArray(session)
+    }
+  }
+
+  async function resetPlayersScores(sessionId: string) {
+    const session = getSessionById(sessionId)
+    if (!session) {
+      console.warn('⚠️ Session not found for resetting scores:', sessionId)
+      return
+    }
+    
+    // Сбрасываем баллы всех участников
+    session.players.forEach(player => {
+      player.score = 0
+      console.log('🔄 Reset score for player:', player.id, player.name)
+    })
+    
+    // Очищаем сохраненные баллы в localStorage
+    if (typeof window !== 'undefined') {
+      session.players.forEach(player => {
+        const scoreKey = `quiz-app-player-score-${sessionId}-${player.id}`
+        try {
+          localStorage.removeItem(scoreKey)
+          console.log('🗑️ Removed saved score from localStorage:', scoreKey)
+        } catch (error) {
+          console.error('Error removing saved score from localStorage:', error)
+        }
+      })
+    }
+    
+    session.updatedAt = now()
+    
+    try {
+      const updated = await updateSession(session)
+      updateSessionInArray(updated)
+      console.log('✅ Players scores reset successfully')
+    } catch (error) {
+      console.error('Error updating session after resetting scores:', error)
+      // Fallback: обновляем локально
+      updateSessionInArray(session)
+    }
+  }
+
+  async function setPlayerScore(sessionId: string, playerId: string, newScore: number) {
+    const session = getSessionById(sessionId)
+    if (!session) return
+    const player = session.players.find(p => p.id === playerId)
+    if (!player) return
+    const score = Math.max(0, Math.round(newScore))
+    player.score = score
+    if (typeof window !== 'undefined') {
+      const scoreKey = `quiz-app-player-score-${sessionId}-${player.id}`
+      try {
+        localStorage.setItem(scoreKey, JSON.stringify({ score, savedAt: now() }))
+      } catch (e) {
+        console.error('Error saving player score to localStorage:', e)
+      }
+    }
+    session.updatedAt = now()
+    try {
+      const updated = await updateSession(session)
+      updateSessionInArray(updated)
+    } catch (error) {
+      console.error('Error updating session after setPlayerScore:', error)
       updateSessionInArray(session)
     }
   }
@@ -1052,6 +1134,8 @@ export const useGameSessionStore = defineStore('game-session', () => {
     resolveQuestion,
     resumeTimer,
     timeoutResponder,
+    resetPlayersScores,
+    setPlayerScore,
     setActivePlayer,
     clearActivePlayer,
     checkActivePlayerSession,

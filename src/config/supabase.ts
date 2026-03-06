@@ -76,6 +76,7 @@ export interface Database {
           id: string
           code: string
           quest_id: string
+          quest_data: unknown | null // JSONB — снимок квеста для участников по коду
           host_id: string
           host_name: string
           host_avatar: string
@@ -90,6 +91,7 @@ export interface Database {
           id: string
           code: string
           quest_id: string
+          quest_data?: unknown | null
           host_id: string
           host_name: string
           host_avatar: string
@@ -102,6 +104,7 @@ export interface Database {
           id?: string
           code?: string
           quest_id?: string
+          quest_data?: unknown | null
           host_id?: string
           host_name?: string
           host_avatar?: string

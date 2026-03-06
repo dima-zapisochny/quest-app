@@ -1,14 +1,12 @@
 <template>
   <div v-if="quest" class="admin-quest-view">
-    <div class="admin-topbar">
-      <button class="toolbar-back" @click="goBack">← Назад</button>
-      <div class="user-pill">
-        <span class="user-name">{{ displayName }}</span>
-        <div class="user-avatar" :class="{ 'user-avatar--placeholder': !hasAvatar }" aria-hidden="true">
-          <span>{{ hasAvatar ? avatarEmoji : avatarInitial }}</span>
-        </div>
-      </div>
-    </div>
+    <AppHeader
+      button-variant="back"
+      button-label="Назад"
+      :user-name="userProfile?.name"
+      :user-avatar="userProfile?.avatar"
+      @button-click="goBack"
+    />
 
     <header class="quest-toolbar">
       <div class="toolbar-left">
@@ -29,7 +27,7 @@
             placeholder="Короткое описание для ведущего и игроков"
           ></textarea>
           <div class="toolbar-stats">
-            <span class="stat-chip">Раундов: {{ Array.isArray(quest.rounds) ? quest.rounds.length : 0 }}/10</span>
+            <span class="stat-chip">Раундов: {{ Array.isArray(quest.rounds) ? quest.rounds.length : 0 }}/5</span>
             <span class="stat-chip">Вопросов: {{ questStats.totalQuestions }}</span>
           </div>
           <button
@@ -55,7 +53,7 @@
        </p>
  
       <div class="rounds-grid">
-        <template v-for="index in 8" :key="index">
+        <template v-for="index in 5" :key="index">
           <button
             v-if="index <= roundsCount"
             :class="['round-slot', { active: activeRoundIndex === index - 1 }]"
@@ -66,7 +64,7 @@
             <span>{{ index }}</span>
           </button>
           <button
-            v-else-if="index === roundsCount + 1 && roundsCount < 8"
+            v-else-if="index === roundsCount + 1 && roundsCount < 5"
             class="round-slot round-slot--add"
             type="button"
             :disabled="isAddingRound"
@@ -112,6 +110,7 @@ import { useRouter } from 'vue-router'
 import { useQuizStore } from '@/store/quizStore'
 import { useGameSessionStore } from '@/store/gameSessionStore'
 import AdminRoundForm from '@/components/admin/AdminRoundForm.vue'
+import AppHeader from '@/components/common/AppHeader.vue'
 
 interface Props {
   questId: string
@@ -142,32 +141,6 @@ const activeRoundIndex = computed(() => editingRoundIndex.value)
 const roundsCount = computed(() => quest.value?.rounds?.length ?? 0)
 
 const userProfile = computed(() => sessionStore.userProfile)
-const displayName = computed(() => {
-  const name = userProfile.value?.name?.trim()
-  return name && name.length ? name : 'Гость'
-})
-const avatarEmojiMap: Record<string, string> = {
-  fox: '🦊',
-  panda: '🐼',
-  tiger: '🐯',
-  owl: '🦉',
-  whale: '🐳',
-  parrot: '🦜',
-  koala: '🐨',
-  dino: '🦕',
-  crocodile: '🐊',
-  lion: '🦁',
-  penguin: '🐧',
-  elephant: '🐘',
-  seal: '🦭',
-  hedgehog: '🦔'
-}
-const avatarEmoji = computed(() => {
-  const avatarId = userProfile.value?.avatar ?? ''
-  return avatarEmojiMap[avatarId] ?? ''
-})
-const hasAvatar = computed(() => Boolean(avatarEmoji.value))
-const avatarInitial = computed(() => displayName.value.charAt(0).toUpperCase())
 
 const questTitle = computed({
   get: () => quest.value?.title ?? '',
@@ -323,105 +296,14 @@ function goBack() {
 .admin-quest-view {
   min-height: 100dvh;
   background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-  padding: 2rem clamp(1rem, 4vw, 3rem);
+  padding: 0 clamp(1rem, 4vw, 3rem) 2rem;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
   color: #e2e8f0;
 }
 
-.admin-topbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.9rem;
-  padding: 0.75rem 1.5rem 0.5rem;
-}
 
-.toolbar-back {
-  background: rgba(15, 118, 110, 0.12);
-  border: 1px solid rgba(34, 211, 238, 0.4);
-  color: #f8fafc;
-  font-size: 0.95rem;
-  padding: 0.65rem 1.25rem;
-  border-radius: 9999px;
-  cursor: pointer;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.toolbar-back:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(34, 211, 238, 0.25);
-}
-
-.user-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 0.45rem 1.1rem;
-  border-radius: 9999px;
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  background: rgba(15, 23, 42, 0.25);
-  backdrop-filter: blur(12px);
-  position: relative;
-  overflow: hidden;
-  transform: perspective(1000px) rotateY(-5deg) rotateX(2deg);
-  box-shadow: 
-    0 4px 12px rgba(2, 6, 23, 0.3),
-    0 2px 6px rgba(2, 6, 23, 0.2),
-    inset 0 2px 4px rgba(255, 255, 255, 0.15),
-    inset 0 -2px 4px rgba(0, 0, 0, 0.25);
-}
-
-.user-pill::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.1) 0%,
-    transparent 50%,
-    rgba(255, 255, 255, 0.05) 100%
-  );
-  border-radius: 9999px;
-  pointer-events: none;
-  opacity: 0.6;
-}
-
-.user-name {
-  font-size: 0.9rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-}
-
-.user-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: 2px solid rgba(56, 189, 248, 0.45);
-  background: rgba(8, 47, 73, 0.75);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.4rem;
-  color: #e2e8f0;
-}
-
-.user-avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.user-avatar--placeholder {
-  border-style: dashed;
-  color: #bae6fd;
-}
 
 .quest-toolbar {
   display: flex;
@@ -757,6 +639,172 @@ function goBack() {
 
   .user-pill {
     align-self: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-quest-view {
+    gap: 1rem;
+    padding: 0 1rem 1.5rem;
+  }
+
+  .quest-toolbar {
+    border-radius: 18px;
+  }
+
+  .toolbar-input {
+    font-size: 0.9rem;
+    padding: 0.65rem 0.85rem;
+    border-radius: 14px;
+  }
+
+  .toolbar-textarea {
+    font-size: 0.85rem;
+    padding: 0.6rem 0.85rem;
+    border-radius: 14px;
+  }
+
+  .panel-header h2 {
+    font-size: 1.1rem;
+  }
+
+  .round-slot {
+    font-size: 0.9rem;
+    border-radius: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-quest-view {
+    gap: 0.75rem;
+    padding: 0 0.75rem 1rem;
+  }
+
+  .quest-toolbar {
+    border-radius: 14px;
+    padding: 0.85rem;
+  }
+
+  .toolbar-input {
+    font-size: 0.85rem;
+    padding: 0.55rem 0.75rem;
+    border-radius: 12px;
+  }
+
+  .toolbar-textarea {
+    font-size: 0.8rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 12px;
+  }
+
+  .toolbar-label {
+    font-size: 0.68rem;
+  }
+
+  .stat-chip {
+    font-size: 0.7rem;
+    padding: 0.25rem 0.65rem;
+  }
+
+  .toolbar-delete-text {
+    font-size: 0.8rem;
+    padding: 0.35rem 1.1rem;
+    border-radius: 12px;
+  }
+
+  .rounds-panel {
+    padding: 0.75rem;
+    border-radius: 18px;
+    gap: 0.75rem;
+  }
+
+  .panel-header h2 {
+    font-size: 1rem;
+  }
+
+  .round-slot {
+    font-size: 0.85rem;
+    border-radius: 12px;
+  }
+
+  .round-slot--add {
+    font-size: 1.2rem;
+  }
+
+  .round-editor-index {
+    font-size: clamp(0.85rem, 1.8vw, 1rem);
+  }
+}
+
+@media (max-width: 360px) {
+  .admin-quest-view {
+    gap: 0.6rem;
+    padding: 0 0.5rem 0.75rem;
+  }
+
+  .quest-toolbar {
+    border-radius: 12px;
+    padding: 0.7rem;
+  }
+
+  .toolbar-input {
+    font-size: 0.82rem;
+    padding: 0.5rem 0.65rem;
+  }
+
+  .toolbar-textarea {
+    font-size: 0.78rem;
+    padding: 0.45rem 0.65rem;
+  }
+
+  .rounds-panel {
+    padding: 0.6rem;
+    border-radius: 14px;
+  }
+
+  .round-slot {
+    font-size: 0.78rem;
+    border-radius: 10px;
+  }
+}
+
+@media (max-width: 320px) {
+  .admin-quest-view {
+    gap: 0.5rem;
+    padding: 0 0.375rem 0.5rem;
+  }
+
+  .quest-toolbar {
+    padding: 0.6rem;
+    border-radius: 10px;
+  }
+
+  .toolbar-input {
+    font-size: 0.78rem;
+    padding: 0.45rem 0.55rem;
+  }
+
+  .toolbar-textarea {
+    font-size: 0.75rem;
+    padding: 0.4rem 0.55rem;
+  }
+
+  .stat-chip {
+    font-size: 0.65rem;
+    padding: 0.2rem 0.5rem;
+  }
+
+  .rounds-panel {
+    padding: 0.5rem;
+    border-radius: 12px;
+  }
+
+  .panel-header h2 {
+    font-size: 0.9rem;
+  }
+
+  .round-slot {
+    font-size: 0.72rem;
   }
 }
 </style>

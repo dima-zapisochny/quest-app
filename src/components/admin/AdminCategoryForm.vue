@@ -477,7 +477,7 @@ function handleQuestionDeleted(questionId: string) {
   align-self: center;
   display: inline-flex;
   align-items: center;
-  align-items: center;
+  justify-content: center;
   padding: 0.6rem 1.9rem;
   border-radius: 18px;
   border: 1px dashed rgba(56, 189, 248, 0.35);
@@ -538,6 +538,118 @@ function handleQuestionDeleted(questionId: string) {
   color: rgba(226, 232, 240, 0.7);
   text-align: center;
   font-size: 0.85rem;
+}
+
+@media (max-width: 768px) {
+  .category-panel {
+    padding: 0.7rem 0.85rem;
+    border-radius: 14px;
+  }
+
+  .accordion-toggle {
+    padding: 0.65rem 0.85rem;
+    font-size: 0.88rem;
+    gap: 0.65rem;
+  }
+
+  .accordion-body {
+    padding: 0.75rem 0.85rem;
+  }
+
+  .accordion-value {
+    font-size: 0.78rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .category-panel {
+    padding: 0.6rem 0.7rem;
+    border-radius: 12px;
+  }
+
+  .category-title-input {
+    font-size: 0.85rem;
+    padding: 0.45rem 0.6rem;
+    border-radius: 12px;
+  }
+
+  .accordion-toggle {
+    padding: 0.55rem 0.7rem;
+    font-size: 0.82rem;
+    gap: 0.5rem;
+  }
+
+  .accordion-icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  .accordion-icon svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  .accordion-value {
+    font-size: 0.72rem;
+  }
+
+  .accordion-body {
+    padding: 0.6rem 0.7rem;
+  }
+
+  .accordion-item {
+    border-radius: 12px;
+  }
+
+  .delete-category-text {
+    font-size: 0.75rem;
+    padding: 0.4rem 1.15rem;
+    border-radius: 12px;
+  }
+
+  .add-question-button {
+    padding: 0.5rem 1.4rem;
+    border-radius: 14px;
+    min-width: 160px;
+    font-size: 0.82rem;
+  }
+
+  .empty-questions {
+    font-size: 0.78rem;
+    padding: 0.7rem;
+    border-radius: 12px;
+  }
+
+  .badge {
+    font-size: 0.65rem;
+    padding: 0.3rem 0.6rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .category-panel {
+    padding: 0.5rem 0.6rem;
+  }
+
+  .category-title-input {
+    font-size: 0.8rem;
+    padding: 0.4rem 0.55rem;
+  }
+
+  .accordion-toggle {
+    padding: 0.5rem 0.6rem;
+    font-size: 0.78rem;
+  }
+
+  .accordion-body {
+    padding: 0.5rem 0.6rem;
+  }
+
+  .add-question-button {
+    padding: 0.45rem 1.1rem;
+    min-width: 140px;
+    font-size: 0.78rem;
+  }
 }
 </style>
 

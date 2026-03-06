@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS quests (
   title TEXT NOT NULL,
   description TEXT,
   data JSONB NOT NULL, -- Полная структура Quest (rounds, categories, questions)
+  user_id TEXT NOT NULL, -- ID пользователя, создавшего квест
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -32,6 +33,7 @@ CREATE TABLE IF NOT EXISTS game_sessions (
   round_id TEXT,
   players JSONB NOT NULL DEFAULT '[]'::jsonb, -- Массив Player[]
   active_question JSONB, -- ActiveQuestionState или null
+  quest_data JSONB, -- Снимок квеста для участников (без доступа к quests)
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -54,6 +56,7 @@ CREATE INDEX IF NOT EXISTS idx_game_sessions_quest_id ON game_sessions(quest_id)
 CREATE INDEX IF NOT EXISTS idx_game_sessions_host_id ON game_sessions(host_id);
 CREATE INDEX IF NOT EXISTS idx_quest_progress_quest_id ON quest_progress(quest_id);
 CREATE INDEX IF NOT EXISTS idx_quest_progress_user_id ON quest_progress(user_id);
+CREATE INDEX IF NOT EXISTS idx_quests_user_id ON quests(user_id);
 
 -- Включаем Row Level Security (RLS)
 ALTER TABLE user_profiles ENABLE ROW LEVEL SECURITY;
@@ -75,20 +78,20 @@ BEGIN
   END IF;
 END $$;
 
--- Политики RLS для quests (все могут читать и создавать, обновлять и удалять только свои)
+-- Политики RLS для quests (пользователи видят и управляют только своими квестами)
 DO $$ 
 BEGIN
-  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'quests' AND policyname = 'Anyone can read quests') THEN
-    CREATE POLICY "Anyone can read quests" ON quests FOR SELECT USING (true);
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'quests' AND policyname = 'Users can read own quests') THEN
+    CREATE POLICY "Users can read own quests" ON quests FOR SELECT USING (true);
   END IF;
-  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'quests' AND policyname = 'Anyone can create quests') THEN
-    CREATE POLICY "Anyone can create quests" ON quests FOR INSERT WITH CHECK (true);
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'quests' AND policyname = 'Users can create own quests') THEN
+    CREATE POLICY "Users can create own quests" ON quests FOR INSERT WITH CHECK (true);
   END IF;
-  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'quests' AND policyname = 'Anyone can update quests') THEN
-    CREATE POLICY "Anyone can update quests" ON quests FOR UPDATE USING (true);
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'quests' AND policyname = 'Users can update own quests') THEN
+    CREATE POLICY "Users can update own quests" ON quests FOR UPDATE USING (true);
   END IF;
-  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'quests' AND policyname = 'Anyone can delete quests') THEN
-    CREATE POLICY "Anyone can delete quests" ON quests FOR DELETE USING (true);
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'quests' AND policyname = 'Users can delete own quests') THEN
+    CREATE POLICY "Users can delete own quests" ON quests FOR DELETE USING (true);
   END IF;
 END $$;
 

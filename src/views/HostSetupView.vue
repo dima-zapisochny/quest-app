@@ -1,18 +1,12 @@
 <template>
   <div class="host-setup">
-    <header class="host-topbar">
-      <div class="host-topbar-left">
-        <button class="back-button" @click="goBack"><span class="back-arrow">←</span> Назад</button>
-      </div>
-      <div class="topbar-actions">
-        <div class="host-user-pill">
-          <span class="host-user-name">{{ displayName }}</span>
-          <div class="host-user-avatar" :class="{ 'host-user-avatar--placeholder': !hasAvatar }" aria-hidden="true">
-            <span>{{ hasAvatar ? avatarEmoji : avatarInitial }}</span>
-          </div>
-        </div>
-      </div>
-    </header>
+    <AppHeader
+      button-variant="back"
+      button-label="Назад"
+      :user-name="userProfile?.name"
+      :user-avatar="userProfile?.avatar"
+      @button-click="goBack"
+    />
 
     <div v-if="loading" class="host-loading-wrapper">
       <div class="loading-state">
@@ -80,6 +74,10 @@
             <div class="new-quest-circle">+</div>
             <span>Создать новый квест</span>
           </article>
+          <article class="quest-card quest-card--seed" @click="loadMusicQuest" v-if="!hasMusicQuest">
+            <div class="new-quest-circle seed-icon">🎵</div>
+            <span>Добавить музыкальный квест</span>
+          </article>
         </div>
       </section>
 
@@ -145,6 +143,7 @@ import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import { useQuizStore } from '@/store/quizStore'
 import { useGameSessionStore } from '@/store/gameSessionStore'
+import AppHeader from '@/components/common/AppHeader.vue'
 
 const router = useRouter()
 const quizStore = useQuizStore()
@@ -165,21 +164,6 @@ const confirmDeleteModal = ref<{ visible: boolean; questId: string | null; quest
 })
 
 const userProfile = computed(() => sessionStore.userProfile)
-const displayName = computed(() => {
-  const name = userProfile.value?.name?.trim()
-  return name && name.length ? name : 'Гость'
-})
-const avatarEmojiMap: Record<string, string> = {
-  fox: '🦊', panda: '🐼', tiger: '🐯', owl: '🦉', whale: '🐳', parrot: '🦜',
-  koala: '🐨', dino: '🦕', crocodile: '🐊', lion: '🦁', penguin: '🐧',
-  elephant: '🐘', seal: '🦭', hedgehog: '🦔'
-}
-const avatarEmoji = computed(() => {
-  const avatarId = userProfile.value?.avatar ?? ''
-  return avatarEmojiMap[avatarId] ?? ''
-})
-const hasAvatar = computed(() => Boolean(avatarEmoji.value))
-const avatarInitial = computed(() => displayName.value.charAt(0).toUpperCase())
 
 const handleClickOutside = (event: MouseEvent) => {
   const hostRoot = document.querySelector('.host-setup')
@@ -235,6 +219,18 @@ onBeforeUnmount(() => {
 
 const questQuestions = (questId: string) => quizStore.getQuestProgress(questId).totalQuestions
 
+const hasMusicQuest = computed(() => quests.value.some(q => q.title === 'Музыкальный квест'))
+
+async function loadMusicQuest() {
+  try {
+    const id = await quizStore.addMusicQuest()
+    selectedQuestId.value = id
+  } catch (error) {
+    console.error('Failed to load music quest:', error)
+    errorMessage.value = 'Не удалось добавить музыкальный квест'
+  }
+}
+
 function handleCardClick(event: MouseEvent, questId: string) {
   const target = event.target as HTMLElement | null
   if (target?.closest('.quest-action-button')) {
@@ -259,10 +255,11 @@ async function handleStart() {
     return
   }
   try {
-    const session = await sessionStore.createSession(selectedQuestId.value)
+    const questSnapshot = quizStore.getQuestById(selectedQuestId.value)
+    const session = await sessionStore.createSession(selectedQuestId.value, questSnapshot ?? undefined)
     
-    // Сразу переходим на игровую доску
-    const quest = quizStore.getQuestById(session.questId)
+    // Сразу переходим на игровую доску (хост использует квест из store)
+    const quest = session.quest ?? quizStore.getQuestById(session.questId)
     if (!quest || !Array.isArray(quest.rounds) || !quest.rounds.length) {
       errorMessage.value = 'Добавьте хотя бы один раунд в квест'
       return
@@ -360,8 +357,7 @@ function cancelDeleteQuest() {
   height: 100dvh;
   overflow: hidden;
   background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-  padding: 1rem clamp(1rem, 4vw, 3rem);
-  padding-bottom: 0;
+  padding: 0 clamp(1rem, 4vw, 3rem) 0;
   display: flex;
   flex-direction: column;
   gap: 3rem;
@@ -474,111 +470,7 @@ function cancelDeleteQuest() {
   text-shadow: 0 2px 8px rgba(15, 23, 42, 0.3);
 }
 
-.host-topbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.9rem;
-  padding: 0.5rem 0;
-  flex-shrink: 0;
-}
 
-.host-topbar-left {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  min-width: 0;
-}
-
-.topbar-actions {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.back-button {
-  background: rgba(15, 118, 110, 0.12);
-  border: 1px solid rgba(34, 211, 238, 0.4);
-  color: #f8fafc;
-  font-size: 0.95rem;
-  padding: 0.65rem 1.25rem;
-  border-radius: 9999px;
-  cursor: pointer;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.back-arrow {
-  font-weight: 900;
-  display: inline-block;
-}
-
-.back-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(34, 211, 238, 0.25);
-}
-
-.host-user-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 0.45rem 1.1rem;
-  border-radius: 9999px;
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  background: rgba(15, 23, 42, 0.25);
-  backdrop-filter: blur(12px);
-  position: relative;
-  overflow: hidden;
-  transform: perspective(1000px) rotateY(-5deg) rotateX(2deg);
-  box-shadow: 
-    0 4px 12px rgba(2, 6, 23, 0.3),
-    0 2px 6px rgba(2, 6, 23, 0.2),
-    inset 0 2px 4px rgba(255, 255, 255, 0.15),
-    inset 0 -2px 4px rgba(0, 0, 0, 0.25);
-}
-
-.host-user-pill::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.1) 0%,
-    transparent 50%,
-    rgba(255, 255, 255, 0.05) 100%
-  );
-  border-radius: 9999px;
-  pointer-events: none;
-  opacity: 0.6;
-}
-
-.host-user-name {
-  font-size: 0.9rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-}
-
-.host-user-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: 2px solid rgba(56, 189, 248, 0.45);
-  background: rgba(8, 47, 73, 0.75);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.4rem;
-  color: #e2e8f0;
-}
-
-.host-user-avatar--placeholder {
-  border-style: dashed;
-  color: #bae6fd;
-}
 
 .host-header {
   background: rgba(15, 23, 42, 0.78);
@@ -678,7 +570,7 @@ function cancelDeleteQuest() {
 
 .quests-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(540px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(540px, 100%), 1fr));
   gap: 1.6rem;
   padding-top: 0.2rem;
   overflow-y: auto;
@@ -865,11 +757,33 @@ function cancelDeleteQuest() {
   font-size: 2.4rem;
 }
 
-.quest-card--new span {
+.quest-card--new span,
+.quest-card--seed span {
   font-size: 0.92rem;
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
+}
+
+.quest-card--seed {
+  border: 1px dashed rgba(168, 85, 247, 0.5);
+  background: rgba(15, 23, 42, 0.6);
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  text-align: center;
+  color: rgba(226, 232, 240, 0.9);
+}
+
+.quest-card--seed:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(168, 85, 247, 0.15);
+  border-color: rgba(168, 85, 247, 0.7);
+}
+
+.seed-icon {
+  border-color: rgba(168, 85, 247, 0.5) !important;
+  font-size: 2.4rem !important;
 }
 
 .quest-card::before {
@@ -1302,6 +1216,203 @@ function cancelDeleteQuest() {
   }
 }
 
+@media (max-width: 480px) {
+  .host-setup {
+    padding: 0 0.75rem;
+    gap: 0.75rem;
+  }
+
+  .host-header {
+    padding: 1.25rem 1rem;
+    gap: 1.25rem;
+    border-radius: 1rem;
+  }
+
+  .host-title h1 {
+    font-size: clamp(0.8rem, 2.2vw, 1rem);
+  }
+
+  .host-title p {
+    font-size: clamp(0.65rem, 1.8vw, 0.78rem);
+  }
+
+  .quest-card {
+    padding: 1rem;
+    height: 72px;
+    min-height: 72px;
+    max-height: 72px;
+    gap: 0.4rem;
+    border-radius: 0.65rem;
+  }
+
+  .quest-title {
+    font-size: 0.7rem;
+  }
+
+  .quest-description {
+    font-size: 0.55rem;
+    max-height: calc(0.55rem * 1.35 * 2);
+  }
+
+  .quest-meta {
+    font-size: 0.5rem;
+    gap: 0.3rem;
+  }
+
+  .quest-action-button {
+    width: 22px;
+    height: 22px;
+  }
+
+  .quest-action-button svg {
+    width: 11px;
+    height: 11px;
+  }
+
+  .new-quest-circle {
+    width: 42px;
+    height: 42px;
+    font-size: 1.3rem;
+  }
+
+  .quest-card--new span {
+    font-size: 0.55rem;
+  }
+
+  .quests-grid {
+    gap: 0.75rem;
+    max-height: calc(2 * (72px + 2 * 1rem) + 1 * 0.75rem);
+  }
+
+  .primary,
+  .secondary {
+    padding: 0.8rem 1.5rem;
+    font-size: 0.88rem;
+  }
+
+  .section-header {
+    padding: 0 0.5rem;
+  }
+
+  .actions--fixed {
+    padding: 0.75rem 0;
+  }
+}
+
+@media (max-width: 360px) {
+  .host-setup {
+    padding: 0 0.5rem;
+    gap: 0.5rem;
+  }
+
+  .host-header {
+    padding: 1rem 0.75rem;
+    gap: 1rem;
+    border-radius: 0.875rem;
+  }
+
+  .host-title h1 {
+    font-size: clamp(0.75rem, 2vw, 0.9rem);
+  }
+
+  .quest-card {
+    padding: 0.75rem;
+    height: 65px;
+    min-height: 65px;
+    max-height: 65px;
+    gap: 0.35rem;
+  }
+
+  .quest-title {
+    font-size: 0.65rem;
+  }
+
+  .quest-description {
+    display: none;
+  }
+
+  .quest-meta {
+    font-size: 0.48rem;
+  }
+
+  .new-quest-circle {
+    width: 36px;
+    height: 36px;
+    font-size: 1.1rem;
+  }
+
+  .quest-card--new span {
+    font-size: 0.5rem;
+  }
+
+  .quests-grid {
+    gap: 0.6rem;
+  }
+
+  .primary,
+  .secondary {
+    padding: 0.7rem 1.25rem;
+    font-size: 0.82rem;
+  }
+
+  .actions--fixed {
+    padding: 0.5rem 0;
+  }
+}
+
+@media (max-width: 320px) {
+  .host-setup {
+    padding: 0 0.375rem;
+    gap: 0.4rem;
+  }
+
+  .host-header {
+    padding: 0.75rem 0.6rem;
+    gap: 0.75rem;
+  }
+
+  .host-title h1 {
+    font-size: clamp(0.7rem, 1.8vw, 0.85rem);
+  }
+
+  .quest-card {
+    padding: 0.6rem;
+    height: 58px;
+    min-height: 58px;
+    max-height: 58px;
+  }
+
+  .quest-title {
+    font-size: 0.6rem;
+  }
+
+  .quest-action-button {
+    width: 20px;
+    height: 20px;
+  }
+
+  .quest-action-button svg {
+    width: 10px;
+    height: 10px;
+  }
+
+  .new-quest-circle {
+    width: 32px;
+    height: 32px;
+    font-size: 1rem;
+  }
+
+  .quest-card--new span {
+    font-size: 0.45rem;
+  }
+
+  .primary,
+  .secondary {
+    padding: 0.65rem 1rem;
+    font-size: 0.78rem;
+  }
+}
+
 @media (max-width: 1024px) {
   .quest-selection {
     padding-right: 0;
@@ -1354,12 +1465,6 @@ function cancelDeleteQuest() {
     align-self: center;
   }
 
-  .host-topbar {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.8rem;
-  }
 }
 
 

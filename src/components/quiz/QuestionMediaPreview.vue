@@ -62,5 +62,36 @@ audio {
   color: #94a3b8;
   word-break: break-word;
 }
+
+@media (max-width: 768px) {
+  .media-card {
+    padding: 0.5rem;
+    gap: 0.5rem;
+    border-radius: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .media-card {
+    padding: 0.35rem;
+    gap: 0.35rem;
+    border-radius: 0.5rem;
+  }
+
+  .media-name {
+    font-size: 0.68rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .media-card {
+    padding: 0.25rem;
+    gap: 0.25rem;
+  }
+
+  .media-name {
+    font-size: 0.62rem;
+  }
+}
 </style>
 

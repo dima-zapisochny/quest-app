@@ -75,6 +75,8 @@ export type GameSession = {
   id: string
   code: string
   questId: string
+  /** Снимок квеста при создании сессии; участники получают его по коду (квест не доступен другим пользователям в списке) */
+  quest?: Quest
   hostId: string
   hostName: string
   hostAvatar: string

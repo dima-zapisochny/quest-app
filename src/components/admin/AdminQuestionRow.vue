@@ -21,7 +21,7 @@
         ></textarea>
         <div class="media-section">
           <div v-for="(media, index) in questionMediaList" :key="media.id" class="media-item">
-            <div class="media-item-header">
+            <div class="media-item-row">
               <span class="media-name">{{ media.name }}</span>
               <button
                 type="button"
@@ -30,36 +30,45 @@
                 title="Удалить медиа"
                 aria-label="Удалить медиа вопроса"
               >✕</button>
-            </div>
-            <div v-if="media.type === 'image'" class="media-delay-input">
-              <label :for="`question-delay-${media.id}`" class="delay-label">Время появления (сек):</label>
-              <input
-                :id="`question-delay-${media.id}`"
-                type="number"
-                min="0"
-                step="1"
-                :value="media.delay ?? (index === 0 ? 0 : '')"
-                @input="updateMediaDelay('question', media.id, Number(($event.target as HTMLInputElement).value) || 0)"
-                class="delay-input"
-                placeholder="0"
-              />
+              <template v-if="media.type === 'image'">
+                <label :for="`question-delay-${media.id}`" class="delay-label">Время появления (сек, макс. 29):</label>
+                <input
+                  :id="`question-delay-${media.id}`"
+                  type="number"
+                  min="0"
+                  max="29"
+                  step="1"
+                  :value="media.delay ?? (index === 0 ? 0 : '')"
+                  @input="updateMediaDelay('question', media.id, clampDelay(Number(($event.target as HTMLInputElement).value) || 0))"
+                  class="delay-input"
+                  placeholder="0"
+                />
+              </template>
             </div>
           </div>
           <div class="media-upload-buttons">
-            <label v-if="questionMediaImages.length < 3" class="upload-chip">
+            <label 
+              v-if="questionMediaImages.length < 3" 
+              class="upload-chip" 
+              :class="{ 'upload-chip--disabled': isUploadingQuestionMedia || questionMediaAudio.length > 0 }"
+            >
               <input
                 type="file"
                 accept="image/*"
-                :disabled="isUploadingQuestionMedia"
+                :disabled="isUploadingQuestionMedia || questionMediaAudio.length > 0"
                 @change="handleUpload('question', $event, 'image')"
               />
               <span>{{ isUploadingQuestionMedia ? 'Загрузка…' : `Загрузить изображение (${questionMediaImages.length + 1}/3)` }}</span>
             </label>
-            <label v-if="!questionMediaAudio.length" class="upload-chip">
+            <label 
+              v-if="!questionMediaAudio.length" 
+              class="upload-chip"
+              :class="{ 'upload-chip--disabled': isUploadingQuestionMedia || questionMediaImages.length > 0 }"
+            >
               <input
                 type="file"
                 accept="audio/*"
-                :disabled="isUploadingQuestionMedia"
+                :disabled="isUploadingQuestionMedia || questionMediaImages.length > 0"
                 @change="handleUpload('question', $event, 'audio')"
               />
               <span>{{ isUploadingQuestionMedia ? 'Загрузка…' : 'Загрузить аудио' }}</span>
@@ -187,8 +196,21 @@ function handleUpload(target: 'question' | 'answer', event: Event, mediaType?: '
   const file = files.item(0)
   if (!file) return
 
-  // Для вопросов: проверяем лимиты в зависимости от типа медиа
+  // Для вопросов: проверяем лимиты и конфликты типов медиа
   if (target === 'question') {
+    // Если пытаемся загрузить изображение, но уже есть аудио
+    if (mediaType === 'image' && questionMediaAudio.value.length > 0) {
+      input.value = ''
+      alert('Для вопроса можно загрузить либо изображения, либо аудио, но не оба типа одновременно')
+      return
+    }
+    // Если пытаемся загрузить аудио, но уже есть изображения
+    if (mediaType === 'audio' && questionMediaImages.value.length > 0) {
+      input.value = ''
+      alert('Для вопроса можно загрузить либо изображения, либо аудио, но не оба типа одновременно')
+      return
+    }
+    
     if (mediaType === 'image' && questionMediaImages.value.length >= 3) {
       input.value = ''
       alert('Можно добавить максимум 3 изображения')
@@ -252,6 +274,13 @@ function handleUpload(target: 'question' | 'answer', event: Event, mediaType?: '
   input.value = ''
 }
 
+const QUESTION_TIMER_SEC = 30
+const MAX_DELAY_SEC = QUESTION_TIMER_SEC - 1
+
+function clampDelay(value: number): number {
+  return Math.min(MAX_DELAY_SEC, Math.max(0, value))
+}
+
 function updateMediaDelay(target: 'question' | 'answer', mediaId: string, delay: number) {
   const quest = store.quests.find(q => q.id === props.questId)
   if (!quest) return
@@ -269,8 +298,9 @@ function updateMediaDelay(target: 'question' | 'answer', mediaId: string, delay:
   const mediaList = question[key] ?? []
   const mediaIndex = mediaList.findIndex(m => m.id === mediaId)
   
+  const clampedDelay = target === 'question' ? clampDelay(delay) : delay
   if (mediaIndex !== -1) {
-    mediaList[mediaIndex] = { ...mediaList[mediaIndex], delay }
+    mediaList[mediaIndex] = { ...mediaList[mediaIndex], delay: clampedDelay }
     question[key] = mediaList
     store.updateQuestion(props.questId, props.roundId, props.categoryId, props.question.id, {
       [key]: mediaList
@@ -386,17 +416,28 @@ textarea:focus,
   border-radius: 10px;
 }
 
-.media-item-header {
+.media-item-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
-.media-delay-input {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+.media-item-row .media-name {
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+.media-item-row .media-remove {
+  flex-shrink: 0;
+}
+
+.media-item-row .delay-label {
+  margin-left: auto;
+}
+
+.media-item-row .delay-input {
+  flex-shrink: 0;
 }
 
 .delay-label {
@@ -482,6 +523,16 @@ textarea:focus,
   cursor: pointer;
 }
 
+.upload-chip--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.upload-chip--disabled input[type='file'] {
+  cursor: not-allowed;
+}
+
 .question-card-footer {
   display: flex;
   justify-content: flex-start;
@@ -515,6 +566,58 @@ textarea:focus,
 
   .value-field {
     max-width: 160px;
+  }
+}
+
+@media (max-width: 480px) {
+  .accordion-body,
+  .question-card-grid {
+    gap: 0.5rem;
+  }
+
+  .upload-chip {
+    font-size: 0.72rem;
+    padding: 0.35rem 0.6rem;
+    min-width: 110px;
+    border-radius: 10px;
+  }
+
+  .media-name {
+    font-size: 0.68rem;
+    max-width: 200px;
+  }
+
+  .delete-question {
+    font-size: 0.78rem;
+    padding: 0.4rem 1.2rem;
+    border-radius: 12px;
+  }
+
+  .delay-input {
+    width: 65px;
+    font-size: 0.72rem;
+    padding: 0.25rem 0.4rem;
+  }
+
+  .delay-label {
+    font-size: 0.62rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .upload-chip {
+    font-size: 0.68rem;
+    min-width: 100px;
+  }
+
+  .media-name {
+    font-size: 0.65rem;
+    max-width: 160px;
+  }
+
+  .delete-question {
+    font-size: 0.72rem;
+    padding: 0.35rem 1rem;
   }
 }
 </style>

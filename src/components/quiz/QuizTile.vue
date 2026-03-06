@@ -81,7 +81,8 @@ function avatarEmoji(avatarId: string): string {
     penguin: '🐧',
     elephant: '🐘',
     seal: '🦭',
-    hedgehog: '🦔'
+    hedgehog: '🦔',
+    lily: '🌸'
   }
   return map[avatarId] ?? '🙂'
 }
@@ -93,19 +94,15 @@ function avatarEmoji(avatarId: string): string {
   height: 100%;
   flex: 1 1 0;
   min-height: 66px;
-  background: linear-gradient(135deg, 
-    rgba(139, 92, 246, 0.65) 0%,
-    rgba(99, 102, 241, 0.6) 35%,
-    rgba(59, 130, 246, 0.65) 70%,
-    rgba(139, 92, 246, 0.6) 100%
-  );
-  border: 1px solid rgba(99, 102, 241, 0.5);
-  border-radius: 0.75rem;
-  color: #e9d5ff;
-  font-size: clamp(0.7rem, 1.5vw, 1.15rem);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.35) 0%, rgba(99, 102, 241, 0.28) 50%, rgba(139, 92, 246, 0.3) 100%);
+  border: 1px solid rgba(129, 140, 248, 0.55);
+  border-radius: 12px;
+  color: #e0e7ff;
+  font-size: clamp(0.75rem, 1.5vw, 1.1rem);
   font-weight: 700;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   cursor: pointer;
-  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease, background 0.22s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -113,12 +110,13 @@ function avatarEmoji(avatarId: string): string {
   overflow: hidden;
   padding: 0.45rem;
   box-shadow: 
-    0 3px 6px rgba(15, 23, 42, 0.2),
-    0 2px 3px rgba(15, 23, 42, 0.15),
-    inset 0 2px 4px rgba(255, 255, 255, 0.15),
-    inset 0 -2px 4px rgba(0, 0, 0, 0.2);
+    0 2px 6px rgba(15, 23, 42, 0.25),
+    0 1px 4px rgba(99, 102, 241, 0.2),
+    inset 0 1px 2px rgba(255, 255, 255, 0.08),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.2);
   backdrop-filter: blur(10px);
-  transform: perspective(1000px) rotateX(2deg);
+  -webkit-backdrop-filter: blur(10px);
+  transform: perspective(1000px) rotateX(1deg);
 }
 
 .quiz-tile::before {
@@ -151,77 +149,67 @@ function avatarEmoji(avatarId: string): string {
   bottom: 0;
   background: linear-gradient(
     135deg,
-    rgba(255, 255, 255, 0.08) 0%,
-    transparent 50%,
-    rgba(255, 255, 255, 0.04) 100%
+    rgba(255, 255, 255, 0.1) 0%,
+    transparent 45%,
+    rgba(167, 139, 250, 0.06) 100%
   );
-  border-radius: 0.75rem;
+  border-radius: 12px;
   pointer-events: none;
-  opacity: 0.5;
+  opacity: 0.6;
 }
 
 .quiz-tile:hover {
-  background: linear-gradient(135deg, 
-    rgba(167, 139, 250, 0.75) 0%,
-    rgba(129, 140, 248, 0.7) 35%,
-    rgba(96, 165, 250, 0.75) 70%,
-    rgba(167, 139, 250, 0.7) 100%
-  );
-  border-color: rgba(129, 140, 248, 0.7);
-  transform: perspective(1000px) rotateX(2deg) translateY(-3px) scale(1.01);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.45) 0%, rgba(99, 102, 241, 0.38) 50%, rgba(139, 92, 246, 0.4) 100%);
+  border-color: rgba(167, 139, 250, 0.75);
+  transform: perspective(1000px) rotateX(1deg) translateY(-2px);
   box-shadow: 
-    0 6px 12px rgba(129, 140, 248, 0.3),
-    0 3px 6px rgba(139, 92, 246, 0.25),
-    inset 0 2px 4px rgba(255, 255, 255, 0.2),
-    inset 0 -2px 4px rgba(0, 0, 0, 0.2);
+    0 4px 12px rgba(15, 23, 42, 0.35),
+    0 2px 8px rgba(139, 92, 246, 0.25),
+    inset 0 1px 2px rgba(255, 255, 255, 0.1),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.22);
 }
 
 .quiz-tile--hovered {
-  background: linear-gradient(135deg, 
-    rgba(167, 139, 250, 0.8) 0%,
-    rgba(129, 140, 248, 0.75) 35%,
-    rgba(96, 165, 250, 0.8) 70%,
-    rgba(167, 139, 250, 0.75) 100%
-  );
-  border-color: rgba(129, 140, 248, 0.75);
-  transform: perspective(1000px) rotateX(2deg) translateY(-3px) scale(1.01);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.45) 0%, rgba(99, 102, 241, 0.38) 50%, rgba(139, 92, 246, 0.4) 100%);
+  border-color: rgba(167, 139, 250, 0.75);
+  transform: perspective(1000px) rotateX(1deg) translateY(-2px);
   box-shadow: 
-    0 6px 12px rgba(129, 140, 248, 0.35),
-    0 3px 6px rgba(139, 92, 246, 0.3),
-    inset 0 2px 4px rgba(255, 255, 255, 0.2),
-    inset 0 -2px 4px rgba(0, 0, 0, 0.2);
+    0 4px 12px rgba(15, 23, 42, 0.35),
+    0 2px 8px rgba(139, 92, 246, 0.25),
+    inset 0 1px 2px rgba(255, 255, 255, 0.1),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.22);
 }
 
 .quiz-tile--placeholder {
-  background: rgba(30, 41, 59, 0.55);
-  border: 1px dashed rgba(148, 163, 184, 0.35);
+  background: rgba(30, 41, 59, 0.35);
+  border: 1px dashed rgba(148, 163, 184, 0.3);
   cursor: default;
-  box-shadow: inset 0 0 12px rgba(15, 23, 42, 0.45);
-  transform: perspective(1000px) rotateX(2deg);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.15);
+  transform: perspective(1000px) rotateX(1deg);
   backdrop-filter: blur(10px);
 }
 
 .quiz-tile--played {
-  background: #0f172a;
-  border-color: #475569;
+  background: rgba(15, 23, 42, 0.75);
+  border-color: rgba(100, 116, 139, 0.4);
   cursor: not-allowed;
-  opacity: 0.6;
+  opacity: 0.9;
   box-shadow: 
-    0 2px 4px rgba(15, 23, 42, 0.15),
-    inset 0 1px 2px rgba(255, 255, 255, 0.05),
-    inset 0 -1px 2px rgba(0, 0, 0, 0.15);
-  transform: perspective(1000px) rotateX(2deg);
+    0 1px 3px rgba(2, 6, 23, 0.2),
+    inset 0 1px 2px rgba(255, 255, 255, 0.04),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.2);
+  transform: perspective(1000px) rotateX(1deg);
   backdrop-filter: blur(10px);
 }
 
 .quiz-tile--played:hover {
-  transform: perspective(1000px) rotateX(2deg) !important;
+  transform: perspective(1000px) rotateX(1deg) !important;
   box-shadow: 
-    0 2px 4px rgba(15, 23, 42, 0.15),
-    inset 0 1px 2px rgba(255, 255, 255, 0.05),
-    inset 0 -1px 2px rgba(0, 0, 0, 0.15) !important;
-  border-color: #475569 !important;
-  background: #0f172a !important;
+    0 1px 3px rgba(2, 6, 23, 0.2),
+    inset 0 1px 2px rgba(255, 255, 255, 0.04),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.2) !important;
+  border-color: rgba(100, 116, 139, 0.4) !important;
+  background: rgba(15, 23, 42, 0.75) !important;
 }
 
 .quiz-tile--played:hover::before {
@@ -235,7 +223,8 @@ function avatarEmoji(avatarId: string): string {
 .quiz-tile-value {
   position: relative;
   z-index: 1;
-  text-shadow: 0 0 12px rgba(139, 92, 246, 0.6), 0 0 20px rgba(99, 102, 241, 0.4);
+  color: #e0e7ff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
   line-height: 1;
 }
 
@@ -335,6 +324,26 @@ function avatarEmoji(avatarId: string): string {
 @media (max-width: 768px) {
   .quiz-tile {
     min-height: 64px;
+  }
+}
+
+@media (max-width: 480px) {
+  .quiz-tile {
+    min-height: 56px;
+    padding: 0.35rem;
+    border-radius: 10px;
+  }
+}
+
+@media (max-width: 360px) {
+  .quiz-tile {
+    min-height: 48px;
+    padding: 0.3rem;
+    border-radius: 8px;
+  }
+
+  .quiz-tile-placeholder {
+    font-size: clamp(0.9rem, 2vw, 1.25rem);
   }
 }
 </style>

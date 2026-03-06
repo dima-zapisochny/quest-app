@@ -32,7 +32,8 @@ const emit = defineEmits<{
 }>()
 
 const tileItems = computed(() => {
-  if (!props.category.questions.length) {
+  const questions = props.category?.questions
+  if (!Array.isArray(questions) || questions.length === 0) {
     return [
       {
         type: 'placeholder' as const,
@@ -40,7 +41,7 @@ const tileItems = computed(() => {
       }
     ]
   }
-  return props.category.questions.map(question => ({
+  return questions.map(question => ({
     type: 'question' as const,
     key: question.id,
     question
@@ -64,34 +65,36 @@ function handleQuestionClick(question: Question) {
 }
 
 .category-title {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   text-align: center;
-  background: linear-gradient(135deg, rgba(15, 23, 42, 0.85), rgba(30, 58, 138, 0.75));
-  border: 1px solid rgba(37, 99, 235, 0.4);
-  color: rgba(147, 197, 253, 0.85);
-  padding: 0.4rem 0.85rem;
-  font-size: 0.58rem;
-  font-weight: 600;
-  border-radius: 16px;
-  margin: 0;
+  background: linear-gradient(160deg, rgba(30, 27, 75, 0.85) 0%, rgba(49, 46, 129, 0.7) 50%, rgba(55, 48, 163, 0.6) 100%);
+  border: 1px solid rgba(129, 140, 248, 0.55);
+  color: #c7d2fe;
+  padding: 0.45rem 0.85rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  border-radius: 0.55rem;
+  margin: 0 0 2px 0;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   min-height: 40px;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
   flex-shrink: 0;
   max-width: 100%;
   position: relative;
+  z-index: 10;
   overflow: hidden;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   box-shadow: 
-    0 3px 6px rgba(2, 6, 23, 0.2),
-    0 2px 3px rgba(2, 6, 23, 0.15),
-    inset 0 2px 4px rgba(255, 255, 255, 0.1),
-    inset 0 -2px 4px rgba(0, 0, 0, 0.2);
-  transform: perspective(1000px) rotateX(2deg);
-  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    0 2px 8px rgba(67, 56, 202, 0.25),
+    0 1px 4px rgba(0, 0, 0, 0.2),
+    inset 0 1px 2px rgba(255, 255, 255, 0.12),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.25);
+  transform: perspective(1000px) rotateX(1deg);
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .category-title::before {
@@ -111,10 +114,6 @@ function handleQuestionClick(question: Question) {
   pointer-events: none;
 }
 
-.category-title:hover::before {
-  opacity: 1;
-}
-
 .category-title::after {
   content: '';
   position: absolute;
@@ -128,7 +127,7 @@ function handleQuestionClick(question: Question) {
     transparent 50%,
     rgba(255, 255, 255, 0.04) 100%
   );
-  border-radius: 16px;
+  border-radius: 0.55rem;
   pointer-events: none;
   opacity: 0.5;
 }
@@ -155,10 +154,10 @@ function handleQuestionClick(question: Question) {
 
 .category-tiles :deep(.quiz-tile--placeholder) {
   border-style: dashed;
-  border-color: rgba(148, 163, 184, 0.26);
-  background: rgba(15, 23, 42, 0.32);
+  border-color: rgba(148, 163, 184, 0.3);
+  background: rgba(30, 41, 59, 0.3);
   cursor: default;
-  opacity: 0.5;
+  opacity: 0.75;
 }
 
 @media (max-width: 1024px) {
