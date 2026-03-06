@@ -42,8 +42,6 @@ export const useQuizStore = defineStore('quiz', () => {
       console.warn('Cannot save quests: user not authenticated')
       return
     }
-    
-    // Сохраняем каждый квест в Supabase
     for (const quest of quests.value) {
       try {
         const existing = await getQuestByIdFromDb(quest.id, userId)
@@ -54,20 +52,7 @@ export const useQuizStore = defineStore('quiz', () => {
         }
       } catch (error) {
         console.error('Failed to save quest to Supabase:', error)
-        // Fallback to localStorage
-        try {
-          localStorage.setItem(`quiz-app-quest-${quest.id}`, JSON.stringify(quest))
-        } catch (e) {
-          console.error('Failed to save to localStorage:', e)
-        }
       }
-    }
-    
-    // Также сохраняем все квесты пользователя в localStorage как fallback
-    try {
-      localStorage.setItem(`quiz-app-data-${userId}`, JSON.stringify(quests.value))
-    } catch (e) {
-      console.error('Failed to save all quests to localStorage:', e)
     }
   }
 
@@ -78,31 +63,10 @@ export const useQuizStore = defineStore('quiz', () => {
       const userId = sessionStore.userProfile?.id
       
       if (userId) {
-        // Загружаем из Supabase только квесты текущего пользователя
         const dbQuests = await getAllQuests(userId)
-        if (dbQuests.length > 0) {
-          quests.value = dbQuests
-        } else {
-          // Fallback: загружаем из localStorage только квесты текущего пользователя
-          const stored = localStorage.getItem(`quiz-app-data-${userId}`)
-          if (stored) {
-            try {
-              quests.value = JSON.parse(stored)
-            } catch (error) {
-              console.error('Failed to parse localStorage data:', error)
-            }
-          }
-        }
+        quests.value = dbQuests
       } else {
-        // Если пользователь не авторизован, загружаем из старого формата localStorage (для совместимости)
-        const stored = localStorage.getItem('quiz-app-data')
-        if (stored) {
-          try {
-            quests.value = JSON.parse(stored)
-          } catch (error) {
-            console.error('Failed to parse localStorage data:', error)
-          }
-        }
+        quests.value = []
       }
       
       // Загружаем прогресс для каждого квеста
@@ -157,20 +121,7 @@ export const useQuizStore = defineStore('quiz', () => {
       initializeSubscription()
     } catch (error) {
       console.error('Failed to load data:', error)
-      // Fallback: загружаем из localStorage
-      const sessionStore = useGameSessionStore()
-      const userId = sessionStore.userProfile?.id
-      const stored = userId 
-        ? localStorage.getItem(`quiz-app-data-${userId}`)
-        : localStorage.getItem('quiz-app-data')
-      if (stored) {
-        try {
-          quests.value = JSON.parse(stored)
-        } catch (e) {
-          console.error('Failed to parse localStorage data:', e)
-        }
-      }
-      // Инициализируем подписку даже после fallback
+      quests.value = []
       initializeSubscription()
     } finally {
       isLoading.value = false
