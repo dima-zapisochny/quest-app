@@ -74,10 +74,6 @@
             <div class="new-quest-circle">+</div>
             <span>Создать новый квест</span>
           </article>
-          <article class="quest-card quest-card--seed" @click="loadMusicQuest" v-if="!hasMusicQuest">
-            <div class="new-quest-circle seed-icon">🎵</div>
-            <span>Добавить музыкальный квест</span>
-          </article>
         </div>
       </section>
 
@@ -225,18 +221,6 @@ onBeforeUnmount(() => {
 })
 
 const questQuestions = (questId: string) => quizStore.getQuestProgress(questId).totalQuestions
-
-const hasMusicQuest = computed(() => quests.value.some(q => q.title === 'Музыкальный квест'))
-
-async function loadMusicQuest() {
-  try {
-    const id = await quizStore.addMusicQuest()
-    selectedQuestId.value = id
-  } catch (error) {
-    console.error('Failed to load music quest:', error)
-    errorMessage.value = 'Не удалось добавить музыкальный квест'
-  }
-}
 
 function handleCardClick(event: MouseEvent, questId: string) {
   const target = event.target as HTMLElement | null
@@ -764,33 +748,11 @@ function cancelDeleteQuest() {
   font-size: 2.4rem;
 }
 
-.quest-card--new span,
-.quest-card--seed span {
+.quest-card--new span {
   font-size: 0.92rem;
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-}
-
-.quest-card--seed {
-  border: 1px dashed rgba(168, 85, 247, 0.5);
-  background: rgba(15, 23, 42, 0.6);
-  align-items: center;
-  justify-content: center;
-  gap: 0.55rem;
-  text-align: center;
-  color: rgba(226, 232, 240, 0.9);
-}
-
-.quest-card--seed:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(168, 85, 247, 0.15);
-  border-color: rgba(168, 85, 247, 0.7);
-}
-
-.seed-icon {
-  border-color: rgba(168, 85, 247, 0.5) !important;
-  font-size: 2.4rem !important;
 }
 
 .quest-card::before {

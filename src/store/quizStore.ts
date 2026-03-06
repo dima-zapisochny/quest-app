@@ -15,7 +15,7 @@ import {
   subscribeToQuests
 } from '@/services/supabaseService'
 import { useGameSessionStore } from './gameSessionStore'
-import { createMusicQuest } from '@/data/seedQuests'
+import { createKinokvest } from '@/data/seedQuests'
 
 function createMediaAsset(file: File, dataUrl: string): MediaAsset {
   const extension = file.name.split('.').pop()?.toLowerCase()
@@ -107,6 +107,51 @@ export const useQuizStore = defineStore('quiz', () => {
       
       // Загружаем прогресс для каждого квеста
       await loadQuestProgress()
+
+      // По умолчанию всегда есть киноквест: если квестов нет или нет квеста «Киноквест» — создаём
+      if (userId && (!quests.value.length || !quests.value.some(q => q.title === 'Киноквест'))) {
+        try {
+          await addKinokQuest()
+        } catch (e) {
+          console.error('Failed to add default kinokvest:', e)
+        }
+      }
+
+      // Обновляем старую версию Киноквеста до новой (5 категорий, названия раундов без «Раунд N»)
+      if (userId) {
+        const kinokvest = quests.value.find(q => q.title === 'Киноквест')
+        const firstRound = kinokvest?.rounds?.[0]
+        const isOldStructure =
+          firstRound &&
+          (firstRound.title?.startsWith('Раунд ') ||
+            (Array.isArray(firstRound.categories) && firstRound.categories.length < 5))
+        if (kinokvest && isOldStructure) {
+          try {
+            const fresh = createKinokvest()
+            const updated = {
+              ...kinokvest,
+              title: fresh.title,
+              description: fresh.description,
+              rounds: fresh.rounds
+            }
+            await updateQuestInDb(updated, userId)
+            const idx = quests.value.findIndex(q => q.id === kinokvest.id)
+            if (idx !== -1) quests.value[idx] = updated
+            await resetQuestProgressInDb(kinokvest.id, userId)
+            for (const round of updated.rounds) {
+              for (const category of round.categories ?? []) {
+                for (const question of category.questions ?? []) {
+                  question.played = false
+                  question.answeredBy = undefined
+                }
+              }
+            }
+            await sessionStore.syncSessionQuestSnapshot(kinokvest.id, updated)
+          } catch (e) {
+            console.error('Failed to update kinokvest to new structure:', e)
+          }
+        }
+      }
       
       // Инициализируем подписку на изменения после загрузки данных
       initializeSubscription()
@@ -737,8 +782,8 @@ export const useQuizStore = defineStore('quiz', () => {
     return quest.id
   }
 
-  async function addMusicQuest(): Promise<string> {
-    return addSeedQuest(createMusicQuest)
+  async function addKinokQuest(): Promise<string> {
+    return addSeedQuest(createKinokvest)
   }
 
   return {
@@ -776,7 +821,7 @@ export const useQuizStore = defineStore('quiz', () => {
     importData,
     clearAllData,
     addSeedQuest,
-    addMusicQuest
+    addKinokQuest
   }
 })
 

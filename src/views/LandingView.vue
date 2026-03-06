@@ -813,6 +813,23 @@ watch(() => route.path, (newPath) => {
   transform: translateY(0) scale(0.98);
 }
 
+.primary:disabled,
+.secondary:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.primary:disabled:hover,
+.secondary:disabled:hover {
+  transform: none;
+}
+
+.primary:disabled:hover .btn-glow,
+.secondary:disabled:hover .btn-glow {
+  opacity: 0;
+}
+
 .buzzer-button {
   width: min(420px, 100%);
   border: none;
