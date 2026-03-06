@@ -1,6 +1,15 @@
 import { supabase } from '@/config/supabase'
 import type { UserProfile, Quest, GameSession, Player } from '@/types'
 
+/** Копія квеста без медіа (base64), щоб quest_data в БД не перевищував ліміти і не спричиняв statement timeout */
+function leanQuestSnapshot(quest: Quest | null | undefined): Quest | null {
+  if (!quest) return null
+  return JSON.parse(JSON.stringify(quest), (_key, value) => {
+    if (_key === 'questionMedia' || _key === 'answerMedia') return []
+    return value
+  }) as Quest
+}
+
 // ============================================================================
 // User Profiles
 // ============================================================================
@@ -237,7 +246,7 @@ export async function createSession(session: GameSession): Promise<GameSession> 
       id: session.id,
       code: session.code,
       quest_id: session.questId,
-      quest_data: session.quest || null,
+      quest_data: leanQuestSnapshot(session.quest),
       host_id: session.hostId,
       host_name: session.hostName,
       host_avatar: session.hostAvatar,
@@ -295,7 +304,7 @@ export async function updateSession(
     active_question: session.activeQuestion || null
   }
   if (includeQuestData) {
-    payload.quest_data = session.quest || null
+    payload.quest_data = leanQuestSnapshot(session.quest)
   }
 
   const { data, error } = await supabase
