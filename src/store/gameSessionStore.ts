@@ -636,26 +636,25 @@ export const useGameSessionStore = defineStore('game-session', () => {
     if (!session) return
 
     const aq = session.activeQuestion
-    if (aq?.showAnswer && session.quest?.rounds) {
+    // Помечаем вопрос сыгранным при закрытии (таймер истёк или хост закрыл). answeredBy уже установлен в resolveQuestion при правильном ответе.
+    if (aq && session.quest?.rounds) {
       const round = session.quest.rounds.find(r => r.id === aq.roundId)
       const category = round?.categories?.find(c => c.id === aq.categoryId)
       const q = category?.questions?.find(q => q.id === aq.questionId)
       if (q) {
         q.played = true
-        // Не скидаємо answeredBy — якщо була правильна відповідь, resolveQuestion вже його встановив
       }
     }
 
     session.activeQuestion = undefined
     resetPlayersStatuses(session)
     session.updatedAt = now()
-    
+
     try {
-      const updated = await updateSession(session)
+      const updated = await updateSession(session, { includeQuestData: true })
       updateSessionInArray(updated)
     } catch (error) {
       console.error('Error updating session:', error)
-      // Fallback: обновляем локально
       updateSessionInArray(session)
     }
   }
