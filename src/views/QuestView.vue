@@ -830,7 +830,7 @@ function goBack() {
     // Показываем модальное окно подтверждения при выходе из игры
     showExitConfirm.value = true
   } else {
-    router.push({ name: 'quests-list' })
+    router.push({ name: 'host-setup' })
   }
 }
 
@@ -847,17 +847,18 @@ async function confirmExit() {
   isExiting.value = true
   
   if (session.value) {
+    const sid = session.value.id
+    const qid = questId.value
     try {
-      // Сбрасываем прогресс квеста перед удалением сессии
-      if (questId.value) {
-        await quizStore.resetQuestProgress(questId.value)
-      }
-      // Удаляем сессию игры
-      await sessionStore.deleteSession(session.value.id)
-      // Очищаем активную сессию игрока, чтобы не редиректило обратно
+      // Сначала удаляем сессию, чтобы syncSessionQuestSnapshot не пытался обновить уже удалённую сессию
+      await sessionStore.deleteSession(sid)
+      console.log('🔴 [Lifecycle] Session closed:', sid)
       sessionStore.clearActivePlayer()
+      if (qid) {
+        await quizStore.resetQuestProgress(qid)
+      }
     } catch (error) {
-      console.error('Error deleting session or resetting progress:', error)
+      console.error('Error closing session or resetting progress:', error)
     }
   }
   

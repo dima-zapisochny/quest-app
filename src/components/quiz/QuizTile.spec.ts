@@ -35,7 +35,7 @@ describe('QuizTile', () => {
       }
     })
 
-    expect(wrapper.find('.quiz-tile-played-icon').exists()).toBe(true)
+    expect(wrapper.find('.quiz-tile-played').exists()).toBe(true)
     expect(wrapper.find('.quiz-tile-value').exists()).toBe(false)
   })
 

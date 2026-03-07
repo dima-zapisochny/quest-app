@@ -1,0 +1,1387 @@
+{
+  "id": "quest-b706de55",
+  "title": "Киноквест",
+  "description": "Проверьте свои знания о кино — от классики до блокбастеров! 5 раундов, 5 категорий, 6 вопросов в каждой.",
+  "rounds": [
+    {
+      "id": "6956eef3-33a0-40da-a6a3-ce14b259c6ab",
+      "title": "Классика кино",
+      "categories": [
+        {
+          "id": "ae961a5c-3a2c-4388-9805-399384efc483",
+          "title": "Оскар",
+          "questions": [
+            {
+              "id": "a915137f-fa07-4156-be2f-643607e67b55",
+              "value": 100,
+              "question": "Какой фильм получил «Оскар» за лучший фильм в 2020 году?",
+              "answer": "Паразиты",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "894bdbad-1d27-4e4d-b808-5d64167012cb",
+              "value": 200,
+              "question": "Кто получил «Оскар» за лучшую мужскую роль в «Форресте Гампе»?",
+              "answer": "Том Хэнкс",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "ec2feb6d-6adb-466e-a5c4-87fce48c738e",
+              "value": 300,
+              "question": "С какого года вручают премию «Оскар»?",
+              "answer": "1929",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "b033b2bd-aef4-4dcf-9d15-137d571f4472",
+              "value": 400,
+              "question": "Какой фильм выиграл «Оскар» за лучший фильм в 1998 году?",
+              "answer": "Титаник",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "9cb12da3-67e4-42d2-8e12-b0203d58382f",
+              "value": 500,
+              "question": "Сколько основных категорий «Оскар» вручается на церемонии?",
+              "answer": "24",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "c6079579-32da-46ab-a439-da98940e283b",
+              "value": 600,
+              "question": "Какой фильм получил «Оскар» за лучший фильм в 2019 году?",
+              "answer": "Зелёная книга",
+              "questionMedia": [],
+              "answerMedia": []
+            }
+          ]
+        },
+        {
+          "id": "55a7416a-e4e5-4852-892a-56fecd7de4f9",
+          "title": "Стивен Спилберг",
+          "questions": [
+            {
+              "id": "b62bb702-aa30-47ee-a264-525e92cfeaff",
+              "value": 100,
+              "question": "Какой фильм Спилберга рассказывает о доисторическом парке?",
+              "answer": "Парк Юрского периода",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "c408345e-68a7-4c9a-a5c1-185780911972",
+              "value": 200,
+              "question": "Как зовут мальчика-героя «Инопланетянина»?",
+              "answer": "Эллиот",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "c0e3b459-80ef-4673-a08c-e0a29faab266",
+              "value": 300,
+              "question": "В каком году вышел «Список Шиндлера»?",
+              "answer": "1993",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "cd9c5de5-8980-47b9-914b-07330523707e",
+              "value": 400,
+              "question": "Какой фильм Спилберга снят про спасение рядового?",
+              "answer": "Спасти рядового Райана",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "c85de7a3-b8e1-49e8-a641-b181b6f5e499",
+              "value": 500,
+              "question": "Как называется научно-фантастический фильм Спилберга про НЛО?",
+              "answer": "Близкие контакты третьей степени",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "a275003c-8164-40d4-aea7-3e522b4a3b55",
+              "value": 600,
+              "question": "Какой фильм Спилберга рассказывает о приключениях археолога?",
+              "answer": "Индиана Джонс",
+              "questionMedia": [],
+              "answerMedia": []
+            }
+          ]
+        },
+        {
+          "id": "86dc2618-309b-47c0-ad59-fc75284aaeb3",
+          "title": "Классика Голливуда",
+          "questions": [
+            {
+              "id": "12140295-6f37-47a0-9e37-4e060ec82ba1",
+              "value": 100,
+              "question": "Какой фильм снял Орсон Уэллс в 1941 году?",
+              "answer": "Гражданин Кейн",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "d908726a-4bad-4d70-8264-00ef91f16e31",
+              "value": 200,
+              "question": "Кто сыграл главную роль в «Касабланке»?",
+              "answer": "Хамфри Богарт",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "6b82ec83-ce3f-41be-bb46-e9d6d8ebe84b",
+              "value": 300,
+              "question": "В каком фильме героиня произносит: «Завтра будет другой день»?",
+              "answer": "Унесённые ветром",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "f45645d9-8df5-42fd-945c-8aeafcb23a30",
+              "value": 400,
+              "question": "Какой фильм Билли Уайлдера о Голливуде получил «Оскары»?",
+              "answer": "Бульвар Сансет",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "b1322420-5928-4496-8b16-ba939fa57371",
+              "value": 500,
+              "question": "Кто режиссёр «Крёстного отца»?",
+              "answer": "Фрэнсис Форд Коппола",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "d7c0e0eb-5243-4219-b770-3b0b9546034f",
+              "value": 600,
+              "question": "Какой фильм 1954 года с Марлоном Брандо о профсоюзах?",
+              "answer": "В порту",
+              "questionMedia": [],
+              "answerMedia": []
+            }
+          ]
+        },
+        {
+          "id": "d8266ffb-f2ab-44cf-acb3-7275ad14960d",
+          "title": "Хичкок",
+          "questions": [
+            {
+              "id": "9dd95c53-03b0-41b1-8a18-1ffac7a1f019",
+              "value": 100,
+              "question": "Какой фильм Хичкока известен сценой в душе?",
+              "answer": "Психо",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "91e73006-f01b-4816-9772-841d52f89d39",
+              "value": 200,
+              "question": "Кто сыграл главную роль в «Головокружении»?",
+              "answer": "Джеймс Стюарт и Ким Новак",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "8ef416dc-91a7-428a-b931-38bdc3fc4202",
+              "value": 300,
+              "question": "Как называется фильм Хичкока про птиц?",
+              "answer": "Птицы",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "9180d678-7b50-459e-8032-207dc0306208",
+              "value": 400,
+              "question": "В каком фильме Хичкока действие происходит в поезде?",
+              "answer": "Север к северо-западу",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "4ef49966-0c21-431c-9e37-4af0ecb53e41",
+              "value": 500,
+              "question": "Какой цвет преобладает в ключевых сценах «Головокружения»?",
+              "answer": "Зелёный",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "9caae368-5a82-4f0a-a3a9-d696977a931d",
+              "value": 600,
+              "question": "Какой фильм Хичкока снят в одной комнате?",
+              "answer": "Веревка",
+              "questionMedia": [],
+              "answerMedia": []
+            }
+          ]
+        },
+        {
+          "id": "59a4f4ff-6ee9-4237-8bf8-ba0b01d843d0",
+          "title": "Вестерны",
+          "questions": [
+            {
+              "id": "ad9fdcdc-c5a3-4c00-ba98-5f40ae7bea8f",
+              "value": 100,
+              "question": "Кто снял «Хороший, плохой, злой»?",
+              "answer": "Серджио Леоне",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "03841482-519a-42c1-8b6c-dd5cfec23c9f",
+              "value": 200,
+              "question": "Какой актёр прославился ролями в вестернах?",
+              "answer": "Клинт Иствуд",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "dc2a597f-fa88-4c05-9243-91948b66def3",
+              "value": 300,
+              "question": "Как называется вестерн с Полом Ньюманом и Робертом Редфордом?",
+              "answer": "Бутч Кэссиди и Санденс Кид",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "748ac946-ef1e-4770-9f2f-4a8e43993d1a",
+              "value": 400,
+              "question": "Какой вестерн Серджио Леоне снял с Клинтом Иствудом?",
+              "answer": "На несколько долларов больше",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "73c4204c-73ba-4061-bc2b-74717629d566",
+              "value": 500,
+              "question": "Какой вестерн Джона Форда снят в долине Монументов?",
+              "answer": "Искатели",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "c484bb52-b5f0-4be0-8d1c-a13ebf8bf60e",
+              "value": 600,
+              "question": "Как называется вестерн с Кевином Костнером про танцы с волками?",
+              "answer": "Танцы с волками",
+              "questionMedia": [],
+              "answerMedia": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "238a222a-2885-4b9e-8413-07fef518ec3f",
+      "title": "Блокбастеры",
+      "categories": [
+        {
+          "id": "8031f83e-e695-42d5-9f2a-97910228fa6f",
+          "title": "Марвел",
+          "questions": [
+            {
+              "id": "1f0481d3-3636-487c-a2d1-6dbab68252b5",
+              "value": 100,
+              "question": "Как зовут бога грома из Марвел?",
+              "answer": "Тор",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "1019e546-fd37-4d4f-a81a-6389b2c0ea40",
+              "value": 200,
+              "question": "Какой камень даёт силу времени в КВМ?",
+              "answer": "Камень времени",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "d7ad5a66-7c4a-42f9-9c75-4751ff9cfd57",
+              "value": 300,
+              "question": "Кто сыграл Железного человека в КВМ?",
+              "answer": "Роберт Дауни-младший",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "856aa3d7-6188-458d-8ea7-7eb3140a04b1",
+              "value": 400,
+              "question": "В каком фильме впервые собрались Мстители?",
+              "answer": "Мстители (2012)",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "36983931-00ba-48eb-b45c-fd0d470073aa",
+              "value": 500,
+              "question": "Какой актёр сыграл Капитана Америку в КВМ?",
+              "answer": "Крис Эванс",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "516b4f3b-1b3b-45cb-a415-be91607a999e",
+              "value": 600,
+              "question": "Как зовут супергероя-паука в КВМ?",
+              "answer": "Питер Паркер",
+              "questionMedia": [],
+              "answerMedia": []
+            }
+          ]
+        },
+        {
+          "id": "82d065fb-83b0-4a68-b51c-e61a209f6a9f",
+          "title": "Звёздные войны",
+          "questions": [
+            {
+              "id": "fcec61fd-6175-4e8c-8dee-1d038fb85f6e",
+              "value": 100,
+              "question": "Как зовут отца Люка Скайуокера?",
+              "answer": "Дарт Вейдер (Энакин)",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "80e170fe-d502-420f-a59a-ea075659f5e0",
+              "value": 200,
+              "question": "Как называется родная планета Люка?",
+              "answer": "Татуин",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "cc61c062-08a4-4ec1-9672-8141c6b49135",
+              "value": 300,
+              "question": "Кто написал музыку к «Звёздным войнам»?",
+              "answer": "Джон Уильямс",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "d7b62d82-99be-4ff6-98c8-345cdb650980",
+              "value": 400,
+              "question": "Какой орден защищает галактику в саге?",
+              "answer": "Джедаи",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "ea22764f-5ffe-4fdc-acff-7ace912af6e7",
+              "value": 500,
+              "question": "В каком году вышел первый фильм «Звёздные войны»?",
+              "answer": "1977",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "e445ccfc-2def-44ec-a415-0053bdb8d0ce",
+              "value": 600,
+              "question": "Как зовут принцессу-повстанца в оригинальной трилогии?",
+              "answer": "Лея",
+              "questionMedia": [],
+              "answerMedia": []
+            }
+          ]
+        },
+        {
+          "id": "4ffe42ea-4918-4079-aba3-b8dea7c29ea9",
+          "title": "DC и супергерои",
+          "questions": [
+            {
+              "id": "c99882b2-af7a-4f5b-96d7-515bd97da73c",
+              "value": 100,
+              "question": "Как зовут родной город Бэтмена?",
+              "answer": "Готэм",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "bf1103fa-34de-48f9-a702-f9f0ae4b2e36",
+              "value": 200,
+              "question": "Какой металл ослабляет Супермена?",
+              "answer": "Криптонит",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "1da6a5ef-dced-4b26-b293-3ebeaaea6916",
+              "value": 300,
+              "question": "Кто сыграл Джокера в «Тёмном рыцаре»?",
+              "answer": "Хит Леджер",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "12e99d4f-71b3-4b65-b136-96f4c8e4feb5",
+              "value": 400,
+              "question": "Как зовут супергероиню из «Чудо-женщины»?",
+              "answer": "Диана Принс",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "39d3c979-52fb-48cb-afec-85ac57b12b22",
+              "value": 500,
+              "question": "В каком фильме DC Генри Кавилл сыграл Супермена?",
+              "answer": "Человек из стали",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "28d2ebc9-ff6b-45e9-b7e7-aa04ae457bea",
+              "value": 600,
+              "question": "Как зовут врага Бэтмена с раздвоенной личностью?",
+              "answer": "Двуликий",
+              "questionMedia": [],
+              "answerMedia": []
+            }
+          ]
+        },
+        {
+          "id": "b8af73e2-9d5b-4582-9dbe-7370b8bddbd6",
+          "title": "Властелин колец",
+          "questions": [
+            {
+              "id": "5de1b49f-73ed-4563-8545-b282b5ef002e",
+              "value": 100,
+              "question": "Как зовут хоббита — хранителя Кольца?",
+              "answer": "Фродо",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "506f9824-bf7b-4fbf-b677-3c70d821d1d5",
+              "value": 200,
+              "question": "В какой стране снимали трилогию «Властелин колец»?",
+              "answer": "Новая Зеландия",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "754e6ab4-c88c-4a89-96af-77b6e696fdec",
+              "value": 300,
+              "question": "Кто режиссёр «Властелина колец»?",
+              "answer": "Питер Джексон",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "c4e7cade-5c6f-4397-8718-c7e7e6bc2587",
+              "value": 400,
+              "question": "Как зовут волшебника с посохом в трилогии?",
+              "answer": "Гэндальф",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "3994db4c-639b-47d4-b73a-7cb476fe1dbc",
+              "value": 500,
+              "question": "Как называется крепость Саурона?",
+              "answer": "Барад-дур",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "d0036e20-d253-410e-99e0-dae51300e95c",
+              "value": 600,
+              "question": "Как зовут эльфа-лучника в Братстве Кольца?",
+              "answer": "Леголас",
+              "questionMedia": [],
+              "answerMedia": []
+            }
+          ]
+        },
+        {
+          "id": "5ac1bb20-08d0-4563-b40d-9ed742bc649a",
+          "title": "Гарри Поттер",
+          "questions": [
+            {
+              "id": "32b39bf7-08db-4bff-aa20-8252761761e2",
+              "value": 100,
+              "question": "Как называется школа волшебства для Гарри?",
+              "answer": "Хогвартс",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "5912e4c3-14f3-4577-a88d-22a97be98ae5",
+              "value": 200,
+              "question": "Кто сыграл Гарри Поттера в фильмах?",
+              "answer": "Дэниел Рэдклифф",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "f46ecd8b-4501-4d65-b43f-96f09e77688d",
+              "value": 300,
+              "question": "Как зовут лучшего друга Гарри?",
+              "answer": "Рон Уизли",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "c24dc051-4ee1-4337-b092-a004cd60849f",
+              "value": 400,
+              "question": "Кто написал музыку к первым фильмам о Гарри Поттере?",
+              "answer": "Джон Уильямс",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "72578b7d-eccd-4c7b-bca4-ecd801bbb43b",
+              "value": 500,
+              "question": "Как называется седьмая книга о Гарри Поттере?",
+              "answer": "Гарри Поттер и Дары Смерти",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "88debb0b-30c0-43d8-98dc-978c9e2acf43",
+              "value": 600,
+              "question": "Как зовут директора Хогвартса в первых фильмах?",
+              "answer": "Альбус Дамблдор",
+              "questionMedia": [],
+              "answerMedia": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "710fab21-be92-4167-b1fe-ca6ec4c866fb",
+      "title": "Анимация",
+      "categories": [
+        {
+          "id": "55d2a9ee-aa88-4a29-8ee3-44a980f46c4a",
+          "title": "Дисней",
+          "questions": [
+            {
+              "id": "0974f5fc-4b3f-48e5-959b-4d14e3c28aa5",
+              "value": 100,
+              "question": "Как зовут принцессу в «Холодном сердце»?",
+              "answer": "Эльза и Анна",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "a07a3b65-0294-4f17-88cc-67867e092bc2",
+              "value": 200,
+              "question": "Какой мультфильм Диснея рассказывает о львёнке Симбе?",
+              "answer": "Король Лев",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "61dd05ce-4898-4379-a53b-8c5137b1c6bc",
+              "value": 300,
+              "question": "Как зовут русалку Диснея?",
+              "answer": "Ариэль",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "7ba0fa47-44f7-4e74-9a2f-6740b8502e9b",
+              "value": 400,
+              "question": "В каком году вышел первый полнометражный мультфильм Диснея?",
+              "answer": "1937 (Белоснежка)",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "5361415c-ca78-48dc-ab2a-864662798249",
+              "value": 500,
+              "question": "Какой диснеевский персонаж летает на ковре?",
+              "answer": "Аладдин",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "786af8d6-6ecd-4c51-a935-dbae429b1028",
+              "value": 600,
+              "question": "Как зовут принцессу с длинными волосами в одноимённом мультфильме?",
+              "answer": "Рапунцель",
+              "questionMedia": [],
+              "answerMedia": []
+            }
+          ]
+        },
+        {
+          "id": "fe9abefb-cefe-4d63-bb9d-1e89d4320245",
+          "title": "Пиксар",
+          "questions": [
+            {
+              "id": "87972b40-b5b9-46be-b35b-e17e544f6cfe",
+              "value": 100,
+              "question": "Как зовут робота в мультфильме про космос?",
+              "answer": "Валли (WALL-E)",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "aeb1b41e-6a38-4686-b83b-9a59d60a08e5",
+              "value": 200,
+              "question": "В каком мультфильме игрушки оживают?",
+              "answer": "История игрушек",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "4168d48c-aa86-4fb5-9ea3-df38b28eb4f8",
+              "value": 300,
+              "question": "Как зовут девочку в «Вверх»?",
+              "answer": "Элли",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "db54bc39-c458-4f6e-84d2-f0154e904671",
+              "value": 400,
+              "question": "Какой мультфильм Пиксар про рыбку?",
+              "answer": "В поисках Немо",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "648799ec-796d-4adb-a8fc-f70a44d32487",
+              "value": 500,
+              "question": "Какой первый полнометражный мультфильм студии Pixar?",
+              "answer": "История игрушек (1995)",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "ddac635c-e840-4c93-bbfd-e3a75a74ecf8",
+              "value": 600,
+              "question": "Какой мультфильм Pixar про эмоции в голове девочки?",
+              "answer": "Головоломка",
+              "questionMedia": [],
+              "answerMedia": []
+            }
+          ]
+        },
+        {
+          "id": "6702667f-f063-4e1e-8393-1485f86a79df",
+          "title": "Дримворкс",
+          "questions": [
+            {
+              "id": "d5d9d7ac-e141-46d7-9329-a9264bfb59c7",
+              "value": 100,
+              "question": "Какой мультфильм DreamWorks про дракона и викингов?",
+              "answer": "Как приручить дракона",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "62c154f4-ea9e-4c7f-add3-74aa949a519d",
+              "value": 200,
+              "question": "Как зовут осла в «Шреке»?",
+              "answer": "Осёл",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "31aa3a53-3ac9-4e80-98f3-61d89e0738ec",
+              "value": 300,
+              "question": "Какой мультфильм DreamWorks про пингвинов из зоопарка?",
+              "answer": "Мадагаскар",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "14d3fe6a-f3cf-45ba-9f05-bc9883bd9eaa",
+              "value": 400,
+              "question": "Кто озвучил Шрека в оригинале?",
+              "answer": "Майк Майерс",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "75d92ed9-bb26-4cbe-a64d-33ccbd7f3f98",
+              "value": 500,
+              "question": "В каком году вышел первый «Шрек»?",
+              "answer": "2001",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "8493f09e-ac93-40f5-b083-f686da4e864e",
+              "value": 600,
+              "question": "Как зовут дракона в «Как приручить дракона»?",
+              "answer": "Беззубик",
+              "questionMedia": [],
+              "answerMedia": []
+            }
+          ]
+        },
+        {
+          "id": "1645fe2a-30e9-49e6-b354-d386fa934209",
+          "title": "Студия Ghibli",
+          "questions": [
+            {
+              "id": "1798ab0e-1df8-40cc-8027-89fc51c0a2b8",
+              "value": 100,
+              "question": "Кто режиссёр «Унесённых призраками»?",
+              "answer": "Хаяо Миядзаки",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "89621407-aee9-48ee-9ff4-ca59f1b299ca",
+              "value": 200,
+              "question": "Как называется студия Миядзаки?",
+              "answer": "Studio Ghibli",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "a2b442fd-9eef-4fb9-b426-a699cb09f668",
+              "value": 300,
+              "question": "Как зовут девушку-ведьму в «Унесённых призраками»?",
+              "answer": "Юбаба",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "69a31b27-cafe-42ee-8936-5111534a06d8",
+              "value": 400,
+              "question": "Какой аниме-фильм получил «Оскар» за лучший анимационный фильм?",
+              "answer": "Унесённые призраками",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "6976a7dd-3838-4f05-8e86-cffcaa5c115c",
+              "value": 500,
+              "question": "Как называется фильм Миядзаки про летающий замок?",
+              "answer": "Ходячий замок Хаула",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "3aff91fd-0344-406a-b70c-de8c1a357177",
+              "value": 600,
+              "question": "Как зовут девочку в «Унесённых призраками»?",
+              "answer": "Тихиро",
+              "questionMedia": [],
+              "answerMedia": []
+            }
+          ]
+        },
+        {
+          "id": "70a39546-7e47-413c-b8b1-d84a2d39673c",
+          "title": "Современная анимация",
+          "questions": [
+            {
+              "id": "08ea208e-e17f-4ab1-92b7-4c7e366cde04",
+              "value": 100,
+              "question": "Какой мультфильм про эмоции внутри головы девочки?",
+              "answer": "Головоломка",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "9d4487dd-42d3-46ed-b1b6-776d77c1e0c9",
+              "value": 200,
+              "question": "В каком мультфильме зверь живёт в городе зайцев?",
+              "answer": "Зверополис",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "179e3c86-8f18-4415-ae59-e2e2f155a373",
+              "value": 300,
+              "question": "Какой мультфильм Pixar про семью супергероев?",
+              "answer": "Суперсемейка",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "a9aba299-21ca-4b9b-bb82-b7bddf35413c",
+              "value": 400,
+              "question": "Как зовут паучка в «Человек-паук: Паутина вселенных»?",
+              "answer": "Майлз Моралес",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "e644c5c2-8ac3-40cf-896a-1d850ad6c6c9",
+              "value": 500,
+              "question": "Какой мультфильм получил «Оскар» за лучший анимационный в 2024?",
+              "answer": "Мальчик и птица",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "4118f944-54bb-4ea4-b320-a86f51dcd317",
+              "value": 600,
+              "question": "В каком мультфильме семья супергероев скрывается под маской обычных людей?",
+              "answer": "Суперсемейка",
+              "questionMedia": [],
+              "answerMedia": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "e2c54bf4-8122-404f-9d6e-e9a379c3f18c",
+      "title": "Российское кино",
+      "categories": [
+        {
+          "id": "7d553dfe-522b-4dbb-a1ba-c0d50a146e48",
+          "title": "Комедии",
+          "questions": [
+            {
+              "id": "fe91004d-0e6e-4acc-b0ff-7e10dc11b407",
+              "value": 100,
+              "question": "Кто сыграл главную роль в «Иронии судьбы»?",
+              "answer": "Андрей Мягков",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "5dc0046a-07d1-4dfc-87b0-f35d4bf7b9e7",
+              "value": 200,
+              "question": "Как называется комедия Гайдая про троих в одной квартире?",
+              "answer": "Операция «Ы» и другие приключения Шурика",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "c4ad5818-b377-4d33-9b73-ac1d7f09aa91",
+              "value": 300,
+              "question": "Какой фильм с Фандерой и Смирновым про «нашу службу и опасна»?",
+              "answer": "Служебный роман",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "79868fb2-886d-488c-afca-fe6f8e6b2b33",
+              "value": 400,
+              "question": "Кто режиссёр «Бриллиантовой руки»?",
+              "answer": "Леонид Гайдай",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "72482089-95c0-432d-a904-8cf58785aa57",
+              "value": 500,
+              "question": "В каком году вышла «Ирония судьбы»?",
+              "answer": "1975",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "3fd593ff-63b3-4b75-940e-ce8105fff680",
+              "value": 600,
+              "question": "Какой фильм Гайдая про «Нарушителя» и «Зачёт»?",
+              "answer": "Кавказская пленница",
+              "questionMedia": [],
+              "answerMedia": []
+            }
+          ]
+        },
+        {
+          "id": "1460021f-407f-4449-a399-459c1e9f07e3",
+          "title": "Драма и военное кино",
+          "questions": [
+            {
+              "id": "79cd635f-8c80-4df8-8906-36bd0704281e",
+              "value": 100,
+              "question": "Какой фильм Тарковского про зону и сталкера?",
+              "answer": "Сталкер",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "21d520e9-ee05-4a34-97e8-2cbb39b7f0ee",
+              "value": 200,
+              "question": "Кто снял «Войну и мир» (СССР)?",
+              "answer": "Сергей Бондарчук",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "1eba2a1b-afcf-46b9-a918-3fd25e4a3f80",
+              "value": 300,
+              "question": "Как называется фильм про блокаду Ленинграда с Ливановым?",
+              "answer": "Блокада",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "2d4fb3ed-7a93-4b99-80ee-2bde5c3af8c9",
+              "value": 400,
+              "question": "Какой советский фильм получил «Оскар» за лучший иностранный?",
+              "answer": "Война и мир, Москва слезам не верит и др.",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "32c7b6b1-3b21-48d0-b25a-10d1f0f7d36d",
+              "value": 500,
+              "question": "Кто режиссёр «Андрея Рублёва»?",
+              "answer": "Андрей Тарковский",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "bf33da5e-ce65-44f5-ae9a-2113e6df1af6",
+              "value": 600,
+              "question": "Какой фильм Тарковского снят по роману Лема?",
+              "answer": "Солярис",
+              "questionMedia": [],
+              "answerMedia": []
+            }
+          ]
+        },
+        {
+          "id": "3d518742-7bed-44c0-81c0-e960e60eaf3b",
+          "title": "Детективы и триллеры",
+          "questions": [
+            {
+              "id": "eed5e7a8-706c-4a6d-ac12-678cfddd0a40",
+              "value": 100,
+              "question": "Кто сыграл Шерлока Холмса в советском сериале?",
+              "answer": "Василий Ливанов",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "3dc553bc-9d99-44c8-91e4-f2b447cec4b9",
+              "value": 200,
+              "question": "Какой фильм снял Говорухин про Мегрэ?",
+              "answer": "Место встречи изменить нельзя",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "b19f9e4f-25ff-413d-92c2-a44ecfe63899",
+              "value": 300,
+              "question": "Как называется фильм Балабанова про бандитов в 90-х?",
+              "answer": "Брат",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "8c9b124a-5e09-400f-9b47-ea88ad97205a",
+              "value": 400,
+              "question": "Кто режиссёр «Жмурки»?",
+              "answer": "Алексей Балабанов",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "0e3e9a9d-2b84-4d09-8224-54cdecad2388",
+              "value": 500,
+              "question": "В каком фильме звучит фраза «Всё будет хорошо»?",
+              "answer": "Бриллиантовая рука",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "6974a5a5-15b3-4a5e-9ea7-7241812c5bea",
+              "value": 600,
+              "question": "Кто сыграл Глеба Жеглова в «Месте встречи»?",
+              "answer": "Владимир Высоцкий",
+              "questionMedia": [],
+              "answerMedia": []
+            }
+          ]
+        },
+        {
+          "id": "b21f261b-e347-498d-b798-90b62b195206",
+          "title": "Фантастика и приключения",
+          "questions": [
+            {
+              "id": "abf2bcf7-0ad4-4272-a6f9-4b2c1186cd37",
+              "value": 100,
+              "question": "Какой советский фильм про космос снял Клушанцев?",
+              "answer": "Планета бурь",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "74731914-4390-48a4-bbde-2e0fa8535162",
+              "value": 200,
+              "question": "Как называется фильм Тарковского по роману Лема?",
+              "answer": "Солярис",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "8cdcd5f3-4075-4250-a71d-1c9173edc8e6",
+              "value": 300,
+              "question": "Кто снял «Приключения Электроника»?",
+              "answer": "Константин Бромберг",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "c04d28d3-388d-4084-84ac-91b53646f168",
+              "value": 400,
+              "question": "Какой фильм Гайдая снят по Ильфу и Петрову?",
+              "answer": "12 стульев",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "fbb8a0c1-aa34-4be4-b126-e63f1fbb6e10",
+              "value": 500,
+              "question": "Кто режиссёр «Сталкера»?",
+              "answer": "Андрей Тарковский",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "ef1e3bc7-12a2-4b2e-a0f6-c6c3180a09f1",
+              "value": 600,
+              "question": "Как зовут робота-мальчика в «Приключениях Электроника»?",
+              "answer": "Электроник",
+              "questionMedia": [],
+              "answerMedia": []
+            }
+          ]
+        },
+        {
+          "id": "541d3f7b-c457-4445-b01d-a1ef22450bb3",
+          "title": "Мелодрамы и драмы",
+          "questions": [
+            {
+              "id": "5721e708-46be-4fb1-8dd1-8fbfcf453589",
+              "value": 100,
+              "question": "Кто сыграл главную роль в «Москва слезам не верит»?",
+              "answer": "Вера Алентова",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "ebacf3a2-f39c-45ce-a7e1-81e7c5c7e19f",
+              "value": 200,
+              "question": "Какой фильм Рязанова про любовь и поезд?",
+              "answer": "Вокзал для двоих",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "c0e841e7-2925-4225-8009-8af3a6009157",
+              "value": 300,
+              "question": "Кто режиссёр «Осеннего марафона»?",
+              "answer": "Георгий Данелия",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "66ea2f99-6f5c-4a4a-b65b-d0ed5736de17",
+              "value": 400,
+              "question": "В каком фильме звучит песня «Остров невезения»?",
+              "answer": "Бриллиантовая рука",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "abfff7c8-b6d0-45fb-a1a6-f98e785ac77d",
+              "value": 500,
+              "question": "Какой фильм Меньшова получил «Оскар» за лучший иностранный?",
+              "answer": "Москва слезам не верит",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "1e12a5ba-a27f-46ea-9824-5b56d72123b7",
+              "value": 600,
+              "question": "Кто режиссёр «Иронии судьбы»?",
+              "answer": "Эльдар Рязанов",
+              "questionMedia": [],
+              "answerMedia": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "220396e6-665e-40dd-921d-812ae2feb651",
+      "title": "Саундтреки и факты",
+      "categories": [
+        {
+          "id": "bc81dfca-7981-4916-869b-aa02508b98cd",
+          "title": "Музыка из кино",
+          "questions": [
+            {
+              "id": "055d2869-16f7-4b7a-97d4-1af5609e783f",
+              "value": 100,
+              "question": "Какая песня звучит в «Титанике»?",
+              "answer": "My Heart Will Go On",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "671b1ebe-38ab-485f-9570-4427c3ef1934",
+              "value": 200,
+              "question": "Кто написал музыку к «Гарри Поттеру»?",
+              "answer": "Джон Уильямс",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "26fc9db0-fc8b-461c-845d-78777fb21cda",
+              "value": 300,
+              "question": "Какой хит из «Холодного сердца» знают во всём мире?",
+              "answer": "Let It Go",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "b228e202-4737-4d58-a745-d84bd93bc37d",
+              "value": 400,
+              "question": "Кто написал саундтрек к «Интерстеллару»?",
+              "answer": "Ханс Циммер",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "118bd055-6949-4440-9421-731797828650",
+              "value": 500,
+              "question": "Какой фильм сделал знаменитой песню «(I've Had) The Time of My Life»?",
+              "answer": "Грязные танцы",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "f28d9f40-4bde-4b3f-890d-090df0ce8ac9",
+              "value": 600,
+              "question": "Кто написал музыку к «Звёздным войнам»?",
+              "answer": "Джон Уильямс",
+              "questionMedia": [],
+              "answerMedia": []
+            }
+          ]
+        },
+        {
+          "id": "0dafa9c4-6ae6-4cfd-b360-1b24d443a246",
+          "title": "Кинофакты",
+          "questions": [
+            {
+              "id": "c8383ff4-6bd9-4df9-99e6-7db0f0093210",
+              "value": 100,
+              "question": "Какой фильм долгое время был самым кассовым в истории?",
+              "answer": "Аватар",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "2b0aa4f9-2e46-4dfa-b7c3-af6eacb378ba",
+              "value": 200,
+              "question": "В какой стране снимали «Властелин колец»?",
+              "answer": "Новая Зеландия",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "10f64c09-7f2b-4651-905f-0ff19a579cee",
+              "value": 300,
+              "question": "Какой режиссёр снял «Криминальное чтиво»?",
+              "answer": "Квентин Тарантино",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "e163d1f8-178b-4b6f-96ea-d09fd5b5eb46",
+              "value": 400,
+              "question": "Какой студии принадлежит франшиза «Гарри Поттер»?",
+              "answer": "Warner Bros.",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "86f8b1a5-3c21-4c7e-ba5f-dbcdc67e32f8",
+              "value": 500,
+              "question": "Какой фильм выиграл «Оскар» за лучший фильм в 2024 году?",
+              "answer": "Оппенгеймер",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "ea247da8-437b-4d06-b552-a838e7fc6855",
+              "value": 600,
+              "question": "Какой фильм получил «Оскар» за лучший фильм в 2023?",
+              "answer": "Всё везде и сразу",
+              "questionMedia": [],
+              "answerMedia": []
+            }
+          ]
+        },
+        {
+          "id": "490d9523-decc-435e-b10d-b0db0d2786a9",
+          "title": "Режиссёры",
+          "questions": [
+            {
+              "id": "571a0b69-474a-4cd0-8d77-b56be38c4dff",
+              "value": 100,
+              "question": "Кто снял «Криминальное чтиво»?",
+              "answer": "Квентин Тарантино",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "ddcecfd5-77af-40bb-9297-a3afbdd1a4a6",
+              "value": 200,
+              "question": "Какой режиссёр снял «Начало» и «Тёмный рыцарь»?",
+              "answer": "Кристофер Нолан",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "b5c457f9-9cfb-4a6c-8756-26ab86fd061d",
+              "value": 300,
+              "question": "Кто режиссёр «Титаника» и «Аватара»?",
+              "answer": "Джеймс Кэмерон",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "4a259b40-bba4-4200-a106-272a4fe5bef2",
+              "value": 400,
+              "question": "Какой режиссёр снял «Интерстеллар»?",
+              "answer": "Кристофер Нолан",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "e82b36b2-8bfc-409a-8d2a-1c1a2a0f39d2",
+              "value": 500,
+              "question": "Кто снял «Апокалипсис сегодня»?",
+              "answer": "Фрэнсис Форд Коппола",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "f42eb2d8-d167-46a3-81eb-52f9d0c4e95a",
+              "value": 600,
+              "question": "Кто снял «Крёстного отца»?",
+              "answer": "Фрэнсис Форд Коппола",
+              "questionMedia": [],
+              "answerMedia": []
+            }
+          ]
+        },
+        {
+          "id": "bea937fd-a441-4535-ba0f-e43d05d96d39",
+          "title": "Актёры",
+          "questions": [
+            {
+              "id": "c3819b83-c131-461f-97c9-c73a0b2ae3a0",
+              "value": 100,
+              "question": "Кто сыграл Джека в «Титанике»?",
+              "answer": "Леонардо ДиКаприо",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "46608bd6-aead-407a-b816-2ae29107f8fb",
+              "value": 200,
+              "question": "Какой актёр сыграл Тони Старка в КВМ?",
+              "answer": "Роберт Дауни-младший",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "c124a64f-9c19-4b6b-ab55-87f4181e6611",
+              "value": 300,
+              "question": "Кто сыграл Джокера в «Джокере» (2019)?",
+              "answer": "Хоакин Феникс",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "177c9a2d-527b-4b35-940c-186bc0994e80",
+              "value": 400,
+              "question": "Какой актёр сыграл Форреста Гампа?",
+              "answer": "Том Хэнкс",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "5c5fa0c6-fa62-47cd-87a0-bd148c79c92e",
+              "value": 500,
+              "question": "Кто сыграл главную роль в «Одержимости» (Whiplash)?",
+              "answer": "Майлз Теллер",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "0ba4bb10-25ef-457c-a695-2b4b082cbb89",
+              "value": 600,
+              "question": "Кто сыграл Нео в «Матрице»?",
+              "answer": "Киану Ривз",
+              "questionMedia": [],
+              "answerMedia": []
+            }
+          ]
+        },
+        {
+          "id": "4b49d5e9-48a6-4e8f-8770-a174b27f5877",
+          "title": "Награды и рекорды",
+          "questions": [
+            {
+              "id": "026444a9-72f1-403d-811e-ee2be075df95",
+              "value": 100,
+              "question": "Какой фестиваль проходит в Каннах?",
+              "answer": "Каннский кинофестиваль",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "2e65e3bb-86b2-42fa-921f-be85c170842c",
+              "value": 200,
+              "question": "Какие фильмы получили 11 «Оскаров»?",
+              "answer": "Бен-Гур, Титаник, Властелин колец: Возвращение короля",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "ae64c495-87aa-4405-928e-bcc05c21109c",
+              "value": 300,
+              "question": "В какой стране вручают «Золотую пальмовую ветвь»?",
+              "answer": "Франция (Канны)",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "104a3a87-49a4-43b8-a337-fdaf504b6e5a",
+              "value": 400,
+              "question": "Какой фильм долгое время был самым кассовым в мире?",
+              "answer": "Аватар",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "1c73cb6e-a52b-4206-84ac-6271c8ceda18",
+              "value": 500,
+              "question": "Какой фильм получил «Оскар» за лучший фильм в 2023 году?",
+              "answer": "Всё везде и сразу",
+              "questionMedia": [],
+              "answerMedia": []
+            },
+            {
+              "id": "84a92c4a-8a24-4ab4-aa24-7f9380d4af92",
+              "value": 600,
+              "question": "Какой фильм получил «Оскар» за лучший международный фильм в 2020?",
+              "answer": "Паразиты",
+              "questionMedia": [],
+              "answerMedia": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

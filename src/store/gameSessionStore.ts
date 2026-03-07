@@ -31,6 +31,9 @@ function now() {
   return Date.now()
 }
 
+/** Максимум участников в одной сессии (включая ведущего). */
+const MAX_SESSION_PLAYERS = 20
+
 let unsubscribeSessions: (() => void) | null = null
 
 export const useGameSessionStore = defineStore('game-session', () => {
@@ -96,7 +99,8 @@ export const useGameSessionStore = defineStore('game-session', () => {
     loadData()
 
     // Подписываемся на изменения сессий через WebSocket real-time
-    unsubscribeSessions = subscribeToSessions((session) => {
+    unsubscribeSessions = subscribeToSessions(
+      (session) => {
       console.log('📡 WebSocket update received for session:', session.id, {
         playersCount: session.players.length,
         players: session.players.map(p => ({ id: p.id, name: p.name }))
@@ -192,9 +196,14 @@ export const useGameSessionStore = defineStore('game-session', () => {
           ...session,
           players: session.players.map(player => ({ ...player })) // Создаем новый объект для каждого игрока
         }]
-        console.log('➕ New session added via WebSocket:', session.id)
+        console.log('➕ [Session] New session via WebSocket:', session.id)
       }
-    })
+    },
+      (deletedSessionId) => {
+        sessions.value = sessions.value.filter(s => s.id !== deletedSessionId)
+        console.log('🗑️ [Session] Removed deleted session from store:', deletedSessionId)
+      }
+    )
 
     // Обработка видимости страницы для переподключения WebSocket
     if (typeof document !== 'undefined') {
@@ -319,6 +328,7 @@ export const useGameSessionStore = defineStore('game-session', () => {
     try {
       const created = await createSessionInDb(session)
       sessions.value.push(created)
+      console.log('🟢 [Lifecycle] Session created:', { id: created.id, code: created.code, questId: created.questId })
       return created
     } catch (error) {
       console.error('Error creating session:', error)
@@ -332,6 +342,7 @@ export const useGameSessionStore = defineStore('game-session', () => {
     try {
       await deleteSessionInDb(sessionId)
       sessions.value = sessions.value.filter(session => session.id !== sessionId)
+      console.log('🔴 [Lifecycle] Session deleted:', sessionId)
     } catch (error) {
       console.error('Error deleting session:', error)
       // Fallback: удаляем из локального массива
@@ -377,6 +388,11 @@ export const useGameSessionStore = defineStore('game-session', () => {
       return { session, playerId: existingPlayerId }
     }
     
+    // Лимит участников: не более MAX_SESSION_PLAYERS (включая ведущего)
+    if (session.players.length >= MAX_SESSION_PLAYERS) {
+      throw new Error(`В игре уже максимальное число участников (${MAX_SESSION_PLAYERS}). Попробуйте подключиться к другой игре.`)
+    }
+
     // Проверяем, есть ли игрок с таким же профилем (по ID профиля)
     const existingPlayer = session.players.find(player => player.id === profile.id)
     if (existingPlayer) {

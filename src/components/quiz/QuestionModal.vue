@@ -9,7 +9,7 @@
         <section v-if="!showAnswer" class="question-pane">
           <div class="question-body" :class="{ 'has-visible-images': visibleImages.length > 0 }">
             <div class="question-header">
-            <h2 class="modal-title">{{ question.question }}</h2>
+            <h2 class="modal-title" v-html="question.question"></h2>
             </div>
             <div 
               v-if="visibleImages.length" 
@@ -146,13 +146,64 @@
         <Transition name="fade">
           <section v-if="showAnswer" key="answer" class="answer-pane">
             <div class="answer-body">
-              <h2 class="modal-title answer">{{ question.answer }}</h2>
-              <div v-if="question.answerMedia?.length" class="media-grid">
+              <h2 class="modal-title answer" v-html="question.answer"></h2>
+              <div v-if="answerMediaImages.length" class="media-grid">
                 <QuestionMediaPreview
-                  v-for="media in question.answerMedia"
+                  v-for="media in answerMediaImages"
                   :key="media.id"
                   :media="media"
                 />
+              </div>
+              <div v-if="answerMediaAudio.length" class="audio-controls">
+                <div
+                  v-for="audio in answerMediaAudio"
+                  :key="audio.id"
+                  class="audio-control-block"
+                  :class="{ 'is-playing': playingAudioId === audio.id }"
+                >
+                  <button
+                    class="audio-play-button"
+                    :class="{ 'is-playing': playingAudioId === audio.id }"
+                    @click="toggleAudio(audio)"
+                    type="button"
+                    aria-label="Проиграть аудио ответа"
+                  >
+                    <svg v-if="playingAudioId !== audio.id" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                    </svg>
+                    <svg v-else xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="6" y="4" width="4" height="16"></rect>
+                      <rect x="14" y="4" width="4" height="16"></rect>
+                    </svg>
+                  </button>
+                  <div class="audio-equalizer">
+                    <div class="equalizer-bar" style="animation-delay: 0s"></div>
+                    <div class="equalizer-bar" style="animation-delay: 0.08s"></div>
+                    <div class="equalizer-bar" style="animation-delay: 0.16s"></div>
+                    <div class="equalizer-bar" style="animation-delay: 0.24s"></div>
+                    <div class="equalizer-bar" style="animation-delay: 0.32s"></div>
+                    <div class="equalizer-bar" style="animation-delay: 0.4s"></div>
+                    <div class="equalizer-bar" style="animation-delay: 0.48s"></div>
+                    <div class="equalizer-bar" style="animation-delay: 0.56s"></div>
+                    <div class="equalizer-bar" style="animation-delay: 0.64s"></div>
+                    <div class="equalizer-bar" style="animation-delay: 0.72s"></div>
+                    <div class="equalizer-bar" style="animation-delay: 0.8s"></div>
+                    <div class="equalizer-bar" style="animation-delay: 0.88s"></div>
+                    <div class="equalizer-bar" style="animation-delay: 0.96s"></div>
+                    <div class="equalizer-bar" style="animation-delay: 1.04s"></div>
+                    <div class="equalizer-bar" style="animation-delay: 1.12s"></div>
+                    <div class="equalizer-bar" style="animation-delay: 1.2s"></div>
+                    <div class="equalizer-bar" style="animation-delay: 1.28s"></div>
+                  </div>
+                </div>
+                <audio
+                  v-for="audio in answerMediaAudio"
+                  :key="audio.id"
+                  :ref="el => setAudioRef(audio.id, el)"
+                  :src="audio.url"
+                  preload="none"
+                  @ended="handleAudioEnded"
+                ></audio>
               </div>
             </div>
           </section>
@@ -309,8 +360,11 @@ const questionMediaAudio = computed(() => {
         return false
       }
     } else {
-      // Для обычных URL проверяем, что это не placeholder URL
-      // Проверяем на example.com, example.org и другие placeholder домены
+      // Относительные пути (audio/файл.mp3, images/фото.jpg) — допускаем для импортированных квестов
+      if (!urlTrimmed.startsWith('http://') && !urlTrimmed.startsWith('https://')) {
+        return true
+      }
+      // Для абсолютных URL проверяем, что это не placeholder
       const placeholderPatterns = [
         /^https?:\/\/example\.(com|org|net)/i,
         /^https?:\/\/placeholder/i,
@@ -318,23 +372,15 @@ const questionMediaAudio = computed(() => {
         /^https?:\/\/dummy/i,
         /^https?:\/\/fake/i
       ]
-      
-      const isPlaceholder = placeholderPatterns.some(pattern => pattern.test(urlTrimmed))
-      if (isPlaceholder) {
+      if (placeholderPatterns.some(pattern => pattern.test(urlTrimmed))) {
         return false
       }
-      
-      // Проверяем, что URL выглядит как валидный HTTP/HTTPS URL
       try {
         const urlObj = new URL(urlTrimmed)
-        // Если это HTTP/HTTPS URL, но домен example.com - это placeholder
-        if (urlObj.hostname.includes('example.com') || 
-            urlObj.hostname.includes('example.org') ||
-            urlObj.hostname.includes('example.net')) {
+        if (urlObj.hostname.includes('example.com') || urlObj.hostname.includes('example.org') || urlObj.hostname.includes('example.net')) {
           return false
         }
-      } catch (e) {
-        // Если URL не может быть распарсен, это невалидный URL
+      } catch {
         return false
       }
     }
@@ -343,6 +389,34 @@ const questionMediaAudio = computed(() => {
   })
   
   return audioFiles
+})
+
+// Изображения в ответе (только для media-grid)
+const answerMediaImages = computed(() => {
+  return props.question?.answerMedia?.filter(m => m?.type === 'image') ?? []
+})
+
+// Аудио в ответе (для блока с проигрывателем)
+const answerMediaAudio = computed(() => {
+  const list = props.question?.answerMedia ?? []
+  if (!Array.isArray(list)) return []
+  return list.filter((media): media is import('@/types').MediaAsset => {
+    if (!media || media.type !== 'audio' || !media.url || typeof media.url !== 'string') return false
+    const url = media.url.trim()
+    if (!url || url === 'data:' || url.startsWith('data:,')) return false
+    if (url.startsWith('data:')) {
+      const m = url.match(/^data:([^;]+);base64,(.+)$/)
+      return !!(m && m[2]?.trim())
+    }
+    if (!url.startsWith('http://') && !url.startsWith('https://')) return true
+    if (/^https?:\/\/example\.(com|org|net)|placeholder|dummy|fake/i.test(url)) return false
+    try {
+      const u = new URL(url)
+      return !['example.com', 'example.org', 'example.net'].includes(u.hostname)
+    } catch {
+      return false
+    }
+  })
 })
 
 // Проверка наличия валидного аудио

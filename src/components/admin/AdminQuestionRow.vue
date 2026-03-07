@@ -281,7 +281,7 @@ function handleUpload(target: 'question' | 'answer', event: Event, mediaType?: '
     target
   )
 
-  if (!promise) {
+  const clearLoading = () => {
     if (target === 'question') {
       isUploadingQuestionMedia.value = false
     } else {
@@ -289,18 +289,10 @@ function handleUpload(target: 'question' | 'answer', event: Event, mediaType?: '
     }
   }
 
-  if (promise) {
-    promise.catch(error => {
-      console.error('Upload media error', error)
-      alert('Не удалось загрузить медиа. Попробуйте другой файл.')
-    }).finally(() => {
-      if (target === 'question') {
-        isUploadingQuestionMedia.value = false
-      } else {
-        isUploadingAnswerMedia.value = false
-      }
-    })
-  }
+  Promise.resolve(promise).catch(error => {
+    console.error('Upload media error', error)
+    alert('Не удалось загрузить медиа. Попробуйте другой файл.')
+  }).finally(clearLoading)
 
   input.value = ''
 }

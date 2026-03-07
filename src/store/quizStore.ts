@@ -15,7 +15,8 @@ import {
   subscribeToQuests
 } from '@/services/supabaseService'
 import { useGameSessionStore } from './gameSessionStore'
-import { createKinokvest } from '@/data/seedQuests'
+import musicQuestSeed from '@/data/musicQuest.json'
+import kinokvestSeed from '@/data/kinokvest.json'
 
 function createMediaAsset(file: File, dataUrl: string): MediaAsset {
   const extension = file.name.split('.').pop()?.toLowerCase()
@@ -65,6 +66,7 @@ export const useQuizStore = defineStore('quiz', () => {
       if (userId) {
         const dbQuests = await getAllQuests(userId)
         quests.value = dbQuests
+        console.log('📂 [Quest] Loaded from storage:', dbQuests.length, 'quests')
       } else {
         quests.value = []
       }
@@ -72,51 +74,23 @@ export const useQuizStore = defineStore('quiz', () => {
       // Загружаем прогресс для каждого квеста
       await loadQuestProgress()
 
-      // По умолчанию всегда есть киноквест: если квестов нет или нет квеста «Киноквест» — создаём
-      if (userId && (!quests.value.length || !quests.value.some(q => q.title === 'Киноквест'))) {
+      // По умолчанию всегда есть музыкальная викторина: если квестов нет или нет квеста «Музыкальная викторина» — создаём
+      if (userId && (!quests.value.length || !quests.value.some(q => q.title === 'Музыкальная викторина'))) {
         try {
-          await addKinokQuest()
+          await importQuest(musicQuestSeed as Quest)
+        } catch (e) {
+          console.error('Failed to add default music quiz:', e)
+        }
+      }
+      // По умолчанию добавляем киноквест (5 раундов × 5 категорий × 6 вопросов), если его ещё нет
+      if (userId && !quests.value.some(q => q.title === 'Киноквест')) {
+        try {
+          await importQuest(kinokvestSeed as Quest)
         } catch (e) {
           console.error('Failed to add default kinokvest:', e)
         }
       }
 
-      // Обновляем старую версию Киноквеста до новой (5 категорий, названия раундов без «Раунд N»)
-      if (userId) {
-        const kinokvest = quests.value.find(q => q.title === 'Киноквест')
-        const firstRound = kinokvest?.rounds?.[0]
-        const isOldStructure =
-          firstRound &&
-          (firstRound.title?.startsWith('Раунд ') ||
-            (Array.isArray(firstRound.categories) && firstRound.categories.length < 5))
-        if (kinokvest && isOldStructure) {
-          try {
-            const fresh = createKinokvest()
-            const updated = {
-              ...kinokvest,
-              title: fresh.title,
-              description: fresh.description,
-              rounds: fresh.rounds
-            }
-            await updateQuestInDb(updated, userId)
-            const idx = quests.value.findIndex(q => q.id === kinokvest.id)
-            if (idx !== -1) quests.value[idx] = updated
-            await resetQuestProgressInDb(kinokvest.id, userId)
-            for (const round of updated.rounds) {
-              for (const category of round.categories ?? []) {
-                for (const question of category.questions ?? []) {
-                  question.played = false
-                  question.answeredBy = undefined
-                }
-              }
-            }
-            await sessionStore.syncSessionQuestSnapshot(kinokvest.id, updated)
-          } catch (e) {
-            console.error('Failed to update kinokvest to new structure:', e)
-          }
-        }
-      }
-      
       // Инициализируем подписку на изменения после загрузки данных
       initializeSubscription()
     } catch (error) {
@@ -194,10 +168,13 @@ export const useQuizStore = defineStore('quiz', () => {
       const existingIndex = quests.value.findIndex(q => q.id === quest.id)
       if (existingIndex >= 0) {
         quests.value[existingIndex] = quest
+        console.log('📡 [Quest] Realtime: quest updated', quest.id, quest.title)
       } else {
         quests.value.push(quest)
+        console.log('📡 [Quest] Realtime: quest added', quest.id, quest.title)
       }
     })
+    console.log('📡 [Quest] Realtime subscription initialized for user:', userId)
   }
 
   function findQuest(questId: string) {
@@ -734,7 +711,7 @@ export const useQuizStore = defineStore('quiz', () => {
   }
 
   async function addKinokQuest(): Promise<string> {
-    return addSeedQuest(createKinokvest)
+    return importQuest(kinokvestSeed as Quest)
   }
 
   /** Клонирует квест с новыми id и сохраняет для текущего пользователя (импорт из JSON). */

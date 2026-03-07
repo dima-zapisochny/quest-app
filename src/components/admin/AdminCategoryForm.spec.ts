@@ -86,7 +86,7 @@ describe('AdminCategoryForm', () => {
 
   it('emits delete when delete button is clicked', async () => {
     const { wrapper } = mountWithStore()
-    const deleteButton = wrapper.find('.delete-button')
+    const deleteButton = wrapper.find('.delete-category-text')
     await deleteButton.trigger('click')
     expect(wrapper.emitted('delete')).toBeTruthy()
   })

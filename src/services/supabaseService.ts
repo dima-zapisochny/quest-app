@@ -1,15 +1,6 @@
 import { supabase } from '@/config/supabase'
 import type { UserProfile, Quest, GameSession, Player } from '@/types'
 
-/** Копія квеста без медіа (base64), щоб quest_data в БД не перевищував ліміти і не спричиняв statement timeout */
-function leanQuestSnapshot(quest: Quest | null | undefined): Quest | null {
-  if (!quest) return null
-  return JSON.parse(JSON.stringify(quest), (_key, value) => {
-    if (_key === 'questionMedia' || _key === 'answerMedia') return []
-    return value
-  }) as Quest
-}
-
 // ============================================================================
 // User Profiles
 // ============================================================================
@@ -19,13 +10,13 @@ export async function getUserProfile(userId: string): Promise<UserProfile | null
     .from('user_profiles')
     .select('*')
     .eq('id', userId)
-    .single()
+    .maybeSingle()
 
   if (error) {
-    if (error.code === 'PGRST116') return null // Not found
     console.error('Error fetching user profile:', error)
     return null
   }
+  if (!data) return null
 
   return {
     id: data.id,
@@ -194,6 +185,7 @@ export async function getSessionById(sessionId: string): Promise<GameSession | n
     .maybeSingle()
 
   if (error) {
+    // 500 часто означает проблему на сервере (триггер, сериализация JSONB и т.д.) или сессия удалена
     console.error('Error fetching session:', error)
     return null
   }
@@ -246,7 +238,7 @@ export async function createSession(session: GameSession): Promise<GameSession> 
       id: session.id,
       code: session.code,
       quest_id: session.questId,
-      quest_data: leanQuestSnapshot(session.quest),
+      quest_data: session.quest || null,
       host_id: session.hostId,
       host_name: session.hostName,
       host_avatar: session.hostAvatar,
@@ -304,7 +296,7 @@ export async function updateSession(
     active_question: session.activeQuestion || null
   }
   if (includeQuestData) {
-    payload.quest_data = leanQuestSnapshot(session.quest)
+    payload.quest_data = session.quest || null
   }
 
   const { data, error } = await supabase
@@ -319,8 +311,13 @@ export async function updateSession(
   }
   const row = Array.isArray(data) ? data[0] : data
   if (!row) {
+    // Сессия удалена в БД (например CASCADE при удалении квеста), или RLS не вернул строку.
+    console.warn(
+      `[Supabase] Session update returned no rows (id=${session.id}). Session may have been deleted. Create a new game or re-join by code.`
+    )
     throw new Error('Session not found or update returned no rows')
   }
+  console.log('💾 [Save] Session updated:', session.id, 'state:', session.state, 'activeQuestion:', session.activeQuestion?.questionId ?? null)
 
   const updated: GameSession = {
     id: row.id,
@@ -441,7 +438,8 @@ export async function resetRoundProgress(
 // ============================================================================
 
 export function subscribeToSessions(
-  callback: (session: GameSession) => void
+  callback: (session: GameSession) => void,
+  onSessionDeleted?: (sessionId: string) => void
 ): () => void {
   const channelName = `game_sessions_changes_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
   
@@ -462,31 +460,32 @@ export function subscribeToSessions(
       },
       async (payload) => {
         try {
-          console.log('📨 WebSocket payload received:', {
+          console.log('📨 [Realtime] game_sessions payload:', {
             eventType: payload.eventType,
-            table: payload.table,
-            sessionId: payload.new?.id || payload.old?.id,
+            sessionId: payload.new?.id ?? payload.old?.id,
             timestamp: new Date().toISOString()
           })
           
           if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
             const sessionId = payload.new.id
-            console.log('🔄 Loading session from database:', sessionId)
+            console.log('🔄 [Realtime] Loading session:', sessionId)
             
-            // Загружаем полную сессию из базы данных
             const session = await getSessionById(sessionId)
             if (session) {
-              console.log('✅ Session loaded, players count:', session.players.length)
+              console.log('✅ [Realtime] Session loaded, players:', session.players.length)
               callback(session)
             } else {
-              console.warn('⚠️ Session not found in database:', sessionId)
+              console.warn('⚠️ [Realtime] Session not found:', sessionId)
             }
           } else if (payload.eventType === 'DELETE') {
-            // Handle deletion if needed
-            console.log('🗑️ Session deleted:', payload.old.id)
+            const deletedId = payload.old?.id
+            console.log('🗑️ [Realtime] Session deleted:', deletedId)
+            if (deletedId && onSessionDeleted) {
+              onSessionDeleted(deletedId)
+            }
           }
         } catch (error) {
-          console.error('❌ Error in real-time subscription:', error)
+          console.error('❌ [Realtime] Error in game_sessions subscription:', error)
         }
       }
     )

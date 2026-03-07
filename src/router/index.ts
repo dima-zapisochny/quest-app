@@ -1,7 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useGameSessionStore } from '@/store/gameSessionStore'
 import LandingView from '@/views/LandingView.vue'
-import QuestsList from '@/views/QuestsList.vue'
 import QuestView from '@/views/QuestView.vue'
 import PlayerSessionView from '@/views/PlayerSessionView.vue'
 import HostSetupView from '@/views/HostSetupView.vue'
@@ -14,11 +13,6 @@ const router = createRouter({
       path: '/',
       name: 'landing',
       component: LandingView
-    },
-    {
-      path: '/quests',
-      name: 'quests-list',
-      component: QuestsList
     },
     {
       path: '/quest/:questId',
