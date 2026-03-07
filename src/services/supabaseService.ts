@@ -151,7 +151,7 @@ export async function createQuest(quest: Quest, userId: string): Promise<Quest> 
 
 export async function updateQuest(quest: Quest, userId: string): Promise<Quest> {
   ensureSupabaseConfigured()
-  const { data, error } = await supabase
+  const base = supabase
     .from('quests')
     .update({
       title: quest.title,
@@ -159,9 +159,10 @@ export async function updateQuest(quest: Quest, userId: string): Promise<Quest> 
       data: quest
     })
     .eq('id', quest.id)
-    .eq('user_id', userId) // Проверяем, что квест принадлежит пользователю
-    .select()
-    .single()
+  const q = isGlobalQuestId(quest.id)
+    ? base
+    : base.eq('user_id', userId)
+  const { data, error } = await q.select().single()
 
   if (error) {
     if (error.code === 'PGRST116') {

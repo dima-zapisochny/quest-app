@@ -862,14 +862,14 @@ export const useGameSessionStore = defineStore('game-session', () => {
       })
       
       try {
-        const updated = await updateSession(session)
+        const updated = await updateSession(session, { includeQuestData: true })
         console.log('✅ Session updated in database, players:', updated.players.map(p => ({ id: p.id, name: p.name, score: p.score })))
         updateSessionInArray(updated)
       } catch (error) {
         console.error('❌ Error updating session:', error)
         updateSessionInArray(session)
       }
-      
+
       await closeQuestion(sessionId)
       return
     }
@@ -879,20 +879,7 @@ export const useGameSessionStore = defineStore('game-session', () => {
       const player = session.players.find(p => p.id === failedPlayerId)
       if (player) {
         player.status = 'locked'
-        // За неправильну відповідь мінусуємо половину балів
-        const oldScore = player.score || 0
-        player.score = Math.max(0, Math.floor(oldScore / 2))
-        if (typeof window !== 'undefined') {
-          const scoreKey = `quiz-app-player-score-${sessionId}-${player.id}`
-          try {
-            localStorage.setItem(scoreKey, JSON.stringify({
-              score: player.score,
-              savedAt: now()
-            }))
-          } catch (e) {
-            console.error('Error saving player score after wrong answer:', e)
-          }
-        }
+        // За неправильный ответ баллы не отнимаем
       }
     }
     

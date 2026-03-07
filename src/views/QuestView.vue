@@ -583,7 +583,11 @@ const activeRound = computed(() => {
   return quest.value.rounds.find(r => r.id === activeRoundId.value)
 })
 
+// Статистика «Сыграно» из store (обновляется при markQuestionAsPlayed), чтобы счётчик совпадал с карточками
 const questProgress = computed(() => {
+  if (questId.value) {
+    return quizStore.getQuestProgress(questId.value)
+  }
   const q = quest.value
   if (!q || !Array.isArray(q.rounds)) {
     return { totalRounds: 0, totalQuestions: 0, playedQuestions: 0 }

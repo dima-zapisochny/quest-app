@@ -86,13 +86,16 @@ export const useQuizStore = defineStore('quiz', () => {
       return
     }
     for (const quest of quests.value) {
-      if (isGlobalQuestId(quest.id)) continue
       try {
-        const existing = await getQuestByIdFromDb(quest.id, userId)
-        if (existing) {
+        if (isGlobalQuestId(quest.id)) {
           await updateQuestInDb(quest, userId)
         } else {
-          await createQuestInDb(quest, userId)
+          const existing = await getQuestByIdFromDb(quest.id, userId)
+          if (existing) {
+            await updateQuestInDb(quest, userId)
+          } else {
+            await createQuestInDb(quest, userId)
+          }
         }
       } catch (error) {
         console.error('Failed to save quest to Supabase:', error)
@@ -309,40 +312,36 @@ export const useQuizStore = defineStore('quiz', () => {
   }
 
   async function updateQuest(questId: string, payload: Partial<Omit<Quest, 'id' | 'rounds'>>) {
+    const quest = findQuest(questId)
+    Object.assign(quest, payload)
     const sessionStore = useGameSessionStore()
     const userId = sessionStore.userProfile?.id
     if (!userId) {
       throw new Error('User must be authenticated to update quests')
     }
-    
-    const quest = findQuest(questId)
-    Object.assign(quest, payload)
     try {
       await updateQuestInDb(quest, userId)
     } catch (error) {
       console.error('Error updating quest:', error)
-      // Откатываем изменения, если не удалось сохранить
       await loadFromStorage()
       throw error
     }
   }
 
   async function replaceQuest(updatedQuest: Quest) {
+    const index = quests.value.findIndex(q => q.id === updatedQuest.id)
+    if (index === -1) throw new Error('Quest not found')
+    const oldQuest = quests.value[index]
+    quests.value[index] = updatedQuest
     const sessionStore = useGameSessionStore()
     const userId = sessionStore.userProfile?.id
     if (!userId) {
       throw new Error('User must be authenticated to replace quests')
     }
-    
-    const index = quests.value.findIndex(q => q.id === updatedQuest.id)
-    if (index === -1) throw new Error('Quest not found')
-    const oldQuest = quests.value[index]
-    quests.value[index] = updatedQuest
     try {
       await updateQuestInDb(updatedQuest, userId)
     } catch (error) {
       console.error('Error replacing quest:', error)
-      // Откатываем изменения, если не удалось сохранить
       quests.value[index] = oldQuest
       throw error
     }
