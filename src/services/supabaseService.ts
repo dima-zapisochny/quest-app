@@ -127,6 +127,17 @@ export async function getQuestById(questId: string, userId: string): Promise<Que
   return data.data as Quest
 }
 
+function logSupabaseError(context: string, error: unknown): void {
+  const err = error as { code?: string; message?: string }
+  console.error(`[Supabase] ${context}:`, err)
+  if (err?.code === '57014' || err?.message?.includes('timeout')) {
+    console.warn('[Supabase] Подсказка: таймаут запроса. В Dashboard: Settings → Database увеличьте statement_timeout или проверьте тяжёлые триггеры/RLS.')
+  }
+  if (String(err?.message || '').includes('500') || (err as { status?: number })?.status === 500) {
+    console.warn('[Supabase] Подсказка: 500 часто из‑за триггеров, RLS или больших JSONB. Проверьте логи в Supabase Dashboard.')
+  }
+}
+
 /** Загрузка квеста только по id (для глобальных квестов, сохранённых любым пользователем) */
 export async function getQuestByIdGlobal(questId: string): Promise<Quest | null> {
   const { data, error } = await supabase
@@ -136,7 +147,7 @@ export async function getQuestByIdGlobal(questId: string): Promise<Quest | null>
     .maybeSingle()
 
   if (error) {
-    console.error('Error fetching quest by id:', error)
+    logSupabaseError('getQuestByIdGlobal', error)
     return null
   }
   if (!data) return null
@@ -197,11 +208,9 @@ export async function updateQuest(quest: Quest, userId: string): Promise<Quest> 
 
 export async function deleteQuest(questId: string, userId: string): Promise<void> {
   ensureSupabaseConfigured()
-  const { error } = await supabase
-    .from('quests')
-    .delete()
-    .eq('id', questId)
-    .eq('user_id', userId) // Проверяем, что квест принадлежит пользователю
+  const base = supabase.from('quests').delete().eq('id', questId)
+  const q = isGlobalQuestId(questId) ? base : base.eq('user_id', userId)
+  const { error } = await q
 
   if (error) {
     console.error('Error deleting quest:', error)
@@ -220,7 +229,7 @@ export async function getAllSessions(): Promise<GameSession[]> {
     .order('created_at', { ascending: false })
 
   if (error) {
-    console.error('Error fetching sessions:', error)
+    logSupabaseError('getAllSessions', error)
     return []
   }
 
@@ -252,8 +261,7 @@ export async function getSessionById(sessionId: string): Promise<GameSession | n
     .maybeSingle()
 
   if (error) {
-    // 500 часто означает проблему на сервере (триггер, сериализация JSONB и т.д.) или сессия удалена
-    console.error('Error fetching session:', error)
+    logSupabaseError('getSessionById', error)
     return null
   }
   if (!data) return null
@@ -290,7 +298,7 @@ export async function getSessionByCode(code: string): Promise<GameSession | null
     .maybeSingle()
 
   if (error) {
-    console.error('Error fetching session by code:', error)
+    logSupabaseError('getSessionByCode', error)
     return null
   }
   if (!data) return null
