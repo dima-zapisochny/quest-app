@@ -127,6 +127,23 @@ export async function getQuestById(questId: string, userId: string): Promise<Que
   return data.data as Quest
 }
 
+/** Загрузка квеста только по id (для глобальных квестов, сохранённых любым пользователем) */
+export async function getQuestByIdGlobal(questId: string): Promise<Quest | null> {
+  const { data, error } = await supabase
+    .from('quests')
+    .select('*')
+    .eq('id', questId)
+    .maybeSingle()
+
+  if (error) {
+    console.error('Error fetching quest by id:', error)
+    return null
+  }
+  if (!data) return null
+  const quest = data.data as Quest
+  return quest ? ({ ...quest, id: questId } as Quest) : null
+}
+
 export async function createQuest(quest: Quest, userId: string): Promise<Quest> {
   ensureSupabaseConfigured()
   const { data, error } = await supabase
@@ -166,6 +183,9 @@ export async function updateQuest(quest: Quest, userId: string): Promise<Quest> 
 
   if (error) {
     if (error.code === 'PGRST116') {
+      if (isGlobalQuestId(quest.id)) {
+        return createQuest(quest, userId)
+      }
       throw new Error('Quest not found or you do not have permission to update it')
     }
     console.error('Error updating quest:', error)

@@ -6,6 +6,7 @@ import { isSupabaseConfigured } from '@/config/supabase'
 import {
   getAllQuests,
   getQuestById as getQuestByIdFromDb,
+  getQuestByIdGlobal,
   createQuest as createQuestInDb,
   updateQuest as updateQuestInDb,
   deleteQuest as deleteQuestInDb,
@@ -108,9 +109,17 @@ export const useQuizStore = defineStore('quiz', () => {
     try {
       const sessionStore = useGameSessionStore()
       const userId = sessionStore.userProfile?.id
-      const globalQuests = getGlobalDefaultQuests()
+      let globalQuests = getGlobalDefaultQuests()
 
       if (userId && isSupabaseConfigured) {
+        // Подставляем сохранённые версии глобальных квестов из БД (редактирования не теряются)
+        const loadedGlobal: Quest[] = []
+        for (const g of globalQuests) {
+          const fromDb = await getQuestByIdGlobal(g.id)
+          loadedGlobal.push(fromDb ? { ...fromDb, id: g.id } : g)
+        }
+        globalQuests = loadedGlobal
+
         const dbQuests = await getAllQuests(userId)
         const userOnlyQuests = dbQuests.filter(
           q => q.title !== 'Музыкальная викторина' && q.title !== 'Киноквест'
