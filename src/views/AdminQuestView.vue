@@ -200,6 +200,7 @@ async function saveFullQuest() {
   if (!q) return
   try {
     await store.replaceQuest(q)
+    console.log('[AdminQuest] Весь квест сохранён:', q.title || q.id)
   } catch (e) {
     console.warn('[AdminQuest] Auto-save failed:', e)
   }
