@@ -1,6 +1,41 @@
 import { supabase, isSupabaseConfigured } from '@/config/supabase'
 import type { UserProfile, Quest, GameSession, Player } from '@/types'
 
+const GLOBAL_MUSIC_QUEST_ID = 'global-music'
+const GLOBAL_KINOKVEST_QUEST_ID = 'global-kinokvest'
+
+function isGlobalQuestId(id: string): boolean {
+  return id === GLOBAL_MUSIC_QUEST_ID || id === GLOBAL_KINOKVEST_QUEST_ID
+}
+
+/** Перед созданием сессии глобальные квесты должны существовать в quests (FK game_sessions.quest_id). */
+async function ensureQuestExistsForSession(
+  questId: string,
+  questData: Quest | undefined,
+  userId: string
+): Promise<void> {
+  if (!isGlobalQuestId(questId)) return
+  if (!questData) {
+    throw new Error(
+      `Для глобального квеста (${questId}) нужны данные квеста при создании сессии.`
+    )
+  }
+  const { error } = await supabase.from('quests').upsert(
+    {
+      id: questData.id,
+      title: questData.title,
+      description: questData.description ?? null,
+      data: questData,
+      user_id: userId
+    },
+    { onConflict: 'id' }
+  )
+  if (error) {
+    console.error('Error ensuring global quest in DB:', error)
+    throw error
+  }
+}
+
 function ensureSupabaseConfigured(): void {
   if (!isSupabaseConfigured) {
     throw new Error(
@@ -243,6 +278,12 @@ export async function getSessionByCode(code: string): Promise<GameSession | null
 }
 
 export async function createSession(session: GameSession): Promise<GameSession> {
+  ensureSupabaseConfigured()
+  await ensureQuestExistsForSession(
+    session.questId,
+    session.quest,
+    session.hostId
+  )
   const { data, error } = await supabase
     .from('game_sessions')
     .insert({
