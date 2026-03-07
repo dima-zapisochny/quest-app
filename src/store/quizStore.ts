@@ -27,11 +27,13 @@ function isGlobalQuestId(id: string): boolean {
   return id === GLOBAL_MUSIC_QUEST_ID || id === GLOBAL_KINOKVEST_QUEST_ID
 }
 
-/** Убирает дубликаты глобальных квестов: оставляем только квест с фиксированным global id для каждого названия */
+/** Убирает только дубликаты по global id. Импортированные квесты (с новым id) всегда остаются, даже с тем же названием что у глобального. */
 function deduplicateGlobalQuests(list: Quest[]): Quest[] {
+  const seenGlobal = new Set<string>()
   return list.filter((q) => {
-    if (q.title === 'Киноквест') return q.id === GLOBAL_KINOKVEST_QUEST_ID
-    if (q.title === 'Музыкальная викторина') return q.id === GLOBAL_MUSIC_QUEST_ID
+    if (!isGlobalQuestId(q.id)) return true
+    if (seenGlobal.has(q.id)) return false
+    seenGlobal.add(q.id)
     return true
   })
 }
@@ -216,7 +218,6 @@ export const useQuizStore = defineStore('quiz', () => {
     // Подписываемся на изменения квестов текущего пользователя через real-time
     unsubscribeQuests = subscribeToQuests(userId, (quest) => {
       if (isGlobalQuestId(quest.id)) return
-      if ((quest.title === 'Киноквест' || quest.title === 'Музыкальная викторина') && !isGlobalQuestId(quest.id)) return
       const existingIndex = quests.value.findIndex(q => q.id === quest.id)
       if (existingIndex >= 0) {
         quests.value[existingIndex] = quest
@@ -772,7 +773,7 @@ export const useQuizStore = defineStore('quiz', () => {
     return importQuest(kinokvestSeed as Quest)
   }
 
-  /** Клонирует квест с новыми id и сохраняет для текущего пользователя (импорт из JSON). */
+  /** Создаёт квест как новый (все id генерируются заново) и сохраняет для текущего пользователя (импорт из JSON). */
   async function importQuest(questData: Quest): Promise<string> {
     const sessionStore = useGameSessionStore()
     const userId = sessionStore.userProfile?.id
@@ -799,6 +800,7 @@ export const useQuizStore = defineStore('quiz', () => {
           ...q,
           id: newId(q.id, 'q'),
           played: false,
+          timedOut: false,
           answeredBy: undefined,
           questionMedia: (q.questionMedia || []).map((m) => ({ ...m, id: generateId('media') })),
           answerMedia: (q.answerMedia || []).map((m) => ({ ...m, id: generateId('media') }))
