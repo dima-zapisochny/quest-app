@@ -27,6 +27,15 @@ function isGlobalQuestId(id: string): boolean {
   return id === GLOBAL_MUSIC_QUEST_ID || id === GLOBAL_KINOKVEST_QUEST_ID
 }
 
+/** Убирает дубликаты глобальных квестов: оставляем только квест с фиксированным global id для каждого названия */
+function deduplicateGlobalQuests(list: Quest[]): Quest[] {
+  return list.filter((q) => {
+    if (q.title === 'Киноквест') return q.id === GLOBAL_KINOKVEST_QUEST_ID
+    if (q.title === 'Музыкальная викторина') return q.id === GLOBAL_MUSIC_QUEST_ID
+    return true
+  })
+}
+
 /** Собирает квест из JSON с фиксированными id (квест, раунды, категории, вопросы) для глобального отображения и прогресса */
 function buildGlobalQuest(seed: Quest, questId: string): Quest {
   const clone = JSON.parse(JSON.stringify(seed)) as Quest
@@ -124,7 +133,7 @@ export const useQuizStore = defineStore('quiz', () => {
         const userOnlyQuests = dbQuests.filter(
           q => q.title !== 'Музыкальная викторина' && q.title !== 'Киноквест'
         )
-        quests.value = [...globalQuests, ...userOnlyQuests]
+        quests.value = deduplicateGlobalQuests([...globalQuests, ...userOnlyQuests])
         console.log('📂 [Quest] Loaded: global (2) + from storage:', userOnlyQuests.length, 'quests')
       } else {
         quests.value = [...globalQuests]
@@ -207,12 +216,13 @@ export const useQuizStore = defineStore('quiz', () => {
     // Подписываемся на изменения квестов текущего пользователя через real-time
     unsubscribeQuests = subscribeToQuests(userId, (quest) => {
       if (isGlobalQuestId(quest.id)) return
+      if ((quest.title === 'Киноквест' || quest.title === 'Музыкальная викторина') && !isGlobalQuestId(quest.id)) return
       const existingIndex = quests.value.findIndex(q => q.id === quest.id)
       if (existingIndex >= 0) {
         quests.value[existingIndex] = quest
         console.log('📡 [Quest] Realtime: quest updated', quest.id, quest.title)
       } else {
-        quests.value.push(quest)
+        quests.value = deduplicateGlobalQuests([...quests.value, quest])
         console.log('📡 [Quest] Realtime: quest added', quest.id, quest.title)
       }
     })
