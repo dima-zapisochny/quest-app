@@ -53,6 +53,17 @@
                 </button>
                 <button
                   type="button"
+                  class="quest-action-button"
+                  @click="exportQuest(quest.id)"
+                  aria-label="Скачать квест в JSON"
+                  data-tooltip="Экспорт в JSON"
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                  </svg>
+                </button>
+                <button
+                  type="button"
                   class="quest-action-button quest-action-button--danger"
                   @click="deleteQuest(quest.id)"
                   aria-label="Удалить квест"
@@ -304,6 +315,20 @@ function createNewQuest() {
 
 function goToQuestEditor(questId: string) {
   router.push({ name: 'admin-quest', params: { questId } })
+}
+
+function exportQuest(questId: string) {
+  const quest = quizStore.getQuestById(questId)
+  if (!quest) return
+  const json = JSON.stringify(quest, null, 2)
+  const blob = new Blob([json], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  const safeTitle = (quest.title || 'quest').replace(/[^\p{L}\p{N}\s_-]/gu, '').trim() || 'quest'
+  a.download = `${safeTitle}-${quest.id}.json`
+  a.click()
+  URL.revokeObjectURL(url)
 }
 
 function deleteQuest(questId: string) {
