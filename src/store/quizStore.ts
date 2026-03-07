@@ -132,11 +132,8 @@ export const useQuizStore = defineStore('quiz', () => {
         globalQuests = loadedGlobal
 
         const dbQuests = await getAllQuests(userId)
-        const userOnlyQuests = dbQuests.filter(
-          q => q.title !== 'Музыкальная викторина' && q.title !== 'Киноквест'
-        )
-        quests.value = deduplicateGlobalQuests([...globalQuests, ...userOnlyQuests])
-        console.log('📂 [Quest] Loaded: global (2) + from storage:', userOnlyQuests.length, 'quests')
+        quests.value = deduplicateGlobalQuests([...globalQuests, ...dbQuests])
+        console.log('📂 [Quest] Loaded: global (2) + from storage:', dbQuests.length, 'quests')
       } else {
         quests.value = [...globalQuests]
         console.log('📂 [Quest] Loaded: global quests only', userId ? '(Supabase not configured)' : '(guest)')
