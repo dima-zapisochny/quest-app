@@ -322,11 +322,8 @@ async function handleDeleteQuest() {
 }
 
 function goBack() {
-  if (window.history.length > 1) {
-    router.back()
-  } else {
-    router.push('/host/setup')
-  }
+  // Всегда переходим на страницу управления квестами, без router.back(), чтобы не попасть на внешние URL (например /rest/v1/quests)
+  router.push('/host/setup')
 }
 </script>
 
