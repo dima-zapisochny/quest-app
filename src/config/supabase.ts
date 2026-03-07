@@ -4,9 +4,12 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js'
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || ''
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || ''
 
-if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+/** Проверка: заданы ли URL и anon key в .env (без этого запросы вернут "No API key found") */
+export const isSupabaseConfigured = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY)
+
+if (!isSupabaseConfigured) {
   console.warn(
-    '⚠️ Supabase credentials not found. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your .env file'
+    '⚠️ Supabase credentials not found. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in .env — иначе при сохранении/удалении будет ошибка "No API key found".'
   )
 }
 

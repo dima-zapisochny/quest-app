@@ -339,17 +339,22 @@ async function submitCreateQuest() {
   }
 }
 
-function confirmDeleteQuest() {
+async function confirmDeleteQuest() {
   const { questId } = confirmDeleteModal.value
   if (!questId) {
     confirmDeleteModal.value.visible = false
     return
   }
-  quizStore.deleteQuest(questId)
-  if (selectedQuestId.value === questId) {
-    selectedQuestId.value = null
+  try {
+    await quizStore.deleteQuest(questId)
+    if (selectedQuestId.value === questId) {
+      selectedQuestId.value = null
+    }
+    confirmDeleteModal.value = { visible: false, questId: null, questTitle: '' }
+    errorMessage.value = ''
+  } catch (err) {
+    errorMessage.value = (err as Error)?.message ?? 'Не удалось удалить квест'
   }
-  confirmDeleteModal.value = { visible: false, questId: null, questTitle: '' }
 }
 
 function cancelDeleteQuest() {

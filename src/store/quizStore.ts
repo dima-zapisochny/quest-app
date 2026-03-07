@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed, watch } from 'vue'
 import type { Quest, Round, Category, Question, MediaAsset } from '@/types'
 import { generateId } from '@/utils/id'
+import { isSupabaseConfigured } from '@/config/supabase'
 import {
   getAllQuests,
   getQuestById as getQuestByIdFromDb,
@@ -17,6 +18,46 @@ import {
 import { useGameSessionStore } from './gameSessionStore'
 import musicQuestSeed from '@/data/musicQuest.json'
 import kinokvestSeed from '@/data/kinokvest.json'
+/** Фиксированные id глобальных квестов — одинаковы у всех пользователей, прогресс хранится по ним */
+const GLOBAL_MUSIC_QUEST_ID = 'global-music'
+const GLOBAL_KINOKVEST_QUEST_ID = 'global-kinokvest'
+
+function isGlobalQuestId(id: string): boolean {
+  return id === GLOBAL_MUSIC_QUEST_ID || id === GLOBAL_KINOKVEST_QUEST_ID
+}
+
+/** Собирает квест из JSON с фиксированными id (квест, раунды, категории, вопросы) для глобального отображения и прогресса */
+function buildGlobalQuest(seed: Quest, questId: string): Quest {
+  const clone = JSON.parse(JSON.stringify(seed)) as Quest
+  clone.id = questId
+  clone.rounds = (clone.rounds || []).map((r, ri) => {
+    const roundId = `${questId}-r${ri}`
+    const round = { ...r, id: roundId, categories: r.categories || [] }
+    round.categories = round.categories.map((c, ci) => {
+      const categoryId = `${roundId}-c${ci}`
+      const cat = { ...c, id: categoryId, questions: c.questions || [] }
+      cat.questions = cat.questions.map((q, qi) => ({
+        ...q,
+        id: `${categoryId}-q${qi}`,
+        played: false,
+        answeredBy: undefined,
+        questionMedia: q.questionMedia || [],
+        answerMedia: q.answerMedia || []
+      }))
+      return cat
+    })
+    return round
+  })
+  return clone
+}
+
+/** Глобальные квесты по умолчанию — всегда видны всем (гостям и авторизованным) */
+function getGlobalDefaultQuests(): Quest[] {
+  return [
+    buildGlobalQuest(musicQuestSeed as Quest, GLOBAL_MUSIC_QUEST_ID),
+    buildGlobalQuest(kinokvestSeed as Quest, GLOBAL_KINOKVEST_QUEST_ID)
+  ]
+}
 
 function createMediaAsset(file: File, dataUrl: string): MediaAsset {
   const extension = file.name.split('.').pop()?.toLowerCase()
@@ -37,6 +78,7 @@ export const useQuizStore = defineStore('quiz', () => {
 
   // Helpers ------------------------------------------------------------------
   async function saveToStorage() {
+    if (!isSupabaseConfigured) return
     const sessionStore = useGameSessionStore()
     const userId = sessionStore.userProfile?.id
     if (!userId) {
@@ -44,6 +86,7 @@ export const useQuizStore = defineStore('quiz', () => {
       return
     }
     for (const quest of quests.value) {
+      if (isGlobalQuestId(quest.id)) continue
       try {
         const existing = await getQuestByIdFromDb(quest.id, userId)
         if (existing) {
@@ -62,40 +105,27 @@ export const useQuizStore = defineStore('quiz', () => {
     try {
       const sessionStore = useGameSessionStore()
       const userId = sessionStore.userProfile?.id
-      
-      if (userId) {
+      const globalQuests = getGlobalDefaultQuests()
+
+      if (userId && isSupabaseConfigured) {
         const dbQuests = await getAllQuests(userId)
-        quests.value = dbQuests
-        console.log('📂 [Quest] Loaded from storage:', dbQuests.length, 'quests')
+        const userOnlyQuests = dbQuests.filter(
+          q => q.title !== 'Музыкальная викторина' && q.title !== 'Киноквест'
+        )
+        quests.value = [...globalQuests, ...userOnlyQuests]
+        console.log('📂 [Quest] Loaded: global (2) + from storage:', userOnlyQuests.length, 'quests')
       } else {
-        quests.value = []
-      }
-      
-      // Загружаем прогресс для каждого квеста
-      await loadQuestProgress()
-
-      // По умолчанию всегда есть музыкальная викторина: если квестов нет или нет квеста «Музыкальная викторина» — создаём
-      if (userId && (!quests.value.length || !quests.value.some(q => q.title === 'Музыкальная викторина'))) {
-        try {
-          await importQuest(musicQuestSeed as Quest)
-        } catch (e) {
-          console.error('Failed to add default music quiz:', e)
-        }
-      }
-      // По умолчанию добавляем киноквест (5 раундов × 5 категорий × 6 вопросов), если его ещё нет
-      if (userId && !quests.value.some(q => q.title === 'Киноквест')) {
-        try {
-          await importQuest(kinokvestSeed as Quest)
-        } catch (e) {
-          console.error('Failed to add default kinokvest:', e)
-        }
+        quests.value = [...globalQuests]
+        console.log('📂 [Quest] Loaded: global quests only', userId ? '(Supabase not configured)' : '(guest)')
       }
 
-      // Инициализируем подписку на изменения после загрузки данных
+      if (isSupabaseConfigured) {
+        await loadQuestProgress()
+      }
       initializeSubscription()
     } catch (error) {
       console.error('Failed to load data:', error)
-      quests.value = []
+      quests.value = getGlobalDefaultQuests()
       initializeSubscription()
     } finally {
       isLoading.value = false
@@ -139,8 +169,7 @@ export const useQuizStore = defineStore('quiz', () => {
         if (userId) {
           loadFromStorage()
         } else {
-          // Если пользователь вышел, очищаем квесты
-          quests.value = []
+          quests.value = getGlobalDefaultQuests()
           if (unsubscribeQuests) {
             unsubscribeQuests()
             unsubscribeQuests = null
@@ -165,6 +194,7 @@ export const useQuizStore = defineStore('quiz', () => {
     
     // Подписываемся на изменения квестов текущего пользователя через real-time
     unsubscribeQuests = subscribeToQuests(userId, (quest) => {
+      if (isGlobalQuestId(quest.id)) return
       const existingIndex = quests.value.findIndex(q => q.id === quest.id)
       if (existingIndex >= 0) {
         quests.value[existingIndex] = quest
@@ -319,12 +349,15 @@ export const useQuizStore = defineStore('quiz', () => {
   }
 
   async function deleteQuest(questId: string) {
+    if (isGlobalQuestId(questId)) {
+      throw new Error('Глобальные квесты нельзя удалить')
+    }
     const sessionStore = useGameSessionStore()
     const userId = sessionStore.userProfile?.id
     if (!userId) {
       throw new Error('User must be authenticated to delete quests')
     }
-    
+
     const questToDelete = quests.value.find(q => q.id === questId)
     quests.value = quests.value.filter(q => q.id !== questId)
     try {

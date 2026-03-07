@@ -287,11 +287,14 @@ function handleDeleteCurrentRound() {
   handleDeleteRound(editingRoundId.value)
 }
 
-function handleDeleteQuest() {
+async function handleDeleteQuest() {
   if (!quest.value) return
-  if (confirm('Удалить квест целиком? Это действие нельзя отменить.')) {
-    store.deleteQuest(quest.value.id)
+  if (!confirm('Удалить квест целиком? Это действие нельзя отменить.')) return
+  try {
+    await store.deleteQuest(quest.value.id)
     router.push('/host/setup')
+  } catch (err) {
+    alert((err as Error)?.message ?? 'Не удалось удалить квест')
   }
 }
 

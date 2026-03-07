@@ -1,5 +1,13 @@
-import { supabase } from '@/config/supabase'
+import { supabase, isSupabaseConfigured } from '@/config/supabase'
 import type { UserProfile, Quest, GameSession, Player } from '@/types'
+
+function ensureSupabaseConfigured(): void {
+  if (!isSupabaseConfigured) {
+    throw new Error(
+      'Supabase не настроен. Добавьте в .env переменные VITE_SUPABASE_URL и VITE_SUPABASE_ANON_KEY (см. .env.example), затем перезапустите dev-сервер. Иначе при сохранении и удалении появляется ошибка «No API key found».'
+    )
+  }
+}
 
 // ============================================================================
 // User Profiles
@@ -85,6 +93,7 @@ export async function getQuestById(questId: string, userId: string): Promise<Que
 }
 
 export async function createQuest(quest: Quest, userId: string): Promise<Quest> {
+  ensureSupabaseConfigured()
   const { data, error } = await supabase
     .from('quests')
     .insert({
@@ -106,6 +115,7 @@ export async function createQuest(quest: Quest, userId: string): Promise<Quest> 
 }
 
 export async function updateQuest(quest: Quest, userId: string): Promise<Quest> {
+  ensureSupabaseConfigured()
   const { data, error } = await supabase
     .from('quests')
     .update({
@@ -130,6 +140,7 @@ export async function updateQuest(quest: Quest, userId: string): Promise<Quest> 
 }
 
 export async function deleteQuest(questId: string, userId: string): Promise<void> {
+  ensureSupabaseConfigured()
   const { error } = await supabase
     .from('quests')
     .delete()
