@@ -18,6 +18,7 @@ import {
   getSessionByCode,
   createSession as createSessionInDb,
   updateSession,
+  tryBuzz as tryBuzzInDb,
   deleteSession as deleteSessionInDb,
   subscribeToSessions
 } from '@/services/supabaseService'
@@ -637,17 +638,15 @@ export const useGameSessionStore = defineStore('game-session', () => {
 
     const aq = session.activeQuestion
     const byTimeout = options?.byTimeout === true
-    // Помечаем вопрос сыгранным. Крестик показываем только если таймер истёк и никто не ответил (byTimeout && !answeredBy).
+    // Сыгранным помечаем только при таймауте (крестик). Ручное закрытие до конца таймера — вопрос остаётся не разыгранным.
     if (aq && session.quest?.rounds) {
       const round = session.quest.rounds.find(r => r.id === aq.roundId)
       const category = round?.categories?.find(c => c.id === aq.categoryId)
       const q = category?.questions?.find(q => q.id === aq.questionId)
-      if (q) {
+      if (q && byTimeout) {
         q.played = true
-        if (byTimeout && !q.answeredBy) {
-          q.timedOut = true
-        }
         if (!q.answeredBy) {
+          q.timedOut = true
           const quizStore = useQuizStore()
           quizStore.markQuestionAsPlayed(session.questId, aq.roundId, aq.categoryId, aq.questionId)
         }
@@ -707,15 +706,22 @@ export const useGameSessionStore = defineStore('game-session', () => {
   async function buzz(sessionId: string, playerId: string) {
     const session = getSessionById(sessionId)
     if (!session || !session.activeQuestion) return
-    
+
     const player = session.players.find(p => p.id === playerId)
     if (!player) return
 
-    // Already locked or answered
     if (player.status === 'locked' || player.status === 'buzzed' || session.activeQuestion.buzzedOrder.includes(playerId)) {
       return
     }
 
+    // Атомарный buzz в БД: первый запрос получает право ответа, остальные — в очередь (нет гонки).
+    const updated = await tryBuzzInDb(sessionId, playerId)
+    if (updated) {
+      updateSessionInArray(updated)
+      return
+    }
+
+    // Fallback, если RPC try_buzz не подключён или ошибка: локальная логика (возможна гонка).
     if (!session.activeQuestion.currentResponderId) {
       session.activeQuestion.currentResponderId = playerId
       session.activeQuestion.buzzedOrder.push(playerId)
@@ -728,15 +734,12 @@ export const useGameSessionStore = defineStore('game-session', () => {
       player.status = 'queued'
       player.buzzedAt = now()
     }
-    
     session.updatedAt = now()
-    
     try {
-      const updated = await updateSession(session)
-      updateSessionInArray(updated)
+      const saved = await updateSession(session)
+      updateSessionInArray(saved)
     } catch (error) {
       console.error('Error updating session:', error)
-      // Fallback: обновляем локально
       updateSessionInArray(session)
     }
   }

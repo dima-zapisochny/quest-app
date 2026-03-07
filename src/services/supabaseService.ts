@@ -380,6 +380,23 @@ export async function updateSession(
   return updated
 }
 
+/** Атомарный buzz: первый запрос получает право ответа (currentResponderId), остальные попадают в очередь. Вызывать с клиента участника. */
+export async function tryBuzz(sessionId: string, playerId: string): Promise<GameSession | null> {
+  ensureSupabaseConfigured()
+  const { data, error } = await supabase.rpc('try_buzz', {
+    p_session_id: sessionId,
+    p_player_id: playerId
+  })
+
+  if (error) {
+    console.error('Error try_buzz:', error)
+    return null
+  }
+  const row = Array.isArray(data) ? data[0] : data
+  if (!row) return null
+  return mapSessionRow(row as Parameters<typeof mapSessionRow>[0])
+}
+
 export async function deleteSession(sessionId: string): Promise<void> {
   const { error } = await supabase
     .from('game_sessions')

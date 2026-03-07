@@ -25,7 +25,6 @@
           <span class="quiz-tile-user-check" aria-hidden="true">✓</span>
         </div>
         <span v-else-if="question.timedOut" class="quiz-tile-cross">✕</span>
-        <span v-else class="quiz-tile-played-placeholder">—</span>
       </div>
     </template>
   </button>
