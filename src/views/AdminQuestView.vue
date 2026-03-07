@@ -109,7 +109,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch, watchEffect, onMounted, nextTick } from 'vue'
+import { computed, ref, watch, watchEffect, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import { useQuizStore } from '@/store/quizStore'
 import { useGameSessionStore } from '@/store/gameSessionStore'
@@ -191,8 +191,30 @@ async function loadQuestIfNeeded() {
   }
 }
 
+/** Периодическое сохранение всего квеста (все поля) в БД */
+const AUTO_SAVE_INTERVAL_MS = 25_000
+let autoSaveTimerId: ReturnType<typeof setInterval> | null = null
+
+async function saveFullQuest() {
+  const q = quest.value
+  if (!q) return
+  try {
+    await store.replaceQuest(q)
+  } catch (e) {
+    console.warn('[AdminQuest] Auto-save failed:', e)
+  }
+}
+
 onMounted(() => {
   loadQuestIfNeeded()
+  autoSaveTimerId = setInterval(saveFullQuest, AUTO_SAVE_INTERVAL_MS)
+})
+
+onBeforeUnmount(() => {
+  if (autoSaveTimerId) {
+    clearInterval(autoSaveTimerId)
+    autoSaveTimerId = null
+  }
 })
 
 // Отслеживаем изменение questId в маршруте
