@@ -669,6 +669,8 @@ function handleReveal() {
   showAnswer.value = true
   if (props.sessionId) {
     gameSessionStore.revealAnswer(props.sessionId)
+    // Таймер истёк, никто не ответил — помечаем вопрос сыгранным с timedOut (крестик на карточке)
+    gameSessionStore.closeQuestion(props.sessionId, { byTimeout: true })
   }
   timerRef.value?.pause()
 }
@@ -711,7 +713,8 @@ function handleClose() {
   playingAudioId.value = null
   
   if (props.sessionId) {
-    gameSessionStore.closeQuestion(props.sessionId)
+    // Закрытие по кнопке «Закрыть» — не по таймеру, крестик не показываем
+    gameSessionStore.closeQuestion(props.sessionId, { byTimeout: false })
   }
   
   // Если ответ был показан (таймер закончился), но никто не ответил правильно,

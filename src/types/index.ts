@@ -12,6 +12,8 @@ export type Question = {
   question: string
   answer: string
   played?: boolean
+  /** true только когда вопрос закрыт по истечению таймера и никто не ответил правильно (показываем крестик) */
+  timedOut?: boolean
   answeredBy?: {
     playerId: string
     playerName: string

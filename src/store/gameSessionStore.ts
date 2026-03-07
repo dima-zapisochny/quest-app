@@ -631,18 +631,22 @@ export const useGameSessionStore = defineStore('game-session', () => {
     }
   }
 
-  async function closeQuestion(sessionId: string) {
+  async function closeQuestion(sessionId: string, options?: { byTimeout?: boolean }) {
     const session = getSessionById(sessionId)
     if (!session) return
 
     const aq = session.activeQuestion
-    // Помечаем вопрос сыгранным при закрытии (таймер истёк, крестик или хост закрыл). answeredBy уже установлен в resolveQuestion при правильном ответе.
+    const byTimeout = options?.byTimeout === true
+    // Помечаем вопрос сыгранным. Крестик показываем только если таймер истёк и никто не ответил (byTimeout && !answeredBy).
     if (aq && session.quest?.rounds) {
       const round = session.quest.rounds.find(r => r.id === aq.roundId)
       const category = round?.categories?.find(c => c.id === aq.categoryId)
       const q = category?.questions?.find(q => q.id === aq.questionId)
       if (q) {
         q.played = true
+        if (byTimeout && !q.answeredBy) {
+          q.timedOut = true
+        }
         if (!q.answeredBy) {
           const quizStore = useQuizStore()
           quizStore.markQuestionAsPlayed(session.questId, aq.roundId, aq.categoryId, aq.questionId)

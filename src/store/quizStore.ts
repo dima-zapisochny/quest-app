@@ -366,10 +366,8 @@ export const useQuizStore = defineStore('quiz', () => {
     }
   }
 
+  /** Удаляет квест (включая глобальные — по id без проверки user_id в БД). */
   async function deleteQuest(questId: string) {
-    if (isGlobalQuestId(questId)) {
-      throw new Error('Глобальные квесты нельзя удалить')
-    }
     const sessionStore = useGameSessionStore()
     const userId = sessionStore.userProfile?.id
     if (!userId) {
@@ -380,11 +378,18 @@ export const useQuizStore = defineStore('quiz', () => {
     quests.value = quests.value.filter(q => q.id !== questId)
     try {
       await deleteQuestInDb(questId, userId)
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error deleting quest:', error)
       // Откатываем удаление, если не удалось сохранить
       if (questToDelete) {
         quests.value.push(questToDelete)
+      }
+      const msg = (error as { message?: string })?.message ?? ''
+      // Если бэкенд (триггер/RLS) запрещает удаление глобального квеста — подсказываем, что делать
+      if (/глобаль|удалять нельзя|нельзя удалить/i.test(msg)) {
+        throw new Error(
+          'Удаление заблокировано настройками Supabase. В Dashboard: Database → Triggers отключите триггер на таблице quests, запрещающий удаление.'
+        )
       }
       throw error
     }
@@ -661,6 +666,7 @@ export const useQuizStore = defineStore('quiz', () => {
     round.categories.forEach(category => {
       category.questions.forEach(question => {
         question.played = false
+        question.timedOut = false
       })
     })
     
@@ -683,6 +689,7 @@ export const useQuizStore = defineStore('quiz', () => {
       round.categories.forEach(category => {
         category.questions.forEach(question => {
           question.played = false
+          question.timedOut = false
           question.answeredBy = undefined
         })
       })

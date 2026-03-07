@@ -209,12 +209,19 @@ async function saveFullQuest() {
 onMounted(() => {
   loadQuestIfNeeded()
   autoSaveTimerId = setInterval(saveFullQuest, AUTO_SAVE_INTERVAL_MS)
+  // Для консоли: сохранить текущий квест (полезно при отладке)
+  if (import.meta.env.DEV && typeof window !== 'undefined') {
+    ;(window as unknown as { __saveCurrentQuest?: () => Promise<void> }).__saveCurrentQuest = saveFullQuest
+  }
 })
 
 onBeforeUnmount(() => {
   if (autoSaveTimerId) {
     clearInterval(autoSaveTimerId)
     autoSaveTimerId = null
+  }
+  if (import.meta.env.DEV && typeof window !== 'undefined') {
+    delete (window as unknown as { __saveCurrentQuest?: () => Promise<void> }).__saveCurrentQuest
   }
 })
 
