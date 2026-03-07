@@ -636,13 +636,17 @@ export const useGameSessionStore = defineStore('game-session', () => {
     if (!session) return
 
     const aq = session.activeQuestion
-    // Помечаем вопрос сыгранным при закрытии (таймер истёк или хост закрыл). answeredBy уже установлен в resolveQuestion при правильном ответе.
+    // Помечаем вопрос сыгранным при закрытии (таймер истёк, крестик или хост закрыл). answeredBy уже установлен в resolveQuestion при правильном ответе.
     if (aq && session.quest?.rounds) {
       const round = session.quest.rounds.find(r => r.id === aq.roundId)
       const category = round?.categories?.find(c => c.id === aq.categoryId)
       const q = category?.questions?.find(q => q.id === aq.questionId)
       if (q) {
         q.played = true
+        if (!q.answeredBy) {
+          const quizStore = useQuizStore()
+          quizStore.markQuestionAsPlayed(session.questId, aq.roundId, aq.categoryId, aq.questionId)
+        }
       }
     }
 
