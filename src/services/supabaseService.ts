@@ -1,41 +1,6 @@
 import { supabase, isSupabaseConfigured } from '@/config/supabase'
 import type { UserProfile, Quest, GameSession, Player } from '@/types'
 
-const GLOBAL_MUSIC_QUEST_ID = 'global-music'
-const GLOBAL_KINOKVEST_QUEST_ID = 'global-kinokvest'
-
-function isGlobalQuestId(id: string): boolean {
-  return id === GLOBAL_MUSIC_QUEST_ID || id === GLOBAL_KINOKVEST_QUEST_ID
-}
-
-/** Перед созданием сессии глобальные квесты должны существовать в quests (FK game_sessions.quest_id). */
-async function ensureQuestExistsForSession(
-  questId: string,
-  questData: Quest | undefined,
-  userId: string
-): Promise<void> {
-  if (!isGlobalQuestId(questId)) return
-  if (!questData) {
-    throw new Error(
-      `Для глобального квеста (${questId}) нужны данные квеста при создании сессии.`
-    )
-  }
-  const { error } = await supabase.from('quests').upsert(
-    {
-      id: questData.id,
-      title: questData.title,
-      description: questData.description ?? null,
-      data: questData,
-      user_id: userId
-    },
-    { onConflict: 'id' }
-  )
-  if (error) {
-    console.error('Error ensuring global quest in DB:', error)
-    throw error
-  }
-}
-
 function ensureSupabaseConfigured(): void {
   if (!isSupabaseConfigured) {
     throw new Error(
@@ -179,7 +144,7 @@ export async function createQuest(quest: Quest, userId: string): Promise<Quest> 
 
 export async function updateQuest(quest: Quest, userId: string): Promise<Quest> {
   ensureSupabaseConfigured()
-  const base = supabase
+  const { data, error } = await supabase
     .from('quests')
     .update({
       title: quest.title,
@@ -187,16 +152,12 @@ export async function updateQuest(quest: Quest, userId: string): Promise<Quest> 
       data: quest
     })
     .eq('id', quest.id)
-  const q = isGlobalQuestId(quest.id)
-    ? base
-    : base.eq('user_id', userId)
-  const { data, error } = await q.select().single()
+    .eq('user_id', userId)
+    .select()
+    .single()
 
   if (error) {
     if (error.code === 'PGRST116') {
-      if (isGlobalQuestId(quest.id)) {
-        return createQuest(quest, userId)
-      }
       throw new Error('Quest not found or you do not have permission to update it')
     }
     console.error('Error updating quest:', error)
@@ -208,9 +169,11 @@ export async function updateQuest(quest: Quest, userId: string): Promise<Quest> 
 
 export async function deleteQuest(questId: string, userId: string): Promise<void> {
   ensureSupabaseConfigured()
-  const base = supabase.from('quests').delete().eq('id', questId)
-  const q = isGlobalQuestId(questId) ? base : base.eq('user_id', userId)
-  const { error } = await q
+  const { error } = await supabase
+    .from('quests')
+    .delete()
+    .eq('id', questId)
+    .eq('user_id', userId)
 
   if (error) {
     console.error('Error deleting quest:', error)
@@ -308,11 +271,6 @@ export async function getSessionByCode(code: string): Promise<GameSession | null
 
 export async function createSession(session: GameSession): Promise<GameSession> {
   ensureSupabaseConfigured()
-  await ensureQuestExistsForSession(
-    session.questId,
-    session.quest,
-    session.hostId
-  )
   const { data, error } = await supabase
     .from('game_sessions')
     .insert({

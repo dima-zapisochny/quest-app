@@ -17,59 +17,7 @@ import {
   subscribeToQuests
 } from '@/services/supabaseService'
 import { useGameSessionStore } from './gameSessionStore'
-import musicQuestSeed from '@/data/musicQuest.json'
 import kinokvestSeed from '@/data/kinokvest.json'
-/** Фиксированные id глобальных квестов — одинаковы у всех пользователей, прогресс хранится по ним */
-const GLOBAL_MUSIC_QUEST_ID = 'global-music'
-const GLOBAL_KINOKVEST_QUEST_ID = 'global-kinokvest'
-
-function isGlobalQuestId(id: string): boolean {
-  return id === GLOBAL_MUSIC_QUEST_ID || id === GLOBAL_KINOKVEST_QUEST_ID
-}
-
-/** Убирает только дубликаты по global id. Импортированные квесты (с новым id) всегда остаются, даже с тем же названием что у глобального. */
-function deduplicateGlobalQuests(list: Quest[]): Quest[] {
-  const seenGlobal = new Set<string>()
-  return list.filter((q) => {
-    if (!isGlobalQuestId(q.id)) return true
-    if (seenGlobal.has(q.id)) return false
-    seenGlobal.add(q.id)
-    return true
-  })
-}
-
-/** Собирает квест из JSON с фиксированными id (квест, раунды, категории, вопросы) для глобального отображения и прогресса */
-function buildGlobalQuest(seed: Quest, questId: string): Quest {
-  const clone = JSON.parse(JSON.stringify(seed)) as Quest
-  clone.id = questId
-  clone.rounds = (clone.rounds || []).map((r, ri) => {
-    const roundId = `${questId}-r${ri}`
-    const round = { ...r, id: roundId, categories: r.categories || [] }
-    round.categories = round.categories.map((c, ci) => {
-      const categoryId = `${roundId}-c${ci}`
-      const cat = { ...c, id: categoryId, questions: c.questions || [] }
-      cat.questions = cat.questions.map((q, qi) => ({
-        ...q,
-        id: `${categoryId}-q${qi}`,
-        played: false,
-        answeredBy: undefined,
-        questionMedia: q.questionMedia || [],
-        answerMedia: q.answerMedia || []
-      }))
-      return cat
-    })
-    return round
-  })
-  return clone
-}
-
-/** Глобальные квесты по умолчанию — всегда видны всем (гостям и авторизованным) */
-function getGlobalDefaultQuests(): Quest[] {
-  return [
-    buildGlobalQuest(musicQuestSeed as Quest, GLOBAL_MUSIC_QUEST_ID),
-    buildGlobalQuest(kinokvestSeed as Quest, GLOBAL_KINOKVEST_QUEST_ID)
-  ]
-}
 
 function createMediaAsset(file: File, dataUrl: string): MediaAsset {
   const extension = file.name.split('.').pop()?.toLowerCase()
@@ -99,15 +47,11 @@ export const useQuizStore = defineStore('quiz', () => {
     }
     for (const quest of quests.value) {
       try {
-        if (isGlobalQuestId(quest.id)) {
+        const existing = await getQuestByIdFromDb(quest.id, userId)
+        if (existing) {
           await updateQuestInDb(quest, userId)
         } else {
-          const existing = await getQuestByIdFromDb(quest.id, userId)
-          if (existing) {
-            await updateQuestInDb(quest, userId)
-          } else {
-            await createQuestInDb(quest, userId)
-          }
+          await createQuestInDb(quest, userId)
         }
       } catch (error) {
         console.error('Failed to save quest to Supabase:', error)
@@ -120,32 +64,20 @@ export const useQuizStore = defineStore('quiz', () => {
     try {
       const sessionStore = useGameSessionStore()
       const userId = sessionStore.userProfile?.id
-      let globalQuests = getGlobalDefaultQuests()
 
       if (userId && isSupabaseConfigured) {
-        // Подставляем сохранённые версии глобальных квестов из БД (редактирования не теряются)
-        const loadedGlobal: Quest[] = []
-        for (const g of globalQuests) {
-          const fromDb = await getQuestByIdGlobal(g.id)
-          loadedGlobal.push(fromDb ? { ...fromDb, id: g.id } : g)
-        }
-        globalQuests = loadedGlobal
-
-        const dbQuests = await getAllQuests(userId)
-        quests.value = deduplicateGlobalQuests([...globalQuests, ...dbQuests])
-        console.log('📂 [Quest] Loaded: global (2) + from storage:', dbQuests.length, 'quests')
-      } else {
-        quests.value = [...globalQuests]
-        console.log('📂 [Quest] Loaded: global quests only', userId ? '(Supabase not configured)' : '(guest)')
-      }
-
-      if (isSupabaseConfigured) {
+        quests.value = await getAllQuests(userId)
+        console.log('📂 [Quest] Loaded from DB:', quests.value.length, 'quests')
         await loadQuestProgress()
+      } else {
+        quests.value = []
+        console.log('📂 [Quest] No user or Supabase — quests empty')
       }
+
       initializeSubscription()
     } catch (error) {
       console.error('Failed to load data:', error)
-      quests.value = getGlobalDefaultQuests()
+      quests.value = []
       initializeSubscription()
     } finally {
       isLoading.value = false
@@ -189,7 +121,7 @@ export const useQuizStore = defineStore('quiz', () => {
         if (userId) {
           loadFromStorage()
         } else {
-          quests.value = getGlobalDefaultQuests()
+          quests.value = []
           if (unsubscribeQuests) {
             unsubscribeQuests()
             unsubscribeQuests = null
@@ -214,13 +146,12 @@ export const useQuizStore = defineStore('quiz', () => {
     
     // Подписываемся на изменения квестов текущего пользователя через real-time
     unsubscribeQuests = subscribeToQuests(userId, (quest) => {
-      if (isGlobalQuestId(quest.id)) return
       const existingIndex = quests.value.findIndex(q => q.id === quest.id)
       if (existingIndex >= 0) {
         quests.value[existingIndex] = quest
         console.log('📡 [Quest] Realtime: quest updated', quest.id, quest.title)
       } else {
-        quests.value = deduplicateGlobalQuests([...quests.value, quest])
+        quests.value = [...quests.value, quest]
         console.log('📡 [Quest] Realtime: quest added', quest.id, quest.title)
       }
     })
@@ -364,7 +295,6 @@ export const useQuizStore = defineStore('quiz', () => {
     }
   }
 
-  /** Удаляет квест (включая глобальные — по id без проверки user_id в БД). */
   async function deleteQuest(questId: string) {
     const sessionStore = useGameSessionStore()
     const userId = sessionStore.userProfile?.id
@@ -770,6 +700,26 @@ export const useQuizStore = defineStore('quiz', () => {
     return importQuest(kinokvestSeed as Quest)
   }
 
+  /** Загружает квест из БД по id (без фильтра user_id) и добавляет в список. Если квест уже в списке — не дублирует. */
+  async function restoreQuestFromDb(questId: string): Promise<Quest | null> {
+    if (!isSupabaseConfigured) {
+      console.warn('Supabase not configured')
+      return null
+    }
+    const existing = quests.value.find(q => q.id === questId)
+    if (existing) {
+      return existing
+    }
+    const quest = await getQuestByIdGlobal(questId)
+    if (!quest) {
+      console.warn('[QuizStore] Quest not found in DB:', questId)
+      return null
+    }
+    quests.value.push(quest)
+    console.log('[QuizStore] Restored quest from DB:', quest.title || questId)
+    return quest
+  }
+
   /** Создаёт квест как новый (все id генерируются заново) и сохраняет для текущего пользователя (импорт из JSON). */
   async function importQuest(questData: Quest): Promise<string> {
     const sessionStore = useGameSessionStore()
@@ -854,7 +804,8 @@ export const useQuizStore = defineStore('quiz', () => {
     clearAllData,
     addSeedQuest,
     addKinokQuest,
-    importQuest
+    importQuest,
+    restoreQuestFromDb
   }
 })
 

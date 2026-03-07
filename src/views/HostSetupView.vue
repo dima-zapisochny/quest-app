@@ -164,7 +164,7 @@
 
 <script setup lang="ts">
 import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useQuizStore } from '@/store/quizStore'
 import { useGameSessionStore } from '@/store/gameSessionStore'
 import AppHeader from '@/components/common/AppHeader.vue'
@@ -174,6 +174,7 @@ const importingQuest = ref(false)
 const importQuestInputRef = ref<HTMLInputElement | null>(null)
 
 const router = useRouter()
+const route = useRoute()
 const quizStore = useQuizStore()
 const sessionStore = useGameSessionStore()
 const { isMobileViewport } = useIsMobileViewport()
@@ -227,7 +228,7 @@ onMounted(async () => {
   window.addEventListener('click', handleClickOutside)
 })
 
-function checkProfileAndLoad() {
+async function checkProfileAndLoad() {
   try {
     sessionStore.ensureProfile()
   } catch (error) {
@@ -236,7 +237,18 @@ function checkProfileAndLoad() {
   }
 
   if (!quests.value.length) {
-    quizStore.loadFromStorage()
+    await quizStore.loadFromStorage()
+  }
+
+  const restoreId = route.query.restore_quest as string | undefined
+  if (restoreId) {
+    const restored = await quizStore.restoreQuestFromDb(restoreId)
+    if (restored) {
+      selectedQuestId.value = restored.id
+    }
+    const q = { ...route.query }
+    delete q.restore_quest
+    router.replace({ path: route.path, query: q })
   }
 
   loading.value = false
