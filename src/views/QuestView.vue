@@ -1,5 +1,12 @@
 <template>
-  <div v-if="quest" class="quest-view">
+  <!-- Під час завантаження повного квеста (rounds ще немає) показуємо лоадер -->
+  <div v-if="isLoadingQuest && (!quest || !quest.rounds?.length)" class="quest-loading-wrapper">
+    <div class="loading-state">
+      <div class="loader"></div>
+      <p>Загрузка квеста…</p>
+    </div>
+  </div>
+  <div v-else-if="quest" class="quest-view">
     <AppHeader
       button-variant="back"
       button-label="Назад"
@@ -23,7 +30,7 @@
         <nav class="rounds-nav rounds-nav--stage">
       <div class="rounds-track">
         <button
-          v-for="round in quest.rounds"
+          v-for="round in (quest?.rounds || [])"
           :key="round.id"
           :class="['round-chip', { active: round.id === activeRoundId } ]"
           :title="round.title"
@@ -147,17 +154,11 @@
       </div>
     </section>
 
-    <!-- Показувати, коли в квесті взагалі немає раундів (не плутати з порожнім лідербордом) -->
-    <section v-if="!isMobileViewport && quest && (!quest.rounds || !quest.rounds.length)" class="empty-round">
+    <!-- Показувати, коли в квесті взагалі немає раундів (не під час завантаження) -->
+    <section v-if="!isMobileViewport && !isLoadingQuest && quest && (!quest.rounds || !quest.rounds.length)" class="empty-round">
       <p>Для этого квеста ещё не создано ни одного раунда.</p>
       <router-link to="/host/setup" class="empty-round__link">Перейти к управлению квестами</router-link>
     </section>
-  </div>
-  <div v-else-if="isLoadingQuest" class="quest-loading-wrapper">
-    <div class="loading-state">
-      <div class="loader"></div>
-      <p>Загрузка квеста…</p>
-    </div>
   </div>
   <div v-else class="not-found">
     <p>Квест не найден.</p>
@@ -571,16 +572,18 @@ async function handleJoinSession() {
 const isMockSession = computed(() => !session.value || sessionParticipants.value.length === 0)
 
 const activeRoundId = computed(() => {
-  if (!quest.value || !quest.value.rounds.length) return null
+  const rounds = quest.value?.rounds
+  if (!quest.value || !Array.isArray(rounds) || rounds.length === 0) return null
   if (session.value?.roundId) return session.value.roundId
   const fromRoute = (route.params.roundId as string | undefined) ?? props.roundId
-  const roundExists = fromRoute && quest.value.rounds.some(r => r.id === fromRoute)
-  return roundExists ? fromRoute! : quest.value.rounds[0].id
+  const roundExists = fromRoute && rounds.some(r => r.id === fromRoute)
+  return roundExists ? fromRoute! : rounds[0].id
 })
 
 const activeRound = computed(() => {
-  if (!quest.value || !activeRoundId.value) return undefined
-  return quest.value.rounds.find(r => r.id === activeRoundId.value)
+  const rounds = quest.value?.rounds
+  if (!quest.value || !Array.isArray(rounds) || !activeRoundId.value) return undefined
+  return rounds.find(r => r.id === activeRoundId.value)
 })
 
 // Статистика «Сыграно» из store (обновляется при markQuestionAsPlayed), чтобы счётчик совпадал с карточками
