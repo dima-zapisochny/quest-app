@@ -39,10 +39,10 @@
         </p>
         <div v-else class="question-content">
           <template v-if="activeQuestion.showAnswer">
-            <h2 class="answer-only">{{ currentQuestion?.answer ?? '—' }}</h2>
+            <h2 class="answer-only" v-html="currentQuestion?.answer ?? '—'"></h2>
           </template>
           <template v-else>
-            <h2>{{ currentQuestion?.question ?? 'Вопрос скрыт' }}</h2>
+            <h2 v-html="currentQuestion?.question ?? 'Вопрос скрыт'"></h2>
           </template>
         </div>
       </section>
