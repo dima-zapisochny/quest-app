@@ -112,7 +112,7 @@ BEGIN
   END IF;
 END $$;
 
--- Политики RLS для quest_progress (все могут читать, создавать и удалять)
+-- Политики RLS для quest_progress (все могут читать, создавать, обновлять и удалять)
 DO $$ 
 BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'quest_progress' AND policyname = 'Anyone can read progress') THEN
@@ -120,6 +120,9 @@ BEGIN
   END IF;
   IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'quest_progress' AND policyname = 'Anyone can create progress') THEN
     CREATE POLICY "Anyone can create progress" ON quest_progress FOR INSERT WITH CHECK (true);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'quest_progress' AND policyname = 'Anyone can update progress') THEN
+    CREATE POLICY "Anyone can update progress" ON quest_progress FOR UPDATE USING (true) WITH CHECK (true);
   END IF;
   IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'quest_progress' AND policyname = 'Anyone can delete progress') THEN
     CREATE POLICY "Anyone can delete progress" ON quest_progress FOR DELETE USING (true);
