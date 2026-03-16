@@ -410,6 +410,37 @@ export async function deleteSession(sessionId: string): Promise<void> {
 }
 
 // ============================================================================
+// Quest Media Storage (зберігає файли окремо, щоб не роздувати JSON і уникнути timeout)
+// ============================================================================
+
+const QUEST_MEDIA_BUCKET = 'quest-media'
+
+/**
+ * Завантажує файл (зображення/аудіо) в Supabase Storage і повертає публічний URL.
+ * Якщо Supabase не налаштований або помилка — повертає null (клієнт може зберегти base64).
+ */
+export async function uploadQuestMedia(
+  questId: string,
+  userId: string,
+  file: File,
+  mediaId: string
+): Promise<string | null> {
+  if (!isSupabaseConfigured) return null
+  const ext = file.name.split('.').pop()?.toLowerCase() || 'bin'
+  const path = `${userId}/${questId}/${mediaId}.${ext}`
+  const { error } = await supabase.storage.from(QUEST_MEDIA_BUCKET).upload(path, file, {
+    upsert: true,
+    contentType: file.type || undefined
+  })
+  if (error) {
+    console.warn('[Supabase] Upload quest media failed:', error)
+    return null
+  }
+  const { data } = supabase.storage.from(QUEST_MEDIA_BUCKET).getPublicUrl(path)
+  return data.publicUrl
+}
+
+// ============================================================================
 // Quest Progress
 // ============================================================================
 

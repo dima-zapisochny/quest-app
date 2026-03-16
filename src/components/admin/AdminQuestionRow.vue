@@ -50,28 +50,28 @@
             <label 
               v-if="questionMediaImages.length < 3" 
               class="upload-chip" 
-              :class="{ 'upload-chip--disabled': isUploadingQuestionMedia || questionMediaAudio.length > 0 }"
+              :class="{ 'upload-chip--disabled': uploadingQuestionType !== null || questionMediaAudio.length > 0 }"
             >
               <input
                 type="file"
                 accept="image/*"
-                :disabled="isUploadingQuestionMedia || questionMediaAudio.length > 0"
+                :disabled="uploadingQuestionType !== null || questionMediaAudio.length > 0"
                 @change="handleUpload('question', $event, 'image')"
               />
-              <span>{{ isUploadingQuestionMedia ? 'Загрузка…' : `Загрузить изображение (${questionMediaImages.length + 1}/3)` }}</span>
+              <span>{{ uploadingQuestionType === 'image' ? 'Загрузка…' : `Загрузить изображение (${questionMediaImages.length + 1}/3)` }}</span>
             </label>
             <label 
               v-if="!questionMediaAudio.length" 
               class="upload-chip"
-              :class="{ 'upload-chip--disabled': isUploadingQuestionMedia || questionMediaImages.length > 0 }"
+              :class="{ 'upload-chip--disabled': uploadingQuestionType !== null || questionMediaImages.length > 0 }"
             >
               <input
                 type="file"
                 accept="audio/*"
-                :disabled="isUploadingQuestionMedia || questionMediaImages.length > 0"
+                :disabled="uploadingQuestionType !== null || questionMediaImages.length > 0"
                 @change="handleUpload('question', $event, 'audio')"
               />
-              <span>{{ isUploadingQuestionMedia ? 'Загрузка…' : 'Загрузить аудио' }}</span>
+              <span>{{ uploadingQuestionType === 'audio' ? 'Загрузка…' : 'Загрузить аудио' }}</span>
             </label>
           </div>
         </div>
@@ -101,28 +101,28 @@
             <label
               v-if="answerMediaImages.length < 3"
               class="upload-chip"
-              :class="{ 'upload-chip--disabled': isUploadingAnswerMedia }"
+              :class="{ 'upload-chip--disabled': uploadingAnswerType !== null }"
             >
               <input
                 type="file"
                 accept="image/*"
-                :disabled="isUploadingAnswerMedia"
+                :disabled="uploadingAnswerType !== null"
                 @change="handleUpload('answer', $event, 'image')"
               />
-              <span>{{ isUploadingAnswerMedia ? 'Загрузка…' : `Изображение (${answerMediaImages.length + 1}/3)` }}</span>
+              <span>{{ uploadingAnswerType === 'image' ? 'Загрузка…' : `Изображение (${answerMediaImages.length + 1}/3)` }}</span>
             </label>
             <label
               v-if="!answerMediaAudio.length"
               class="upload-chip"
-              :class="{ 'upload-chip--disabled': isUploadingAnswerMedia }"
+              :class="{ 'upload-chip--disabled': uploadingAnswerType !== null }"
             >
               <input
                 type="file"
                 accept="audio/*"
-                :disabled="isUploadingAnswerMedia"
+                :disabled="uploadingAnswerType !== null"
                 @change="handleUpload('answer', $event, 'audio')"
               />
-              <span>{{ isUploadingAnswerMedia ? 'Загрузка…' : 'Музыка / аудио' }}</span>
+              <span>{{ uploadingAnswerType === 'audio' ? 'Загрузка…' : 'Музыка / аудио' }}</span>
             </label>
           </div>
         </div>
@@ -161,8 +161,10 @@ const emit = defineEmits<{
 const props = defineProps<Props>()
 const store = useQuizStore()
 
-const isUploadingQuestionMedia = ref(false)
-const isUploadingAnswerMedia = ref(false)
+/** Тип медиа, який зараз завантажується для питання (null = нічого не завантажується) */
+const uploadingQuestionType = ref<'image' | 'audio' | null>(null)
+/** Тип медиа, який зараз завантажується для відповіді */
+const uploadingAnswerType = ref<'image' | 'audio' | null>(null)
 
 const questionValue = computed({
   get: () => props.question.value,
@@ -260,10 +262,11 @@ function handleUpload(target: 'question' | 'answer', event: Event, mediaType?: '
     }
   }
 
+  const type = mediaType ?? (file.type.startsWith('audio') ? 'audio' : 'image')
   if (target === 'question') {
-    isUploadingQuestionMedia.value = true
+    uploadingQuestionType.value = type
   } else {
-    isUploadingAnswerMedia.value = true
+    uploadingAnswerType.value = type
   }
 
   const singleFileList = {
@@ -283,9 +286,9 @@ function handleUpload(target: 'question' | 'answer', event: Event, mediaType?: '
 
   const clearLoading = () => {
     if (target === 'question') {
-      isUploadingQuestionMedia.value = false
+      uploadingQuestionType.value = null
     } else {
-      isUploadingAnswerMedia.value = false
+      uploadingAnswerType.value = null
     }
   }
 

@@ -14,27 +14,54 @@ import {
   resetQuestProgress as resetQuestProgressInDb,
   resetRoundProgress as resetRoundProgressInDb,
   getQuestProgress as getQuestProgressFromDb,
-  subscribeToQuests
+  subscribeToQuests,
+  uploadQuestMedia
 } from '@/services/supabaseService'
 import { useGameSessionStore } from './gameSessionStore'
 import kinokvestSeed from '@/data/kinokvest.json'
 
-function createMediaAsset(file: File, dataUrl: string): MediaAsset {
+function createMediaAsset(
+  file: File,
+  url: string,
+  id?: string
+): MediaAsset {
   const extension = file.name.split('.').pop()?.toLowerCase()
   const type = file.type.startsWith('audio') || extension === 'mp3' || extension === 'wav' ? 'audio' : 'image'
   return {
-    id: generateId('media'),
+    id: id ?? generateId('media'),
     type,
     name: file.name,
-    url: dataUrl
+    url
   }
 }
 
 let unsubscribeQuests: (() => void) | null = null
 
+const SAVE_DEBOUNCE_MS = 2500
+
 export const useQuizStore = defineStore('quiz', () => {
   const quests = ref<Quest[]>([])
   const isLoading = ref(false)
+  let saveTimeoutId: ReturnType<typeof setTimeout> | null = null
+
+  /** Відкладає збереження на SAVE_DEBOUNCE_MS; зменшує кількість запитів і таймаути при частых змінах. */
+  function scheduleSave() {
+    if (!isSupabaseConfigured) return
+    if (saveTimeoutId) clearTimeout(saveTimeoutId)
+    saveTimeoutId = setTimeout(() => {
+      saveTimeoutId = null
+      saveToStorage()
+    }, SAVE_DEBOUNCE_MS)
+  }
+
+  /** Виконує збереження одразу (скасовує таймер дебаунсу). */
+  async function flushSave() {
+    if (saveTimeoutId) {
+      clearTimeout(saveTimeoutId)
+      saveTimeoutId = null
+    }
+    await saveToStorage()
+  }
 
   // Helpers ------------------------------------------------------------------
   async function saveToStorage() {
@@ -259,40 +286,17 @@ export const useQuizStore = defineStore('quiz', () => {
     return newQuest.id
   }
 
-  async function updateQuest(questId: string, payload: Partial<Omit<Quest, 'id' | 'rounds'>>) {
+  function updateQuest(questId: string, payload: Partial<Omit<Quest, 'id' | 'rounds'>>) {
     const quest = findQuest(questId)
     Object.assign(quest, payload)
-    const sessionStore = useGameSessionStore()
-    const userId = sessionStore.userProfile?.id
-    if (!userId) {
-      throw new Error('User must be authenticated to update quests')
-    }
-    try {
-      await updateQuestInDb(quest, userId)
-    } catch (error) {
-      console.error('Error updating quest:', error)
-      await loadFromStorage()
-      throw error
-    }
+    scheduleSave()
   }
 
-  async function replaceQuest(updatedQuest: Quest) {
+  function replaceQuest(updatedQuest: Quest) {
     const index = quests.value.findIndex(q => q.id === updatedQuest.id)
     if (index === -1) throw new Error('Quest not found')
-    const oldQuest = quests.value[index]
     quests.value[index] = updatedQuest
-    const sessionStore = useGameSessionStore()
-    const userId = sessionStore.userProfile?.id
-    if (!userId) {
-      throw new Error('User must be authenticated to replace quests')
-    }
-    try {
-      await updateQuestInDb(updatedQuest, userId)
-    } catch (error) {
-      console.error('Error replacing quest:', error)
-      quests.value[index] = oldQuest
-      throw error
-    }
+    scheduleSave()
   }
 
   async function deleteQuest(questId: string) {
@@ -337,7 +341,7 @@ export const useQuizStore = defineStore('quiz', () => {
       categories: []
     }
     quest.rounds.push(newRound)
-    await saveToStorage()
+    scheduleSave()
     return newRound.id
   }
 
@@ -345,7 +349,7 @@ export const useQuizStore = defineStore('quiz', () => {
     const quest = findQuest(questId)
     const round = findRound(quest, roundId)
     Object.assign(round, payload)
-    await saveToStorage()
+    scheduleSave()
   }
 
   async function replaceRound(questId: string, round: Round) {
@@ -353,13 +357,13 @@ export const useQuizStore = defineStore('quiz', () => {
     const index = quest.rounds.findIndex(r => r.id === round.id)
     if (index === -1) throw new Error('Round not found')
     quest.rounds[index] = round
-    await saveToStorage()
+    scheduleSave()
   }
 
   async function deleteRound(questId: string, roundId: string) {
     const quest = findQuest(questId)
     quest.rounds = quest.rounds.filter(r => r.id !== roundId)
-    await saveToStorage()
+    scheduleSave()
   }
 
   // Category actions ---------------------------------------------------------
@@ -379,7 +383,7 @@ export const useQuizStore = defineStore('quiz', () => {
       questions: []
     }
     round.categories.push(newCategory)
-    await saveToStorage()
+    scheduleSave()
     return newCategory.id
   }
 
@@ -388,7 +392,7 @@ export const useQuizStore = defineStore('quiz', () => {
     const round = findRound(quest, roundId)
     const category = findCategory(round, categoryId)
     Object.assign(category, payload)
-    await saveToStorage()
+    scheduleSave()
   }
 
   async function replaceCategory(questId: string, roundId: string, category: Category) {
@@ -397,14 +401,14 @@ export const useQuizStore = defineStore('quiz', () => {
     const index = round.categories.findIndex(c => c.id === category.id)
     if (index === -1) throw new Error('Category not found')
     round.categories[index] = category
-    await saveToStorage()
+    scheduleSave()
   }
 
   async function deleteCategory(questId: string, roundId: string, categoryId: string) {
     const quest = findQuest(questId)
     const round = findRound(quest, roundId)
     round.categories = round.categories.filter(c => c.id !== categoryId)
-    await saveToStorage()
+    scheduleSave()
   }
 
   // Question actions ---------------------------------------------------------
@@ -440,7 +444,7 @@ export const useQuizStore = defineStore('quiz', () => {
       answerMedia: []
     }
     category.questions.push(newQuestion)
-    await saveToStorage()
+    scheduleSave()
     return newQuestion.id
   }
 
@@ -465,7 +469,7 @@ export const useQuizStore = defineStore('quiz', () => {
     // Остальные поля обновляем через Object.assign
     const { questionMedia, answerMedia, ...rest } = payload
     Object.assign(question, rest)
-    await saveToStorage()
+    scheduleSave()
   }
 
   async function replaceQuestion(
@@ -480,7 +484,7 @@ export const useQuizStore = defineStore('quiz', () => {
     const index = category.questions.findIndex(q => q.id === question.id)
     if (index === -1) throw new Error('Question not found')
     category.questions[index] = question
-    await saveToStorage()
+    scheduleSave()
   }
 
   async function deleteQuestion(
@@ -493,7 +497,7 @@ export const useQuizStore = defineStore('quiz', () => {
     const round = findRound(quest, roundId)
     const category = findCategory(round, categoryId)
     category.questions = category.questions.filter(q => q.id !== questionId)
-    await saveToStorage()
+    scheduleSave()
   }
 
   async function appendQuestionMedia(
@@ -509,24 +513,28 @@ export const useQuizStore = defineStore('quiz', () => {
     const round = findRound(quest, roundId)
     const category = findCategory(round, categoryId)
     const question = findQuestion(category, questionId)
+    const sessionStore = useGameSessionStore()
+    const userId = sessionStore.userProfile?.id ?? ''
 
-    const promises = Array.from(files).map(
-      file =>
-        new Promise<MediaAsset>((resolve, reject) => {
-          const reader = new FileReader()
-          reader.onload = () => {
-            resolve(createMediaAsset(file, String(reader.result)))
-          }
-          reader.onerror = reject
-          reader.readAsDataURL(file)
-        })
-    )
+    const mediaAssets: MediaAsset[] = []
+    for (const file of Array.from(files)) {
+      const mediaId = generateId('media')
+      const storageUrl = userId && isSupabaseConfigured
+        ? await uploadQuestMedia(questId, userId, file, mediaId)
+        : null
+      const url = storageUrl ?? await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onload = () => resolve(String(reader.result))
+        reader.onerror = reject
+        reader.readAsDataURL(file)
+      })
+      const asset = createMediaAsset(file, url, mediaId)
+      mediaAssets.push(asset)
+    }
 
-    const mediaAssets = await Promise.all(promises)
     const key = target === 'question' ? 'questionMedia' : 'answerMedia'
     const current = question[key] ?? []
-    
-    // Для первого изображения в вопросе устанавливаем delay = 0
+
     if (target === 'question') {
       const imageAssets = current.filter(m => m.type === 'image')
       mediaAssets.forEach((asset, index) => {
@@ -535,9 +543,9 @@ export const useQuizStore = defineStore('quiz', () => {
         }
       })
     }
-    
+
     question[key] = [...current, ...mediaAssets]
-    await saveToStorage()
+    scheduleSave()
     return mediaAssets
   }
 
@@ -556,7 +564,7 @@ export const useQuizStore = defineStore('quiz', () => {
     const key = target === 'question' ? 'questionMedia' : 'answerMedia'
     const current = question[key] ?? []
     question[key] = current.filter(item => item.id !== mediaId)
-    await saveToStorage()
+    scheduleSave()
   }
 
   async function markQuestionAsPlayed(
@@ -585,7 +593,7 @@ export const useQuizStore = defineStore('quiz', () => {
       }
     }
     
-    await saveToStorage()
+    scheduleSave()
   }
 
   async function resetRoundProgress(questId: string, roundId: string) {
@@ -608,7 +616,7 @@ export const useQuizStore = defineStore('quiz', () => {
       }
     }
     
-    await saveToStorage()
+    scheduleSave()
   }
 
   async function resetQuestProgress(questId: string) {
@@ -633,7 +641,7 @@ export const useQuizStore = defineStore('quiz', () => {
       }
     }
     
-    await saveToStorage()
+    scheduleSave()
     await sessionStore.syncSessionQuestSnapshot(questId, quest)
   }
 
@@ -647,7 +655,7 @@ export const useQuizStore = defineStore('quiz', () => {
       const data = JSON.parse(json)
       if (Array.isArray(data)) {
         quests.value = data
-        saveToStorage()
+        scheduleSave()
         return true
       }
       return false
@@ -773,6 +781,8 @@ export const useQuizStore = defineStore('quiz', () => {
     isLoading,
     loadFromStorage,
     saveToStorage,
+    scheduleSave,
+    flushSave,
     initializeSubscription,
     getQuestById,
     getRoundById,

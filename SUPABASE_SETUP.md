@@ -23,6 +23,20 @@
 - `game_sessions` - игровые сессии
 - `quest_progress` - прогресс прохождения квестов
 
+### 2.1. Создайте Storage bucket для медиа квестов (рекомендуется)
+
+Чтобы избежать таймаутов при сохранении квестов с аудио/изображениями:
+
+1. В Supabase Dashboard откройте **Storage**
+2. Нажмите **New bucket**
+3. Имя: `quest-media`
+4. Включите **Public bucket** (доступ по публичным URL)
+5. Сохраните
+
+Если bucket не создан, медиа будет сохраняться в JSON как base64 (возможны таймауты на больших квестах).
+
+**Политика загрузки:** выполните скрипт `scripts/create-quest-media-storage-policy.sql` в SQL Editor (разрешит anon загружать файлы в bucket).
+
 ### 3. Получите ключи API
 
 1. В Supabase Dashboard перейдите в **Settings** → **API**

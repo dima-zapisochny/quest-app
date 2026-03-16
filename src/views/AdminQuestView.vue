@@ -191,16 +191,17 @@ async function loadQuestIfNeeded() {
   }
 }
 
-/** Периодическое сохранение всего квеста (все поля) в БД */
-const AUTO_SAVE_INTERVAL_MS = 25_000
+/** Периодическое сохранение в БД (дебаунс в store; тут только принудительный flush раз в N сек) */
+const AUTO_SAVE_INTERVAL_MS = 60_000
 let autoSaveTimerId: ReturnType<typeof setInterval> | null = null
 
 async function saveFullQuest() {
   const q = quest.value
   if (!q) return
   try {
-    await store.replaceQuest(q)
-    console.log('[AdminQuest] Весь квест сохранён:', q.title || q.id)
+    store.replaceQuest(q)
+    await store.flushSave()
+    console.log('[AdminQuest] Квест збережено:', q.title || q.id)
   } catch (e) {
     console.warn('[AdminQuest] Auto-save failed:', e)
   }
