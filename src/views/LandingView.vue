@@ -451,12 +451,10 @@ function stopIntro() {
   }
 }
 
-// Настраиваем музыку только если пользователь действительно на странице авторизации
+// Музика та анімація Q u i z Q u e s t стартують одночасно при завантаженні головної
 function setupMusic() {
-  // Если уже редиректили, не запускаем музыку
   if (shouldRedirect.value) return
-  
-  // Fallback: показываем subtitle через 3 секунды, даже если музыка не запустилась
+
   fallbackTimeout = window.setTimeout(() => {
     if (!subtitleVisible.value && !shouldRedirect.value) {
       subtitleVisible.value = true
@@ -464,50 +462,28 @@ function setupMusic() {
     }
     fallbackTimeout = null
   }, 3000)
-  
-  // НЕ запускаем музыку автоматически - только после взаимодействия пользователя
-  // Это критично для политики автоплея браузеров - AudioContext должен быть создан/возобновлен после жеста пользователя
+
+  // Одразу запускаємо анімацію та музику разом (браузер може призупинити AudioContext — тоді звук піде після першого кліку)
+  playIntro()
+
   const interactionHandler = async () => {
-    if (!shouldRedirect.value && !isThemePlaying.value && !hasPlayedIntro) {
-      // Создаем AudioContext только после взаимодействия пользователя
-      if (!audioCtx || audioCtx.state === 'closed') {
-        audioCtx = new AudioContext()
+    if (shouldRedirect.value) return
+    if (audioCtx && audioCtx.state === 'suspended') {
+      try {
+        await audioCtx.resume()
+      } catch (e) {
+        console.warn('Failed to resume AudioContext:', e)
       }
-      // Возобновляем контекст, если он приостановлен
-      if (audioCtx.state === 'suspended') {
-        try {
-          await audioCtx.resume()
-        } catch (error) {
-          console.warn('Failed to resume AudioContext after interaction:', error)
-          // Если не удалось возобновить, создаем новый контекст
-          const oldCtx = audioCtx
-          try {
-            if (oldCtx && oldCtx.state !== 'closed') {
-              oldCtx.close()
-            }
-          } catch (e) {
-            // Игнорируем ошибки
-          }
-          audioCtx = new AudioContext()
-          if (audioCtx.state === 'suspended') {
-            await audioCtx.resume()
-          }
-        }
-      }
-      // Теперь запускаем музыку после успешного создания/возобновления контекста
+    }
+    if (!hasPlayedIntro && !isThemePlaying.value) {
       await playIntro()
     }
   }
-  
-  // Добавляем обработчики для разных типов взаимодействий
-  // Используем { once: true } чтобы обработчик сработал только один раз
+
   window.addEventListener('pointerdown', interactionHandler, { once: true, passive: true })
   window.addEventListener('click', interactionHandler, { once: true, passive: true })
   window.addEventListener('keydown', interactionHandler, { once: true })
   window.addEventListener('touchstart', interactionHandler, { once: true, passive: true })
-  
-  // Также показываем анимацию заголовка сразу, даже без музыки
-  animateTitle.value = true
 }
 
 onBeforeUnmount(() => {

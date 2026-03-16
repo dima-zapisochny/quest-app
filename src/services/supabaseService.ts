@@ -60,11 +60,11 @@ export async function upsertUserProfile(profile: UserProfile): Promise<UserProfi
 // Quests
 // ============================================================================
 
-/** Список квестів без поля data (легке завантаження, без медіа). */
+/** Список квестів з полем data (раунди/питання), щоб на головній і після оновлення сторінки показувались коректні кількості. */
 export async function getQuestList(userId: string): Promise<Quest[]> {
   const { data, error } = await supabase
     .from('quests')
-    .select('id, title, description, user_id, created_at, updated_at')
+    .select('id, title, description, user_id, created_at, updated_at, data')
     .eq('user_id', userId)
     .order('created_at', { ascending: false })
 
@@ -73,10 +73,14 @@ export async function getQuestList(userId: string): Promise<Quest[]> {
     return []
   }
 
-  return (data || []).map(
-    (row: { id: string; title: string; description?: string | null; user_id: string; created_at?: string; updated_at?: string }) =>
-      ({ id: row.id, title: row.title, description: row.description ?? undefined, rounds: undefined } as Quest)
-  )
+  return (data || []).map((row: { id: string; title: string; description?: string | null; user_id: string; data?: Quest | null }) => {
+    const q = row.data
+    if (!q || typeof q !== 'object') {
+      return { id: row.id, title: row.title, description: row.description ?? undefined, rounds: [] } as Quest
+    }
+    const rounds = Array.isArray((q as Quest).rounds) ? (q as Quest).rounds : []
+    return { ...q, id: row.id, title: row.title ?? (q as Quest).title, description: row.description ?? (q as Quest).description ?? undefined, rounds } as Quest
+  })
 }
 
 /** Повний список квестів з data (важкий, усі медіа в JSON). */
