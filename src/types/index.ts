@@ -80,6 +80,8 @@ export type ActiveQuestionState = {
   buzzedOrder: string[]
   currentResponderId: string | null
   responderStartedAt: number | null
+  /** Клієнтський timestamp натискання «Відповісти» — для визначення, хто натиснув першим при гонці запитів */
+  responderClientTs?: number | null
 }
 
 export type GameSession = {

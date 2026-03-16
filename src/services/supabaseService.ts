@@ -400,12 +400,13 @@ export async function updateSession(
   return updated
 }
 
-/** Атомарный buzz: первый запрос получает право ответа (currentResponderId), остальные попадают в очередь. Вызывать с клиента участника. */
-export async function tryBuzz(sessionId: string, playerId: string): Promise<GameSession | null> {
+/** Атомарный buzz: по clientTimestamp выигрывает тот, кто нажал раньше (устраняет гонку из-за порядка запросов). Вызывать с клиента участника. */
+export async function tryBuzz(sessionId: string, playerId: string, clientTimestamp?: number): Promise<GameSession | null> {
   ensureSupabaseConfigured()
   const { data, error } = await supabase.rpc('try_buzz', {
     p_session_id: sessionId,
-    p_player_id: playerId
+    p_player_id: playerId,
+    p_client_ts: clientTimestamp ?? null
   })
 
   if (error) {

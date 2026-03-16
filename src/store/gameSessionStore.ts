@@ -714,8 +714,9 @@ export const useGameSessionStore = defineStore('game-session', () => {
       return
     }
 
-    // Атомарный buzz в БД: первый запрос получает право ответа, остальные — в очередь (нет гонки).
-    const updated = await tryBuzzInDb(sessionId, playerId)
+    // Клиентский timestamp: хто натиснув раніше за своїм часом — той і відповідає (усуває гонку через порядок запитів).
+    const clientTs = typeof Date.now === 'function' ? Date.now() : 0
+    const updated = await tryBuzzInDb(sessionId, playerId, clientTs)
     if (updated) {
       updateSessionInArray(updated)
       return
