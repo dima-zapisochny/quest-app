@@ -718,12 +718,22 @@ watch(
   { immediate: true }
 )
 
+const SESSION_POLL_MS = 4000
+let sessionPollInterval: ReturnType<typeof setInterval> | null = null
+
 onMounted(async () => {
   buildLeaderboardFromSession()
 
   // Встановити активний раунд для сесії, якщо ще не встановлено
   if (session.value && !session.value.roundId && quest.value?.rounds?.length) {
     sessionStore.setActiveRound(session.value.id, quest.value.rounds[0].id)
+  }
+
+  // Періодично оновлювати сесію з сервера, щоб нові учасники з’являлись без перезавантаження (fallback якщо Realtime не спрацював)
+  if (session.value?.id) {
+    sessionPollInterval = setInterval(() => {
+      if (session.value?.id) sessionStore.refreshSessionFromServer(session.value!.id)
+    }, SESSION_POLL_MS)
   }
 
   // Завантажуємо список (якщо треба) і повний квест для перегляду/гри
@@ -783,6 +793,10 @@ watch(
 
 onBeforeUnmount(() => {
   leaderboardState.value = []
+  if (sessionPollInterval) {
+    clearInterval(sessionPollInterval)
+    sessionPollInterval = null
+  }
 })
 
 watch(

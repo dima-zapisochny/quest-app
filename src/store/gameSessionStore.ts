@@ -1187,6 +1187,21 @@ export const useGameSessionStore = defineStore('game-session', () => {
     return null
   }
 
+  /** Оновлює сесію з сервера (fallback, якщо Realtime не прийшов — щоб учасники з’являлись у списку без перезавантаження). */
+  async function refreshSessionFromServer(sessionId: string): Promise<void> {
+    const session = await getSessionByIdFromDb(sessionId)
+    if (!session) return
+    const idx = sessions.value.findIndex(s => s.id === sessionId)
+    if (idx < 0) return
+    const local = sessions.value[idx]
+    // Не перезаписуємо quest з сервера: у БД quest_data оновлюється лише при syncSessionQuestSnapshot,
+    // тому з сервера приходить старий снапшот без played — беремо гравців/стан з сервера, квест — з локальної сесії
+    if (local.quest?.rounds?.length) {
+      session.quest = local.quest
+    }
+    updateSessionInArray(session)
+  }
+
   const sessionList = computed(() => sessions.value)
 
   return {
@@ -1221,6 +1236,7 @@ export const useGameSessionStore = defineStore('game-session', () => {
     checkActivePlayerSession,
     checkActiveHostSession,
     checkActiveSession,
-    getCurrentDevicePlayer
+    getCurrentDevicePlayer,
+    refreshSessionFromServer
   }
 })
