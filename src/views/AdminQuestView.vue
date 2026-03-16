@@ -127,9 +127,12 @@ const sessionStore = useGameSessionStore()
 
 const quest = computed(() => store.getQuestById(props.questId))
 
+const isLoadingFullQuest = ref(false)
 const showLoading = computed(() => {
   if (store.isLoading) return true
-  if (quest.value) return false
+  if (isLoadingFullQuest.value) return true
+  if (quest.value?.rounds) return false
+  if (quest.value && !quest.value.rounds) return true
   if (!sessionStore.userProfile?.id) return false
   if (store.quests.length > 0) return false
   return true
@@ -183,11 +186,19 @@ const questStats = computed(() => {
   }
 })
 
-// Загружаем квест из базы данных, если его нет в store
+// Завантажуємо список квестів (якщо ще не завантажено) і повний квест для редагування
 async function loadQuestIfNeeded() {
+  if (!props.questId) return
   if (!quest.value) {
-    // Пытаемся загрузить квест из базы данных
     await store.loadFromStorage()
+  }
+  if (!quest.value?.rounds) {
+    isLoadingFullQuest.value = true
+    try {
+      await store.loadQuestFull(props.questId)
+    } finally {
+      isLoadingFullQuest.value = false
+    }
   }
 }
 

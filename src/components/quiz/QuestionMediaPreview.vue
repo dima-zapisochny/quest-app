@@ -1,23 +1,44 @@
 <template>
-  <figure :class="['media-card', media.type]">
+  <figure :class="['media-card', media.type, { 'media-error': loadError }]">
     <div v-if="media.type === 'image'" class="image-wrapper">
-      <img :src="media.url" :alt="media.name" loading="lazy" />
+      <img
+        v-if="mediaUrl && !loadError"
+        :src="mediaUrl"
+        :alt="media.name"
+        loading="lazy"
+        @error="loadError = true"
+      />
+      <div v-else-if="loadError" class="media-placeholder">Изображение не загружено</div>
+      <div v-else class="media-placeholder">Нет изображения</div>
     </div>
     <div v-else class="audio-wrapper">
-      <audio :src="media.url" controls preload="metadata"></audio>
+      <audio
+        v-if="mediaUrl && !loadError"
+        :src="mediaUrl"
+        controls
+        preload="none"
+        @error="loadError = true"
+      ></audio>
+      <div v-else-if="loadError" class="media-placeholder">Аудио не загружено</div>
+      <div v-else class="media-placeholder">Нет аудио</div>
     </div>
     <figcaption class="media-name">{{ media.name }}</figcaption>
   </figure>
 </template>
 
 <script setup lang="ts">
+import { ref, computed } from 'vue'
 import type { MediaAsset } from '@/types'
+import { safeMediaUrl } from '@/utils/mediaUrl'
 
 interface Props {
   media: MediaAsset
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
+const loadError = ref(false)
+
+const mediaUrl = computed(() => safeMediaUrl(props.media?.url) ?? null)
 </script>
 
 <style scoped>
@@ -61,6 +82,19 @@ audio {
   text-align: center;
   color: #94a3b8;
   word-break: break-word;
+}
+
+.media-placeholder {
+  padding: 1rem;
+  text-align: center;
+  color: #64748b;
+  font-size: 0.8rem;
+  background: rgba(15, 23, 42, 0.5);
+  border-radius: 0.5rem;
+}
+
+.media-card.media-error .media-placeholder {
+  color: #94a3b8;
 }
 
 @media (max-width: 768px) {

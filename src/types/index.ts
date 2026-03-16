@@ -19,8 +19,16 @@ export type Question = {
     playerName: string
     playerAvatar: string
   }
+  /** Lightweight: single image URL (Supabase Storage). Prefer over questionMedia for display. */
+  imageUrl?: string | null
+  /** Lightweight: single audio URL (Supabase Storage). Prefer over questionMedia for display. */
+  audioUrl?: string | null
   questionMedia?: MediaAsset[]
   answerMedia?: MediaAsset[]
+  /** Lightweight: single image URL for answer reveal. */
+  answerImageUrl?: string | null
+  /** Lightweight: single audio URL for answer reveal. */
+  answerAudioUrl?: string | null
 }
 
 export type Category = {
@@ -40,7 +48,8 @@ export type Quest = {
   id: string
   title: string
   description?: string
-  rounds: Round[]
+  /** Відсутній або порожній — квест завантажений лише для списку; повний квест підвантажується через loadQuestFull */
+  rounds?: Round[]
 }
 
 export type UserProfile = {

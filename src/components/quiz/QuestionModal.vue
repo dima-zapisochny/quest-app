@@ -221,6 +221,7 @@ import QuestionMediaPreview from './QuestionMediaPreview.vue'
 import { useGameSessionStore } from '@/store/gameSessionStore'
 import { useQuizStore } from '@/store/quizStore'
 import type { Question, Player } from '@/types'
+import { safeMediaUrl } from '@/utils/mediaUrl'
 
 interface Props {
   isOpen: boolean
@@ -291,37 +292,43 @@ const currentResponder = computed(() => {
   return null
 })
 
+// Lightweight URLs (single imageUrl/audioUrl) or from questionMedia arrays
+const questionImageUrl = computed(() => props.question?.imageUrl ?? null)
+const questionAudioUrl = computed(() => props.question?.audioUrl ?? null)
+
 // Проверка наличия картинки в медиа вопроса
 const hasQuestionImage = computed(() => {
-  return props.question?.questionMedia?.some(media => media.type === 'image') ?? false
+  return !!questionImageUrl.value || (props.question?.questionMedia?.some(media => media.type === 'image') ?? false)
 })
 
-// Фильтрация медиа: только изображения
+// Фильтрация медиа: только изображения (или один imageUrl)
 const questionMediaImages = computed(() => {
+  if (questionImageUrl.value) {
+    return [{ id: 'img0', type: 'image' as const, name: 'Image', url: questionImageUrl.value }]
+  }
   return props.question?.questionMedia?.filter(media => media.type === 'image') ?? []
 })
 
-// Видимые изображения с учетом задержки
+// Видимые изображения с учетом задержки (включая легкий imageUrl)
 const visibleImages = computed(() => {
-  if (!questionOpenedAt.value) return []
-  
-  return questionMediaImages.value.filter(media => {
+  const fromUrl = props.question?.imageUrl
+    ? [{ id: 'img-url', type: 'image' as const, name: '', url: props.question.imageUrl!, delay: 0 }]
+    : []
+  if (!questionOpenedAt.value) return fromUrl
+  const fromMedia = questionMediaImages.value.filter(media => {
     const delay = media.delay ?? 0
     return elapsedTime.value >= delay
   })
+  return [...fromUrl, ...fromMedia]
 })
 
-// Фильтрация медиа: только аудио
+// Аудио для вопроса: легкий audioUrl + questionMedia (только валидные URL для воспроизведения)
 const questionMediaAudio = computed(() => {
-  if (!props.question?.questionMedia) {
-    return []
-  }
-  
-  if (!Array.isArray(props.question.questionMedia)) {
-    console.warn('questionMedia is not an array:', props.question.questionMedia)
-    return []
-  }
-  
+  const fromUrl = props.question?.audioUrl && safeMediaUrl(props.question.audioUrl)
+    ? [{ id: 'audio-url', type: 'audio' as const, name: '', url: safeMediaUrl(props.question.audioUrl)! }]
+    : []
+  if (!props.question?.questionMedia) return fromUrl
+  if (!Array.isArray(props.question.questionMedia)) return fromUrl
   const audioFiles = props.question.questionMedia.filter(media => {
     // Проверяем существование объекта
     if (!media || typeof media !== 'object') {
@@ -384,23 +391,28 @@ const questionMediaAudio = computed(() => {
         return false
       }
     }
-    
     return true
   })
-  
-  return audioFiles
+  return [...fromUrl, ...audioFiles]
 })
 
-// Изображения в ответе (только для media-grid)
+// Изображения в ответе (включая легкий answerImageUrl)
 const answerMediaImages = computed(() => {
-  return props.question?.answerMedia?.filter(m => m?.type === 'image') ?? []
+  const fromUrl = props.question?.answerImageUrl
+    ? [{ id: 'ans-img-url', type: 'image' as const, name: '', url: props.question.answerImageUrl! }]
+    : []
+  const fromMedia = props.question?.answerMedia?.filter(m => m?.type === 'image') ?? []
+  return [...fromUrl, ...fromMedia]
 })
 
-// Аудио в ответе (для блока с проигрывателем)
+// Аудио в ответе (включая легкий answerAudioUrl)
 const answerMediaAudio = computed(() => {
+  const fromUrl = props.question?.answerAudioUrl && safeMediaUrl(props.question.answerAudioUrl)
+    ? [{ id: 'ans-audio-url', type: 'audio' as const, name: '', url: props.question.answerAudioUrl }]
+    : []
   const list = props.question?.answerMedia ?? []
-  if (!Array.isArray(list)) return []
-  return list.filter((media): media is import('@/types').MediaAsset => {
+  if (!Array.isArray(list)) return fromUrl
+  const fromMedia = list.filter((media): media is import('@/types').MediaAsset => {
     if (!media || media.type !== 'audio' || !media.url || typeof media.url !== 'string') return false
     const url = media.url.trim()
     if (!url || url === 'data:' || url.startsWith('data:,')) return false
@@ -417,6 +429,7 @@ const answerMediaAudio = computed(() => {
       return false
     }
   })
+  return [...fromUrl, ...fromMedia]
 })
 
 // Проверка наличия валидного аудио

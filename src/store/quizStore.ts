@@ -4,7 +4,7 @@ import type { Quest, Round, Category, Question, MediaAsset } from '@/types'
 import { generateId } from '@/utils/id'
 import { isSupabaseConfigured } from '@/config/supabase'
 import {
-  getAllQuests,
+  getQuestList,
   getQuestById as getQuestByIdFromDb,
   getQuestByIdGlobal,
   createQuest as createQuestInDb,
@@ -93,9 +93,8 @@ export const useQuizStore = defineStore('quiz', () => {
       const userId = sessionStore.userProfile?.id
 
       if (userId && isSupabaseConfigured) {
-        quests.value = await getAllQuests(userId)
-        console.log('📂 [Quest] Loaded from DB:', quests.value.length, 'quests')
-        await loadQuestProgress()
+        quests.value = await getQuestList(userId)
+        console.log('📂 [Quest] Loaded list from DB:', quests.value.length, 'quests (without media)')
       } else {
         quests.value = []
         console.log('📂 [Quest] No user or Supabase — quests empty')
@@ -111,31 +110,46 @@ export const useQuizStore = defineStore('quiz', () => {
     }
   }
 
-  async function loadQuestProgress() {
+  /** Застосовує прогрес до одного квеста (викликається з loadQuestFull). */
+  function applyProgressToQuest(quest: Quest, progress: { roundId: string; categoryId: string; questionId: string }[]) {
+    if (!quest.rounds) return
+    progress.forEach(p => {
+      const round = quest.rounds!.find(r => r.id === p.roundId)
+      if (round) {
+        const category = round.categories.find(c => c.id === p.categoryId)
+        if (category) {
+          const question = category.questions.find(q => q.id === p.questionId)
+          if (question) question.played = true
+        }
+      }
+    })
+  }
+
+  /** Підвантажує повний квест з медіа по id і зливає в store (для сторінки редагування/гри). */
+  async function loadQuestFull(questId: string): Promise<Quest | null> {
     const sessionStore = useGameSessionStore()
     const userId = sessionStore.userProfile?.id
-    if (!userId) return
+    if (!userId && !isSupabaseConfigured) return null
 
-    for (const quest of quests.value) {
+    let quest: Quest | null = userId
+      ? await getQuestByIdFromDb(questId, userId)
+      : null
+    if (!quest) quest = await getQuestByIdGlobal(questId)
+    if (!quest) return null
+
+    if (userId) {
       try {
-        const progress = await getQuestProgressFromDb(quest.id, userId)
-        // Применяем прогресс к квесту
-        progress.forEach(p => {
-          const round = quest.rounds.find(r => r.id === p.roundId)
-          if (round) {
-            const category = round.categories.find(c => c.id === p.categoryId)
-            if (category) {
-              const question = category.questions.find(q => q.id === p.questionId)
-              if (question) {
-                question.played = true
-              }
-            }
-          }
-        })
-      } catch (error) {
-        console.error(`Failed to load progress for quest ${quest.id}:`, error)
+        const progress = await getQuestProgressFromDb(questId, userId)
+        applyProgressToQuest(quest, progress)
+      } catch (e) {
+        console.warn('Failed to load quest progress:', e)
       }
     }
+
+    const idx = quests.value.findIndex(q => q.id === questId)
+    if (idx >= 0) quests.value[idx] = quest
+    else quests.value.push(quest)
+    return quest
   }
 
   // Инициализация при создании store
@@ -192,6 +206,7 @@ export const useQuizStore = defineStore('quiz', () => {
   }
 
   function findRound(quest: Quest, roundId: string) {
+    if (!quest.rounds) throw new Error('Quest data not loaded (call loadQuestFull first)')
     const round = quest.rounds.find(r => r.id === roundId)
     if (!round) throw new Error('Round not found')
     return round
@@ -216,7 +231,7 @@ export const useQuizStore = defineStore('quiz', () => {
 
   const getRoundById = computed(() => (questId: string, roundId: string) => {
     const quest = quests.value.find(q => q.id === questId)
-    if (!quest) return undefined
+    if (!quest?.rounds) return undefined
     return quest.rounds.find(r => r.id === roundId)
   })
 
@@ -780,6 +795,7 @@ export const useQuizStore = defineStore('quiz', () => {
     quests,
     isLoading,
     loadFromStorage,
+    loadQuestFull,
     saveToStorage,
     scheduleSave,
     flushSave,

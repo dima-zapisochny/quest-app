@@ -723,22 +723,18 @@ onMounted(async () => {
     sessionStore.setActiveRound(session.value.id, quest.value.rounds[0].id)
   }
 
-  // Загружаем квест, если его нет в store
-  if (!quest.value) {
+  // Завантажуємо список (якщо треба) і повний квест для перегляду/гри
+  if (!quest.value || !quest.value.rounds) {
     try {
       isLoadingQuest.value = true
-      await quizStore.loadFromStorage()
-      // Ждем немного, чтобы дать время на загрузку
-      await new Promise(resolve => setTimeout(resolve, 500))
-      
-      // Если квест все еще не найден после загрузки, редиректим
-      if (!quest.value) {
+      if (!quizStore.quests.length) await quizStore.loadFromStorage()
+      if (questId.value) await quizStore.loadQuestFull(questId.value)
+      if (!quest.value?.rounds) {
         router.replace({ name: 'host-setup' })
         return
       }
     } catch (error) {
       console.error('Error loading quest:', error)
-      // При ошибке загрузки редиректим на страницу со списком квестов
       router.replace({ name: 'host-setup' })
       return
     } finally {
@@ -749,28 +745,23 @@ onMounted(async () => {
   }
 })
 
-// Отслеживаем изменение questId в маршруте
+// Відстежуємо зміну questId — підвантажуємо повний квест за потреби
 watch(
   () => questId.value,
   async (newQuestId) => {
-    if (!quest.value) {
+    if (!newQuestId) return
+    if (!quest.value?.rounds) {
       isLoadingQuest.value = true
       try {
-        await quizStore.loadFromStorage()
-        await new Promise(resolve => setTimeout(resolve, 300))
-        if (!quest.value) {
-          router.replace({ name: 'host-setup' })
-        } else {
-          isLoadingQuest.value = false
-        }
+        if (!quizStore.quests.length) await quizStore.loadFromStorage()
+        await quizStore.loadQuestFull(newQuestId)
+        if (!quest.value?.rounds) router.replace({ name: 'host-setup' })
       } catch (error) {
         console.error('Error loading quest:', error)
         router.replace({ name: 'host-setup' })
       } finally {
         isLoadingQuest.value = false
       }
-    } else {
-      isLoadingQuest.value = false
     }
   },
   { immediate: true }

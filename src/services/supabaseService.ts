@@ -60,6 +60,26 @@ export async function upsertUserProfile(profile: UserProfile): Promise<UserProfi
 // Quests
 // ============================================================================
 
+/** Список квестів без поля data (легке завантаження, без медіа). */
+export async function getQuestList(userId: string): Promise<Quest[]> {
+  const { data, error } = await supabase
+    .from('quests')
+    .select('id, title, description, user_id, created_at, updated_at')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+
+  if (error) {
+    console.error('Error fetching quest list:', error)
+    return []
+  }
+
+  return (data || []).map(
+    (row: { id: string; title: string; description?: string | null; user_id: string; created_at?: string; updated_at?: string }) =>
+      ({ id: row.id, title: row.title, description: row.description ?? undefined, rounds: undefined } as Quest)
+  )
+}
+
+/** Повний список квестів з data (важкий, усі медіа в JSON). */
 export async function getAllQuests(userId: string): Promise<Quest[]> {
   const { data, error } = await supabase
     .from('quests')
@@ -72,7 +92,7 @@ export async function getAllQuests(userId: string): Promise<Quest[]> {
     return []
   }
 
-  return data.map(row => row.data as Quest)
+  return (data || []).map((row: { data: Quest }) => row.data as Quest)
 }
 
 export async function getQuestById(questId: string, userId: string): Promise<Quest | null> {
@@ -88,8 +108,8 @@ export async function getQuestById(questId: string, userId: string): Promise<Que
     console.error('Error fetching quest:', error)
     return null
   }
-
-  return data.data as Quest
+  if (!data) return null
+  return (data as { data: Quest }).data
 }
 
 function logSupabaseError(context: string, error: unknown): void {
@@ -433,7 +453,7 @@ export async function uploadQuestMedia(
     contentType: file.type || undefined
   })
   if (error) {
-    console.warn('[Supabase] Upload quest media failed:', error)
+    console.warn('[Supabase] Upload quest media failed:', error.message, { code: (error as { error?: string }).error, path, size: file.size })
     return null
   }
   const { data } = supabase.storage.from(QUEST_MEDIA_BUCKET).getPublicUrl(path)
