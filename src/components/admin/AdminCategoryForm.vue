@@ -45,7 +45,7 @@
               </svg>
             </span>
             <span class="accordion-title">
-              {{ question.question?.trim() || 'Без названия' }}
+              {{ questionTitleForAccordion(question.question) }}
             </span>
             <span class="accordion-value">{{ question.value }} баллов</span>
           </button>
@@ -101,6 +101,14 @@ defineEmits<{
 
 const props = defineProps<Props>()
 const store = useQuizStore()
+
+/** Для заголовка в акордеоні: ігноруємо <br>, замінюємо на пробіл */
+function questionTitleForAccordion(raw: string | null | undefined): string {
+  if (raw == null || typeof raw !== 'string') return 'Без названия'
+  const t = raw.trim()
+  if (!t) return 'Без названия'
+  return t.replace(/<br\s*\/?>/gi, ' ')
+}
 
 const openQuestionId = ref<string | null>(null)
 const isAddingQuestion = ref(false)
