@@ -444,13 +444,18 @@ export async function markQuestionAsPlayed(
 ): Promise<void> {
   const { error } = await supabase
     .from('quest_progress')
-    .upsert({
-      quest_id: questId,
-      user_id: userId,
-      round_id: roundId,
-      category_id: categoryId,
-      question_id: questionId
-    })
+    .upsert(
+      {
+        quest_id: questId,
+        user_id: userId,
+        round_id: roundId,
+        category_id: categoryId,
+        question_id: questionId
+      },
+      {
+        onConflict: 'quest_id,round_id,category_id,question_id,user_id'
+      }
+    )
 
   if (error) {
     console.error('Error marking question as played:', error)
