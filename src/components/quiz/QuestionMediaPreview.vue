@@ -22,7 +22,9 @@
       <div v-else-if="loadError" class="media-placeholder">Аудио не загружено</div>
       <div v-else class="media-placeholder">Нет аудио</div>
     </div>
-    <figcaption class="media-name">{{ media.name }}</figcaption>
+    <!-- Якщо медіа не має валідного URL (safeMediaUrl повернув null), не показуємо підпис,
+         щоб "нет изображения"/ім'я не з'являлось як зайвий текст. -->
+    <figcaption v-if="mediaUrl || loadError" class="media-name">{{ media.name }}</figcaption>
   </figure>
 </template>
 
