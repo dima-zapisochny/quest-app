@@ -27,7 +27,8 @@
                 />
               </TransitionGroup>
             </div>
-            <div v-if="hasAudio" class="audio-controls">
+            <!-- В питанні не должно быть одновременно и изображения, и аудио -->
+            <div v-if="hasAudio && visibleImages.length === 0" class="audio-controls">
               <div
                 v-for="audio in questionMediaAudio"
                 :key="audio.id"
@@ -154,7 +155,8 @@
                   :media="media"
                 />
               </div>
-              <div v-if="answerMediaAudio.length" class="audio-controls">
+              <!-- В ответе не должно быть одновременно и изображения, и аудио -->
+              <div v-if="answerMediaAudio.length && answerMediaImages.length === 0" class="audio-controls">
                 <div
                   v-for="audio in answerMediaAudio"
                   :key="audio.id"
@@ -303,16 +305,21 @@ const hasQuestionImage = computed(() => {
 
 // Фильтрация медиа: только изображения (или один imageUrl)
 const questionMediaImages = computed(() => {
-  if (questionImageUrl.value) {
-    return [{ id: 'img0', type: 'image' as const, name: 'Image', url: questionImageUrl.value }]
+  const safeUrl = questionImageUrl.value ? safeMediaUrl(questionImageUrl.value) : null
+  if (safeUrl) {
+    return [{ id: 'img0', type: 'image' as const, name: 'Image', url: safeUrl }]
   }
-  return props.question?.questionMedia?.filter(media => media.type === 'image') ?? []
+  // Показуємо тільки те, що реально має валідний URL для <img src="...">
+  return (
+    props.question?.questionMedia?.filter((m) => m.type === 'image' && !!safeMediaUrl(m.url)) ?? []
+  )
 })
 
 // Видимые изображения с учетом задержки (включая легкий imageUrl)
 const visibleImages = computed(() => {
-  const fromUrl = props.question?.imageUrl
-    ? [{ id: 'img-url', type: 'image' as const, name: '', url: props.question.imageUrl!, delay: 0 }]
+  const safeUrl = props.question?.imageUrl ? safeMediaUrl(props.question.imageUrl) : null
+  const fromUrl = safeUrl
+    ? [{ id: 'img-url', type: 'image' as const, name: '', url: safeUrl, delay: 0 }]
     : []
   if (!questionOpenedAt.value) return fromUrl
   const fromMedia = questionMediaImages.value.filter(media => {
@@ -398,10 +405,11 @@ const questionMediaAudio = computed(() => {
 
 // Изображения в ответе (включая легкий answerImageUrl)
 const answerMediaImages = computed(() => {
-  const fromUrl = props.question?.answerImageUrl
-    ? [{ id: 'ans-img-url', type: 'image' as const, name: '', url: props.question.answerImageUrl! }]
+  const safeUrl = props.question?.answerImageUrl ? safeMediaUrl(props.question.answerImageUrl) : null
+  const fromUrl = safeUrl
+    ? [{ id: 'ans-img-url', type: 'image' as const, name: '', url: safeUrl }]
     : []
-  const fromMedia = props.question?.answerMedia?.filter(m => m?.type === 'image') ?? []
+  const fromMedia = props.question?.answerMedia?.filter((m) => m?.type === 'image' && !!safeMediaUrl(m.url)) ?? []
   return [...fromUrl, ...fromMedia]
 })
 
