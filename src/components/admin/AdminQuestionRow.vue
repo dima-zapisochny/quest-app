@@ -250,6 +250,18 @@ function handleUpload(target: 'question' | 'answer', event: Event, mediaType?: '
   
   // Для ответов: до 3 изображений и 1 аудио
   if (target === 'answer') {
+    // Не допускаем одновременно изображения и аудио
+    if (mediaType === 'image' && answerMediaAudio.value.length > 0) {
+      input.value = ''
+      alert('Для ответа можно загрузить либо изображения, либо аудио, но не оба типа одновременно')
+      return
+    }
+    if (mediaType === 'audio' && answerMediaImages.value.length > 0) {
+      input.value = ''
+      alert('Для ответа можно загрузить либо изображения, либо аудио, но не оба типа одновременно')
+      return
+    }
+
     if (mediaType === 'image' && answerMediaImages.value.length >= 3) {
       input.value = ''
       alert('Можно добавить максимум 3 изображения в ответ')
