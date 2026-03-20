@@ -998,6 +998,14 @@ onBeforeUnmount(() => {
   justify-content: center;
 }
 
+/* В режимі з картинками `question-header` і `media-grid` мають order: 1/2,
+   а `.audio-controls` інакше має дефолтний order: 0 і може "підскакувати" вище.
+   Тому примусово задаємо order для аудіо. */
+.question-body.has-visible-images .audio-controls {
+  order: 3;
+  margin-top: 0.5rem;
+}
+
 .question-body.has-visible-images .media-grid--multiple {
   justify-content: center;
   gap: 1rem;
