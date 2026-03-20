@@ -24,6 +24,11 @@ export function safeMediaUrl(url: string | null | undefined): string | null {
   const t = url.trim()
   if (t.startsWith('http://') || t.startsWith('https://')) return t
   if (t.startsWith('data:')) return t
+  // Разрешаем относительные URL (часто Storage public URL в квестах может храниться так)
+  // Пример: "/storage/v1/object/public/quest-media/..."
+  if (t.startsWith('/storage/')) return t
+  // Нормализуем "storage/..." -> "/storage/..."
+  if (t.startsWith('storage/')) return `/${t}`
   return null
 }
 
