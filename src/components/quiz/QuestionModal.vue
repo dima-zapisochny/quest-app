@@ -303,21 +303,16 @@ const hasQuestionImage = computed(() => {
 
 // Фильтрация медиа: только изображения (или один imageUrl)
 const questionMediaImages = computed(() => {
-  const safeUrl = questionImageUrl.value ? safeMediaUrl(questionImageUrl.value) : null
-  if (safeUrl) {
-    return [{ id: 'img0', type: 'image' as const, name: 'Image', url: safeUrl }]
+  if (questionImageUrl.value) {
+    return [{ id: 'img0', type: 'image' as const, name: 'Image', url: questionImageUrl.value }]
   }
-  // Показуємо тільки валідні image URL (без цього буде плейсхолдер і "з'їде" верстка)
-  return (
-    props.question?.questionMedia?.filter(m => m.type === 'image' && !!safeMediaUrl(m.url)) ?? []
-  )
+  return props.question?.questionMedia?.filter(media => media.type === 'image') ?? []
 })
 
 // Видимые изображения с учетом задержки (включая легкий imageUrl)
 const visibleImages = computed(() => {
-  const safeUrl = props.question?.imageUrl ? safeMediaUrl(props.question.imageUrl) : null
-  const fromUrl = safeUrl
-    ? [{ id: 'img-url', type: 'image' as const, name: '', url: safeUrl, delay: 0 }]
+  const fromUrl = props.question?.imageUrl
+    ? [{ id: 'img-url', type: 'image' as const, name: '', url: props.question.imageUrl!, delay: 0 }]
     : []
   if (!questionOpenedAt.value) return fromUrl
   const fromMedia = questionMediaImages.value.filter(media => {
@@ -403,10 +398,10 @@ const questionMediaAudio = computed(() => {
 
 // Изображения в ответе (включая легкий answerImageUrl)
 const answerMediaImages = computed(() => {
-  const safeUrl = props.question?.answerImageUrl ? safeMediaUrl(props.question.answerImageUrl) : null
-  const fromUrl = safeUrl ? [{ id: 'ans-img-url', type: 'image' as const, name: '', url: safeUrl }] : []
-  const fromMedia =
-    props.question?.answerMedia?.filter(m => m?.type === 'image' && !!safeMediaUrl(m.url)) ?? []
+  const fromUrl = props.question?.answerImageUrl
+    ? [{ id: 'ans-img-url', type: 'image' as const, name: '', url: props.question.answerImageUrl! }]
+    : []
+  const fromMedia = props.question?.answerMedia?.filter(m => m?.type === 'image') ?? []
   return [...fromUrl, ...fromMedia]
 })
 
