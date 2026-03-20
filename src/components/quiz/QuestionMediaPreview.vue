@@ -1,5 +1,6 @@
 <template>
-  <figure :class="['media-card', media.type, { 'media-error': loadError }]">
+  <!-- Якщо URL не валідний (safeMediaUrl повернув null), не рендеримо картку — так не лишається порожнього "квадратика". -->
+  <figure v-if="mediaUrl" :class="['media-card', media.type, { 'media-error': loadError }]">
     <div v-if="media.type === 'image'" class="image-wrapper">
       <img
         v-if="mediaUrl && !loadError"
