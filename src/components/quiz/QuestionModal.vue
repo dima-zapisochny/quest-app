@@ -591,6 +591,19 @@ watch(
   () => {
     if (props.isOpen) {
       resetModal()
+      // Якщо питання змінюється, коли модалка вже відкрита,
+      // resetModal() скидає questionOpenedAt та зупиняє interval,
+      // тому відкладені картинки з questionMedia можуть не з’являтися.
+      questionOpenedAt.value = Date.now()
+      elapsedTime.value = 0
+      if (elapsedTimeInterval) {
+        clearInterval(elapsedTimeInterval)
+      }
+      elapsedTimeInterval = window.setInterval(() => {
+        if (questionOpenedAt.value) {
+          elapsedTime.value = (Date.now() - questionOpenedAt.value) / 1000
+        }
+      }, 100) // Обновляем каждые 100мс для плавности
     }
   }
 )
