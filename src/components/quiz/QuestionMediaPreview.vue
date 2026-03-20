@@ -9,7 +9,7 @@
         @error="loadError = true"
       />
       <div v-else-if="loadError" class="media-placeholder">Изображение не загружено</div>
-      <div v-else class="media-placeholder">Нет изображения</div>
+      <div v-else class="media-placeholder"></div>
     </div>
     <div v-else class="audio-wrapper">
       <audio
