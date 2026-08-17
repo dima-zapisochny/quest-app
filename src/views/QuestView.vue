@@ -897,17 +897,15 @@ async function confirmExit() {
   
   if (session.value) {
     const sid = session.value.id
-    const qid = questId.value
     try {
-      // Сначала удаляем сессию, чтобы syncSessionQuestSnapshot не пытался обновить уже удалённую сессию
+      // Закрываем сессию. Прогресс квеста (сыгранные вопросы) НЕ трогаем (#26):
+      // выход из игры не должен молча стирать разметку. Для сброса есть отдельная
+      // кнопка «Сбросить» с собственным подтверждением.
       await sessionStore.deleteSession(sid)
       console.log('🔴 [Lifecycle] Session closed:', sid)
       sessionStore.clearActivePlayer()
-      if (qid) {
-        await quizStore.resetQuestProgress(qid)
-      }
     } catch (error) {
-      console.error('Error closing session or resetting progress:', error)
+      console.error('Error closing session:', error)
     }
   }
   

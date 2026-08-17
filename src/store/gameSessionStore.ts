@@ -323,17 +323,30 @@ export const useGameSessionStore = defineStore('game-session', () => {
       updatedAt: now()
     }
     
-    try {
-      const created = await createSessionInDb(session)
-      sessions.value.push(created)
-      console.log('🟢 [Lifecycle] Session created:', { id: created.id, code: created.code, questId: created.questId })
-      return created
-    } catch (error) {
-      console.error('Error creating session:', error)
-      // Fallback: добавляем в локальный массив
-      sessions.value.push(session)
-      throw error
+    // Код игры уникален в БД (UNIQUE). При коллизии (23505) перегенерируем код и
+    // повторяем — иначе пользователь видел сырую ошибку Postgres (#24).
+    const MAX_CODE_RETRIES = 5
+    for (let attempt = 0; attempt < MAX_CODE_RETRIES; attempt++) {
+      try {
+        const created = await createSessionInDb(session)
+        sessions.value.push(created)
+        console.log('🟢 [Lifecycle] Session created:', { id: created.id, code: created.code, questId: created.questId })
+        return created
+      } catch (error) {
+        const code = (error as { code?: string })?.code
+        const msg = (error as { message?: string })?.message ?? ''
+        const isCodeCollision = code === '23505' && /code/i.test(msg)
+        if (isCodeCollision && attempt < MAX_CODE_RETRIES - 1) {
+          session.code = generateCode()
+          console.warn('⚠️ Код игры занят, генерируем новый и повторяем:', session.code)
+          continue
+        }
+        console.error('Error creating session:', error)
+        throw error
+      }
     }
+    // недостижимо, но для типов
+    throw new Error('Не удалось создать игру: не нашлось свободного кода')
   }
 
   async function deleteSession(sessionId: string) {
