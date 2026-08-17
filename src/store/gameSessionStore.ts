@@ -10,6 +10,7 @@ import type {
 } from '@/types'
 import { useQuizStore } from './quizStore'
 import { generateId } from '@/utils/id'
+import { ensureAnonymousSession, claimLegacyData } from '@/services/auth'
 import {
   getUserProfile,
   upsertUserProfile,
@@ -51,6 +52,18 @@ export const useGameSessionStore = defineStore('game-session', () => {
   async function loadData() {
     isLoading.value = true
     try {
+      // Анонимная авторизация (закрытие RLS, #1): получаем стабильный auth uid.
+      // Если провайдер не включён — uid === null, работаем на клиентском id (без регрессии).
+      const authUid = await ensureAnonymousSession()
+      if (authUid) {
+        const legacyId = localStorage.getItem('quiz-app-user-id')
+        if (legacyId && legacyId !== authUid) {
+          // Разовая привязка старых квестов/прогресса/сессий к новому uid
+          await claimLegacyData(legacyId)
+        }
+        localStorage.setItem('quiz-app-user-id', authUid)
+      }
+
       // Загружаем профиль из localStorage (fallback) или создаем новый
       const profileId = localStorage.getItem('quiz-app-user-id')
       if (profileId) {
@@ -200,7 +213,10 @@ export const useGameSessionStore = defineStore('game-session', () => {
   }
 
   async function setUserProfile(profile: { name: string; avatar: string }) {
-    const existing = userProfile.value ?? { id: generateId('player'), name: '', avatar: '' }
+    // id профиля: сначала auth uid (сохранён loadData в quiz-app-user-id),
+    // иначе — уже существующий, иначе — клиентский fallback (без анонимной авторизации)
+    const storedId = localStorage.getItem('quiz-app-user-id')
+    const existing = userProfile.value ?? { id: storedId || generateId('player'), name: '', avatar: '' }
     const newProfile: UserProfile = {
       ...existing,
       name: profile.name.trim(),

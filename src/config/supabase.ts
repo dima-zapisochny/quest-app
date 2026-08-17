@@ -15,7 +15,10 @@ if (!isSupabaseConfigured) {
 
 export const supabase: SupabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: {
-    persistSession: false // Мы не используем Supabase Auth, только базу данных
+    // Анонимная авторизация (закрытие RLS, #1): сессию нужно хранить,
+    // чтобы auth.uid() был стабильным между перезагрузками.
+    persistSession: true,
+    autoRefreshToken: true
   },
   realtime: {
     params: {
