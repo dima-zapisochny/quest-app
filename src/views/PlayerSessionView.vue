@@ -347,17 +347,8 @@ onMounted(async () => {
     }
   }
   
-  // Ждем загрузки store, если он еще загружается
-  if (sessionStore.isLoading) {
-    console.log('⏳ Waiting for store to load...')
-    let attempts = 0
-    const maxAttempts = 30 // Увеличиваем время ожидания
-    while (sessionStore.isLoading && attempts < maxAttempts) {
-      await new Promise(resolve => setTimeout(resolve, 100))
-      attempts++
-    }
-    console.log('✅ Store loaded')
-  }
+  // Ждём готовности store без busy-wait (#35)
+  await sessionStore.whenReady()
   
   // Если сессия не найдена локально, пытаемся загрузить из базы
   if (!session.value) {

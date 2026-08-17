@@ -84,21 +84,6 @@ export async function getQuestList(userId: string): Promise<Quest[]> {
 }
 
 /** Повний список квестів з data (важкий, усі медіа в JSON). */
-export async function getAllQuests(userId: string): Promise<Quest[]> {
-  const { data, error } = await supabase
-    .from('quests')
-    .select('*')
-    .eq('user_id', userId)
-    .order('created_at', { ascending: false })
-
-  if (error) {
-    console.error('Error fetching quests:', error)
-    return []
-  }
-
-  return (data || []).map((row: { data: Quest }) => row.data as Quest)
-}
-
 export async function getQuestById(questId: string, userId: string): Promise<Quest | null> {
   const { data, error } = await supabase
     .from('quests')

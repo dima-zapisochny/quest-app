@@ -208,23 +208,10 @@ const handleClickOutside = (event: MouseEvent) => {
 }
 
 onMounted(async () => {
-  // Ждем загрузки профиля, если он еще загружается
-  if (sessionStore.isLoading) {
-    const checkProfile = setInterval(() => {
-      if (!sessionStore.isLoading) {
-        clearInterval(checkProfile)
-        checkProfileAndLoad()
-      }
-    }, 100)
-    
-    setTimeout(() => {
-      clearInterval(checkProfile)
-      checkProfileAndLoad()
-    }, 2000)
-  } else {
-    checkProfileAndLoad()
-  }
-  
+  // Ждём готовности store без busy-wait/setInterval (#35)
+  await sessionStore.whenReady()
+  await checkProfileAndLoad()
+
   window.addEventListener('click', handleClickOutside)
 })
 

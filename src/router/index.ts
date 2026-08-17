@@ -62,15 +62,8 @@ const router = createRouter({
 router.beforeEach(async (to, _from, next) => {
   const sessionStore = useGameSessionStore()
   
-  // Ждем загрузки store, если он еще загружается
-  if (sessionStore.isLoading) {
-    let attempts = 0
-    const maxAttempts = 30
-    while (sessionStore.isLoading && attempts < maxAttempts) {
-      await new Promise(resolve => setTimeout(resolve, 100))
-      attempts++
-    }
-  }
+  // Ждём готовности store без busy-wait (#35)
+  await sessionStore.whenReady()
   
   // Проверяем активную сессию (хоста или игрока) для всех маршрутов
   const activeSession = await sessionStore.checkActiveSession()
@@ -167,16 +160,9 @@ router.beforeEach(async (to, _from, next) => {
   if (to.name === 'player-session') {
     const sessionId = to.params.sessionId as string
     
-    // Ждем загрузки store, если он еще загружается
-    if (sessionStore.isLoading) {
-      let attempts = 0
-      const maxAttempts = 30
-      while (sessionStore.isLoading && attempts < maxAttempts) {
-        await new Promise(resolve => setTimeout(resolve, 100))
-        attempts++
-      }
-    }
-    
+    // Ждём готовности store без busy-wait (#35)
+    await sessionStore.whenReady()
+
     // Сначала проверяем в локальном кеше
     let session = sessionStore.getSessionById(sessionId)
     

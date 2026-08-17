@@ -55,10 +55,14 @@ export const useQuizStore = defineStore('quiz', () => {
   const quests = ref<Quest[]>([])
   const isLoading = ref(false)
   let saveTimeoutId: ReturnType<typeof setTimeout> | null = null
+  // Квесты, изменённые с прошлого сохранения — сохраняем только их, а не все (#15)
+  const dirtyQuestIds = new Set<string>()
 
-  /** Відкладає збереження на SAVE_DEBOUNCE_MS; зменшує кількість запитів і таймаути при частых змінах. */
-  function scheduleSave() {
+  /** Відкладає збереження на SAVE_DEBOUNCE_MS; зберігає лише змінені квести (#15). */
+  function scheduleSave(questId?: string) {
     if (!isSupabaseConfigured) return
+    if (questId) dirtyQuestIds.add(questId)
+    else quests.value.forEach(q => dirtyQuestIds.add(q.id)) // fallback: пометить все
     if (saveTimeoutId) clearTimeout(saveTimeoutId)
     saveTimeoutId = setTimeout(() => {
       saveTimeoutId = null
@@ -82,9 +86,15 @@ export const useQuizStore = defineStore('quiz', () => {
     const userId = sessionStore.userProfile?.id
     if (!userId) {
       console.warn('Cannot save quests: user not authenticated')
+      dirtyQuestIds.clear()
       return
     }
-    for (const quest of quests.value) {
+    // Сохраняем только изменённые квесты (#15), а не весь список
+    const ids = Array.from(dirtyQuestIds)
+    dirtyQuestIds.clear()
+    for (const id of ids) {
+      const quest = quests.value.find(q => q.id === id)
+      if (!quest) continue
       try {
         const existing = await getQuestByIdFromDb(quest.id, userId)
         if (existing) {
@@ -94,6 +104,7 @@ export const useQuizStore = defineStore('quiz', () => {
         }
       } catch (error) {
         console.error('Failed to save quest to Supabase:', error)
+        dirtyQuestIds.add(id) // вернуть в очередь, чтобы повторить позже
       }
     }
   }
@@ -106,7 +117,9 @@ export const useQuizStore = defineStore('quiz', () => {
 
       if (userId && isSupabaseConfigured) {
         quests.value = await getQuestList(userId)
-        console.log('📂 [Quest] Loaded list from DB:', quests.value.length, 'quests (without media)')
+        // TODO(#16): getQuestList всё ещё тянет полный data (со структурой и медиа-URL).
+        // Полная оптимизация — проекция/счётчики на уровне схемы (отдельный шаг).
+        console.log('📂 [Quest] Loaded list from DB:', quests.value.length, 'quests')
       } else {
         quests.value = []
         console.log('📂 [Quest] No user or Supabase — quests empty')
@@ -247,23 +260,6 @@ export const useQuizStore = defineStore('quiz', () => {
     return quest.rounds.find(r => r.id === roundId)
   })
 
-  const getRoundStats = computed(() => (questId: string, roundId: string) => {
-    const quest = quests.value.find(q => q.id === questId)
-    if (!quest || !Array.isArray(quest.rounds)) {
-      return { total: 0, played: 0 }
-    }
-    const round = quest.rounds.find(r => r.id === roundId)
-    if (!round || !Array.isArray(round.categories)) {
-      return { total: 0, played: 0 }
-    }
-    const total = round.categories.reduce((sum, cat) => sum + (cat.questions?.length ?? 0), 0)
-    const played = round.categories.reduce(
-      (sum, cat) => sum + (cat.questions?.filter(q => q.played).length ?? 0),
-      0
-    )
-    return { total, played }
-  })
-
   const getQuestProgress = computed(() => (questId: string) => {
     const quest = quests.value.find(q => q.id === questId)
     if (!quest || !Array.isArray(quest.rounds)) {
@@ -316,14 +312,14 @@ export const useQuizStore = defineStore('quiz', () => {
   function updateQuest(questId: string, payload: Partial<Omit<Quest, 'id' | 'rounds'>>) {
     const quest = findQuest(questId)
     Object.assign(quest, payload)
-    scheduleSave()
+    scheduleSave(questId)
   }
 
   function replaceQuest(updatedQuest: Quest) {
     const index = quests.value.findIndex(q => q.id === updatedQuest.id)
     if (index === -1) throw new Error('Quest not found')
     quests.value[index] = updatedQuest
-    scheduleSave()
+    scheduleSave(updatedQuest.id)
   }
 
   async function deleteQuest(questId: string) {
@@ -368,7 +364,7 @@ export const useQuizStore = defineStore('quiz', () => {
       categories: []
     }
     quest.rounds.push(newRound)
-    scheduleSave()
+    scheduleSave(questId)
     return newRound.id
   }
 
@@ -376,7 +372,7 @@ export const useQuizStore = defineStore('quiz', () => {
     const quest = findQuest(questId)
     const round = findRound(quest, roundId)
     Object.assign(round, payload)
-    scheduleSave()
+    scheduleSave(questId)
   }
 
   async function replaceRound(questId: string, round: Round) {
@@ -385,14 +381,14 @@ export const useQuizStore = defineStore('quiz', () => {
     const index = quest.rounds.findIndex(r => r.id === round.id)
     if (index === -1) throw new Error('Round not found')
     quest.rounds[index] = round
-    scheduleSave()
+    scheduleSave(questId)
   }
 
   async function deleteRound(questId: string, roundId: string) {
     const quest = findQuest(questId)
     if (!Array.isArray(quest.rounds)) return
     quest.rounds = quest.rounds.filter(r => r.id !== roundId)
-    scheduleSave()
+    scheduleSave(questId)
   }
 
   // Category actions ---------------------------------------------------------
@@ -412,7 +408,7 @@ export const useQuizStore = defineStore('quiz', () => {
       questions: []
     }
     round.categories.push(newCategory)
-    scheduleSave()
+    scheduleSave(questId)
     return newCategory.id
   }
 
@@ -421,7 +417,7 @@ export const useQuizStore = defineStore('quiz', () => {
     const round = findRound(quest, roundId)
     const category = findCategory(round, categoryId)
     Object.assign(category, payload)
-    scheduleSave()
+    scheduleSave(questId)
   }
 
   async function replaceCategory(questId: string, roundId: string, category: Category) {
@@ -430,14 +426,14 @@ export const useQuizStore = defineStore('quiz', () => {
     const index = round.categories.findIndex(c => c.id === category.id)
     if (index === -1) throw new Error('Category not found')
     round.categories[index] = category
-    scheduleSave()
+    scheduleSave(questId)
   }
 
   async function deleteCategory(questId: string, roundId: string, categoryId: string) {
     const quest = findQuest(questId)
     const round = findRound(quest, roundId)
     round.categories = round.categories.filter(c => c.id !== categoryId)
-    scheduleSave()
+    scheduleSave(questId)
   }
 
   // Question actions ---------------------------------------------------------
@@ -473,7 +469,7 @@ export const useQuizStore = defineStore('quiz', () => {
       answerMedia: []
     }
     category.questions.push(newQuestion)
-    scheduleSave()
+    scheduleSave(questId)
     return newQuestion.id
   }
 
@@ -498,7 +494,7 @@ export const useQuizStore = defineStore('quiz', () => {
     // Остальные поля обновляем через Object.assign
     const { questionMedia, answerMedia, ...rest } = payload
     Object.assign(question, rest)
-    scheduleSave()
+    scheduleSave(questId)
   }
 
   async function replaceQuestion(
@@ -513,7 +509,7 @@ export const useQuizStore = defineStore('quiz', () => {
     const index = category.questions.findIndex(q => q.id === question.id)
     if (index === -1) throw new Error('Question not found')
     category.questions[index] = question
-    scheduleSave()
+    scheduleSave(questId)
   }
 
   async function deleteQuestion(
@@ -526,7 +522,7 @@ export const useQuizStore = defineStore('quiz', () => {
     const round = findRound(quest, roundId)
     const category = findCategory(round, categoryId)
     category.questions = category.questions.filter(q => q.id !== questionId)
-    scheduleSave()
+    scheduleSave(questId)
   }
 
   async function appendQuestionMedia(
@@ -545,18 +541,29 @@ export const useQuizStore = defineStore('quiz', () => {
     const sessionStore = useGameSessionStore()
     const userId = sessionStore.userProfile?.id ?? ''
 
+    const useStorage = Boolean(userId && isSupabaseConfigured)
     const mediaAssets: MediaAsset[] = []
+    const failedUploads: string[] = []
     for (const file of Array.from(files)) {
       const mediaId = generateId('media')
-      const storageUrl = userId && isSupabaseConfigured
-        ? await uploadQuestMedia(questId, userId, file, mediaId)
-        : null
-      const url = storageUrl ?? await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader()
-        reader.onload = () => resolve(String(reader.result))
-        reader.onerror = reject
-        reader.readAsDataURL(file)
-      })
+      let url: string | null = null
+      if (useStorage) {
+        url = await uploadQuestMedia(questId, userId, file, mediaId)
+        if (!url) {
+          // Загрузка в Storage не удалась — НЕ кладём base64 в JSON квеста (#25):
+          // это раздувало JSONB и приводило к 500/таймаутам. Сообщаем пользователю.
+          failedUploads.push(file.name)
+          continue
+        }
+      } else {
+        // Storage недоступен (нет Supabase) — только тогда data URL, как fallback
+        url = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader()
+          reader.onload = () => resolve(String(reader.result))
+          reader.onerror = reject
+          reader.readAsDataURL(file)
+        })
+      }
       const asset = createMediaAsset(file, url, mediaId)
       if (asset) mediaAssets.push(asset) // неподдерживаемые типы (видео/PDF) пропускаем (#34)
     }
@@ -573,8 +580,16 @@ export const useQuizStore = defineStore('quiz', () => {
       })
     }
 
-    question[key] = [...current, ...mediaAssets]
-    scheduleSave()
+    // Успешно загруженные — сохраняем, даже если часть файлов не прошла
+    if (mediaAssets.length) {
+      question[key] = [...current, ...mediaAssets]
+      scheduleSave(questId)
+    }
+
+    // О неудачных загрузках сообщаем ошибкой (её ловит вызывающий код в AdminQuestionRow)
+    if (failedUploads.length) {
+      throw new Error(`Не удалось загрузить в хранилище: ${failedUploads.join(', ')}. Проверьте соединение и повторите.`)
+    }
     return mediaAssets
   }
 
@@ -593,7 +608,7 @@ export const useQuizStore = defineStore('quiz', () => {
     const key = target === 'question' ? 'questionMedia' : 'answerMedia'
     const current = question[key] ?? []
     question[key] = current.filter(item => item.id !== mediaId)
-    scheduleSave()
+    scheduleSave(questId)
   }
 
   async function markQuestionAsPlayed(
@@ -622,7 +637,7 @@ export const useQuizStore = defineStore('quiz', () => {
       }
     }
     
-    scheduleSave()
+    scheduleSave(questId)
   }
 
   async function resetRoundProgress(questId: string, roundId: string) {
@@ -645,7 +660,7 @@ export const useQuizStore = defineStore('quiz', () => {
       }
     }
     
-    scheduleSave()
+    scheduleSave(questId)
   }
 
   async function resetQuestProgress(questId: string) {
@@ -670,74 +685,10 @@ export const useQuizStore = defineStore('quiz', () => {
       }
     }
     
-    scheduleSave()
+    scheduleSave(questId)
     await sessionStore.syncSessionQuestSnapshot(questId, quest)
   }
 
-  // Export / Import ----------------------------------------------------------
-  function exportData(): string {
-    return JSON.stringify(quests.value, null, 2)
-  }
-
-  function importData(json: string) {
-    try {
-      const data = JSON.parse(json)
-      if (Array.isArray(data)) {
-        quests.value = data
-        scheduleSave()
-        return true
-      }
-      return false
-    } catch (error) {
-      console.error('Failed to import data', error)
-      return false
-    }
-  }
-
-  async function clearAllData() {
-    const sessionStore = useGameSessionStore()
-    const userId = sessionStore.userProfile?.id
-    if (!userId) {
-      console.warn('Cannot clear data: user not authenticated')
-      return
-    }
-    
-    // Удаляем все квесты текущего пользователя из Supabase
-    for (const quest of quests.value) {
-      try {
-        await deleteQuestInDb(quest.id, userId)
-      } catch (error) {
-        console.error('Error deleting quest:', error)
-      }
-    }
-    quests.value = []
-    localStorage.removeItem(`quiz-app-data-${userId}`)
-    localStorage.removeItem('quiz-app-data') // Удаляем старый формат для совместимости
-  }
-
-  async function addSeedQuest(seedFn: () => Quest): Promise<string> {
-    const sessionStore = useGameSessionStore()
-    const userId = sessionStore.userProfile?.id
-    if (!userId) {
-      throw new Error('User must be authenticated to add seed quests')
-    }
-    const quest = seedFn()
-    quests.value.push(quest)
-    try {
-      await createQuestInDb(quest, userId)
-    } catch (error) {
-      console.error('Error saving seed quest:', error)
-      quests.value = quests.value.filter(q => q.id !== quest.id)
-      throw error
-    }
-    return quest.id
-  }
-
-  async function addKinokQuest(): Promise<string> {
-    // Ленивая загрузка сид-квеста — чтобы 56 КБ JSON не попадали в основной бандл (#30)
-    const { default: kinokvestSeed } = await import('@/data/kinokvest.json')
-    return importQuest(kinokvestSeed as Quest)
-  }
 
   /** Загружает квест из БД по id (без фильтра user_id) и добавляет в список. Если квест уже в списке — не дублирует. */
   async function restoreQuestFromDb(questId: string): Promise<Quest | null> {
@@ -818,7 +769,6 @@ export const useQuizStore = defineStore('quiz', () => {
     initializeSubscription,
     getQuestById,
     getRoundById,
-    getRoundStats,
     getQuestProgress,
     createQuest,
     updateQuest,
@@ -841,11 +791,6 @@ export const useQuizStore = defineStore('quiz', () => {
     markQuestionAsPlayed,
     resetRoundProgress,
     resetQuestProgress,
-    exportData,
-    importData,
-    clearAllData,
-    addSeedQuest,
-    addKinokQuest,
     importQuest,
     restoreQuestFromDb
   }

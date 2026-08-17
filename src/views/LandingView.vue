@@ -104,17 +104,9 @@ async function checkLocalStorageProfile() {
     // Сначала проверяем активную сессию игрока
     const storedActiveSession = localStorage.getItem('quiz-app-active-player-session')
     if (storedActiveSession) {
-      // Ждем загрузки store, если он еще загружается
-      if (sessionStore.isLoading) {
-        // Ждем максимум 2 секунды
-        let attempts = 0
-        const maxAttempts = 20
-        while (sessionStore.isLoading && attempts < maxAttempts) {
-          await new Promise(resolve => setTimeout(resolve, 100))
-          attempts++
-        }
-      }
-      
+      // Ждём готовности store без busy-wait (#35)
+      await sessionStore.whenReady()
+
       // Проверяем активную сессию
       const activeSession = await sessionStore.checkActivePlayerSession()
       if (activeSession) {

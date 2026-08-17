@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import type {
   GameSession,
   Quest,
@@ -47,6 +47,16 @@ export const useGameSessionStore = defineStore('game-session', () => {
   const userProfile = ref<UserProfile | null>(null)
   const activePlayerSession = ref<{ sessionId: string; playerId: string } | null>(null)
   const isLoading = ref(true) // Начинаем с true, так как данные загружаются при инициализации
+
+  /** Промис готовности store вместо busy-wait циклов `while(isLoading) sleep(100)` (#35). */
+  function whenReady(): Promise<void> {
+    if (!isLoading.value) return Promise.resolve()
+    return new Promise<void>(resolve => {
+      const stop = watch(isLoading, loading => {
+        if (!loading) { stop(); resolve() }
+      })
+    })
+  }
 
   // Загрузка данных при инициализации
   async function loadData() {
@@ -1152,6 +1162,7 @@ export const useGameSessionStore = defineStore('game-session', () => {
     sessions: sessionList,
     activePlayerSession,
     isLoading,
+    whenReady,
     loadData,
     setUserProfile,
     ensureProfile,
