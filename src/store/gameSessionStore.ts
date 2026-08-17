@@ -14,7 +14,7 @@ import { ensureAnonymousSession, claimLegacyData } from '@/services/auth'
 import {
   getUserProfile,
   upsertUserProfile,
-  getAllSessions,
+  getSessionsByHost,
   getSessionById as getSessionByIdFromDb,
   getSessionByCode,
   createSession as createSessionInDb,
@@ -113,8 +113,10 @@ export const useGameSessionStore = defineStore('game-session', () => {
         }
       }
 
-      // Загружаем все сессии
-      sessions.value = await getAllSessions()
+      // Загружаем только СВОИ (хостованные) сессии — не тянем чужие (#17).
+      // Сессии игрока (по коду) и восстановление грузятся по требованию.
+      const uid = userProfile.value?.id
+      sessions.value = uid ? await getSessionsByHost(uid) : []
     } catch (error) {
       console.error('Error loading data:', error)
     } finally {
@@ -1101,17 +1103,24 @@ export const useGameSessionStore = defineStore('game-session', () => {
   }
 
   // Проверяет, является ли пользователь хостом какой-либо сессии
+  /** Сессия считается «активной» для авто-редиректа только если обновлялась недавно —
+   *  иначе забытая старая сессия запирала хоста в игре навсегда (#2, #24). */
+  const HOST_SESSION_FRESH_MS = 12 * 60 * 60 * 1000 // 12 часов
+
   function checkActiveHostSession(): { session: GameSession; isHost: true } | null {
     if (!userProfile.value) return null
-    
-    // Проверяем все сессии в store
-    const hostSession = sessions.value.find(session => session.hostId === userProfile.value!.id)
-    
+
+    const now = Date.now()
+    const hostSession = sessions.value
+      .filter(session => session.hostId === userProfile.value!.id)
+      .filter(session => now - (session.updatedAt || 0) < HOST_SESSION_FRESH_MS)
+      .sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0))[0]
+
     if (hostSession) {
       console.log('✅ Active host session found:', hostSession.id, hostSession.code)
       return { session: hostSession, isHost: true }
     }
-    
+
     return null
   }
 
