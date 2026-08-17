@@ -23,3 +23,6 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+
+# Большой генерируемый дамп квеста (создаётся scripts/fetch-quest.mjs) — не хранить в репозитории
+quest-1661af7b.json

@@ -11,9 +11,12 @@
 - **Tailwind CSS** для UI
 - **Vite** как сборщик
 - **Vitest** для unit-тестов
-- **localStorage** для хранения контента и прогресса
+- **Supabase** (Postgres + Realtime + Storage) для хранения квестов, сессий и прогресса; анонимная авторизация + RLS
+- **localStorage** используется только как кэш профиля/активной сессии
 
 ## 📦 Установка
+
+Скопируйте `.env.example` в `.env` и укажите `VITE_SUPABASE_URL` и `VITE_SUPABASE_ANON_KEY` из дашборда Supabase (Settings → API).
 
 ```bash
 npm install
@@ -86,8 +89,8 @@ src/
       AvatarPicker.vue          # Выбор аватара с анимацией
   data/
   store/
-    quizStore.ts                # Контент квестов + localStorage
-    gameSessionStore.ts         # Игровые сессии, профили игроков и синхронизация с localStorage
+    quizStore.ts                # Контент квестов (Supabase: quests + quest_progress)
+    gameSessionStore.ts         # Игровые сессии и профили; синхронизация через Supabase Realtime
   views/
     LandingView.vue             # Стартовый экран с регистрацией и выбором роли
     QuestsList.vue              # Каталог квестов для свободной игры
