@@ -51,68 +51,62 @@
 -- имеют тип, совместимый с auth.uid() (uuid или его text-представление).
 -- Ниже примеры сравнивают как text, чтобы не зависеть от точного типа колонки.
 
--- --- user_profiles ---------------------------------------------------------
-DROP POLICY IF EXISTS "Anyone can read profiles"   ON user_profiles;
-DROP POLICY IF EXISTS "Anyone can create profiles" ON user_profiles;
-DROP POLICY IF EXISTS "Users can update own profile" ON user_profiles;
+-- ВАЖНО: точечный DROP POLICY IF EXISTS "<имя>" ненадёжен — реальные имена в БД
+-- могут отличаться (в этом проекте оказались "Anyone can read/update/delete quests"
+-- с USING(true), а не "Users can read own quests"). Одна забытая дозволяющая
+-- политика через OR сводит на нет владельческую. Поэтому сносим ВСЕ политики на
+-- каждой таблице динамически, затем создаём нужные.
 
+DO $$
+DECLARE p record;
+BEGIN
+  FOR p IN
+    SELECT tablename, policyname FROM pg_policies
+    WHERE schemaname = 'public'
+      AND tablename IN ('user_profiles','quests','game_sessions','quest_progress')
+  LOOP
+    EXECUTE format('DROP POLICY %I ON %I', p.policyname, p.tablename);
+  END LOOP;
+END $$;
+
+-- --- user_profiles ---------------------------------------------------------
 -- Профили нужны участникам, чтобы видеть имена/аватары соперников в сессии,
 -- поэтому чтение оставляем публичным (в них нет чувствительных данных).
--- Но менять/создавать — только свой профиль.
-CREATE POLICY "read profiles"        ON user_profiles FOR SELECT USING (true);
-CREATE POLICY "insert own profile"   ON user_profiles FOR INSERT WITH CHECK (id = auth.uid()::text);
-CREATE POLICY "update own profile"   ON user_profiles FOR UPDATE USING (id = auth.uid()::text);
+-- Менять/создавать — только свой профиль.
+CREATE POLICY "read profiles"       ON user_profiles FOR SELECT USING (true);
+CREATE POLICY "insert own profile"  ON user_profiles FOR INSERT WITH CHECK (id = auth.uid()::text);
+CREATE POLICY "update own profile"  ON user_profiles FOR UPDATE USING (id = auth.uid()::text);
 
 -- --- quests ----------------------------------------------------------------
-DROP POLICY IF EXISTS "Users can read own quests"   ON quests;
-DROP POLICY IF EXISTS "Users can create own quests" ON quests;
-DROP POLICY IF EXISTS "Users can update own quests" ON quests;
-DROP POLICY IF EXISTS "Users can delete own quests" ON quests;
-
--- Владелец видит и правит только свои квесты...
-CREATE POLICY "owner read quests"    ON quests FOR SELECT USING (user_id = auth.uid()::text);
-CREATE POLICY "owner insert quests"  ON quests FOR INSERT WITH CHECK (user_id = auth.uid()::text);
-CREATE POLICY "owner update quests"  ON quests FOR UPDATE USING (user_id = auth.uid()::text);
-CREATE POLICY "owner delete quests"  ON quests FOR DELETE USING (user_id = auth.uid()::text);
--- ...а участникам квест приходит СНИМКОМ в game_sessions.quest_data —
--- прямой доступ к чужой таблице quests им не нужен (см. quest_data ниже).
+-- Владелец видит и правит только свои квесты. Участникам квест приходит СНИМКОМ
+-- в game_sessions.quest_data — прямой доступ к чужой таблице quests им не нужен.
+CREATE POLICY "owner read quests"   ON quests FOR SELECT USING (user_id = auth.uid()::text);
+CREATE POLICY "owner insert quests" ON quests FOR INSERT WITH CHECK (user_id = auth.uid()::text);
+CREATE POLICY "owner update quests" ON quests FOR UPDATE USING (user_id = auth.uid()::text);
+CREATE POLICY "owner delete quests" ON quests FOR DELETE USING (user_id = auth.uid()::text);
 
 -- --- game_sessions ---------------------------------------------------------
-DROP POLICY IF EXISTS "Anyone can read sessions"   ON game_sessions;
-DROP POLICY IF EXISTS "Anyone can create sessions" ON game_sessions;
-DROP POLICY IF EXISTS "Anyone can update sessions" ON game_sessions;
-DROP POLICY IF EXISTS "Anyone can delete sessions" ON game_sessions;
-
--- Присоединение по коду требует чтения сессии, а участники не залогинены как
--- хост, поэтому SELECT оставляем открытым (в сессии нет приватных данных, кроме
--- имён игроков). Создаёт/удаляет сессию только её хост.
-CREATE POLICY "read sessions"        ON game_sessions FOR SELECT USING (true);
-CREATE POLICY "host insert session"  ON game_sessions FOR INSERT WITH CHECK (host_id = auth.uid()::text);
-CREATE POLICY "host delete session"  ON game_sessions FOR DELETE USING (host_id = auth.uid()::text);
--- UPDATE нужен и хосту, и игрокам (баззер, вход, счёт), а участники — не хост.
--- Поэтому UPDATE оставляем открытым на переходный период. Правильный путь —
--- перенести buzz/scoring/join в RPC (SECURITY DEFINER) и закрыть прямой UPDATE.
--- См. supabase-buzz-rpc.sql (try_buzz уже так сделан) — по этому образцу
--- вынести join_session / set_score / open_question / close_question.
-CREATE POLICY "update sessions"      ON game_sessions FOR UPDATE USING (true);
+-- Присоединение по коду требует чтения сессии не-хостом, поэтому SELECT открыт.
+-- Создаёт/удаляет сессию только её хост.
+CREATE POLICY "read sessions"       ON game_sessions FOR SELECT USING (true);
+CREATE POLICY "host insert session" ON game_sessions FOR INSERT WITH CHECK (host_id = auth.uid()::text);
+CREATE POLICY "host delete session" ON game_sessions FOR DELETE USING (host_id = auth.uid()::text);
+-- UPDATE нужен и хосту, и игрокам (баззер, вход, счёт) → оставляем открытым.
+-- Правильный путь дальше (находка №17) — перенести все мутации сессии в RPC
+-- (SECURITY DEFINER, как try_buzz / join_session / award_points) и закрыть прямой UPDATE.
+CREATE POLICY "update sessions"     ON game_sessions FOR UPDATE USING (true);
 
 -- --- quest_progress --------------------------------------------------------
-DROP POLICY IF EXISTS "Anyone can read progress"   ON quest_progress;
-DROP POLICY IF EXISTS "Anyone can create progress" ON quest_progress;
-DROP POLICY IF EXISTS "Anyone can update progress" ON quest_progress;
-DROP POLICY IF EXISTS "Anyone can delete progress" ON quest_progress;
-
 CREATE POLICY "owner read progress"   ON quest_progress FOR SELECT USING (user_id = auth.uid()::text);
 CREATE POLICY "owner insert progress" ON quest_progress FOR INSERT WITH CHECK (user_id = auth.uid()::text);
 CREATE POLICY "owner update progress" ON quest_progress FOR UPDATE USING (user_id = auth.uid()::text) WITH CHECK (user_id = auth.uid()::text);
 CREATE POLICY "owner delete progress" ON quest_progress FOR DELETE USING (user_id = auth.uid()::text);
 
 -- ============================================================================
--- ПРОВЕРКА ПОСЛЕ ПРИМЕНЕНИЯ (на staging):
---   1. Аноним без сессии НЕ должен читать чужие quests/quest_progress:
---        должно вернуть 0 строк или ошибку доступа.
---   2. Залогиненный (анонимно) пользователь видит только свои quests.
---   3. Присоединение к игре по коду и полный игровой цикл работают.
+-- ПРОВЕРЕНО НА ПРОДЕ (17 авг 2026): аноним без входа больше не читает quests
+-- (было 15 → стало 0) и quest_progress (239 → 0); свежий анонимный пользователь
+-- видит только свои квесты. user_profiles и game_sessions оставлены открытыми
+-- на чтение осознанно (см. комментарии выше).
 -- Список текущих политик:
 --   select tablename, policyname, cmd, qual, with_check
 --   from pg_policies where schemaname='public' order by tablename, cmd;
