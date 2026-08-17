@@ -284,11 +284,12 @@ async function handleStart() {
     return
   }
   try {
-    const questSnapshot = quizStore.getQuestById(selectedQuestId.value)
-    const session = await sessionStore.createSession(selectedQuestId.value, questSnapshot ?? undefined)
-    
-    // Сразу переходим на игровую доску (хост использует квест из store)
-    const quest = session.quest ?? quizStore.getQuestById(session.questId)
+    // Валидируем квест ДО создания сессии — иначе при пустом квесте оставалась сессия-сирота (#3)
+    let quest = quizStore.getQuestById(selectedQuestId.value)
+    if (!quest || !Array.isArray(quest.rounds) || !quest.rounds.length) {
+      // Список мог прийти без раундов — подгружаем полный квест
+      quest = (await quizStore.loadQuestFull(selectedQuestId.value)) ?? quest
+    }
     if (!quest || !Array.isArray(quest.rounds) || !quest.rounds.length) {
       errorMessage.value = 'Добавьте хотя бы один раунд в квест'
       return
@@ -298,6 +299,9 @@ async function handleStart() {
       errorMessage.value = 'В раунде отсутствуют категории'
       return
     }
+
+    // Только теперь создаём сессию
+    const session = await sessionStore.createSession(selectedQuestId.value, quest)
     sessionStore.setActiveRound(session.id, firstRound.id)
     router.push({
       name: 'host-session',

@@ -7,6 +7,7 @@
 <script setup lang="ts">
 import { useQuizStore } from '@/store/quizStore'
 
-const store = useQuizStore()
+// Инициализируем store на старте приложения (watch на профиль → загрузка квестов)
+useQuizStore()
 </script>
 

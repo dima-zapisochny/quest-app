@@ -217,12 +217,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, nextTick, computed, onMounted, onBeforeUnmount, TransitionGroup } from 'vue'
+import { ref, watch, nextTick, computed, onBeforeUnmount } from 'vue'
 import TimerCircle from './TimerCircle.vue'
 import QuestionMediaPreview from './QuestionMediaPreview.vue'
 import { useGameSessionStore } from '@/store/gameSessionStore'
 import { useQuizStore } from '@/store/quizStore'
-import type { Question, Player } from '@/types'
+import type { Question, Player, MediaAsset } from '@/types'
 import { safeMediaUrl } from '@/utils/mediaUrl'
 
 interface Props {
@@ -254,8 +254,9 @@ let elapsedTimeInterval: number | null = null
 
 const session = computed(() => (props.sessionId ? gameSessionStore.getSessionById(props.sessionId) : undefined))
 const activeQuestion = computed(() => session.value?.activeQuestion)
-// Мок: для тестирования считаем, что это хост-сессия, если попап открыт
-const isHostSession = computed(() => !!session.value || props.isOpen)
+// Хост-сессия, если есть реальная сессия. В dev дополнительно считаем открытую модалку
+// хост-режимом для превью без сессии.
+const isHostSession = computed(() => !!session.value || (import.meta.env.DEV && props.isOpen))
 
 // Мок-данные для тестирования (если нет реальной сессии)
 const mockResponder: Player = {
@@ -272,12 +273,10 @@ const responderId = computed(() => {
   if (activeQuestion.value?.currentResponderId) {
     return activeQuestion.value.currentResponderId
   }
-  // Мок: если нет сессии (sessionId пустой или undefined), всегда возвращаем мок-участника
-  if (!props.sessionId || props.sessionId === '') {
-    console.log('Мок: responderId возвращает мок-участника', mockResponder.id)
+  // Демо только в dev: без сессии возвращаем мок-участника
+  if (import.meta.env.DEV && (!props.sessionId || props.sessionId === '')) {
     return mockResponder.id
   }
-  console.log('responderId: нет участника', { sessionId: props.sessionId })
   return null
 })
 
@@ -285,23 +284,15 @@ const currentResponder = computed(() => {
   if (session.value && responderId.value) {
     return session.value.players.find(player => player.id === responderId.value) ?? null
   }
-  // Мок: если нет сессии и есть responderId, возвращаем мок-участника
-  if ((!props.sessionId || props.sessionId === '') && responderId.value === mockResponder.id) {
-    console.log('Мок: currentResponder возвращает мок-участника', mockResponder)
+  // Демо только в dev: без сессии возвращаем мок-участника
+  if (import.meta.env.DEV && (!props.sessionId || props.sessionId === '') && responderId.value === mockResponder.id) {
     return mockResponder
   }
-  console.log('currentResponder: нет участника', { sessionId: props.sessionId, responderId: responderId.value, mockId: mockResponder.id })
   return null
 })
 
-// Lightweight URLs (single imageUrl/audioUrl) or from questionMedia arrays
+// Lightweight URLs (single imageUrl) or from questionMedia arrays
 const questionImageUrl = computed(() => props.question?.imageUrl ?? null)
-const questionAudioUrl = computed(() => props.question?.audioUrl ?? null)
-
-// Проверка наличия картинки в медиа вопроса
-const hasQuestionImage = computed(() => {
-  return !!questionImageUrl.value || (props.question?.questionMedia?.some(media => media.type === 'image') ?? false)
-})
 
 // Фильтрация медиа: только изображения (или один imageUrl)
 const questionMediaImages = computed(() => {
@@ -315,18 +306,15 @@ const questionMediaImages = computed(() => {
   )
 })
 
-// Видимые изображения с учетом задержки (включая легкий imageUrl)
+// Видимые изображения с учетом задержки.
+// questionMediaImages уже включает лёгкий imageUrl (как img0) либо изображения из questionMedia —
+// поэтому берём единый источник и не дублируем imageUrl отдельно (#20).
 const visibleImages = computed(() => {
-  const safeUrl = props.question?.imageUrl ? safeMediaUrl(props.question.imageUrl) : null
-  const fromUrl = safeUrl
-    ? [{ id: 'img-url', type: 'image' as const, name: '', url: safeUrl, delay: 0 }]
-    : []
-  if (!questionOpenedAt.value) return fromUrl
-  const fromMedia = questionMediaImages.value.filter(media => {
-    const delay = media.delay ?? 0
-    return elapsedTime.value >= delay
-  })
-  return [...fromUrl, ...fromMedia]
+  if (!questionOpenedAt.value) {
+    // До старта таймера показываем только изображения без задержки
+    return questionMediaImages.value.filter(media => (media.delay ?? 0) === 0)
+  }
+  return questionMediaImages.value.filter(media => elapsedTime.value >= (media.delay ?? 0))
 })
 
 // Аудио для вопроса: легкий audioUrl + questionMedia (только валидные URL для воспроизведения)
@@ -415,8 +403,9 @@ const answerMediaImages = computed(() => {
 
 // Аудио в ответе (включая легкий answerAudioUrl)
 const answerMediaAudio = computed(() => {
-  const fromUrl = props.question?.answerAudioUrl && safeMediaUrl(props.question.answerAudioUrl)
-    ? [{ id: 'ans-audio-url', type: 'audio' as const, name: '', url: props.question.answerAudioUrl }]
+  const answerAudioSafe = props.question?.answerAudioUrl ? safeMediaUrl(props.question.answerAudioUrl) : null
+  const fromUrl = answerAudioSafe
+    ? [{ id: 'ans-audio-url', type: 'audio' as const, name: '', url: answerAudioSafe }]
     : []
   const list = props.question?.answerMedia ?? []
   if (!Array.isArray(list)) return fromUrl
@@ -474,8 +463,8 @@ const hasAudio = computed(() => {
   return allValid
 })
 
-function setAudioRef(id: string, el: HTMLAudioElement | null) {
-  if (el) {
+function setAudioRef(id: string, el: unknown) {
+  if (el instanceof HTMLAudioElement) {
     audioRefs.value[id] = el
   }
 }
@@ -703,8 +692,9 @@ function handleReveal() {
   showAnswer.value = true
   if (props.sessionId) {
     gameSessionStore.revealAnswer(props.sessionId)
-    // Таймер истёк, никто не ответил — помечаем вопрос сыгранным с timedOut (крестик на карточке)
-    gameSessionStore.closeQuestion(props.sessionId, { byTimeout: true })
+    // Таймер истёк, никто не ответил — помечаем вопрос сыгранным с timedOut (крестик на карточке),
+    // но НЕ закрываем вопрос: ответ остаётся виден участникам, пока ведущий не закроет модалку.
+    gameSessionStore.markActiveQuestionTimedOut(props.sessionId)
   }
   timerRef.value?.pause()
 }
@@ -728,14 +718,6 @@ function handleResolve(correct: boolean) {
   }
 }
 
-function handleFinish() {
-  // Для режима без сессии: завершаем вопрос после показа ответа
-  if (!props.sessionId && showAnswer.value) {
-    emit('finished')
-    emit('close')
-  }
-}
-
 function handleClose() {
   // Останавливаем все аудио при закрытии
   Object.values(audioRefs.value).forEach(audio => {
@@ -745,12 +727,10 @@ function handleClose() {
     }
   })
   playingAudioId.value = null
-  
-  if (props.sessionId) {
-    // Закрытие по кнопке «Закрыть» — не по таймеру, крестик не показываем
-    gameSessionStore.closeQuestion(props.sessionId, { byTimeout: false })
-  }
-  
+
+  // closeQuestion вызывается один раз — из watch(props.isOpen) при закрытии модалки
+  // (родитель ставит isOpen=false после emit('close')). Здесь не дублируем (было #13).
+
   // Если ответ был показан (таймер закончился), но никто не ответил правильно,
   // помечаем вопрос как сыгранный без информации о том, кто ответил
   if (showAnswer.value && props.question && props.questId && props.roundId && props.categoryId) {

@@ -82,7 +82,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch, watchEffect, nextTick } from 'vue'
+import { computed, ref, watchEffect } from 'vue'
 import { useQuizStore } from '@/store/quizStore'
 import AdminCategoryForm from './AdminCategoryForm.vue'
 import type { Round } from '@/types'

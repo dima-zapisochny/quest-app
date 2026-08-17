@@ -21,6 +21,7 @@
               <TimerCircle
                 :duration-sec="10"
                 :auto-start="shouldShowResponderTimer"
+                :started-at="activeQuestion?.responderStartedAt ?? null"
                 ref="responderTimerRef"
                 @finished="handleResponderTimeout"
               />
@@ -122,10 +123,6 @@ const session = computed(() => sessionStore.getSessionById(sessionId))
 const quest = computed(() =>
   session.value ? (session.value.quest ?? quizStore.getQuestById(session.value.questId)) : undefined
 )
-const activeRound = computed(() => {
-  if (!session.value?.roundId) return undefined
-  return quest.value?.rounds.find(round => round.id === session.value?.roundId)
-})
 const activeQuestion = computed(() => session.value?.activeQuestion)
 
 const playerId = computed(() => sessionStore.getCurrentDevicePlayer(sessionId))
@@ -136,7 +133,7 @@ const isExiting = ref(false)
 const currentQuestion = computed(() => {
   if (!activeQuestion.value) return undefined
   return quest.value?.rounds
-    .find(round => round.id === activeQuestion.value?.roundId)?.categories
+    ?.find(round => round.id === activeQuestion.value?.roundId)?.categories
     .find(category => category.id === activeQuestion.value?.categoryId)?.questions
     .find(question => question.id === activeQuestion.value?.questionId)
 })
@@ -278,27 +275,6 @@ async function confirmExit() {
   }
   
   router.push({ name: 'landing' })
-}
-
-function avatarEmoji(avatarId?: string) {
-  const map: Record<string, string> = {
-    fox: '🦊',
-    panda: '🐼',
-    tiger: '🐯',
-    owl: '🦉',
-    whale: '🐳',
-    parrot: '🦜',
-    koala: '🐨',
-    dino: '🦕',
-    crocodile: '🐊',
-    lion: '🦁',
-    penguin: '🐧',
-    elephant: '🐘',
-    seal: '🦭',
-    hedgehog: '🦔',
-    lily: '🌸'
-  }
-  return map[avatarId || 'fox'] ?? '🦊'
 }
 
 // Используем sessionStorage для отслеживания перезагрузки между страницами
@@ -509,7 +485,7 @@ onMounted(async () => {
   }
   
   // Обработчик beforeunload - проверяем, не перезагрузка ли это
-  handleBeforeUnload = (event: BeforeUnloadEvent) => {
+  handleBeforeUnload = () => {
     // handleLeave сам проверит, не перезагрузка ли это через isPageReloading()
     handleLeave()
   }

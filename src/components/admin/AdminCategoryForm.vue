@@ -84,7 +84,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch, watchEffect, nextTick } from 'vue'
+import { computed, ref, watchEffect } from 'vue'
 import { useQuizStore } from '@/store/quizStore'
 import AdminQuestionRow from './AdminQuestionRow.vue'
 import type { Category } from '@/types'

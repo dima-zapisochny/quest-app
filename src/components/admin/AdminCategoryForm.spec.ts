@@ -53,7 +53,7 @@ describe('AdminCategoryForm', () => {
   function mountWithStore(categoryIndex = 0) {
     const store = useQuizStore()
     const quest = store.getQuestById('quest-test')!
-    const round = quest.rounds[0]
+    const round = quest.rounds![0]
     const category = round.categories[categoryIndex]
     return {
       wrapper: mount(AdminCategoryForm, {
@@ -108,7 +108,7 @@ describe('AdminCategoryForm', () => {
   it('hides add button when question limit reached', () => {
     const store = useQuizStore()
     const quest = store.getQuestById('quest-test')!
-    const round = quest.rounds[0]
+    const round = quest.rounds![0]
     round.categories[0].questions = Array.from({ length: 10 }, (_, index) => ({
       id: `q-${index}`,
       value: 100,
@@ -126,7 +126,7 @@ describe('AdminCategoryForm', () => {
   it('shows empty message when no questions', () => {
     const store = useQuizStore()
     const quest = store.getQuestById('quest-test')!
-    const round = quest.rounds[0]
+    const round = quest.rounds![0]
     round.categories[0].questions = []
 
     const { wrapper } = mountWithStore()

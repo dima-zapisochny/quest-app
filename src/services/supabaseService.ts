@@ -422,6 +422,54 @@ export async function tryBuzz(sessionId: string, playerId: string, clientTimesta
   return mapSessionRow(row as Parameters<typeof mapSessionRow>[0])
 }
 
+// ============================================================================
+// Атомарные RPC игрового цикла (см. supabase-migrations/004_atomic_game_rpc.sql).
+// Возвращают GameSession при успехе или null, если функция не задеплоена / ошибка —
+// тогда вызывающий код откатывается на updateSession (старый путь).
+// ============================================================================
+
+/** Общий вызов RPC, возвращающего строку game_sessions. null → сигнал для fallback. */
+async function sessionRpc(fn: string, params: Record<string, unknown>): Promise<GameSession | null> {
+  const { data, error } = await supabase.rpc(fn, params)
+  if (error) {
+    console.warn(`[Supabase] RPC ${fn} недоступен, откат на updateSession:`, error.message)
+    return null
+  }
+  const row = Array.isArray(data) ? data[0] : data
+  return row ? mapSessionRow(row as Parameters<typeof mapSessionRow>[0]) : null
+}
+
+/** Атомарный вход в сессию (#7). Бросает Error('SESSION_FULL') при переполнении; null → fallback. */
+export async function joinSessionRpc(sessionId: string, player: Player, max = 20): Promise<GameSession | null> {
+  const { data, error } = await supabase.rpc('join_session', {
+    p_session_id: sessionId,
+    p_player: player,
+    p_max: max
+  })
+  if (error) {
+    if (/SESSION_FULL/.test(error.message)) throw new Error('SESSION_FULL')
+    console.warn('[Supabase] RPC join_session недоступен, откат:', error.message)
+    return null
+  }
+  const row = Array.isArray(data) ? data[0] : data
+  return row ? mapSessionRow(row as Parameters<typeof mapSessionRow>[0]) : null
+}
+
+export const leaveSessionRpc = (sessionId: string, playerId: string) =>
+  sessionRpc('leave_session', { p_session_id: sessionId, p_player_id: playerId })
+
+export const awardPointsRpc = (sessionId: string, playerId: string, delta: number) =>
+  sessionRpc('award_points', { p_session_id: sessionId, p_player_id: playerId, p_delta: delta })
+
+export const setPlayerScoreRpc = (sessionId: string, playerId: string, score: number) =>
+  sessionRpc('set_player_score', { p_session_id: sessionId, p_player_id: playerId, p_score: score })
+
+export const resetScoresRpc = (sessionId: string) =>
+  sessionRpc('reset_scores', { p_session_id: sessionId })
+
+export const timeoutResponderRpc = (sessionId: string, playerId: string) =>
+  sessionRpc('timeout_responder', { p_session_id: sessionId, p_player_id: playerId })
+
 export async function deleteSession(sessionId: string): Promise<void> {
   const { error } = await supabase
     .from('game_sessions')
@@ -577,14 +625,17 @@ export function subscribeToSessions(
       },
       async (payload) => {
         try {
+          const newRow = payload.new as { id?: string } | null
+          const oldRow = payload.old as { id?: string } | null
           console.log('📨 [Realtime] game_sessions payload:', {
             eventType: payload.eventType,
-            sessionId: payload.new?.id ?? payload.old?.id,
+            sessionId: newRow?.id ?? oldRow?.id,
             timestamp: new Date().toISOString()
           })
-          
+
           if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
-            const sessionId = payload.new.id
+            const sessionId = newRow?.id
+            if (!sessionId) return
             console.log('🔄 [Realtime] Loading session:', sessionId)
             
             const session = await getSessionById(sessionId)
@@ -595,7 +646,7 @@ export function subscribeToSessions(
               console.warn('⚠️ [Realtime] Session not found:', sessionId)
             }
           } else if (payload.eventType === 'DELETE') {
-            const deletedId = payload.old?.id
+            const deletedId = oldRow?.id
             console.log('🗑️ [Realtime] Session deleted:', deletedId)
             if (deletedId && onSessionDeleted) {
               onSessionDeleted(deletedId)
@@ -638,21 +689,7 @@ export function subscribeToSessions(
       }
     })
 
-  // Автоматическое переподключение при разрыве соединения
-  const handleReconnect = () => {
-    console.log('🔄 Attempting to reconnect WebSocket...')
-    channel.subscribe()
-  }
-
-  // Обработка разрыва соединения
-  const originalUnsubscribe = channel.unsubscribe
-  channel.unsubscribe = function() {
-    console.log('🔌 Unsubscribing from game_sessions changes')
-    return originalUnsubscribe.call(this)
-  }
-
   return () => {
-    console.log('🔌 Cleaning up WebSocket subscription')
     supabase.removeChannel(channel)
   }
 }
