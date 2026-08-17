@@ -439,6 +439,17 @@ export const resetScoresRpc = (sessionId: string) =>
 export const timeoutResponderRpc = (sessionId: string, playerId: string) =>
   sessionRpc('timeout_responder', { p_session_id: sessionId, p_player_id: playerId })
 
+/** Presence-пинг игрока (#5). Fire-and-forget: ошибки/отсутствие RPC игнорируем. */
+export async function heartbeatRpc(sessionId: string, playerId: string): Promise<void> {
+  try {
+    await supabase.rpc('heartbeat', { p_session_id: sessionId, p_player_id: playerId })
+  } catch { /* presence не задеплоен — не критично */ }
+}
+
+/** Хост убирает протухших игроков (#5). Возвращает сессию, если кого-то убрали; иначе null. */
+export const pruneStalePlayersRpc = (sessionId: string, ttlMs = 30000) =>
+  sessionRpc('prune_stale_players', { p_session_id: sessionId, p_ttl_ms: ttlMs })
+
 export async function deleteSession(sessionId: string): Promise<void> {
   const { error } = await supabase
     .from('game_sessions')
