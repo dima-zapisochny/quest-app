@@ -19,13 +19,26 @@ import {
 } from '@/services/supabaseService'
 import { useGameSessionStore } from './gameSessionStore'
 
-function createMediaAsset(
-  file: File,
-  url: string,
-  id?: string
-): MediaAsset {
-  const extension = file.name.split('.').pop()?.toLowerCase()
-  const type = file.type.startsWith('audio') || extension === 'mp3' || extension === 'wav' ? 'audio' : 'image'
+const AUDIO_EXT = ['mp3', 'wav', 'ogg', 'm4a', 'aac', 'flac']
+const IMAGE_EXT = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'avif', 'bmp']
+
+/**
+ * Классифицирует файл как 'audio' или 'image'. Возвращает null для неподдерживаемых
+ * типов (видео, PDF и пр.) — раньше всё не-аудио считалось картинкой и рендерилось
+ * как битый <img> (#34).
+ */
+function createMediaAsset(file: File, url: string, id?: string): MediaAsset | null {
+  const extension = file.name.split('.').pop()?.toLowerCase() ?? ''
+  let type: MediaAsset['type'] | null = null
+  if (file.type.startsWith('audio/') || AUDIO_EXT.includes(extension)) {
+    type = 'audio'
+  } else if (file.type.startsWith('image/') || IMAGE_EXT.includes(extension)) {
+    type = 'image'
+  }
+  if (!type) {
+    console.warn(`Неподдерживаемый тип медиа, файл пропущен: ${file.name} (${file.type || 'без MIME'})`)
+    return null
+  }
   return {
     id: id ?? generateId('media'),
     type,
@@ -545,7 +558,7 @@ export const useQuizStore = defineStore('quiz', () => {
         reader.readAsDataURL(file)
       })
       const asset = createMediaAsset(file, url, mediaId)
-      mediaAssets.push(asset)
+      if (asset) mediaAssets.push(asset) // неподдерживаемые типы (видео/PDF) пропускаем (#34)
     }
 
     const key = target === 'question' ? 'questionMedia' : 'answerMedia'

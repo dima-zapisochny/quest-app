@@ -106,6 +106,27 @@
     <h1>Квест не найден</h1>
     <router-link to="/host/setup" class="back-link">← Вернуться к списку квестов</router-link>
   </div>
+
+  <div v-if="confirmModal.visible" class="confirm-backdrop" @click="cancelConfirmModal">
+    <div class="confirm-dialog" role="dialog" aria-modal="true" @click.stop>
+      <h2 class="confirm-title">{{ confirmModal.title }}</h2>
+      <p class="confirm-message">{{ confirmModal.message }}</p>
+      <div class="confirm-actions">
+        <button
+          v-if="confirmModal.kind !== 'info'"
+          type="button"
+          class="confirm-btn confirm-btn--cancel"
+          @click="cancelConfirmModal"
+        >Отмена</button>
+        <button
+          type="button"
+          class="confirm-btn"
+          :class="confirmModal.kind === 'info' ? 'confirm-btn--neutral' : 'confirm-btn--danger'"
+          @click="confirmModalAction"
+        >{{ confirmModal.confirmLabel }}</button>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -294,13 +315,50 @@ async function handleAddRound() {
   }
 }
 
+// Единая модалка подтверждения вместо нативного confirm()/alert() (#33)
+const confirmModal = ref<{
+  visible: boolean
+  kind: 'round' | 'quest' | 'info'
+  roundId: string | null
+  title: string
+  message: string
+  confirmLabel: string
+}>({ visible: false, kind: 'info', roundId: null, title: '', message: '', confirmLabel: 'ОК' })
+
 function handleDeleteRound(roundId: string) {
   if (!quest.value) return
-  if (confirm('Удалить этот раунд и все его категории?')) {
+  confirmModal.value = {
+    visible: true, kind: 'round', roundId,
+    title: 'Удалить раунд?', message: 'Раунд и все его категории будут удалены.',
+    confirmLabel: 'Удалить'
+  }
+}
+
+function cancelConfirmModal() {
+  confirmModal.value = { ...confirmModal.value, visible: false }
+}
+
+async function confirmModalAction() {
+  const { kind, roundId } = confirmModal.value
+  if (kind === 'info') { cancelConfirmModal(); return }
+  cancelConfirmModal()
+  if (!quest.value) return
+  if (kind === 'round' && roundId) {
     store.deleteRound(quest.value.id, roundId)
     if (editingRoundId.value === roundId) {
-      const nextRound = quest.value.rounds?.[0]
-      editingRoundId.value = nextRound?.id ?? null
+      editingRoundId.value = quest.value.rounds?.[0]?.id ?? null
+    }
+  } else if (kind === 'quest') {
+    try {
+      await store.deleteQuest(quest.value.id)
+      router.push('/host/setup')
+    } catch (err) {
+      confirmModal.value = {
+        visible: true, kind: 'info', roundId: null,
+        title: 'Не удалось удалить квест',
+        message: (err as Error)?.message ?? 'Попробуйте ещё раз.',
+        confirmLabel: 'Понятно'
+      }
     }
   }
 }
@@ -329,14 +387,12 @@ function handleDeleteCurrentRound() {
   handleDeleteRound(editingRoundId.value)
 }
 
-async function handleDeleteQuest() {
+function handleDeleteQuest() {
   if (!quest.value) return
-  if (!confirm('Удалить квест целиком? Это действие нельзя отменить.')) return
-  try {
-    await store.deleteQuest(quest.value.id)
-    router.push('/host/setup')
-  } catch (err) {
-    alert((err as Error)?.message ?? 'Не удалось удалить квест')
+  confirmModal.value = {
+    visible: true, kind: 'quest', roundId: null,
+    title: 'Удалить квест целиком?', message: 'Это действие нельзя отменить.',
+    confirmLabel: 'Удалить'
   }
 }
 
@@ -347,6 +403,67 @@ function goBack() {
 </script>
 
 <style scoped>
+/* Модалка подтверждения (замена нативного confirm/alert, #33) */
+.confirm-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: rgba(4, 8, 20, 0.72);
+  backdrop-filter: blur(4px);
+}
+.confirm-dialog {
+  width: min(28rem, 100%);
+  background: rgba(20, 28, 48, 0.98);
+  border: 1px solid rgba(129, 140, 248, 0.4);
+  border-radius: 18px;
+  padding: 1.5rem;
+  box-shadow: 0 24px 60px rgba(4, 8, 20, 0.6);
+}
+.confirm-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.15rem;
+  color: #f8fafc;
+}
+.confirm-message {
+  margin: 0 0 1.25rem;
+  color: #cbd5f5;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+.confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+}
+.confirm-btn {
+  padding: 0.55rem 1.2rem;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.confirm-btn:hover { transform: translateY(-1px); }
+.confirm-btn--cancel {
+  background: transparent;
+  border-color: rgba(148, 163, 184, 0.5);
+  color: #e2e8f0;
+}
+.confirm-btn--danger {
+  background: #dc2626;
+  color: #fff;
+}
+.confirm-btn--neutral {
+  background: rgba(56, 189, 248, 0.25);
+  border-color: rgba(56, 189, 248, 0.5);
+  color: #f8fafc;
+}
+
 .admin-quest-view {
   min-height: 100dvh;
   background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
