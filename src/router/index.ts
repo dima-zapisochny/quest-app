@@ -59,7 +59,7 @@ const router = createRouter({
 })
 
 // Router guard для проверки активной сессии при загрузке
-router.beforeEach(async (to, from, next) => {
+router.beforeEach(async (to, _from, next) => {
   const sessionStore = useGameSessionStore()
   
   // Ждем загрузки store, если он еще загружается
@@ -221,7 +221,7 @@ router.beforeEach(async (to, from, next) => {
           if (!session) {
             try {
               const { getSessionById: getSessionByIdFromDb } = await import('@/services/supabaseService')
-              session = await getSessionByIdFromDb(sessionId)
+              session = (await getSessionByIdFromDb(sessionId)) ?? undefined
             } catch (error) {
               console.error('❌ Error fetching session on retry:', error)
             }

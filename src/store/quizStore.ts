@@ -18,7 +18,6 @@ import {
   uploadQuestMedia
 } from '@/services/supabaseService'
 import { useGameSessionStore } from './gameSessionStore'
-import kinokvestSeed from '@/data/kinokvest.json'
 
 function createMediaAsset(
   file: File,
@@ -369,6 +368,7 @@ export const useQuizStore = defineStore('quiz', () => {
 
   async function replaceRound(questId: string, round: Round) {
     const quest = findQuest(questId)
+    if (!Array.isArray(quest.rounds)) throw new Error('Quest data not loaded (call loadQuestFull first)')
     const index = quest.rounds.findIndex(r => r.id === round.id)
     if (index === -1) throw new Error('Round not found')
     quest.rounds[index] = round
@@ -377,6 +377,7 @@ export const useQuizStore = defineStore('quiz', () => {
 
   async function deleteRound(questId: string, roundId: string) {
     const quest = findQuest(questId)
+    if (!Array.isArray(quest.rounds)) return
     quest.rounds = quest.rounds.filter(r => r.id !== roundId)
     scheduleSave()
   }
@@ -636,7 +637,7 @@ export const useQuizStore = defineStore('quiz', () => {
 
   async function resetQuestProgress(questId: string) {
     const quest = findQuest(questId)
-    quest.rounds.forEach(round => {
+    quest.rounds?.forEach(round => {
       round.categories.forEach(category => {
         category.questions.forEach(question => {
           question.played = false
@@ -720,6 +721,8 @@ export const useQuizStore = defineStore('quiz', () => {
   }
 
   async function addKinokQuest(): Promise<string> {
+    // Ленивая загрузка сид-квеста — чтобы 56 КБ JSON не попадали в основной бандл (#30)
+    const { default: kinokvestSeed } = await import('@/data/kinokvest.json')
     return importQuest(kinokvestSeed as Quest)
   }
 

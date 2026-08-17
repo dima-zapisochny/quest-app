@@ -143,7 +143,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, nextTick } from 'vue'
+import { computed, ref } from 'vue'
 import { useQuizStore } from '@/store/quizStore'
 import type { Question } from '@/types'
 
@@ -321,8 +321,8 @@ function clampDelay(value: number): number {
 
 function updateMediaDelay(target: 'question' | 'answer', mediaId: string, delay: number) {
   const quest = store.quests.find(q => q.id === props.questId)
-  if (!quest) return
-  
+  if (!quest || !Array.isArray(quest.rounds)) return
+
   const round = quest.rounds.find(r => r.id === props.roundId)
   if (!round) return
   

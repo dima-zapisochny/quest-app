@@ -335,7 +335,6 @@ const quest = computed(() => {
   if (session.value?.quest) return session.value.quest
   return questId.value ? quizStore.getQuestById(questId.value) ?? null : null
 })
-const sessionId = computed(() => session.value?.id)
 const showExitConfirm = ref(false)
 const showResetConfirm = ref(false)
 const isExiting = ref(false)
@@ -474,15 +473,14 @@ async function applyManualScore(playerId: string) {
   // В мок-режиме (fallback-список) не вызываем buildLeaderboardFromSession — иначе перезапишет счёт
 }
 
-/** Применить: если введено другое число — задать баллы; иначе отнять выбранный шаг (−5/−10/−15/−20) */
+/** Применить: задаёт введённое число баллов. Если значение не менялось — ничего не делаем
+ *  (раньше это молча отнимало шаг — #27; для вычитания есть отдельная кнопка «Отнять»). */
 function handleApplyClick() {
   if (!hoveredPlayer.value) return
   const currentScore = hoveredPlayer.value.score
   const manualScore = Math.max(0, Math.round(manualScoreInput.value))
   if (manualScore !== currentScore) {
     applyManualScore(hoveredPlayer.value.id)
-  } else {
-    subtractScore(hoveredPlayer.value.id)
   }
 }
 
@@ -569,7 +567,9 @@ async function handleJoinSession() {
   }
 }
 
-const isMockSession = computed(() => !session.value || sessionParticipants.value.length === 0)
+// Мок/демо-режим доски только когда реальной сессии нет вообще (превью вне игры).
+// Реальная сессия без участников — это НЕ мок (показываем «ждём игроков»), см. #8.
+const isMockSession = computed(() => !session.value)
 
 const activeRoundId = computed(() => {
   const rounds = quest.value?.rounds
@@ -626,17 +626,20 @@ const leaderboardEntries = computed<LeaderboardEntry[]>(() => {
 })
 
 function buildLeaderboardFromSession() {
-  if (!session.value || !sessionParticipants.value.length) {
-    leaderboardState.value = fallbackLeaderboard.map(entry => ({ ...entry }))
+  // Реальная сессия: показываем настоящих участников (пусто = ждём игроков, а не фейки — #8)
+  if (session.value) {
+    leaderboardState.value = sessionParticipants.value.map((player, index) => ({
+      id: player.id,
+      name: player.name?.trim() || `Игрок ${index + 1}`,
+      avatar: avatarEmojiMap[player.avatar] ?? '',
+      score: player.score ?? 0 // Используем реальный счет игрока из сессии
+    }))
     return
   }
-  leaderboardState.value = sessionParticipants.value.map((player, index) => ({
-    id: player.id,
-    name: player.name?.trim() || `Игрок ${index + 1}`,
-    avatar: avatarEmojiMap[player.avatar] ?? '',
-    score: player.score ?? 0 // Используем реальный счет игрока из сессии
-  }))
-  console.log('📊 Leaderboard built from session:', leaderboardState.value.map(p => ({ id: p.id, name: p.name, score: p.score })))
+  // Нет сессии (превью доски вне игры): демо-таблица только в dev, в проде — пусто
+  leaderboardState.value = import.meta.env.DEV
+    ? fallbackLeaderboard.map(entry => ({ ...entry }))
+    : []
 }
 
 // Отслеживаем изменения списка участников и их баллов
@@ -704,7 +707,8 @@ watch(
       leaderboardState.value = next
     }
 
-    if (mocking) {
+    // Случайная «болтанка» очков — только для демо-доски в dev, не в проде
+    if (mocking && import.meta.env.DEV) {
       tick()
       timer = window.setInterval(tick, 3000)
     }
@@ -720,6 +724,38 @@ watch(
 
 const SESSION_POLL_MS = 4000
 let sessionPollInterval: ReturnType<typeof setInterval> | null = null
+
+// Хост — авторитет по таймауту отвечающего (#12): даже если у отвечающего закрыта
+// вкладка, хост снимет право ответа через RESPONDER_LIMIT_MS от серверного responderStartedAt.
+const RESPONDER_LIMIT_MS = 10000
+let responderTimeoutId: ReturnType<typeof setTimeout> | null = null
+
+function clearResponderTimeout() {
+  if (responderTimeoutId) {
+    clearTimeout(responderTimeoutId)
+    responderTimeoutId = null
+  }
+}
+
+watch(
+  () => {
+    const aq = session.value?.activeQuestion
+    return aq && aq.currentResponderId && !aq.showAnswer ? aq.responderStartedAt ?? null : null
+  },
+  (startedAt) => {
+    clearResponderTimeout()
+    if (!session.value || startedAt == null) return
+    const remaining = Math.max(0, RESPONDER_LIMIT_MS - (Date.now() - startedAt))
+    responderTimeoutId = setTimeout(() => {
+      const sid = session.value?.id
+      const aq = session.value?.activeQuestion
+      if (sid && aq?.currentResponderId && !aq.showAnswer) {
+        sessionStore.timeoutResponder(sid)
+      }
+    }, remaining)
+  },
+  { immediate: true }
+)
 
 onMounted(async () => {
   buildLeaderboardFromSession()
@@ -797,6 +833,7 @@ onBeforeUnmount(() => {
     clearInterval(sessionPollInterval)
     sessionPollInterval = null
   }
+  clearResponderTimeout()
 })
 
 watch(

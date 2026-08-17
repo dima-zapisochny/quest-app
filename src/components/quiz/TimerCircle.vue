@@ -39,11 +39,19 @@ import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 interface Props {
   durationSec?: number
   autoStart?: boolean
+  /**
+   * Epoch ms старта отсчёта. Если задан — остаток вычисляется от серверного
+   * времени (duration - (now - startedAt)), поэтому переживает перезагрузку и
+   * троттлинг фоновой вкладки и одинаков на всех устройствах (#11).
+   * Если null/undefined — работает старый локальный счётчик (с паузой).
+   */
+  startedAt?: number | null
 }
 
 const props = withDefaults(defineProps<Props>(), {
   durationSec: 20,
-  autoStart: true
+  autoStart: true,
+  startedAt: null
 })
 
 const emit = defineEmits<{
@@ -68,7 +76,12 @@ const strokeDashoffset = computed(() => {
 })
 
 function tick() {
-  elapsed.value += 0.1
+  if (props.startedAt != null) {
+    // Авторитетный режим: остаток от серверного времени старта
+    elapsed.value = (Date.now() - props.startedAt) / 1000
+  } else {
+    elapsed.value += 0.1
+  }
   timeLeft.value = Math.max(0, Math.ceil(props.durationSec - elapsed.value))
 
   if (elapsed.value >= props.durationSec) {
@@ -85,8 +98,9 @@ function startTimer() {
   if (intervalId.value) return
   isRunning.value = true
   isPaused.value = false
-  elapsed.value = 0
-  timeLeft.value = props.durationSec
+  // В авторитетном режиме начальный elapsed берём от timestamp, иначе — с нуля
+  elapsed.value = props.startedAt != null ? (Date.now() - props.startedAt) / 1000 : 0
+  timeLeft.value = Math.max(0, Math.ceil(props.durationSec - elapsed.value))
   startInterval()
 }
 
@@ -116,12 +130,19 @@ function resumeTimer() {
 
 function resetTimer() {
   stopTimer()
-  elapsed.value = 0
-  timeLeft.value = props.durationSec
+  elapsed.value = props.startedAt != null ? (Date.now() - props.startedAt) / 1000 : 0
+  timeLeft.value = Math.max(0, Math.ceil(props.durationSec - elapsed.value))
   if (props.autoStart) {
     startTimer()
   }
 }
+
+// В авторитетном режиме перезапускаем отсчёт при смене точки старта (новый отвечающий)
+watch(() => props.startedAt, (val) => {
+  if (val != null && props.autoStart) {
+    resetTimer()
+  }
+})
 
 watch(() => props.autoStart, newVal => {
   if (newVal && !isRunning.value) {

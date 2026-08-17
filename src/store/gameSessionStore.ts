@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed } from 'vue'
 import type {
   GameSession,
   Quest,
@@ -20,7 +20,13 @@ import {
   updateSession,
   tryBuzz as tryBuzzInDb,
   deleteSession as deleteSessionInDb,
-  subscribeToSessions
+  subscribeToSessions,
+  joinSessionRpc,
+  leaveSessionRpc,
+  awardPointsRpc,
+  setPlayerScoreRpc,
+  resetScoresRpc,
+  timeoutResponderRpc
 } from '@/services/supabaseService'
 
 function generateCode(): string {
@@ -34,8 +40,6 @@ function now() {
 
 /** Максимум участников в одной сессии (включая ведущего). */
 const MAX_SESSION_PLAYERS = 20
-
-let unsubscribeSessions: (() => void) | null = null
 
 export const useGameSessionStore = defineStore('game-session', () => {
   const sessions = ref<GameSession[]>([])
@@ -99,8 +103,9 @@ export const useGameSessionStore = defineStore('game-session', () => {
   if (typeof window !== 'undefined') {
     loadData()
 
-    // Подписываемся на изменения сессий через WebSocket real-time
-    unsubscribeSessions = subscribeToSessions(
+    // Подписываемся на изменения сессий через WebSocket real-time.
+    // Store живёт весь жизненный цикл приложения, поэтому отписка не требуется.
+    subscribeToSessions(
       (session) => {
       console.log('📡 WebSocket update received for session:', session.id, {
         playersCount: session.players.length,
@@ -145,21 +150,8 @@ export const useGameSessionStore = defineStore('game-session', () => {
           }
         }
         
-        // Сохраняем обновленные баллы всех игроков в localStorage
-        if (typeof window !== 'undefined') {
-          session.players.forEach(player => {
-            const scoreKey = `quiz-app-player-score-${session.id}-${player.id}`
-            try {
-              localStorage.setItem(scoreKey, JSON.stringify({
-                score: player.score || 0,
-                savedAt: now()
-              }))
-            } catch (error) {
-              console.error('Error saving player score from WebSocket:', error)
-            }
-          })
-        }
-        
+        // Очки — авторитетно с сервера (session.players[].score). localStorage не используем (#14).
+
         // Создаем полностью новый объект для правильной реактивности Vue
         // Важно создать новый объект, чтобы Vue отследил изменения
         // Также создаем новые объекты для каждого игрока, чтобы Vue отследил изменения в score
@@ -205,17 +197,6 @@ export const useGameSessionStore = defineStore('game-session', () => {
         console.log('🗑️ [Session] Removed deleted session from store:', deletedSessionId)
       }
     )
-
-    // Обработка видимости страницы для переподключения WebSocket
-    if (typeof document !== 'undefined') {
-      const handleVisibilityChange = () => {
-        if (document.visibilityState === 'visible') {
-          // При возврате на страницу проверяем соединение
-          console.log('👁️ Page visible, checking WebSocket connection')
-        }
-      }
-      document.addEventListener('visibilitychange', handleVisibilityChange)
-    }
   }
 
   async function setUserProfile(profile: { name: string; avatar: string }) {
@@ -360,7 +341,7 @@ export const useGameSessionStore = defineStore('game-session', () => {
     // Если не найдено локально, запрашиваем из базы
     if (!session) {
       try {
-        session = await getSessionByCode(code) // Используем импортированную функцию из supabaseService
+        session = (await getSessionByCode(code)) ?? undefined // Используем импортированную функцию из supabaseService
         if (session) {
           // Добавляем в локальный кеш
           const existingIndex = sessions.value.findIndex(s => s.id === session!.id)
@@ -397,75 +378,51 @@ export const useGameSessionStore = defineStore('game-session', () => {
     // Проверяем, есть ли игрок с таким же профилем (по ID профиля)
     const existingPlayer = session.players.find(player => player.id === profile.id)
     if (existingPlayer) {
-      // Если игрок уже в сессии, обновляем сохраненные баллы в localStorage на случай, если они изменились
-      if (typeof window !== 'undefined') {
-        const scoreKey = `quiz-app-player-score-${session.id}-${existingPlayer.id}`
-        try {
-          localStorage.setItem(scoreKey, JSON.stringify({
-            score: existingPlayer.score || 0,
-            savedAt: now()
-          }))
-        } catch (error) {
-          console.error('Error saving existing player score:', error)
-        }
-      }
+      // Игрок уже в сессии — его счёт авторитетно хранится на сервере, ничего не восстанавливаем
       setActivePlayer(session.id, existingPlayer.id)
       return { session, playerId: existingPlayer.id }
     }
-    
-    // Проверяем, были ли сохранены баллы для этого участника в этой сессии
-    let savedScore = 0
+
+    // Новый игрок всегда начинает с 0 — очки авторитетны на сервере (#14), localStorage не читаем
     const playerIdToUse = existingPlayerId || profile.id
-    const scoreKey = `quiz-app-player-score-${session.id}-${playerIdToUse}`
-    
-    if (typeof window !== 'undefined') {
-      try {
-        const savedScoreData = localStorage.getItem(scoreKey)
-        if (savedScoreData) {
-          const parsed = JSON.parse(savedScoreData)
-          savedScore = parsed.score || 0
-          console.log('📊 Restoring saved score for player:', playerIdToUse, 'score:', savedScore)
-        }
-      } catch (error) {
-        console.error('Error loading saved score:', error)
-      }
-    }
-    
-    // Создаем нового игрока, используя existingPlayerId если он указан, и восстанавливаем баллы
     const player: Player = {
       id: playerIdToUse,
       name: profile.name,
       avatar: profile.avatar,
       joinedAt: now(),
       status: 'idle',
-      score: savedScore
+      score: 0
     }
-    
+
+    // Приоритет: атомарный вход через RPC (#7) — устраняет гонку одновременных входов.
+    try {
+      const viaRpc = await joinSessionRpc(session.id, player, MAX_SESSION_PLAYERS)
+      if (viaRpc) {
+        updateSessionInArray(viaRpc)
+        setActivePlayer(viaRpc.id, player.id)
+        return { session: viaRpc, playerId: player.id }
+      }
+    } catch (e) {
+      if (e instanceof Error && e.message === 'SESSION_FULL') {
+        throw new Error(`В игре уже максимальное число участников (${MAX_SESSION_PLAYERS}). Попробуйте подключиться к другой игре.`)
+      }
+      // иная ошибка — уходим в fallback ниже
+    }
+
+    // Fallback (RPC не задеплоен): старый путь read-modify-write через updateSession
     session.players.push(player)
     session.updatedAt = now()
-    
+
     try {
-      console.log('💾 Updating session in database:', session.id, 'New player:', player.name)
       const updated = await updateSession(session)
-      console.log('✅ Session updated in database, players count:', updated.players.length)
-      
       const index = sessions.value.findIndex(s => s.id === session.id)
       if (index >= 0) {
-        // Создаем новый объект с новым массивом players для правильной реактивности Vue
-        // WebSocket подписка также обновит это, но локальное обновление нужно для немедленного отображения
-        const updatedSession: GameSession = {
-          ...updated,
-          players: [...updated.players]
-        }
-        // Обновляем сессию через helper функцию для правильной реактивности
-        updateSessionInArray(updatedSession)
-        console.log('📝 Local session updated, waiting for WebSocket confirmation')
+        updateSessionInArray({ ...updated, players: [...updated.players] })
       }
       setActivePlayer(updated.id, player.id)
       return { session: updated, playerId: player.id }
     } catch (error) {
       console.error('Error updating session:', error)
-      // Fallback: обновляем локально
       updateSessionInArray(session)
       setActivePlayer(session.id, player.id)
       return { session, playerId: player.id }
@@ -531,23 +488,8 @@ export const useGameSessionStore = defineStore('game-session', () => {
   async function leaveSession(sessionId: string, playerId: string) {
     const session = getSessionById(sessionId)
     if (!session) return
-    
-    // Сохраняем баллы участника перед удалением
-    const leavingPlayer = session.players.find(player => player.id === playerId)
-    if (leavingPlayer && typeof window !== 'undefined') {
-      const scoreKey = `quiz-app-player-score-${sessionId}-${playerId}`
-      try {
-        localStorage.setItem(scoreKey, JSON.stringify({
-          score: leavingPlayer.score || 0,
-          savedAt: now()
-        }))
-        console.log('💾 Saved player score before leaving:', playerId, 'score:', leavingPlayer.score)
-      } catch (error) {
-        console.error('Error saving player score:', error)
-      }
-    }
-    
-    // Удаляем участника из массива
+
+    // Удаляем участника из массива (счёт остаётся в строке сессии на сервере до удаления игрока)
     const updatedPlayers = session.players.filter(player => player.id !== playerId)
     const updatedSession = {
       ...session,
@@ -558,14 +500,20 @@ export const useGameSessionStore = defineStore('game-session', () => {
     if (activePlayerSession.value?.sessionId === sessionId && activePlayerSession.value.playerId === playerId) {
       clearActivePlayer()
     }
-    
+
     // Сначала обновляем локально для немедленного отображения
     updateSessionInArray(updatedSession)
-    
+
+    // Приоритет: атомарное удаление через RPC (не затирает параллельные входы)
+    const viaRpc = await leaveSessionRpc(sessionId, playerId)
+    if (viaRpc) {
+      updateSessionInArray(viaRpc)
+      return
+    }
+
     try {
-      // Затем обновляем в базе данных
+      // Fallback: старый путь через updateSession
       const updated = await updateSession(updatedSession)
-      // Обновляем с данными из базы через helper функцию
       updateSessionInArray(updated)
     } catch (error) {
       console.error('Error updating session:', error)
@@ -669,16 +617,46 @@ export const useGameSessionStore = defineStore('game-session', () => {
   async function revealAnswer(sessionId: string) {
     const session = getSessionById(sessionId)
     if (!session || !session.activeQuestion) return
-    
+
     session.activeQuestion.showAnswer = true
     session.updatedAt = now()
-    
+
     try {
       const updated = await updateSession(session)
       updateSessionInArray(updated)
     } catch (error) {
       console.error('Error updating session:', error)
       // Fallback: обновляем локально
+      updateSessionInArray(session)
+    }
+  }
+
+  /**
+   * Помечает активный вопрос как сыгранный по истечению таймера (крестик),
+   * НЕ очищая activeQuestion — чтобы ответ оставался виден участникам,
+   * пока ведущий не закроет модалку. Очистку делает closeQuestion.
+   */
+  async function markActiveQuestionTimedOut(sessionId: string) {
+    const session = getSessionById(sessionId)
+    if (!session || !session.activeQuestion) return
+    const aq = session.activeQuestion
+    if (session.quest?.rounds) {
+      const round = session.quest.rounds.find(r => r.id === aq.roundId)
+      const category = round?.categories?.find(c => c.id === aq.categoryId)
+      const q = category?.questions?.find(qq => qq.id === aq.questionId)
+      if (q && !q.answeredBy) {
+        q.played = true
+        q.timedOut = true
+        const quizStore = useQuizStore()
+        quizStore.markQuestionAsPlayed(session.questId, aq.roundId, aq.categoryId, aq.questionId)
+      }
+    }
+    session.updatedAt = now()
+    try {
+      const updated = await updateSession(session, { includeQuestData: true })
+      updateSessionInArray(updated)
+    } catch (error) {
+      console.error('Error updating session:', error)
       updateSessionInArray(session)
     }
   }
@@ -753,135 +731,72 @@ export const useGameSessionStore = defineStore('game-session', () => {
     const { roundId, categoryId, questionId } = session.activeQuestion
 
     if (correct) {
-      // Находим игрока, который ответил правильно
       const responderId = session.activeQuestion.currentResponderId
-      console.log('🎯 Resolving question as correct, responderId:', responderId)
-      
-      if (!responderId) {
-        console.warn('⚠️ No responder ID found, cannot award points')
-      } else {
-        const player = session.players.find(p => p.id === responderId)
-        if (!player) {
-          console.warn('⚠️ Player not found:', responderId, 'Available players:', session.players.map(p => p.id))
-        } else {
-          console.log('👤 Found player:', { id: player.id, name: player.name, currentScore: player.score })
-          
-          // Получаем значение вопроса из квеста
-          const quest = quizStore.getQuestById(session.questId)
-          if (!quest) {
-            console.warn('⚠️ Quest not found:', session.questId)
-          } else {
-            const round = quest.rounds.find(r => r.id === roundId)
-            if (!round) {
-              console.warn('⚠️ Round not found:', roundId)
-            } else {
-              const category = round.categories.find(c => c.id === categoryId)
-              if (!category) {
-                console.warn('⚠️ Category not found:', categoryId)
-              } else {
-                const question = category.questions.find(q => q.id === questionId)
-                if (!question) {
-                  console.warn('⚠️ Question not found:', questionId)
-                } else {
-                  // Добавляем баллы игроку
-                  const oldScore = player.score || 0
-                  player.score = oldScore + question.value
-                  console.log('✅ Player answered correctly:', {
-                    playerId: player.id,
-                    playerName: player.name,
-                    questionValue: question.value,
-                    oldScore,
-                    newScore: player.score
-                  })
-                  
-                  // Сохраняем обновленные баллы в localStorage
-                  if (typeof window !== 'undefined') {
-                    const scoreKey = `quiz-app-player-score-${sessionId}-${player.id}`
-                    try {
-                      localStorage.setItem(scoreKey, JSON.stringify({
-                        score: player.score,
-                        savedAt: now()
-                      }))
-                      console.log('💾 Saved updated player score:', player.id, 'score:', player.score)
-                    } catch (error) {
-                      console.error('Error saving updated player score:', error)
-                    }
-                  }
-                  
-                  // Сохраняем информацию о том, кто ответил правильно
-                  question.answeredBy = {
-                    playerId: player.id,
-                    playerName: player.name,
-                    playerAvatar: player.avatar
-                  }
-                  
-                  // Убеждаемся, что изменения в массиве игроков видны
-                  const playerIndex = session.players.findIndex(p => p.id === responderId)
-                  if (playerIndex >= 0) {
-                    // Создаем новый массив игроков для реактивности
-                    session.players = [
-                      ...session.players.slice(0, playerIndex),
-                      { ...player },
-                      ...session.players.slice(playerIndex + 1)
-                    ]
-                    console.log('🔄 Updated players array, player score:', session.players[playerIndex].score)
-                  }
-                }
-              }
-            }
-          }
+      const responder = responderId ? session.players.find(p => p.id === responderId) ?? null : null
+
+      // Значение вопроса для начисления + отметка «кто ответил» в квесте
+      let awardDelta = 0
+      const quest = quizStore.getQuestById(session.questId)
+      if (responder && quest && Array.isArray(quest.rounds)) {
+        const question = quest.rounds
+          .find(r => r.id === roundId)?.categories
+          .find(c => c.id === categoryId)?.questions
+          .find(q => q.id === questionId)
+        if (question) {
+          awardDelta = question.value
+          question.answeredBy = { playerId: responder.id, playerName: responder.name, playerAvatar: responder.avatar }
         }
       }
-      
-      // Сохраняем информацию о том, кто ответил правильно
-      const responder = responderId ? session.players.find(p => p.id === responderId) : null
+
+      // Отмечаем вопрос сыгранным (таблица прогресса + снимок квеста в store)
       quizStore.markQuestionAsPlayed(
-        session.questId, 
-        roundId, 
-        categoryId, 
-        questionId,
-        responder ? {
-          playerId: responder.id,
-          playerName: responder.name,
-          playerAvatar: responder.avatar
-        } : undefined
+        session.questId, roundId, categoryId, questionId,
+        responder ? { playerId: responder.id, playerName: responder.name, playerAvatar: responder.avatar } : undefined
       )
-      
-      // Обновляем снепшот квеста в сессии, чтобы на плитках сразу отображалось «кто ответил»
+
+      // Обновляем снимок квеста в сессии, чтобы на плитках сразу отображалось «кто ответил»
       if (session.quest?.rounds) {
-        const round = session.quest.rounds.find(r => r.id === roundId)
-        const category = round?.categories?.find(c => c.id === categoryId)
-        const q = category?.questions?.find(q => q.id === questionId)
+        const q = session.quest.rounds
+          .find(r => r.id === roundId)?.categories
+          ?.find(c => c.id === categoryId)?.questions
+          ?.find(q => q.id === questionId)
         if (q) {
           q.played = true
-          if (responder) {
-            q.answeredBy = {
-              playerId: responder.id,
-              playerName: responder.name,
-              playerAvatar: responder.avatar
-            }
-          }
+          if (responder) q.answeredBy = { playerId: responder.id, playerName: responder.name, playerAvatar: responder.avatar }
         }
       }
-      
-      // Показываем правильный ответ участникам и обновляем сессию
+
+      // Показываем правильный ответ участникам (счёт пока прежний — начислим атомарно ниже)
       session.activeQuestion.showAnswer = true
       session.updatedAt = now()
-      console.log('💾 Saving session with updated scores and showAnswer:', {
-        sessionId: session.id,
-        players: session.players.map(p => ({ id: p.id, name: p.name, score: p.score }))
-      })
-      
       try {
         const updated = await updateSession(session, { includeQuestData: true })
-        console.log('✅ Session updated in database, players:', updated.players.map(p => ({ id: p.id, name: p.name, score: p.score })))
         updateSessionInArray(updated)
       } catch (error) {
         console.error('❌ Error updating session:', error)
         updateSessionInArray(session)
       }
 
-      await closeQuestion(sessionId)
+      // Атомарное начисление очков отвечающему (#14) — не теряется при параллельных записях
+      if (responder && awardDelta > 0) {
+        const viaRpc = await awardPointsRpc(sessionId, responder.id, awardDelta)
+        if (viaRpc) {
+          updateSessionInArray(viaRpc)
+        } else {
+          // Fallback (RPC не задеплоен): начисляем локально и сохраняем ещё раз
+          const p = session.players.find(pp => pp.id === responder.id)
+          if (p) {
+            p.score = (p.score || 0) + awardDelta
+            session.players = [...session.players]
+            session.updatedAt = now()
+            try { updateSessionInArray(await updateSession(session)) }
+            catch { updateSessionInArray(session) }
+          }
+        }
+      }
+
+      // НЕ закрываем вопрос сразу: showAnswer=true оставляет ответ видимым,
+      // пока ведущий не закроет модалку (тогда сработает closeQuestion).
       return
     }
 
@@ -953,15 +868,24 @@ export const useGameSessionStore = defineStore('game-session', () => {
   async function timeoutResponder(sessionId: string) {
     const session = getSessionById(sessionId)
     if (!session || !session.activeQuestion || !session.activeQuestion.currentResponderId) return
-    
+
     const failedPlayerId = session.activeQuestion.currentResponderId
+
+    // Приоритет: атомарный таймаут через RPC (#12) — идемпотентно, не зависит от порядка запросов.
+    const viaRpc = await timeoutResponderRpc(sessionId, failedPlayerId)
+    if (viaRpc) {
+      updateSessionInArray(viaRpc)
+      return
+    }
+
+    // Fallback (RPC не задеплоен): старый путь
     const player = session.players.find(p => p.id === failedPlayerId)
-    
+
     if (player) {
       // Блокируем игрока для этого вопроса
       player.status = 'locked'
     }
-    
+
     // Очищаем текущего отвечающего, но сохраняем buzzedOrder
     session.activeQuestion.currentResponderId = null
     session.activeQuestion.responderStartedAt = null
@@ -995,34 +919,23 @@ export const useGameSessionStore = defineStore('game-session', () => {
       return
     }
     
-    // Сбрасываем баллы всех участников
+    // Приоритет: атомарный сброс через RPC
+    const viaRpc = await resetScoresRpc(sessionId)
+    if (viaRpc) {
+      updateSessionInArray(viaRpc)
+      return
+    }
+
+    // Fallback: старый путь
     session.players.forEach(player => {
       player.score = 0
-      console.log('🔄 Reset score for player:', player.id, player.name)
     })
-    
-    // Очищаем сохраненные баллы в localStorage
-    if (typeof window !== 'undefined') {
-      session.players.forEach(player => {
-        const scoreKey = `quiz-app-player-score-${sessionId}-${player.id}`
-        try {
-          localStorage.removeItem(scoreKey)
-          console.log('🗑️ Removed saved score from localStorage:', scoreKey)
-        } catch (error) {
-          console.error('Error removing saved score from localStorage:', error)
-        }
-      })
-    }
-    
     session.updatedAt = now()
-    
     try {
       const updated = await updateSession(session)
       updateSessionInArray(updated)
-      console.log('✅ Players scores reset successfully')
     } catch (error) {
       console.error('Error updating session after resetting scores:', error)
-      // Fallback: обновляем локально
       updateSessionInArray(session)
     }
   }
@@ -1033,15 +946,16 @@ export const useGameSessionStore = defineStore('game-session', () => {
     const player = session.players.find(p => p.id === playerId)
     if (!player) return
     const score = Math.max(0, Math.round(newScore))
-    player.score = score
-    if (typeof window !== 'undefined') {
-      const scoreKey = `quiz-app-player-score-${sessionId}-${player.id}`
-      try {
-        localStorage.setItem(scoreKey, JSON.stringify({ score, savedAt: now() }))
-      } catch (e) {
-        console.error('Error saving player score to localStorage:', e)
-      }
+
+    // Приоритет: атомарная установка счёта через RPC (не затирает параллельные изменения)
+    const viaRpc = await setPlayerScoreRpc(sessionId, playerId, score)
+    if (viaRpc) {
+      updateSessionInArray(viaRpc)
+      return
     }
+
+    // Fallback: старый путь
+    player.score = score
     session.updatedAt = now()
     try {
       const updated = await updateSession(session)
@@ -1094,7 +1008,7 @@ export const useGameSessionStore = defineStore('game-session', () => {
     if (!session) {
       console.log('📡 Session not found locally, fetching from database...')
       try {
-        session = await getSessionByIdFromDb(sessionId)
+        session = (await getSessionByIdFromDb(sessionId)) ?? undefined
         if (session) {
           console.log('✅ Session loaded from database, players count:', session.players.length)
           // Добавляем в локальный кеш через helper функцию для правильной реактивности
@@ -1223,6 +1137,7 @@ export const useGameSessionStore = defineStore('game-session', () => {
     openQuestion,
     closeQuestion,
     revealAnswer,
+    markActiveQuestionTimedOut,
     syncSessionQuestSnapshot,
     buzz,
     resolveQuestion,
