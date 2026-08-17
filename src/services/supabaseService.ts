@@ -84,21 +84,6 @@ export async function getQuestList(userId: string): Promise<Quest[]> {
 }
 
 /** Повний список квестів з data (важкий, усі медіа в JSON). */
-export async function getAllQuests(userId: string): Promise<Quest[]> {
-  const { data, error } = await supabase
-    .from('quests')
-    .select('*')
-    .eq('user_id', userId)
-    .order('created_at', { ascending: false })
-
-  if (error) {
-    console.error('Error fetching quests:', error)
-    return []
-  }
-
-  return (data || []).map((row: { data: Quest }) => row.data as Quest)
-}
-
 export async function getQuestById(questId: string, userId: string): Promise<Quest | null> {
   const { data, error } = await supabase
     .from('quests')
@@ -209,35 +194,19 @@ export async function deleteQuest(questId: string, userId: string): Promise<void
 // Game Sessions
 // ============================================================================
 
-export async function getAllSessions(): Promise<GameSession[]> {
+/** Только сессии, где пользователь — хост. Для инициализации store не тянем чужие сессии (#17). */
+export async function getSessionsByHost(hostId: string): Promise<GameSession[]> {
   const { data, error } = await supabase
     .from('game_sessions')
     .select('*')
+    .eq('host_id', hostId)
     .order('created_at', { ascending: false })
 
   if (error) {
-    logSupabaseError('getAllSessions', error)
+    logSupabaseError('getSessionsByHost', error)
     return []
   }
-
-  return data.map(row => ({
-    id: row.id,
-    code: row.code,
-    questId: row.quest_id,
-    quest: (row as { quest_data?: Quest }).quest_data || undefined,
-    hostId: row.host_id,
-    hostName: row.host_name,
-    hostAvatar: row.host_avatar,
-    state: row.state,
-    roundId: row.round_id || undefined,
-    players: (row.players as Player[]).map(player => ({
-      ...player,
-      score: player.score ?? 0
-    })),
-    activeQuestion: row.active_question as GameSession['activeQuestion'],
-    createdAt: new Date(row.created_at).getTime(),
-    updatedAt: new Date(row.updated_at).getTime()
-  }))
+  return (data || []).map(row => mapSessionRow(row as Parameters<typeof mapSessionRow>[0]))
 }
 
 export async function getSessionById(sessionId: string): Promise<GameSession | null> {

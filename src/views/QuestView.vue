@@ -722,7 +722,9 @@ watch(
   { immediate: true }
 )
 
-const SESSION_POLL_MS = 4000
+// Realtime тянет большинство обновлений; поллинг — лишь резервный fallback на
+// случай обрыва WebSocket (мы наблюдали CHANNEL_ERROR). Поэтому редкий интервал (#18).
+const SESSION_POLL_MS = 15000
 let sessionPollInterval: ReturnType<typeof setInterval> | null = null
 
 // Хост — авторитет по таймауту отвечающего (#12): даже если у отвечающего закрыта
