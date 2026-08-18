@@ -277,59 +277,18 @@ async function confirmExit() {
   router.push({ name: 'landing' })
 }
 
-// Используем sessionStorage для отслеживания перезагрузки между страницами
-// sessionStorage очищается при закрытии вкладки, но сохраняется при перезагрузке
-function isPageReloading(): boolean {
-  if (typeof window === 'undefined') return false
-  
-  // Проверяем, есть ли активная сессия - если есть, это перезагрузка
-  const storedActiveSession = localStorage.getItem('quiz-app-active-player-session')
-  if (!storedActiveSession) return false
-  
-  try {
-    const parsed = JSON.parse(storedActiveSession)
-    // Если sessionId совпадает с текущим, это перезагрузка
-    return parsed.sessionId === sessionId
-  } catch {
-    return false
-  }
-}
+// Presence (#5/#10): пока игрок на странице — периодически пингуем «я здесь».
+// Уход/закрытие вкладки больше НЕ пытаемся ловить хрупким isPageReloading —
+// heartbeat просто перестаёт идти, и хост убирает игрока по TTL (prune_stale_players).
+// Это разом закрывает и игроков-призраков (#5), и надобность в realtime-костыле (#10).
+const HEARTBEAT_MS = 15000
+let heartbeatTimer: ReturnType<typeof setInterval> | null = null
 
-function handleLeave() {
-  // Не удаляем участника при перезагрузке страницы
-  // Проверяем это ПЕРВЫМ делом, до любых других проверок
-  if (isPageReloading()) {
-    console.log('⏸️ Skipping leaveSession - page is reloading (active session found in localStorage)')
-    return
-  }
-  
-  // Дополнительная проверка: если есть активная сессия в localStorage с таким же sessionId,
-  // это точно перезагрузка, не удаляем игрока
-  const storedActiveSession = localStorage.getItem('quiz-app-active-player-session')
-  if (storedActiveSession) {
-    try {
-      const parsed = JSON.parse(storedActiveSession)
-      if (parsed.sessionId === sessionId) {
-        console.log('⏸️ Skipping leaveSession - active session found, this is a reload')
-        return
-      }
-    } catch (error) {
-      // Игнорируем ошибки парсинга
-    }
-  }
-  
-  // Удаляем участника из сессии при уходе (только если это не перезагрузка)
-  if (sessionId && playerId.value) {
-    console.log('👋 Leaving session:', sessionId, 'player:', playerId.value)
-    // Используем синхронный вызов для надежности при закрытии вкладки
-    sessionStore.leaveSession(sessionId, playerId.value).catch(() => {
-      // Игнорируем ошибки при закрытии вкладки
-    })
-  }
+function sendHeartbeat() {
+  if (sessionId && playerId.value) sessionStore.heartbeat(sessionId, playerId.value)
 }
 
 let handleVisibilityChange: (() => void) | null = null
-let handleBeforeUnload: ((event: BeforeUnloadEvent) => void) | null = null
 
 onMounted(async () => {
   console.log('🎮 PlayerSessionView mounted, sessionId:', sessionId)
@@ -465,24 +424,15 @@ onMounted(async () => {
   }
   
   console.log('✅ PlayerSessionView initialized successfully')
-  
-  // Обработка закрытия вкладки/окна
-  // Используем visibilitychange для более надежной обработки
+
+  // Запускаем presence-heartbeat: сразу и далее каждые HEARTBEAT_MS
+  sendHeartbeat()
+  heartbeatTimer = setInterval(sendHeartbeat, HEARTBEAT_MS)
+  // При возврате на вкладку — сразу пингуем (после фонового троттлинга)
   handleVisibilityChange = () => {
-    if (document.visibilityState === 'hidden') {
-      // handleLeave сам проверит, не перезагрузка ли это
-      handleLeave()
-    }
+    if (document.visibilityState === 'visible') sendHeartbeat()
   }
-  
-  // Обработчик beforeunload - проверяем, не перезагрузка ли это
-  handleBeforeUnload = () => {
-    // handleLeave сам проверит, не перезагрузка ли это через isPageReloading()
-    handleLeave()
-  }
-  
   document.addEventListener('visibilitychange', handleVisibilityChange)
-  window.addEventListener('beforeunload', handleBeforeUnload)
 })
 
 // Отслеживаем удаление сессии (когда хост выходит из игры)
@@ -502,17 +452,15 @@ watch(
 )
 
 onBeforeUnmount(() => {
-  // Удаляем обработчики событий
   if (handleVisibilityChange) {
     document.removeEventListener('visibilitychange', handleVisibilityChange)
   }
-  if (handleBeforeUnload) {
-  window.removeEventListener('beforeunload', handleBeforeUnload)
+  if (heartbeatTimer) {
+    clearInterval(heartbeatTimer)
+    heartbeatTimer = null
   }
-  
-  // Автоматически удаляем участника из сессии при уходе со страницы
-  // handleLeave сам проверит, не перезагрузка ли это
-  handleLeave()
+  // Игрока НЕ удаляем вручную: heartbeat остановится, и хост уберёт его по TTL (#5).
+  // Явный выход («Выйти») по-прежнему делает leaveSession в confirmExit.
 })
 </script>
 

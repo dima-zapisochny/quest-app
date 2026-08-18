@@ -727,6 +727,11 @@ watch(
 const SESSION_POLL_MS = 15000
 let sessionPollInterval: ReturnType<typeof setInterval> | null = null
 
+// Presence-prune (#5): TTL с запасом на фоновый троттлинг heartbeat
+const PRUNE_TTL_MS = 90000
+const PRUNE_CHECK_MS = 20000
+let prunePlayersInterval: ReturnType<typeof setInterval> | null = null
+
 // Хост — авторитет по таймауту отвечающего (#12): даже если у отвечающего закрыта
 // вкладка, хост снимет право ответа через RESPONDER_LIMIT_MS от серверного responderStartedAt.
 const RESPONDER_LIMIT_MS = 10000
@@ -772,6 +777,13 @@ onMounted(async () => {
     sessionPollInterval = setInterval(() => {
       if (session.value?.id) sessionStore.refreshSessionFromServer(session.value!.id)
     }, SESSION_POLL_MS)
+
+    // Хост убирает игроков с протухшим heartbeat (#5). TTL 90с переживает
+    // фоновый троттлинг вкладки игрока (heartbeat ~1/мин в фоне), а закрытая
+    // вкладка удаляется в пределах ~минуты.
+    prunePlayersInterval = setInterval(() => {
+      if (session.value?.id) sessionStore.pruneStalePlayers(session.value!.id, PRUNE_TTL_MS)
+    }, PRUNE_CHECK_MS)
   }
 
   // Завантажуємо список (якщо треба) і повний квест для перегляду/гри
@@ -834,6 +846,10 @@ onBeforeUnmount(() => {
   if (sessionPollInterval) {
     clearInterval(sessionPollInterval)
     sessionPollInterval = null
+  }
+  if (prunePlayersInterval) {
+    clearInterval(prunePlayersInterval)
+    prunePlayersInterval = null
   }
   clearResponderTimeout()
 })

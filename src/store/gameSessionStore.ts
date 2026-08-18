@@ -27,7 +27,9 @@ import {
   awardPointsRpc,
   setPlayerScoreRpc,
   resetScoresRpc,
-  timeoutResponderRpc
+  timeoutResponderRpc,
+  heartbeatRpc,
+  pruneStalePlayersRpc
 } from '@/services/supabaseService'
 
 function generateCode(): string {
@@ -142,39 +144,11 @@ export const useGameSessionStore = defineStore('game-session', () => {
         const oldSession = sessions.value[existingIndex]
         const oldPlayersCount = oldSession.players.length
         const newPlayersCount = session.players.length
-        
-        // Проверяем, не удаляется ли активный игрок через WebSocket
-        // Если это так, и игрок был недавно восстановлен, игнорируем обновление
-        if (typeof window !== 'undefined' && newPlayersCount < oldPlayersCount) {
-          const storedActiveSession = localStorage.getItem('quiz-app-active-player-session')
-          if (storedActiveSession) {
-            try {
-              const parsed = JSON.parse(storedActiveSession)
-              if (parsed.sessionId === session.id) {
-                // Проверяем, есть ли активный игрок в новой версии сессии
-                const activePlayerInNewSession = session.players.find(p => p.id === parsed.playerId)
-                const activePlayerInOldSession = oldSession.players.find(p => p.id === parsed.playerId)
-                
-                // Если активный игрок был в старой версии, но отсутствует в новой,
-                // и это произошло недавно (возможно, из-за перезагрузки), игнорируем обновление
-                if (activePlayerInOldSession && !activePlayerInNewSession) {
-                  // Проверяем timestamp - если обновление произошло недавно, игнорируем
-                  // Это может быть старое обновление от leaveSession при перезагрузке
-                  const updateAge = Date.now() - (session.updatedAt || 0)
-                  if (updateAge < 10000) { // Если обновление произошло менее 10 секунд назад
-                    console.log('⚠️ WebSocket update would remove active player, ignoring (likely from page reload)')
-                    console.log('🔄 Active player will be restored if needed')
-                    console.log('📊 Update age:', updateAge, 'ms, session updatedAt:', session.updatedAt)
-                    return
-                  }
-                }
-              }
-            } catch (error) {
-              // Игнорируем ошибки парсинга
-            }
-          }
-        }
-        
+
+        // Realtime-обновления применяем как есть. Костыль «игнорировать удаление
+        // активного игрока в течение 10с» убран (#10): presence-heartbeat + prune
+        // на хосте теперь авторитетно решают, кто в сессии, без гонок при reload.
+
         // Очки — авторитетно с сервера (session.players[].score). localStorage не используем (#14).
 
         // Создаем полностью новый объект для правильной реактивности Vue
@@ -1164,6 +1138,17 @@ export const useGameSessionStore = defineStore('game-session', () => {
     updateSessionInArray(session)
   }
 
+  /** Presence-пинг игрока — «я ещё здесь» (#5). Вызывается интервалом из PlayerSessionView. */
+  async function heartbeat(sessionId: string, playerId: string): Promise<void> {
+    await heartbeatRpc(sessionId, playerId)
+  }
+
+  /** Хост убирает игроков с протухшим heartbeat (#5). Вызывается интервалом из QuestView. */
+  async function pruneStalePlayers(sessionId: string, ttlMs = 30000): Promise<void> {
+    const updated = await pruneStalePlayersRpc(sessionId, ttlMs)
+    if (updated) updateSessionInArray(updated)
+  }
+
   const sessionList = computed(() => sessions.value)
 
   return {
@@ -1201,6 +1186,8 @@ export const useGameSessionStore = defineStore('game-session', () => {
     checkActiveHostSession,
     checkActiveSession,
     getCurrentDevicePlayer,
-    refreshSessionFromServer
+    refreshSessionFromServer,
+    heartbeat,
+    pruneStalePlayers
   }
 })
