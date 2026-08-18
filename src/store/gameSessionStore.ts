@@ -1130,9 +1130,12 @@ export const useGameSessionStore = defineStore('game-session', () => {
     const idx = sessions.value.findIndex(s => s.id === sessionId)
     if (idx < 0) return
     const local = sessions.value[idx]
-    // Не перезаписуємо quest з сервера: у БД quest_data оновлюється лише при syncSessionQuestSnapshot,
-    // тому з сервера приходить старий снапшот без played — беремо гравців/стан з сервера, квест — з локальної сесії
-    if (local.quest?.rounds?.length) {
+    // Снимок quest_data на сервере авторитетен по «сыграно» (#28): пишется при
+    // resolve / close / timeout / reset (includeQuestData). Раньше здесь сохранялся
+    // локальный квест из-за устаревшего снимка — это и было источником расхождения
+    // между хостом и игроком. Теперь доверяем серверу (как и realtime-путь).
+    // Fallback: если серверный снимок пуст, оставляем локальный квест, чтобы не сломать доску.
+    if (!session.quest?.rounds?.length && local.quest?.rounds?.length) {
       session.quest = local.quest
     }
     updateSessionInArray(session)
