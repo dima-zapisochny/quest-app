@@ -285,7 +285,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, watch, onMounted, onBeforeUnmount, ref, nextTick } from 'vue'
+import { computed, watch, onMounted, onBeforeUnmount, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useQuizStore } from '@/store/quizStore'
 import { useGameSessionStore } from '@/store/gameSessionStore'
@@ -294,7 +294,7 @@ import AppHeader from '@/components/common/AppHeader.vue'
 import { useIsMobileViewport } from '@/composables/useIsMobileViewport'
 import { useHostSessionSync } from '@/composables/useHostSessionSync'
 import { useResponderTimeout } from '@/composables/useResponderTimeout'
-import { avatarEmoji } from '@/utils/avatar'
+import { useLeaderboard } from '@/composables/useLeaderboard'
 
 interface Props {
   questId?: string
@@ -344,149 +344,25 @@ const isExiting = ref(false)
 
 const userProfile = computed(() => sessionStore.userProfile)
 
-interface LeaderboardEntry {
-  id: string
-  name: string
-  avatar: string
-  score: number
-}
-
-const fallbackLeaderboard: LeaderboardEntry[] = [
-  { id: 'mock-player-1', name: 'Арина', avatar: '🦊', score: 3200 },
-  { id: 'mock-player-2', name: 'Борис', avatar: '🐻', score: 3050 },
-  { id: 'mock-player-3', name: 'София', avatar: '🦉', score: 2890 },
-  { id: 'mock-player-4', name: 'Даниил', avatar: '🐯', score: 2760 },
-  { id: 'mock-player-5', name: 'Ева', avatar: '🐼', score: 2620 },
-  { id: 'mock-player-6', name: 'Леон', avatar: '🦁', score: 2480 },
-  { id: 'mock-player-7', name: 'Ника', avatar: '🦋', score: 2340 },
-  { id: 'mock-player-8', name: 'Игорь', avatar: '🦕', score: 2200 },
-  { id: 'mock-player-9', name: 'Кира', avatar: '🐧', score: 2070 },
-  { id: 'mock-player-10', name: 'Максим', avatar: '🐊', score: 1960 },
-  { id: 'mock-player-11', name: 'Оля', avatar: '🦜', score: 1850 },
-  { id: 'mock-player-12', name: 'Павел', avatar: '🦭', score: 1740 },
-  { id: 'mock-player-13', name: 'Рита', avatar: '🦔', score: 1620 },
-  { id: 'mock-player-14', name: 'Слава', avatar: '🐸', score: 1510 },
-  { id: 'mock-player-15', name: 'Таня', avatar: '🦢', score: 1390 },
-  { id: 'mock-player-16', name: 'Ульяна', avatar: '🌸', score: 1280 },
-  { id: 'mock-player-17', name: 'Федор', avatar: '🐺', score: 1170 },
-  { id: 'mock-player-18', name: 'Хлоя', avatar: '🐱', score: 1060 },
-  { id: 'mock-player-19', name: 'Цветан', avatar: '🦎', score: 950 },
-  { id: 'mock-player-20', name: 'Юлия', avatar: '🐰', score: 840 }
-]
-
-const leaderboardState = ref<LeaderboardEntry[]>([])
-const hoveredPlayerId = ref<string | null>(null)
-const manualScoreInput = ref(0)
-const selectedStep = ref(5)
-const STEP_OPTIONS = [5, 10, 15, 20] as const
-const selectedScoreAction = ref<'subtract' | 'add' | null>(null)
-const popoverAnchor = ref<{ left: number; top: number } | null>(null)
-let leavePopoverTimeout: ReturnType<typeof setTimeout> | null = null
-
-function setPopoverAnchor(playerId: string, el: HTMLElement) {
-  if (leavePopoverTimeout) {
-    clearTimeout(leavePopoverTimeout)
-    leavePopoverTimeout = null
-  }
-  hoveredPlayerId.value = playerId
-  selectedScoreAction.value = null
-  const rect = el.getBoundingClientRect()
-  popoverAnchor.value = { left: rect.left + rect.width / 2, top: rect.top }
-}
-
-function clearPopoverAnchor() {
-  leavePopoverTimeout = setTimeout(() => {
-    hoveredPlayerId.value = null
-    popoverAnchor.value = null
-    leavePopoverTimeout = null
-  }, 120)
-}
-
-function cancelClearPopoverAnchor() {
-  if (leavePopoverTimeout) {
-    clearTimeout(leavePopoverTimeout)
-    leavePopoverTimeout = null
-  }
-}
-
-const hoveredPlayer = computed(() =>
-  hoveredPlayerId.value ? leaderboardEntries.value.find(p => p.id === hoveredPlayerId.value) ?? null : null
-)
-
-watch(hoveredPlayerId, (id) => {
-  if (id) {
-    const entry = leaderboardEntries.value.find(e => e.id === id)
-    manualScoreInput.value = entry ? entry.score : 0
-  }
-})
-
-function updateLeaderboardScore(playerId: string, newScore: number) {
-  const list = leaderboardState.value.map(p =>
-    p.id === playerId ? { ...p, score: newScore } : { ...p }
-  )
-  // Присваиваем новый массив для гарантированной реактивности Vue
-  leaderboardState.value = [...list]
-}
-
-async function subtractScore(playerId: string, amount?: number) {
-  const value = amount ?? selectedStep.value
-  const entry = leaderboardEntries.value.find(e => e.id === playerId)
-  if (!entry) return
-  const newScore = Math.max(0, entry.score - value)
-  updateLeaderboardScore(playerId, newScore)
-  const playerInSession = session.value?.players?.some(p => p.id === playerId)
-  if (session.value && playerInSession) {
-    await sessionStore.setPlayerScore(session.value.id, playerId, newScore)
-    await nextTick()
-    buildLeaderboardFromSession()
-  }
-}
-
-async function addScore(playerId: string, amount?: number) {
-  const value = amount ?? selectedStep.value
-  const entry = leaderboardEntries.value.find(e => e.id === playerId)
-  if (!entry) return
-  const newScore = entry.score + value
-  updateLeaderboardScore(playerId, newScore)
-  const playerInSession = session.value?.players?.some(p => p.id === playerId)
-  if (session.value && playerInSession) {
-    await sessionStore.setPlayerScore(session.value.id, playerId, newScore)
-    await nextTick()
-    buildLeaderboardFromSession()
-  }
-}
-
-async function applyManualScore(playerId: string) {
-  const newScore = Math.max(0, Math.round(manualScoreInput.value))
-  // Сразу обновляем карточку (оптимистичное обновление)
-  updateLeaderboardScore(playerId, newScore)
-  const playerInSession = session.value?.players?.some(p => p.id === playerId)
-  if (session.value && playerInSession) {
-    await sessionStore.setPlayerScore(session.value.id, playerId, newScore)
-    await nextTick()
-    buildLeaderboardFromSession()
-  }
-  // В мок-режиме (fallback-список) не вызываем buildLeaderboardFromSession — иначе перезапишет счёт
-}
-
-/** Применить: задаёт введённое число баллов. Если значение не менялось — ничего не делаем
- *  (раньше это молча отнимало шаг — #27; для вычитания есть отдельная кнопка «Отнять»). */
-function handleApplyClick() {
-  if (!hoveredPlayer.value) return
-  const currentScore = hoveredPlayer.value.score
-  const manualScore = Math.max(0, Math.round(manualScoreInput.value))
-  if (manualScore !== currentScore) {
-    applyManualScore(hoveredPlayer.value.id)
-  }
-}
+// Таблица лидеров + hover-поповер + ручная корректировка очков (вынесено в useLeaderboard)
+const {
+  leaderboardEntries,
+  hoveredPlayer,
+  popoverAnchor,
+  manualScoreInput,
+  selectedStep,
+  STEP_OPTIONS,
+  build: buildLeaderboard,
+  setPopoverAnchor,
+  clearPopoverAnchor,
+  cancelClearPopoverAnchor,
+  subtractScore,
+  addScore,
+  handleApplyClick
+} = useLeaderboard(() => session.value)
 
 const joinCodeInput = ref('')
 const joinError = ref('')
-
-const sessionParticipants = computed(() => {
-  if (!session.value) return []
-  return session.value.players.filter(player => player.id !== session.value!.hostId)
-})
 
 // Проверяем, ответил ли игрок (нажал кнопку или заблокирован)
 function isPlayerAnswered(playerId: string): boolean {
@@ -563,10 +439,6 @@ async function handleJoinSession() {
   }
 }
 
-// Мок/демо-режим доски только когда реальной сессии нет вообще (превью вне игры).
-// Реальная сессия без участников — это НЕ мок (показываем «ждём игроков»), см. #8.
-const isMockSession = computed(() => !session.value)
-
 const activeRoundId = computed(() => {
   const rounds = quest.value?.rounds
   if (!quest.value || !Array.isArray(rounds) || rounds.length === 0) return null
@@ -617,107 +489,6 @@ const questProgressPercent = computed(() => {
   return Math.min(100, Math.max(0, Math.round(percent)))
 })
 
-const leaderboardEntries = computed<LeaderboardEntry[]>(() => {
-  return [...leaderboardState.value].sort((a, b) => b.score - a.score)
-})
-
-function buildLeaderboardFromSession() {
-  // Реальная сессия: показываем настоящих участников (пусто = ждём игроков, а не фейки — #8)
-  if (session.value) {
-    leaderboardState.value = sessionParticipants.value.map((player, index) => ({
-      id: player.id,
-      name: player.name?.trim() || `Игрок ${index + 1}`,
-      avatar: avatarEmoji(player.avatar, ''),
-      score: player.score ?? 0 // Используем реальный счет игрока из сессии
-    }))
-    return
-  }
-  // Нет сессии (превью доски вне игры): демо-таблица только в dev, в проде — пусто
-  leaderboardState.value = import.meta.env.DEV
-    ? fallbackLeaderboard.map(entry => ({ ...entry }))
-    : []
-}
-
-// Отслеживаем изменения списка участников и их баллов
-watch(
-  () => session.value?.players ?? [],
-  (newPlayers, oldPlayers) => {
-    if (isMockSession.value && leaderboardState.value.length > 0) return
-    console.log('👥 Players list changed:', {
-      oldCount: oldPlayers?.length || 0,
-      newCount: newPlayers?.length || 0,
-      players: newPlayers.map((p: any) => ({ id: p.id, name: p.name, score: p.score ?? 0 }))
-    })
-    buildLeaderboardFromSession()
-  },
-  { immediate: true, deep: true }
-)
-
-// Отслеживаем изменения баллов игроков отдельно для более точной реактивности
-watch(
-  () => session.value?.players?.map(p => ({ id: p.id, score: p.score ?? 0 })) ?? [],
-  (newScores, oldScores) => {
-    if (isMockSession.value && leaderboardState.value.length > 0) return
-    const scoresChanged = newScores.some((newScore, index) => {
-      const oldScore = oldScores?.[index]
-      return !oldScore || oldScore.score !== newScore.score
-    })
-    if (scoresChanged) {
-      console.log('📊 Player scores changed:', newScores)
-      buildLeaderboardFromSession()
-    }
-  },
-  { deep: true }
-)
-
-// Также отслеживаем изменения самой сессии для обновления списка участников
-watch(
-  () => session.value,
-  (newSession, oldSession) => {
-    // В мок-режиме не перезаписывать лидерборд — там уже могут быть ручные правки баллов
-    if (isMockSession.value && leaderboardState.value.length > 0) return
-    if (newSession && oldSession) {
-      const oldPlayersCount = oldSession.players?.length || 0
-      const newPlayersCount = newSession.players?.length || 0
-      if (oldPlayersCount !== newPlayersCount) {
-        console.log('🔄 Session changed, players count:', oldPlayersCount, '->', newPlayersCount)
-      }
-    }
-    buildLeaderboardFromSession()
-  },
-  { immediate: true, deep: true }
-)
-
-watch(
-  isMockSession,
-  (mocking, _, onCleanup) => {
-    let timer: number | undefined
-
-    const tick = () => {
-      if (!isMockSession.value || leaderboardState.value.length === 0) return
-      const next = leaderboardState.value.map(entry => ({ ...entry }))
-      const randomIndex = Math.floor(Math.random() * next.length)
-      const delta = (Math.floor(Math.random() * 160) + 40) * (Math.random() > 0.25 ? 1 : -1)
-      const player = next[randomIndex]
-      player.score = Math.max(0, player.score + delta)
-      leaderboardState.value = next
-    }
-
-    // Случайная «болтанка» очков — только для демо-доски в dev, не в проде
-    if (mocking && import.meta.env.DEV) {
-      tick()
-      timer = window.setInterval(tick, 3000)
-    }
-
-    onCleanup(() => {
-      if (timer) {
-        window.clearInterval(timer)
-      }
-    })
-  },
-  { immediate: true }
-)
-
 // Резервный поллинг сессии (#18) + prune протухших игроков (#5) на стороне хоста
 const { start: startHostSync } = useHostSessionSync(() => session.value?.id)
 
@@ -734,7 +505,7 @@ watch(
 useResponderTimeout(() => session.value)
 
 onMounted(async () => {
-  buildLeaderboardFromSession()
+  buildLeaderboard()
 
   // Встановити активний раунд для сесії, якщо ще не встановлено
   if (session.value && !session.value.roundId && quest.value?.rounds?.length) {
@@ -804,8 +575,7 @@ watch(
 )
 
 onBeforeUnmount(() => {
-  // poll/prune и responder-timeout снимают useHostSessionSync/useResponderTimeout сами
-  leaderboardState.value = []
+  // poll/prune, responder-timeout и demo-таймер лидерборда снимают их composables сами
   sessionStore.unwatchSession()
 })
 
