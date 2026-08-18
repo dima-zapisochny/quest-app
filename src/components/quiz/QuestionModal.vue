@@ -46,59 +46,16 @@
                 ref="timerRef"
                 @finished="handleReveal"
               />
-              <div v-if="isHostSession" class="host-buttons-row">
-                <button 
-                  class="host-button host-button-success" 
-                  type="button" 
-                  :disabled="!canResolve" 
-                  @click="handleResolve(true)"
-                  aria-label="Правильно"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="20 6 9 17 4 12"></polyline>
-                  </svg>
-                </button>
-                <button
-                  v-if="!showAnswer"
-                  type="button"
-                  class="host-button host-button-pause"
-                  :aria-label="isTimerPaused ? 'Продолжить' : 'Пауза'"
-                  @click="togglePause"
-                >
-                  <svg v-if="!isTimerPaused" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="6" y="4" width="4" height="16"></rect>
-                    <rect x="14" y="4" width="4" height="16"></rect>
-                  </svg>
-                  <svg v-else xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
-                  </svg>
-                </button>
-                <button 
-                  class="host-button host-button-danger" 
-                  type="button" 
-                  :disabled="!canResolve" 
-                  @click="handleResolve(false)"
-                  aria-label="Неправильно"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                  </svg>
-                </button>
-              </div>
+              <HostButtonsRow
+                v-if="isHostSession"
+                :can-resolve="canResolve"
+                :show-answer="showAnswer"
+                :is-timer-paused="isTimerPaused"
+                @resolve="handleResolve"
+                @toggle-pause="togglePause"
+              />
             </div>
-            <div class="responder-info-card">
-              <div v-if="currentResponder" class="responder-card-content">
-                <div class="responder-avatar">{{ avatarEmoji(currentResponder.avatar) }}</div>
-                <div class="responder-details">
-                  <div class="responder-name">{{ currentResponder.name }}</div>
-                  <div class="responder-label">Отвечает</div>
-                </div>
-              </div>
-              <div v-else class="responder-empty">
-                <span>Ожидание ответа</span>
-              </div>
-            </div>
+            <ResponderCard :responder="currentResponder" />
           </aside>
         </section>
 
@@ -137,11 +94,12 @@ import { ref, watch, nextTick, computed } from 'vue'
 import TimerCircle from './TimerCircle.vue'
 import QuestionMediaPreview from './QuestionMediaPreview.vue'
 import AudioControls from './AudioControls.vue'
+import HostButtonsRow from './HostButtonsRow.vue'
+import ResponderCard from './ResponderCard.vue'
 import { useGameSessionStore } from '@/store/gameSessionStore'
 import { useQuizStore } from '@/store/quizStore'
 import type { Question, Player } from '@/types'
 import { safeMediaUrl, isPlayableAudioMedia } from '@/utils/mediaUrl'
-import { avatarEmoji } from '@/utils/avatar'
 import { useAudioPlayer } from '@/composables/useAudioPlayer'
 import { useElapsedTime } from '@/composables/useElapsedTime'
 
@@ -770,39 +728,6 @@ function handleClose() {
   margin-top: 0;
 }
 
-.responder-banner {
-  background: linear-gradient(
-    135deg,
-    rgba(139, 92, 246, 0.2) 0%,
-    rgba(59, 130, 246, 0.15) 100%
-  );
-  border: 1.5px solid rgba(139, 92, 246, 0.5);
-  border-radius: 12px;
-  padding: 0.75rem 1.25rem;
-  color: #e9d5ff;
-  font-size: 0.95rem;
-  text-align: center;
-  font-weight: 600;
-  backdrop-filter: blur(10px);
-  box-shadow: 
-    0 4px 12px rgba(139, 92, 246, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  animation: bannerPulse 2s ease-in-out infinite;
-}
-
-@keyframes bannerPulse {
-  0%, 100% {
-    box-shadow: 
-      0 4px 12px rgba(139, 92, 246, 0.2),
-      inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  }
-  50% {
-    box-shadow: 
-      0 6px 16px rgba(139, 92, 246, 0.3),
-      inset 0 1px 0 rgba(255, 255, 255, 0.15);
-  }
-}
-
 .admin-panel {
   width: 220px;
   max-width: 100%;
@@ -1013,365 +938,6 @@ function handleClose() {
   border-color: rgba(251, 146, 60, 0.7);
 }
 
-.host-buttons-row {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-  width: 100%;
-}
-
-.host-actions {
-  display: flex;
-  flex-direction: row;
-  gap: 0.75rem;
-  width: 100%;
-  justify-content: center;
-}
-
-.host-button {
-  width: 56px;
-  height: 56px;
-  border: none;
-  border-radius: 50%;
-  padding: 0;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  overflow: hidden;
-  backdrop-filter: blur(10px);
-  flex-shrink: 0;
-}
-
-.host-button svg {
-  width: 28px;
-  height: 28px;
-  stroke: currentColor;
-  stroke-width: 2.5;
-  transition: transform 0.2s ease;
-}
-
-.host-button::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.3),
-    transparent
-  );
-  transition: left 0.5s ease;
-}
-
-.host-button:hover::before {
-  left: 100%;
-}
-
-.host-button-success {
-  background: rgba(34, 197, 94, 0.25);
-  color: rgba(34, 197, 94, 0.9);
-  box-shadow: 
-    0 2px 8px rgba(34, 197, 94, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.1);
-  border: 1.5px solid rgba(34, 197, 94, 0.4);
-}
-
-.host-button-success:not(:disabled):hover {
-  background: rgba(34, 197, 94, 0.35);
-  color: rgba(34, 197, 94, 1);
-  box-shadow: 
-    0 4px 12px rgba(34, 197, 94, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.15),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.15);
-  transform: translateY(-1px);
-  border-color: rgba(34, 197, 94, 0.6);
-}
-
-.host-button-success:not(:disabled):hover svg {
-  transform: scale(1.1);
-}
-
-.host-button-success:disabled:hover {
-  transform: none;
-}
-
-.host-button-success:disabled:hover svg {
-  transform: none;
-}
-
-.host-button-danger {
-  background: rgba(239, 68, 68, 0.25);
-  color: rgba(239, 68, 68, 0.9);
-  box-shadow: 
-    0 2px 8px rgba(239, 68, 68, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.1);
-  border: 1.5px solid rgba(239, 68, 68, 0.4);
-}
-
-.host-button-danger:not(:disabled):hover {
-  background: rgba(239, 68, 68, 0.35);
-  color: rgba(239, 68, 68, 1);
-  box-shadow: 
-    0 4px 12px rgba(239, 68, 68, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.15),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.15);
-  transform: translateY(-1px);
-  border-color: rgba(239, 68, 68, 0.6);
-}
-
-.host-button-danger:not(:disabled):hover svg {
-  transform: scale(1.1);
-}
-
-.host-button-danger:disabled:hover {
-  transform: none;
-}
-
-.host-button-danger:disabled:hover svg {
-  transform: none;
-}
-
-.host-button-pause {
-  background: rgba(56, 189, 248, 0.25);
-  color: rgba(56, 189, 248, 0.95);
-  box-shadow: 0 2px 8px rgba(56, 189, 248, 0.2);
-}
-
-.host-button-pause:hover {
-  background: rgba(56, 189, 248, 0.35);
-  color: #22d3ee;
-  box-shadow: 0 2px 10px rgba(56, 189, 248, 0.3);
-}
-
-.host-button-pause:hover svg {
-  transform: scale(1.1);
-}
-
-.host-button:disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
-  transform: none;
-}
-
-.responder-info-card {
-  width: 100%;
-  max-width: 100%;
-  margin-top: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  box-sizing: border-box;
-}
-
-.responder-card-content {
-  width: 100%;
-  max-width: 100%;
-  min-height: 80px;
-  height: 80px;
-  background: linear-gradient(
-    135deg,
-    rgba(30, 41, 59, 0.8) 0%,
-    rgba(15, 23, 42, 0.9) 100%
-  );
-  border: 1.5px solid rgba(139, 92, 246, 0.4);
-  border-radius: 16px;
-  padding: 1rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  backdrop-filter: blur(15px);
-  box-shadow: 
-    0 8px 24px rgba(139, 92, 246, 0.2),
-    0 4px 12px rgba(2, 6, 23, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.2);
-  position: relative;
-  overflow: hidden;
-  box-sizing: border-box;
-}
-
-.responder-card-content::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(
-    135deg,
-    rgba(139, 92, 246, 0.1) 0%,
-    transparent 50%,
-    rgba(59, 130, 246, 0.1) 100%
-  );
-  pointer-events: none;
-}
-
-.responder-avatar {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: rgba(139, 92, 246, 0.2);
-  border: 2px solid rgba(139, 92, 246, 0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.75rem;
-  flex-shrink: 0;
-  position: relative;
-  z-index: 1;
-}
-
-.responder-details {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  min-width: 0;
-  position: relative;
-  z-index: 1;
-}
-
-.responder-name {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #f8fafc;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.responder-label {
-  font-size: 0.75rem;
-  color: rgba(186, 230, 253, 0.7);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.responder-empty {
-  width: 100%;
-  max-width: 100%;
-  min-height: 80px;
-  height: 80px;
-  background: linear-gradient(
-    135deg,
-    rgba(30, 41, 59, 0.6) 0%,
-    rgba(15, 23, 42, 0.7) 100%
-  );
-  border: 1.5px solid rgba(148, 163, 184, 0.2);
-  border-radius: 16px;
-  padding: 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  backdrop-filter: blur(15px);
-  box-shadow: 
-    0 4px 12px rgba(0, 0, 0, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  box-sizing: border-box;
-}
-
-.responder-empty span {
-  font-size: 0.875rem;
-  color: rgba(148, 163, 184, 0.7);
-  font-style: italic;
-}
-
-.responder-card {
-  width: 100%;
-  background: linear-gradient(
-    135deg,
-    rgba(30, 41, 59, 0.8) 0%,
-    rgba(15, 23, 42, 0.9) 100%
-  );
-  border: 1.5px solid rgba(139, 92, 246, 0.4);
-  border-radius: 16px;
-  padding: 1rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  backdrop-filter: blur(15px);
-  box-shadow: 
-    0 8px 24px rgba(139, 92, 246, 0.2),
-    0 4px 12px rgba(2, 6, 23, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.2);
-  position: relative;
-  overflow: hidden;
-}
-
-.responder-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(
-    135deg,
-    rgba(139, 92, 246, 0.1) 0%,
-    transparent 50%,
-    rgba(59, 130, 246, 0.1) 100%
-  );
-  pointer-events: none;
-}
-
-.responder-card-avatar {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: linear-gradient(
-    135deg,
-    rgba(139, 92, 246, 0.3) 0%,
-    rgba(59, 130, 246, 0.2) 100%
-  );
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.75rem;
-  flex-shrink: 0;
-  border: 2px solid rgba(139, 92, 246, 0.5);
-  box-shadow: 
-    0 4px 12px rgba(139, 92, 246, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  position: relative;
-  z-index: 1;
-}
-
-.responder-card-info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  flex: 1;
-  min-width: 0;
-}
-
-.responder-card-name {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #f8fafc;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.responder-card-label {
-  font-size: 0.7rem;
-  color: rgba(148, 163, 184, 0.7);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
 .modal-title {
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: clamp(1.75rem, 3.5vw, 2.9rem);
@@ -1515,32 +1081,6 @@ function handleClose() {
     padding: 1.5rem 1rem;
     gap: 1rem;
   }
-
-  .host-buttons-row,
-  .host-actions {
-    gap: 0.6rem;
-  }
-
-  .host-button {
-    width: 48px;
-    height: 48px;
-  }
-
-  .host-button svg {
-    width: 24px;
-    height: 24px;
-  }
-
-  .responder-info-card {
-    padding: 0.75rem 1rem;
-  }
-
-  .responder-card-content,
-  .responder-empty {
-    min-height: 70px;
-    height: 70px;
-    padding: 0.65rem 0.85rem;
-  }
   .media-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
@@ -1583,23 +1123,6 @@ function handleClose() {
     padding: 1.25rem 0.875rem;
     gap: 0.875rem;
   }
-
-  .host-button {
-    width: 44px;
-    height: 44px;
-  }
-
-  .host-button svg {
-    width: 22px;
-    height: 22px;
-  }
-
-  .responder-card-content,
-  .responder-empty {
-    min-height: 65px;
-    height: 65px;
-    padding: 0.6rem 0.75rem;
-  }
   .media-grid {
     grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
     gap: 0.75rem;
@@ -1625,23 +1148,6 @@ function handleClose() {
     padding: 1rem 0.75rem;
     gap: 0.75rem;
   }
-
-  .host-button {
-    width: 40px;
-    height: 40px;
-  }
-
-  .host-button svg {
-    width: 20px;
-    height: 20px;
-  }
-
-  .responder-card-content,
-  .responder-empty {
-    min-height: 60px;
-    height: 60px;
-    padding: 0.55rem 0.65rem;
-  }
   .media-grid {
     grid-template-columns: repeat(auto-fit, minmax(85px, 1fr));
     gap: 0.6rem;
@@ -1666,23 +1172,6 @@ function handleClose() {
     min-height: 220px;
     padding: 0.875rem 0.65rem;
     gap: 0.65rem;
-  }
-
-  .host-button {
-    width: 36px;
-    height: 36px;
-  }
-
-  .host-button svg {
-    width: 18px;
-    height: 18px;
-  }
-
-  .responder-card-content,
-  .responder-empty {
-    min-height: 55px;
-    height: 55px;
-    padding: 0.5rem 0.6rem;
   }
   .media-grid {
     grid-template-columns: repeat(auto-fit, minmax(75px, 1fr));
