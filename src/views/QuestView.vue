@@ -176,25 +176,16 @@
   </teleport>
   
   <!-- Модальное окно подтверждения выхода из игры -->
-  <teleport to="body">
-    <div v-if="showExitConfirm" class="quest-modal-backdrop" @click="cancelExit">
-      <div class="quest-modal quest-modal--confirm" role="dialog" aria-modal="true" @click.stop>
-        <header class="quest-modal__header">
-          <h2>Выход из игры</h2>
-          <button type="button" class="quest-modal__close" @click="cancelExit" aria-label="Закрыть">✕</button>
-        </header>
-        <div class="quest-modal__body">
-          <p>Вы уверены, что хотите выйти из игры? Все данные игры будут утеряны.</p>
-        </div>
-        <div class="quest-modal__actions">
-          <button type="button" class="secondary" @click="cancelExit" :disabled="isExiting">Отмена</button>
-          <button type="button" class="danger" @click="confirmExit" :disabled="isExiting">
-            {{ isExiting ? 'Выход...' : 'Выйти' }}
-          </button>
-        </div>
-      </div>
-    </div>
-  </teleport>
+  <ConfirmDialog
+    :show="showExitConfirm"
+    title="Выход из игры"
+    message="Вы уверены, что хотите выйти из игры? Все данные игры будут утеряны."
+    confirm-label="Выйти"
+    busy-label="Выход..."
+    :busy="isExiting"
+    @confirm="confirmExit"
+    @cancel="cancelExit"
+  />
 
   <!-- Мини-окно участника поверх полосы с участниками -->
   <teleport to="body">
@@ -265,23 +256,14 @@
   </teleport>
 
   <!-- Модальное окно подтверждения сброса прогресса -->
-  <teleport to="body">
-    <div v-if="showResetConfirm" class="quest-modal-backdrop" @click="cancelReset">
-      <div class="quest-modal quest-modal--confirm" role="dialog" aria-modal="true" @click.stop>
-        <header class="quest-modal__header">
-          <h2>Сбросить прогресс</h2>
-          <button type="button" class="quest-modal__close" @click="cancelReset" aria-label="Закрыть">✕</button>
-        </header>
-        <div class="quest-modal__body">
-          <p>Вы уверены, что хотите сбросить весь прогресс квеста? Это действие нельзя отменить.</p>
-        </div>
-        <div class="quest-modal__actions">
-          <button type="button" class="secondary" @click="cancelReset">Отмена</button>
-          <button type="button" class="danger" @click="confirmReset">Сбросить</button>
-        </div>
-      </div>
-    </div>
-  </teleport>
+  <ConfirmDialog
+    :show="showResetConfirm"
+    title="Сбросить прогресс"
+    message="Вы уверены, что хотите сбросить весь прогресс квеста? Это действие нельзя отменить."
+    confirm-label="Сбросить"
+    @confirm="confirmReset"
+    @cancel="cancelReset"
+  />
 </template>
 
 <script setup lang="ts">
@@ -291,6 +273,7 @@ import { useQuizStore } from '@/store/quizStore'
 import { useGameSessionStore } from '@/store/gameSessionStore'
 import QuizBoard from '@/components/quiz/QuizBoard.vue'
 import AppHeader from '@/components/common/AppHeader.vue'
+import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
 import { useIsMobileViewport } from '@/composables/useIsMobileViewport'
 import { useHostSessionSync } from '@/composables/useHostSessionSync'
 import { useResponderTimeout } from '@/composables/useResponderTimeout'
@@ -2003,133 +1986,6 @@ async function confirmReset() {
   text-shadow: 0 2px 8px rgba(15, 23, 42, 0.3);
 }
 
-.quest-modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.65);
-  backdrop-filter: blur(12px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1.5rem;
-  z-index: 2000;
-}
-
-.quest-modal {
-  width: min(480px, 100%);
-  border-radius: 20px;
-  background: rgba(15, 23, 42, 0.95);
-  border: 1px solid rgba(56, 189, 248, 0.28);
-  box-shadow: 0 30px 60px rgba(8, 47, 73, 0.45);
-  color: #f8fafc;
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-  padding: 1.6rem;
-}
-
-.quest-modal--confirm {
-  max-width: 500px;
-  padding: 1.9rem;
-  gap: 1.5rem;
-}
-
-.quest-modal__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
-.quest-modal__header h2 {
-  margin: 0;
-  font-size: 1.25rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #22d3ee;
-}
-
-.quest-modal__close {
-  background: rgba(15, 118, 110, 0.15);
-  border: 1px solid rgba(34, 211, 238, 0.45);
-  color: #bae6fd;
-  border-radius: 50%;
-  width: 34px;
-  height: 34px;
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.2rem;
-  line-height: 1;
-}
-
-.quest-modal__close:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(34, 211, 238, 0.3);
-}
-
-.quest-modal__body {
-  color: rgba(226, 232, 240, 0.9);
-  line-height: 1.6;
-}
-
-.quest-modal__actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.75rem;
-  margin-top: 0.5rem;
-}
-
-.quest-modal__actions .secondary,
-.quest-modal__actions .danger {
-  min-width: 140px;
-  padding: 0.75rem 1.5rem;
-  border-radius: 999px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  border: none;
-}
-
-.quest-modal__actions .secondary {
-  background: rgba(15, 118, 110, 0.15);
-  border: 1px solid rgba(34, 211, 238, 0.45);
-  color: #bae6fd;
-}
-
-.quest-modal__actions .secondary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 14px 24px rgba(34, 211, 238, 0.22);
-}
-
-.quest-modal__actions .danger {
-  background: linear-gradient(135deg, #ef4444, #dc2626);
-  color: #fff;
-  box-shadow: 0 12px 24px rgba(239, 68, 68, 0.28);
-}
-
-.quest-modal__actions .danger:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 16px 26px rgba(239, 68, 68, 0.32);
-}
-
-@media (max-width: 640px) {
-  .quest-modal {
-    padding: 1.25rem;
-  }
-
-  .quest-modal__actions {
-    flex-direction: column-reverse;
-    align-items: stretch;
-  }
-
-  .quest-modal__actions .secondary,
-  .quest-modal__actions .danger {
-    width: 100%;
-  }
-}
 
 @media (max-width: 1200px) {
   .empty-round,
