@@ -4,13 +4,19 @@ import type {
   GameSession,
   Quest,
   UserProfile,
-  Player,
-  ActiveQuestionState,
-  PlayerStatus
+  Player
 } from '@/types'
 import { useQuizStore } from './quizStore'
 import { useProfileStore } from './profileStore'
 import { generateId } from '@/utils/id'
+import {
+  findQuestion,
+  resetPlayersStatuses,
+  buildActiveQuestion,
+  applyBuzzFallback,
+  applyWrongAnswer,
+  applyTimeoutResponderFallback
+} from '@/services/gameFlow'
 import {
   getSessionsByHost,
   getSessionById as getSessionByIdFromDb,
@@ -169,6 +175,26 @@ export const useGameSessionStore = defineStore('game-session', () => {
       return true
     }
     return false
+  }
+
+  /**
+   * Сохраняет сессию на сервер и применяет результат в стор. При ошибке сети
+   * оставляет локальную мутацию (оптимистично). Убирает повтор try/updateSession/
+   * updateSessionInArray/catch во всех host-операциях игрового цикла.
+   */
+  async function persistSession(
+    session: GameSession,
+    opts?: { includeQuestData?: boolean }
+  ): Promise<GameSession> {
+    try {
+      const updated = await updateSession(session, opts)
+      updateSessionInArray(updated)
+      return updated
+    } catch (error) {
+      console.error('Error updating session:', error)
+      updateSessionInArray(session)
+      return session
+    }
   }
 
   async function createSession(questId: string, questSnapshot?: Quest) {
@@ -432,22 +458,7 @@ export const useGameSessionStore = defineStore('game-session', () => {
     session.roundId = roundId
     session.state = 'active'
     session.updatedAt = now()
-    
-    try {
-      const updated = await updateSession(session)
-      updateSessionInArray(updated)
-    } catch (error) {
-      console.error('Error updating session:', error)
-      // Fallback: обновляем локально
-      updateSessionInArray(session)
-    }
-  }
-
-  function resetPlayersStatuses(session: GameSession, status: PlayerStatus = 'idle') {
-    session.players.forEach(player => {
-      player.status = status
-      player.buzzedAt = undefined
-    })
+    await persistSession(session)
   }
 
   async function openQuestion(
@@ -456,32 +467,12 @@ export const useGameSessionStore = defineStore('game-session', () => {
   ) {
     const session = getSessionById(sessionId)
     if (!session) return
-    
+
     resetPlayersStatuses(session)
-    const active: ActiveQuestionState = {
-      roundId: payload.roundId,
-      categoryId: payload.categoryId,
-      questionId: payload.questionId,
-      openedAt: now(),
-      showAnswer: false,
-      timerPaused: false,
-      buzzedOrder: [],
-      currentResponderId: null,
-      responderStartedAt: null
-    }
-    
-    session.activeQuestion = active
+    session.activeQuestion = buildActiveQuestion(payload, now())
     session.state = 'active'
     session.updatedAt = now()
-    
-    try {
-      const updated = await updateSession(session)
-      updateSessionInArray(updated)
-    } catch (error) {
-      console.error('Error updating session:', error)
-      // Fallback: обновляем локально
-      updateSessionInArray(session)
-    }
+    await persistSession(session)
   }
 
   async function closeQuestion(sessionId: string, options?: { byTimeout?: boolean }) {
@@ -491,16 +482,13 @@ export const useGameSessionStore = defineStore('game-session', () => {
     const aq = session.activeQuestion
     const byTimeout = options?.byTimeout === true
     // Сыгранным помечаем только при таймауте (крестик). Ручное закрытие до конца таймера — вопрос остаётся не разыгранным.
-    if (aq && session.quest?.rounds) {
-      const round = session.quest.rounds.find(r => r.id === aq.roundId)
-      const category = round?.categories?.find(c => c.id === aq.categoryId)
-      const q = category?.questions?.find(q => q.id === aq.questionId)
-      if (q && byTimeout) {
+    if (aq && byTimeout) {
+      const q = findQuestion(session.quest, aq.roundId, aq.categoryId, aq.questionId)
+      if (q) {
         q.played = true
         if (!q.answeredBy) {
           q.timedOut = true
-          const quizStore = useQuizStore()
-          quizStore.markQuestionAsPlayed(session.questId, aq.roundId, aq.categoryId, aq.questionId)
+          useQuizStore().markQuestionAsPlayed(session.questId, aq.roundId, aq.categoryId, aq.questionId)
         }
       }
     }
@@ -508,14 +496,7 @@ export const useGameSessionStore = defineStore('game-session', () => {
     session.activeQuestion = undefined
     resetPlayersStatuses(session)
     session.updatedAt = now()
-
-    try {
-      const updated = await updateSession(session, { includeQuestData: true })
-      updateSessionInArray(updated)
-    } catch (error) {
-      console.error('Error updating session:', error)
-      updateSessionInArray(session)
-    }
+    await persistSession(session, { includeQuestData: true })
   }
 
   async function revealAnswer(sessionId: string) {
@@ -524,15 +505,7 @@ export const useGameSessionStore = defineStore('game-session', () => {
 
     session.activeQuestion.showAnswer = true
     session.updatedAt = now()
-
-    try {
-      const updated = await updateSession(session)
-      updateSessionInArray(updated)
-    } catch (error) {
-      console.error('Error updating session:', error)
-      // Fallback: обновляем локально
-      updateSessionInArray(session)
-    }
+    await persistSession(session)
   }
 
   /**
@@ -544,25 +517,14 @@ export const useGameSessionStore = defineStore('game-session', () => {
     const session = getSessionById(sessionId)
     if (!session || !session.activeQuestion) return
     const aq = session.activeQuestion
-    if (session.quest?.rounds) {
-      const round = session.quest.rounds.find(r => r.id === aq.roundId)
-      const category = round?.categories?.find(c => c.id === aq.categoryId)
-      const q = category?.questions?.find(qq => qq.id === aq.questionId)
-      if (q && !q.answeredBy) {
-        q.played = true
-        q.timedOut = true
-        const quizStore = useQuizStore()
-        quizStore.markQuestionAsPlayed(session.questId, aq.roundId, aq.categoryId, aq.questionId)
-      }
+    const q = findQuestion(session.quest, aq.roundId, aq.categoryId, aq.questionId)
+    if (q && !q.answeredBy) {
+      q.played = true
+      q.timedOut = true
+      useQuizStore().markQuestionAsPlayed(session.questId, aq.roundId, aq.categoryId, aq.questionId)
     }
     session.updatedAt = now()
-    try {
-      const updated = await updateSession(session, { includeQuestData: true })
-      updateSessionInArray(updated)
-    } catch (error) {
-      console.error('Error updating session:', error)
-      updateSessionInArray(session)
-    }
+    await persistSession(session, { includeQuestData: true })
   }
 
   async function syncSessionQuestSnapshot(questId: string, quest: Quest) {
@@ -605,26 +567,9 @@ export const useGameSessionStore = defineStore('game-session', () => {
     }
 
     // Fallback, если RPC try_buzz не подключён или ошибка: локальная логика (возможна гонка).
-    if (!session.activeQuestion.currentResponderId) {
-      session.activeQuestion.currentResponderId = playerId
-      session.activeQuestion.buzzedOrder.push(playerId)
-      session.activeQuestion.timerPaused = true
-      session.activeQuestion.responderStartedAt = now()
-      player.status = 'buzzed'
-      player.buzzedAt = now()
-    } else {
-      session.activeQuestion.buzzedOrder.push(playerId)
-      player.status = 'queued'
-      player.buzzedAt = now()
-    }
+    applyBuzzFallback(session, playerId, now())
     session.updatedAt = now()
-    try {
-      const saved = await updateSession(session)
-      updateSessionInArray(saved)
-    } catch (error) {
-      console.error('Error updating session:', error)
-      updateSessionInArray(session)
-    }
+    await persistSession(session)
   }
 
   async function resolveQuestion(sessionId: string, correct: boolean) {
@@ -637,49 +582,32 @@ export const useGameSessionStore = defineStore('game-session', () => {
     if (correct) {
       const responderId = session.activeQuestion.currentResponderId
       const responder = responderId ? session.players.find(p => p.id === responderId) ?? null : null
+      const answeredBy = responder
+        ? { playerId: responder.id, playerName: responder.name, playerAvatar: responder.avatar }
+        : undefined
 
       // Значение вопроса для начисления + отметка «кто ответил» в квесте
       let awardDelta = 0
-      const quest = quizStore.getQuestById(session.questId)
-      if (responder && quest && Array.isArray(quest.rounds)) {
-        const question = quest.rounds
-          .find(r => r.id === roundId)?.categories
-          .find(c => c.id === categoryId)?.questions
-          .find(q => q.id === questionId)
-        if (question) {
-          awardDelta = question.value
-          question.answeredBy = { playerId: responder.id, playerName: responder.name, playerAvatar: responder.avatar }
-        }
+      const question = findQuestion(quizStore.getQuestById(session.questId), roundId, categoryId, questionId)
+      if (responder && question) {
+        awardDelta = question.value
+        question.answeredBy = answeredBy
       }
 
       // Отмечаем вопрос сыгранным (таблица прогресса + снимок квеста в store)
-      quizStore.markQuestionAsPlayed(
-        session.questId, roundId, categoryId, questionId,
-        responder ? { playerId: responder.id, playerName: responder.name, playerAvatar: responder.avatar } : undefined
-      )
+      quizStore.markQuestionAsPlayed(session.questId, roundId, categoryId, questionId, answeredBy)
 
       // Обновляем снимок квеста в сессии, чтобы на плитках сразу отображалось «кто ответил»
-      if (session.quest?.rounds) {
-        const q = session.quest.rounds
-          .find(r => r.id === roundId)?.categories
-          ?.find(c => c.id === categoryId)?.questions
-          ?.find(q => q.id === questionId)
-        if (q) {
-          q.played = true
-          if (responder) q.answeredBy = { playerId: responder.id, playerName: responder.name, playerAvatar: responder.avatar }
-        }
+      const snapQ = findQuestion(session.quest, roundId, categoryId, questionId)
+      if (snapQ) {
+        snapQ.played = true
+        if (responder) snapQ.answeredBy = answeredBy
       }
 
       // Показываем правильный ответ участникам (счёт пока прежний — начислим атомарно ниже)
       session.activeQuestion.showAnswer = true
       session.updatedAt = now()
-      try {
-        const updated = await updateSession(session, { includeQuestData: true })
-        updateSessionInArray(updated)
-      } catch (error) {
-        console.error('❌ Error updating session:', error)
-        updateSessionInArray(session)
-      }
+      await persistSession(session, { includeQuestData: true })
 
       // Атомарное начисление очков отвечающему (#14) — не теряется при параллельных записях
       if (responder && awardDelta > 0) {
@@ -693,8 +621,7 @@ export const useGameSessionStore = defineStore('game-session', () => {
             p.score = (p.score || 0) + awardDelta
             session.players = [...session.players]
             session.updatedAt = now()
-            try { updateSessionInArray(await updateSession(session)) }
-            catch { updateSessionInArray(session) }
+            await persistSession(session)
           }
         }
       }
@@ -704,69 +631,28 @@ export const useGameSessionStore = defineStore('game-session', () => {
       return
     }
 
-    const failedPlayerId = session.activeQuestion.currentResponderId
-    if (failedPlayerId) {
-      const player = session.players.find(p => p.id === failedPlayerId)
-      if (player) {
-        player.status = 'locked'
-        // За неправильный ответ баллы не отнимаем
-      }
-    }
-    
-    // очистить очередь и позволить игрокам нажимать снова
-    session.activeQuestion.buzzedOrder = []
-    session.activeQuestion.currentResponderId = null
-    session.activeQuestion.timerPaused = false
-
-    session.players.forEach(player => {
-      if (player.status !== 'locked') {
-        player.status = 'idle'
-      }
-    })
-    
+    // Неправильный ответ: блокируем отвечающего, очищаем очередь, разрешаем остальным.
+    applyWrongAnswer(session)
     session.updatedAt = now()
-    
-    try {
-      const updated = await updateSession(session)
-      updateSessionInArray(updated)
-    } catch (error) {
-      console.error('Error updating session:', error)
-      // Fallback: обновляем локально
-      updateSessionInArray(session)
-    }
+    await persistSession(session)
   }
 
   async function pauseTimer(sessionId: string) {
     const session = getSessionById(sessionId)
     if (!session || !session.activeQuestion) return
-    
+
     session.activeQuestion.timerPaused = true
     session.updatedAt = now()
-    
-    try {
-      const updated = await updateSession(session)
-      updateSessionInArray(updated)
-    } catch (error) {
-      console.error('Error updating session:', error)
-      updateSessionInArray(session)
-    }
+    await persistSession(session)
   }
 
   async function resumeTimer(sessionId: string) {
     const session = getSessionById(sessionId)
     if (!session || !session.activeQuestion) return
-    
+
     session.activeQuestion.timerPaused = false
     session.updatedAt = now()
-    
-    try {
-      const updated = await updateSession(session)
-      updateSessionInArray(updated)
-    } catch (error) {
-      console.error('Error updating session:', error)
-      // Fallback: обновляем локально
-      updateSessionInArray(session)
-    }
+    await persistSession(session)
   }
 
   async function timeoutResponder(sessionId: string) {
@@ -782,38 +668,10 @@ export const useGameSessionStore = defineStore('game-session', () => {
       return
     }
 
-    // Fallback (RPC не задеплоен): старый путь
-    const player = session.players.find(p => p.id === failedPlayerId)
-
-    if (player) {
-      // Блокируем игрока для этого вопроса
-      player.status = 'locked'
-    }
-
-    // Очищаем текущего отвечающего, но сохраняем buzzedOrder
-    session.activeQuestion.currentResponderId = null
-    session.activeQuestion.responderStartedAt = null
-    
-    // Возобновляем общий таймер вопроса (30 секунд), чтобы он продолжал идти
-    session.activeQuestion.timerPaused = false
-    
-    // Разблокируем других игроков, которые не заблокированы
-    session.players.forEach(p => {
-      if (p.status !== 'locked' && p.id !== failedPlayerId) {
-        p.status = 'idle'
-      }
-    })
-    
+    // Fallback (RPC не задеплоен): старый путь. Сохраняем buzzedOrder, возобновляем общий таймер.
+    applyTimeoutResponderFallback(session, failedPlayerId)
     session.updatedAt = now()
-    
-    try {
-      const updated = await updateSession(session)
-      updateSessionInArray(updated)
-    } catch (error) {
-      console.error('Error updating session:', error)
-      // Fallback: обновляем локально
-      updateSessionInArray(session)
-    }
+    await persistSession(session)
   }
 
   async function resetPlayersScores(sessionId: string) {
@@ -835,13 +693,7 @@ export const useGameSessionStore = defineStore('game-session', () => {
       player.score = 0
     })
     session.updatedAt = now()
-    try {
-      const updated = await updateSession(session)
-      updateSessionInArray(updated)
-    } catch (error) {
-      console.error('Error updating session after resetting scores:', error)
-      updateSessionInArray(session)
-    }
+    await persistSession(session)
   }
 
   async function setPlayerScore(sessionId: string, playerId: string, newScore: number) {
@@ -861,13 +713,7 @@ export const useGameSessionStore = defineStore('game-session', () => {
     // Fallback: старый путь
     player.score = score
     session.updatedAt = now()
-    try {
-      const updated = await updateSession(session)
-      updateSessionInArray(updated)
-    } catch (error) {
-      console.error('Error updating session after setPlayerScore:', error)
-      updateSessionInArray(session)
-    }
+    await persistSession(session)
   }
 
   // Проверяет существование активной сессии и возвращает её, если она существует
