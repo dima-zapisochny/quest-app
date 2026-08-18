@@ -9,11 +9,9 @@ import type {
   PlayerStatus
 } from '@/types'
 import { useQuizStore } from './quizStore'
+import { useProfileStore } from './profileStore'
 import { generateId } from '@/utils/id'
-import { ensureAnonymousSession, claimLegacyData } from '@/services/auth'
 import {
-  getUserProfile,
-  upsertUserProfile,
   getSessionsByHost,
   getSessionById as getSessionByIdFromDb,
   getSessionByCode,
@@ -45,9 +43,8 @@ function now() {
 const MAX_SESSION_PLAYERS = 20
 
 export const useGameSessionStore = defineStore('game-session', () => {
+  const profileStore = useProfileStore()
   const sessions = ref<GameSession[]>([])
-  const userProfile = ref<UserProfile | null>(null)
-  const activePlayerSession = ref<{ sessionId: string; playerId: string } | null>(null)
   const isLoading = ref(true) // Начинаем с true, так как данные загружаются при инициализации
 
   /** Промис готовности store вместо busy-wait циклов `while(isLoading) sleep(100)` (#35). */
@@ -64,72 +61,12 @@ export const useGameSessionStore = defineStore('game-session', () => {
   async function loadData() {
     isLoading.value = true
     try {
-      // Анонимная авторизация (закрытие RLS, #1): получаем стабильный auth uid.
-      // Если провайдер не включён — uid === null, работаем на клиентском id (без регрессии).
-      const authUid = await ensureAnonymousSession()
-      if (authUid) {
-        // Старый клиентский id (player-xxx) мог быть уже перезаписан в quiz-app-user-id
-        // на прошлой загрузке — тогда берём его из сохранённого профиля, чтобы всё-таки
-        // привязать старые квесты к новому uid (claim, требует 005_anon_auth_claim.sql).
-        let legacyId = localStorage.getItem('quiz-app-user-id')
-        if (!legacyId || legacyId === authUid) {
-          try {
-            const raw = localStorage.getItem('quiz-app-user-profile')
-            if (raw) legacyId = JSON.parse(raw).id
-          } catch { /* ignore */ }
-        }
-        if (legacyId && legacyId !== authUid) {
-          await claimLegacyData(legacyId)
-        }
-        localStorage.setItem('quiz-app-user-id', authUid)
-      }
-
-      // Загружаем профиль из localStorage (fallback) или создаем новый
-      const profileId = localStorage.getItem('quiz-app-user-id')
-      if (profileId) {
-        try {
-          // Пытаемся загрузить из Supabase
-          const profile = await getUserProfile(profileId)
-          if (profile) {
-            userProfile.value = profile
-            // Сохраняем полный профиль в localStorage для быстрого доступа
-            localStorage.setItem('quiz-app-user-profile', JSON.stringify(profile))
-          }
-        } catch (error) {
-          console.error('Error loading profile from Supabase:', error)
-        }
-        
-        // Fallback: загружаем из localStorage, если не удалось загрузить из Supabase
-        if (!userProfile.value) {
-          const storedProfile = localStorage.getItem('quiz-app-user-profile')
-          if (storedProfile) {
-            try {
-              const p = JSON.parse(storedProfile)
-              // id профиля ВСЕГДА = текущий auth uid (profileId), иначе RLS блокирует
-              // create/read под старым player-xxx (прод-инцидент). Имя/аватар сохраняем.
-              userProfile.value = { ...p, id: profileId }
-              localStorage.setItem('quiz-app-user-profile', JSON.stringify(userProfile.value))
-            } catch (e) {
-              console.error('Error parsing stored profile:', e)
-            }
-          }
-        }
-      }
-
-      // Загружаем активную сессию игрока из localStorage
-      const storedActiveSession = localStorage.getItem('quiz-app-active-player-session')
-      if (storedActiveSession) {
-        try {
-          activePlayerSession.value = JSON.parse(storedActiveSession)
-        } catch (e) {
-          console.error('Error parsing stored active player session:', e)
-          localStorage.removeItem('quiz-app-active-player-session')
-        }
-      }
+      // Профиль + анонимная авторизация + активная сессия игрока (profileStore)
+      await profileStore.loadProfile()
 
       // Загружаем только СВОИ (хостованные) сессии — не тянем чужие (#17).
       // Сессии игрока (по коду) и восстановление грузятся по требованию.
-      const uid = userProfile.value?.id
+      const uid = profileStore.userProfile?.id
       sessions.value = uid ? await getSessionsByHost(uid) : []
     } catch (error) {
       console.error('Error loading data:', error)
@@ -184,43 +121,6 @@ export const useGameSessionStore = defineStore('game-session', () => {
     subscribedSessionId = null
   }
 
-  async function setUserProfile(profile: { name: string; avatar: string }) {
-    // id профиля: сначала auth uid (сохранён loadData в quiz-app-user-id),
-    // иначе — уже существующий, иначе — клиентский fallback (без анонимной авторизации)
-    const storedId = localStorage.getItem('quiz-app-user-id')
-    const existing = userProfile.value ?? { id: storedId || generateId('player'), name: '', avatar: '' }
-    const newProfile: UserProfile = {
-      ...existing,
-      // id профиля ВСЕГДА = текущий auth uid: иначе upsert профиля и создание квестов
-      // блокируются RLS (WITH CHECK id/user_id = auth.uid()). Прод-инцидент.
-      id: storedId || existing.id,
-      name: profile.name.trim(),
-      avatar: profile.avatar
-    }
-    
-    try {
-      userProfile.value = await upsertUserProfile(newProfile)
-      // Сохраняем в localStorage для быстрого доступа
-      localStorage.setItem('quiz-app-user-id', userProfile.value.id)
-      localStorage.setItem('quiz-app-user-profile', JSON.stringify(userProfile.value))
-    } catch (error) {
-      console.error('Error saving user profile:', error)
-      // Fallback to localStorage
-      localStorage.setItem('quiz-app-user-profile', JSON.stringify(newProfile))
-      localStorage.setItem('quiz-app-user-id', newProfile.id)
-      userProfile.value = newProfile
-    }
-    
-    return userProfile.value
-  }
-
-  function ensureProfile(): UserProfile {
-    if (!userProfile.value) {
-      throw new Error('User profile is not set')
-    }
-    return userProfile.value
-  }
-
   const getSessionById = (sessionId: string) => sessions.value.find(session => session.id === sessionId)
   const getSessionByCodeLocal = (code: string) => sessions.value.find(session => session.code.toUpperCase() === code.toUpperCase())
 
@@ -272,7 +172,7 @@ export const useGameSessionStore = defineStore('game-session', () => {
   }
 
   async function createSession(questId: string, questSnapshot?: Quest) {
-    const profile = ensureProfile()
+    const profile = profileStore.ensureProfile()
     const session: GameSession = {
       id: generateId('session'),
       code: generateCode(),
@@ -337,7 +237,7 @@ export const useGameSessionStore = defineStore('game-session', () => {
   }
 
   async function joinSessionByCode(code: string) {
-    const profile = ensureProfile()
+    const profile = profileStore.ensureProfile()
     
     // Сначала проверяем локальный кеш
     let session = getSessionByCodeLocal(code)
@@ -370,7 +270,7 @@ export const useGameSessionStore = defineStore('game-session', () => {
   async function processJoin(session: GameSession, profile: UserProfile, existingPlayerId?: string): Promise<{ session: GameSession; playerId: string }> {
     // Если указан existingPlayerId, проверяем, есть ли игрок с таким ID в сессии
     if (existingPlayerId && session.players.some(player => player.id === existingPlayerId)) {
-      setActivePlayer(session.id, existingPlayerId)
+      profileStore.setActivePlayer(session.id, existingPlayerId)
       return { session, playerId: existingPlayerId }
     }
     
@@ -383,7 +283,7 @@ export const useGameSessionStore = defineStore('game-session', () => {
     const existingPlayer = session.players.find(player => player.id === profile.id)
     if (existingPlayer) {
       // Игрок уже в сессии — его счёт авторитетно хранится на сервере, ничего не восстанавливаем
-      setActivePlayer(session.id, existingPlayer.id)
+      profileStore.setActivePlayer(session.id, existingPlayer.id)
       return { session, playerId: existingPlayer.id }
     }
 
@@ -403,7 +303,7 @@ export const useGameSessionStore = defineStore('game-session', () => {
       const viaRpc = await joinSessionRpc(session.id, player, MAX_SESSION_PLAYERS)
       if (viaRpc) {
         updateSessionInArray(viaRpc)
-        setActivePlayer(viaRpc.id, player.id)
+        profileStore.setActivePlayer(viaRpc.id, player.id)
         return { session: viaRpc, playerId: player.id }
       }
     } catch (e) {
@@ -423,12 +323,12 @@ export const useGameSessionStore = defineStore('game-session', () => {
       if (index >= 0) {
         updateSessionInArray({ ...updated, players: [...updated.players] })
       }
-      setActivePlayer(updated.id, player.id)
+      profileStore.setActivePlayer(updated.id, player.id)
       return { session: updated, playerId: player.id }
     } catch (error) {
       console.error('Error updating session:', error)
       updateSessionInArray(session)
-      setActivePlayer(session.id, player.id)
+      profileStore.setActivePlayer(session.id, player.id)
       return { session, playerId: player.id }
     }
   }
@@ -456,12 +356,12 @@ export const useGameSessionStore = defineStore('game-session', () => {
       const existingPlayer = session.players.find(p => p.id === parsed.playerId)
       if (existingPlayer) {
         console.log('✅ Player already in session, no restore needed')
-        setActivePlayer(session.id, parsed.playerId)
+        profileStore.setActivePlayer(session.id, parsed.playerId)
         return { session, playerId: parsed.playerId }
       }
 
       // Игрок не найден, восстанавливаем его
-      const profile = ensureProfile()
+      const profile = profileStore.ensureProfile()
       console.log('🔄 Restoring player to session:', parsed.playerId)
       
       // Восстанавливаем игрока
@@ -501,8 +401,8 @@ export const useGameSessionStore = defineStore('game-session', () => {
       updatedAt: now()
     }
     
-    if (activePlayerSession.value?.sessionId === sessionId && activePlayerSession.value.playerId === playerId) {
-      clearActivePlayer()
+    if (profileStore.activePlayerSession?.sessionId === sessionId && profileStore.activePlayerSession.playerId === playerId) {
+      profileStore.clearActivePlayer()
     }
 
     // Сначала обновляем локально для немедленного отображения
@@ -970,27 +870,16 @@ export const useGameSessionStore = defineStore('game-session', () => {
     }
   }
 
-  function setActivePlayer(sessionId: string, playerId: string) {
-    activePlayerSession.value = { sessionId, playerId }
-    // Сохраняем в localStorage для восстановления при обновлении страницы
-    localStorage.setItem('quiz-app-active-player-session', JSON.stringify({ sessionId, playerId }))
-  }
-
-  function clearActivePlayer() {
-    activePlayerSession.value = null
-    localStorage.removeItem('quiz-app-active-player-session')
-  }
-
   // Проверяет существование активной сессии и возвращает её, если она существует
   async function checkActivePlayerSession(): Promise<{ session: GameSession; playerId: string } | null> {
     // Если активная сессия не загружена в store, пытаемся загрузить из localStorage
-    if (!activePlayerSession.value) {
+    if (!profileStore.activePlayerSession) {
       console.log('🔍 checkActivePlayerSession: No active player session in store, checking localStorage...')
       const storedActiveSession = localStorage.getItem('quiz-app-active-player-session')
       if (storedActiveSession) {
         try {
           const parsed = JSON.parse(storedActiveSession)
-          activePlayerSession.value = { sessionId: parsed.sessionId, playerId: parsed.playerId }
+          profileStore.activePlayerSession = { sessionId: parsed.sessionId, playerId: parsed.playerId }
           console.log('✅ Active session loaded from localStorage:', parsed)
         } catch (error) {
           console.error('❌ Error parsing active session from localStorage:', error)
@@ -1002,7 +891,7 @@ export const useGameSessionStore = defineStore('game-session', () => {
       }
     }
 
-    const { sessionId, playerId } = activePlayerSession.value
+    const { sessionId, playerId } = profileStore.activePlayerSession
     console.log('🔍 checkActivePlayerSession: Checking session', sessionId, 'for player', playerId)
     
     // Сначала проверяем в локальном кеше
@@ -1041,7 +930,7 @@ export const useGameSessionStore = defineStore('game-session', () => {
     // Если сессия не найдена, очищаем активную сессию
     if (!session) {
       console.warn('⚠️ Session not found, clearing active player session')
-      clearActivePlayer()
+      profileStore.clearActivePlayer()
       return null
     }
 
@@ -1050,7 +939,7 @@ export const useGameSessionStore = defineStore('game-session', () => {
     if (!player) {
       console.warn('⚠️ Player not found in session, clearing active player session')
       console.log('Available players:', session.players.map(p => ({ id: p.id, name: p.name })))
-      clearActivePlayer()
+      profileStore.clearActivePlayer()
       return null
     }
 
@@ -1058,12 +947,6 @@ export const useGameSessionStore = defineStore('game-session', () => {
     return { session, playerId }
   }
 
-  function getCurrentDevicePlayer(sessionId: string) {
-    if (activePlayerSession.value?.sessionId === sessionId) {
-      return activePlayerSession.value.playerId
-    }
-    return null
-  }
 
   // Проверяет, является ли пользователь хостом какой-либо сессии
   /** Сессия считается «активной» для авто-редиректа только если обновлялась недавно —
@@ -1071,11 +954,11 @@ export const useGameSessionStore = defineStore('game-session', () => {
   const HOST_SESSION_FRESH_MS = 12 * 60 * 60 * 1000 // 12 часов
 
   function checkActiveHostSession(): { session: GameSession; isHost: true } | null {
-    if (!userProfile.value) return null
+    if (!profileStore.userProfile) return null
 
     const now = Date.now()
     const hostSession = sessions.value
-      .filter(session => session.hostId === userProfile.value!.id)
+      .filter(session => session.hostId === profileStore.userProfile!.id)
       .filter(session => now - (session.updatedAt || 0) < HOST_SESSION_FRESH_MS)
       .sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0))[0]
 
@@ -1144,14 +1027,15 @@ export const useGameSessionStore = defineStore('game-session', () => {
   const sessionList = computed(() => sessions.value)
 
   return {
-    userProfile,
+    // Профиль/auth делегированы в profileStore; проксируем для обратной совместимости консюмеров
+    userProfile: computed(() => profileStore.userProfile),
     sessions: sessionList,
-    activePlayerSession,
+    activePlayerSession: computed(() => profileStore.activePlayerSession),
     isLoading,
     whenReady,
     loadData,
-    setUserProfile,
-    ensureProfile,
+    setUserProfile: profileStore.setUserProfile,
+    ensureProfile: profileStore.ensureProfile,
     getSessionById,
     getSessionByCode: getSessionByCodeLocal,
     createSession,
@@ -1172,12 +1056,12 @@ export const useGameSessionStore = defineStore('game-session', () => {
     timeoutResponder,
     resetPlayersScores,
     setPlayerScore,
-    setActivePlayer,
-    clearActivePlayer,
+    setActivePlayer: profileStore.setActivePlayer,
+    clearActivePlayer: profileStore.clearActivePlayer,
     checkActivePlayerSession,
     checkActiveHostSession,
     checkActiveSession,
-    getCurrentDevicePlayer,
+    getCurrentDevicePlayer: profileStore.getCurrentDevicePlayer,
     refreshSessionFromServer,
     heartbeat,
     pruneStalePlayers,
