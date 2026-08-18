@@ -14,6 +14,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { avatarEmoji as emojiOf } from '@/utils/avatar'
 
 interface Props {
   name?: string | null
@@ -25,21 +26,12 @@ const props = withDefaults(defineProps<Props>(), {
   avatar: null
 })
 
-const avatarEmojiMap: Record<string, string> = {
-  fox: '🦊', panda: '🐼', tiger: '🐯', owl: '🦉', whale: '🐳', parrot: '🦜',
-  koala: '🐨', dino: '🦕', crocodile: '🐊', lion: '🦁', penguin: '🐧',
-  elephant: '🐘', seal: '🦭', hedgehog: '🦔', lily: '🌸'
-}
-
 const displayName = computed(() => {
   const name = props.name?.trim()
   return name && name.length ? name : 'Гость'
 })
 
-const avatarEmoji = computed(() => {
-  const avatarId = props.avatar ?? ''
-  return avatarEmojiMap[avatarId] ?? ''
-})
+const avatarEmoji = computed(() => emojiOf(props.avatar, ''))
 
 const hasAvatar = computed(() => Boolean(avatarEmoji.value))
 

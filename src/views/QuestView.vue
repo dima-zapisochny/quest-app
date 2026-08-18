@@ -292,6 +292,7 @@ import { useGameSessionStore } from '@/store/gameSessionStore'
 import QuizBoard from '@/components/quiz/QuizBoard.vue'
 import AppHeader from '@/components/common/AppHeader.vue'
 import { useIsMobileViewport } from '@/composables/useIsMobileViewport'
+import { avatarEmoji } from '@/utils/avatar'
 
 interface Props {
   questId?: string
@@ -340,13 +341,6 @@ const showResetConfirm = ref(false)
 const isExiting = ref(false)
 
 const userProfile = computed(() => sessionStore.userProfile)
-
-// avatarEmojiMap используется для leaderboard
-const avatarEmojiMap: Record<string, string> = {
-  fox: '🦊', panda: '🐼', tiger: '🐯', owl: '🦉', whale: '🐳', parrot: '🦜',
-  koala: '🐨', dino: '🦕', crocodile: '🐊', lion: '🦁', penguin: '🐧',
-  elephant: '🐘', seal: '🦭', hedgehog: '🦔', lily: '🌸'
-}
 
 interface LeaderboardEntry {
   id: string
@@ -631,7 +625,7 @@ function buildLeaderboardFromSession() {
     leaderboardState.value = sessionParticipants.value.map((player, index) => ({
       id: player.id,
       name: player.name?.trim() || `Игрок ${index + 1}`,
-      avatar: avatarEmojiMap[player.avatar] ?? '',
+      avatar: avatarEmoji(player.avatar, ''),
       score: player.score ?? 0 // Используем реальный счет игрока из сессии
     }))
     return
