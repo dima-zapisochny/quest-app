@@ -76,27 +76,16 @@
   </teleport>
 
   <!-- Модальное окно подтверждения выхода -->
-  <teleport to="body">
-    <Transition name="modal">
-      <div v-if="showExitConfirm" class="player-modal-backdrop" @click="cancelExit">
-        <div class="player-modal player-modal--confirm" role="dialog" aria-modal="true" @click.stop>
-          <header class="player-modal__header">
-            <h2>Выход из игры</h2>
-            <button type="button" class="player-modal__close" @click="cancelExit" aria-label="Закрыть">✕</button>
-          </header>
-          <div class="player-modal__body">
-            <p>Вы уверены, что хотите выйти из игры? Вы будете удалены из списка участников.</p>
-          </div>
-          <div class="player-modal__actions">
-            <button type="button" class="secondary" @click="cancelExit" :disabled="isExiting">Отмена</button>
-            <button type="button" class="danger" @click="confirmExit" :disabled="isExiting">
-              {{ isExiting ? 'Выход...' : 'Выйти' }}
-            </button>
-          </div>
-        </div>
-      </div>
-    </Transition>
-  </teleport>
+  <ConfirmDialog
+    :show="showExitConfirm"
+    title="Выход из игры"
+    message="Вы уверены, что хотите выйти из игры? Вы будете удалены из списка участников."
+    confirm-label="Выйти"
+    busy-label="Выход..."
+    :busy="isExiting"
+    @confirm="confirmExit"
+    @cancel="cancelExit"
+  />
 </template>
 
 <script setup lang="ts">
@@ -106,6 +95,7 @@ import TimerCircle from '@/components/quiz/TimerCircle.vue'
 import { useGameSessionStore } from '@/store/gameSessionStore'
 import { useQuizStore } from '@/store/quizStore'
 import AppHeader from '@/components/common/AppHeader.vue'
+import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
 import { usePresenceHeartbeat } from '@/composables/usePresenceHeartbeat'
 
 const route = useRoute()
@@ -1048,129 +1038,6 @@ onBeforeUnmount(() => {
   margin: 0;
 }
 
-.player-modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.65);
-  backdrop-filter: blur(12px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1.5rem;
-  z-index: 9999;
-}
-
-.player-modal {
-  width: min(480px, 100%);
-  border-radius: 20px;
-  background: rgba(15, 23, 42, 0.95);
-  border: 1px solid rgba(56, 189, 248, 0.28);
-  box-shadow: 0 30px 60px rgba(8, 47, 73, 0.45);
-  color: #f8fafc;
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-  padding: 1.6rem;
-}
-
-.player-modal--confirm {
-  max-width: 500px;
-  padding: 1.9rem;
-  gap: 1.5rem;
-}
-
-.player-modal__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
-.player-modal__header h2 {
-  margin: 0;
-  font-size: 1.25rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #22d3ee;
-}
-
-.player-modal__close {
-  background: rgba(15, 118, 110, 0.15);
-  border: 1px solid rgba(34, 211, 238, 0.45);
-  color: #bae6fd;
-  border-radius: 50%;
-  width: 34px;
-  height: 34px;
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.2rem;
-  line-height: 1;
-}
-
-.player-modal__close:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(34, 211, 238, 0.3);
-}
-
-.player-modal__body {
-  color: rgba(226, 232, 240, 0.9);
-  line-height: 1.6;
-}
-
-.player-modal__actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.75rem;
-  margin-top: 0.5rem;
-}
-
-.player-modal__actions .secondary,
-.player-modal__actions .danger {
-  min-width: 140px;
-  padding: 0.75rem 1.5rem;
-  border-radius: 999px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  border: none;
-}
-
-.player-modal__actions .secondary {
-  background: rgba(15, 118, 110, 0.15);
-  border: 1px solid rgba(34, 211, 238, 0.45);
-  color: #bae6fd;
-}
-
-.player-modal__actions .secondary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 14px 24px rgba(34, 211, 238, 0.22);
-}
-
-.player-modal__actions .danger {
-  background: rgba(239, 68, 68, 0.2);
-  border: 1px solid rgba(239, 68, 68, 0.5);
-  color: #fca5a5;
-}
-
-.player-modal__actions .danger:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 14px 24px rgba(239, 68, 68, 0.3);
-  background: rgba(239, 68, 68, 0.3);
-}
-
-.modal-enter-active,
-.modal-leave-active {
-  transition: opacity 0.3s ease;
-}
-
-.modal-enter-from,
-.modal-leave-to {
-  opacity: 0;
-}
-
 @media (min-width: 1024px) {
 
   .player-main {
@@ -1394,12 +1261,6 @@ onBeforeUnmount(() => {
     font-size: 0.8rem;
     margin-top: 0.375rem;
   }
-
-  .player-modal {
-    width: calc(100% - 1.5rem);
-    margin: 0.75rem;
-    padding: 1.2rem;
-  }
 }
 
 /* Маленькие мобильные (до 480px) */
@@ -1567,10 +1428,6 @@ onBeforeUnmount(() => {
   .buzzer-hint {
     font-size: 0.75rem;
     margin-top: 0.25rem;
-  }
-
-  .player-modal {
-    padding: 1rem;
   }
 }
 
