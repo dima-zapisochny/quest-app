@@ -1,0 +1,413 @@
+<template>
+  <aside class="quest-sidebar">
+    <div class="sidebar-card">
+      <span class="sidebar-chip">Квест</span>
+      <h2 class="sidebar-title">{{ quest.title }}</h2>
+      <p v-if="quest.description" class="sidebar-description">{{ quest.description }}</p>
+      <p v-else class="sidebar-description sidebar-description--muted">Описание пока не добавлено.</p>
+    </div>
+
+    <div v-if="session && !isPlayerInSession" class="sidebar-card sidebar-card--join">
+      <span class="sidebar-chip">Присоединиться к игре</span>
+      <p class="sidebar-description">Введите код игры, чтобы присоединиться как участник</p>
+      <div class="join-form">
+        <div class="join-form-row">
+          <input
+            v-model="joinCodeInput"
+            type="text"
+            maxlength="4"
+            placeholder="КОД"
+            class="join-code-input"
+            @input="handleJoinCodeInput"
+          />
+          <button
+            class="join-button"
+            type="button"
+            :disabled="!canJoin"
+            @click="handleJoinSession"
+          >
+            Присоединиться
+          </button>
+        </div>
+        <p v-if="joinError" class="join-error">{{ joinError }}</p>
+      </div>
+    </div>
+
+    <div class="sidebar-card">
+      <span class="sidebar-chip">Статистика</span>
+      <div class="sidebar-stats">
+        <div class="sidebar-stat">
+          <span class="sidebar-stat__label">Всего вопросов</span>
+          <span class="sidebar-stat__value">{{ questProgress.totalQuestions }}</span>
+        </div>
+        <div class="sidebar-stat">
+          <span class="sidebar-stat__label">Сыграно</span>
+          <span class="sidebar-stat__value">{{ questProgress.playedQuestions }}</span>
+        </div>
+        <div class="sidebar-stat">
+          <span class="sidebar-stat__label">Осталось</span>
+          <span class="sidebar-stat__value">{{ questProgress.totalQuestions - questProgress.playedQuestions }}</span>
+        </div>
+        <div class="sidebar-progress sidebar-progress--quest">
+          <div class="sidebar-progress__bar">
+            <span class="sidebar-progress__fill sidebar-progress__fill--quest" :style="{ width: `${questProgressPercent}%` }" />
+          </div>
+          <div class="sidebar-progress__meta">
+            <span>{{ questProgressPercent }}% / 100%</span>
+          </div>
+        </div>
+      </div>
+      <button
+        class="sidebar-reset"
+        type="button"
+        :disabled="!questProgress.playedQuestions || questProgress.playedQuestions === 0"
+        @click="emit('reset')"
+      >
+        Сбросить прогресс
+      </button>
+    </div>
+  </aside>
+</template>
+
+<script setup lang="ts">
+import { ref, computed, watch } from 'vue'
+import { useRouter } from 'vue-router'
+import { useGameSessionStore } from '@/store/gameSessionStore'
+import { useQuizStore } from '@/store/quizStore'
+import type { Quest, GameSession } from '@/types'
+
+const props = defineProps<{
+  quest: Quest
+  session: GameSession | undefined
+}>()
+
+const emit = defineEmits<{ reset: [] }>()
+
+const router = useRouter()
+const sessionStore = useGameSessionStore()
+const quizStore = useQuizStore()
+
+const isPlayerInSession = computed(() => {
+  const profileId = sessionStore.userProfile?.id
+  if (!props.session || !profileId) return false
+  return props.session.players.some(player => player.id === profileId)
+})
+
+// Статистика «Сыграно» из store (обновляется при markQuestionAsPlayed), чтобы совпадать с карточками
+const questProgress = computed(() => {
+  if (props.quest.id) {
+    return quizStore.getQuestProgress(props.quest.id)
+  }
+  const rounds = props.quest.rounds
+  if (!Array.isArray(rounds)) {
+    return { totalRounds: 0, totalQuestions: 0, playedQuestions: 0 }
+  }
+  const totalQuestions = rounds.reduce((sum, round) => {
+    const categories = Array.isArray(round.categories) ? round.categories : []
+    return sum + categories.reduce((catSum, cat) => catSum + (cat.questions?.length ?? 0), 0)
+  }, 0)
+  const playedQuestions = rounds.reduce((sum, round) => {
+    const categories = Array.isArray(round.categories) ? round.categories : []
+    return sum + categories.reduce((catSum, cat) => catSum + (cat.questions?.filter(qu => qu.played).length ?? 0), 0)
+  }, 0)
+  return { totalRounds: rounds.length, totalQuestions, playedQuestions }
+})
+
+const questProgressPercent = computed(() => {
+  const { totalQuestions: total, playedQuestions: played } = questProgress.value
+  if (!total) return 0
+  return Math.min(100, Math.max(0, Math.round((played / total) * 100)))
+})
+
+// --- Присоединиться к игре как участник ---
+const joinCodeInput = ref('')
+const joinError = ref('')
+
+const canJoin = computed(() => joinCodeInput.value.length === 4 && !joinError.value)
+
+// Автозаполнение кода сессии, если она есть
+watch(
+  () => props.session?.code,
+  (code) => {
+    if (code && !isPlayerInSession.value) joinCodeInput.value = code
+  },
+  { immediate: true }
+)
+
+function handleJoinCodeInput(event: Event) {
+  const target = event.target as HTMLInputElement
+  joinCodeInput.value = target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4)
+  joinError.value = ''
+}
+
+async function handleJoinSession() {
+  if (!canJoin.value) return
+  joinError.value = ''
+  try {
+    if (props.session && joinCodeInput.value.toUpperCase() !== props.session.code.toUpperCase()) {
+      joinError.value = 'Неверный код игры'
+      return
+    }
+    const result = await sessionStore.joinSessionByCode(joinCodeInput.value)
+    if (!result || !result.session) {
+      joinError.value = 'Сессия с таким кодом не найдена'
+      return
+    }
+    sessionStore.setActivePlayer(result.session.id, result.playerId)
+    router.push({ name: 'player-session', params: { sessionId: result.session.id } })
+  } catch (error: any) {
+    joinError.value = error?.message ?? 'Не удалось присоединиться к игре. Убедитесь, что игра запущена в другой вкладке.'
+  }
+}
+</script>
+
+<style scoped>
+.quest-sidebar {
+  flex: 0 0 20%;
+  min-width: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.sidebar-card {
+  background: rgba(15, 23, 42, 0.3);
+  border: 1px solid rgba(56, 189, 248, 0.18);
+  border-radius: 18px;
+  padding: 0.9rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  box-shadow:
+    0 8px 32px rgba(2, 6, 23, 0.3),
+    0 4px 16px rgba(2, 6, 23, 0.2),
+    inset 0 2px 4px rgba(255, 255, 255, 0.1),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.sidebar-card:has(.sidebar-stats) {
+  flex: 1;
+  min-height: 0;
+}
+
+.sidebar-chip {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  align-self: flex-start;
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(94, 234, 212, 0.8);
+}
+
+.sidebar-title {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  margin: 0;
+  font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+  font-weight: 600;
+  color: #f8fafc;
+  line-height: 1.25;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  text-overflow: ellipsis;
+}
+
+.sidebar-description {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: rgba(226, 232, 240, 0.86);
+  max-height: 7rem;
+  overflow: hidden;
+}
+
+.sidebar-description--muted {
+  color: rgba(148, 163, 184, 0.65);
+}
+
+.sidebar-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  flex: 1;
+  min-height: 0;
+}
+
+.sidebar-stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sidebar-stat__label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: rgba(148, 163, 184, 0.75);
+}
+
+.sidebar-stat__value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #facc15;
+}
+
+.sidebar-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.sidebar-progress__bar {
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(30, 41, 59, 0.65);
+  overflow: hidden;
+}
+
+.sidebar-progress__fill {
+  display: block;
+  height: 100%;
+  background: linear-gradient(135deg, #22d3ee, #818cf8);
+  border-radius: inherit;
+  transition: width 0.35s ease;
+}
+
+.sidebar-progress--quest {
+  margin-top: 0.3rem;
+}
+
+.sidebar-progress__fill--quest {
+  background: linear-gradient(135deg, #22d3ee, #06b6d4);
+}
+
+.sidebar-progress__meta {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(148, 163, 184, 0.75);
+  text-align: center;
+}
+
+.sidebar-reset {
+  align-self: center;
+  margin-top: auto;
+  background: rgba(239, 68, 68, 0.18);
+  border: 1px solid rgba(239, 68, 68, 0.45);
+  color: #fca5a5;
+  padding: 0.65rem 1.2rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+}
+
+.sidebar-reset:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 22px rgba(239, 68, 68, 0.25);
+  background: rgba(239, 68, 68, 0.25);
+}
+
+.sidebar-reset:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.25);
+  color: rgba(252, 165, 165, 0.6);
+}
+
+.join-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.join-form-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: stretch;
+}
+
+.join-code-input {
+  flex: 1;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: 10px;
+  padding: 0.65rem 0.85rem;
+  color: #f8fafc;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-align: center;
+  text-transform: uppercase;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  transition: all 0.2s ease;
+}
+
+.join-code-input:focus {
+  outline: none;
+  border-color: rgba(56, 189, 248, 0.6);
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.1);
+}
+
+.join-code-input::placeholder {
+  color: rgba(148, 163, 184, 0.5);
+  letter-spacing: 0.1em;
+}
+
+.join-button {
+  flex: 0 0 auto;
+  background: rgba(34, 197, 94, 0.85);
+  border: none;
+  border-radius: 10px;
+  padding: 0.65rem 1rem;
+  color: #ffffff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  box-shadow:
+    0 4px 8px rgba(34, 197, 94, 0.3),
+    inset 0 1px 2px rgba(255, 255, 255, 0.2);
+}
+
+.join-button:hover:not(:disabled) {
+  background: rgba(34, 197, 94, 1);
+  box-shadow:
+    0 6px 12px rgba(34, 197, 94, 0.4),
+    inset 0 1px 2px rgba(255, 255, 255, 0.25);
+  transform: translateY(-1px);
+}
+
+.join-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.join-error {
+  margin: 0;
+  font-size: 0.75rem;
+  color: #f87171;
+  text-align: center;
+  padding: 0.5rem;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 8px;
+}
+</style>
