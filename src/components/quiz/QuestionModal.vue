@@ -28,57 +28,15 @@
               </TransitionGroup>
             </div>
             <!-- В питанні не должно быть одновременно и изображения, и аудио -->
-            <div v-if="hasAudio && visibleImages.length === 0" class="audio-controls">
-              <div
-                v-for="audio in questionMediaAudio"
-                :key="audio.id"
-                class="audio-control-block"
-                :class="{ 'is-playing': playingAudioId === audio.id }"
-              >
-                <button
-                  class="audio-play-button"
-                  :class="{ 'is-playing': playingAudioId === audio.id }"
-                  @click="toggleAudio(audio)"
-                  type="button"
-                  aria-label="Проиграть аудио"
-                >
-                  <svg v-if="playingAudioId !== audio.id" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
-                  </svg>
-                  <svg v-else xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="6" y="4" width="4" height="16"></rect>
-                    <rect x="14" y="4" width="4" height="16"></rect>
-                  </svg>
-                </button>
-                <div class="audio-equalizer">
-                  <div class="equalizer-bar" style="animation-delay: 0s"></div>
-                  <div class="equalizer-bar" style="animation-delay: 0.08s"></div>
-                  <div class="equalizer-bar" style="animation-delay: 0.16s"></div>
-                  <div class="equalizer-bar" style="animation-delay: 0.24s"></div>
-                  <div class="equalizer-bar" style="animation-delay: 0.32s"></div>
-                  <div class="equalizer-bar" style="animation-delay: 0.4s"></div>
-                  <div class="equalizer-bar" style="animation-delay: 0.48s"></div>
-                  <div class="equalizer-bar" style="animation-delay: 0.56s"></div>
-                  <div class="equalizer-bar" style="animation-delay: 0.64s"></div>
-                  <div class="equalizer-bar" style="animation-delay: 0.72s"></div>
-                  <div class="equalizer-bar" style="animation-delay: 0.8s"></div>
-                  <div class="equalizer-bar" style="animation-delay: 0.88s"></div>
-                  <div class="equalizer-bar" style="animation-delay: 0.96s"></div>
-                  <div class="equalizer-bar" style="animation-delay: 1.04s"></div>
-                  <div class="equalizer-bar" style="animation-delay: 1.12s"></div>
-                  <div class="equalizer-bar" style="animation-delay: 1.2s"></div>
-                  <div class="equalizer-bar" style="animation-delay: 1.28s"></div>
-                </div>
-              </div>
-              <audio
-                v-for="audio in questionMediaAudio"
-                :key="audio.id"
-                :ref="el => setAudioRef(audio.id, el)"
-                :src="audio.url"
-                preload="none"
-                @ended="handleAudioEnded"
-              ></audio>
-            </div>
+            <AudioControls
+              v-if="hasAudio && visibleImages.length === 0"
+              :tracks="questionMediaAudio"
+              :playing-id="playingAudioId"
+              aria-label="Проиграть аудио"
+              @toggle="toggleAudio"
+              @ended="handleAudioEnded"
+              @register="setAudioRef"
+            />
           </div>
           <aside class="admin-panel">
             <div class="admin-controls-block">
@@ -156,57 +114,15 @@
                 />
               </div>
               <!-- В ответе не должно быть одновременно и изображения, и аудио -->
-              <div v-if="answerMediaAudio.length && answerMediaImages.length === 0" class="audio-controls">
-                <div
-                  v-for="audio in answerMediaAudio"
-                  :key="audio.id"
-                  class="audio-control-block"
-                  :class="{ 'is-playing': playingAudioId === audio.id }"
-                >
-                  <button
-                    class="audio-play-button"
-                    :class="{ 'is-playing': playingAudioId === audio.id }"
-                    @click="toggleAudio(audio)"
-                    type="button"
-                    aria-label="Проиграть аудио ответа"
-                  >
-                    <svg v-if="playingAudioId !== audio.id" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                      <polygon points="5 3 19 12 5 21 5 3"></polygon>
-                    </svg>
-                    <svg v-else xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                      <rect x="6" y="4" width="4" height="16"></rect>
-                      <rect x="14" y="4" width="4" height="16"></rect>
-                    </svg>
-                  </button>
-                  <div class="audio-equalizer">
-                    <div class="equalizer-bar" style="animation-delay: 0s"></div>
-                    <div class="equalizer-bar" style="animation-delay: 0.08s"></div>
-                    <div class="equalizer-bar" style="animation-delay: 0.16s"></div>
-                    <div class="equalizer-bar" style="animation-delay: 0.24s"></div>
-                    <div class="equalizer-bar" style="animation-delay: 0.32s"></div>
-                    <div class="equalizer-bar" style="animation-delay: 0.4s"></div>
-                    <div class="equalizer-bar" style="animation-delay: 0.48s"></div>
-                    <div class="equalizer-bar" style="animation-delay: 0.56s"></div>
-                    <div class="equalizer-bar" style="animation-delay: 0.64s"></div>
-                    <div class="equalizer-bar" style="animation-delay: 0.72s"></div>
-                    <div class="equalizer-bar" style="animation-delay: 0.8s"></div>
-                    <div class="equalizer-bar" style="animation-delay: 0.88s"></div>
-                    <div class="equalizer-bar" style="animation-delay: 0.96s"></div>
-                    <div class="equalizer-bar" style="animation-delay: 1.04s"></div>
-                    <div class="equalizer-bar" style="animation-delay: 1.12s"></div>
-                    <div class="equalizer-bar" style="animation-delay: 1.2s"></div>
-                    <div class="equalizer-bar" style="animation-delay: 1.28s"></div>
-                  </div>
-                </div>
-                <audio
-                  v-for="audio in answerMediaAudio"
-                  :key="audio.id"
-                  :ref="el => setAudioRef(audio.id, el)"
-                  :src="audio.url"
-                  preload="none"
-                  @ended="handleAudioEnded"
-                ></audio>
-              </div>
+              <AudioControls
+                v-if="answerMediaAudio.length && answerMediaImages.length === 0"
+                :tracks="answerMediaAudio"
+                :playing-id="playingAudioId"
+                aria-label="Проиграть аудио ответа"
+                @toggle="toggleAudio"
+                @ended="handleAudioEnded"
+                @register="setAudioRef"
+              />
             </div>
           </section>
         </Transition>
@@ -220,6 +136,7 @@
 import { ref, watch, nextTick, computed } from 'vue'
 import TimerCircle from './TimerCircle.vue'
 import QuestionMediaPreview from './QuestionMediaPreview.vue'
+import AudioControls from './AudioControls.vue'
 import { useGameSessionStore } from '@/store/gameSessionStore'
 import { useQuizStore } from '@/store/quizStore'
 import type { Question, Player } from '@/types'
@@ -851,208 +768,6 @@ function handleClose() {
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: 1rem;
   margin-top: 0;
-}
-
-.audio-controls {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  margin-top: 1rem;
-  align-items: center;
-}
-
-.audio-control-block {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  background: linear-gradient(
-    135deg,
-    rgba(30, 41, 59, 0.6) 0%,
-    rgba(15, 23, 42, 0.7) 100%
-  );
-  border: 1.5px solid rgba(148, 163, 184, 0.2);
-  border-radius: 16px;
-  padding: 1rem 1.25rem;
-  backdrop-filter: blur(15px);
-  -webkit-backdrop-filter: blur(15px);
-  box-shadow: 
-    0 4px 12px rgba(0, 0, 0, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-  box-sizing: border-box;
-  width: fit-content;
-}
-
-.audio-control-block.is-playing {
-  background: linear-gradient(
-    135deg,
-    rgba(30, 41, 59, 0.6) 0%,
-    rgba(15, 23, 42, 0.7) 100%
-  );
-  border-color: rgba(148, 163, 184, 0.2);
-  box-shadow: 
-    0 4px 12px rgba(0, 0, 0, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
-}
-
-.audio-play-button {
-  background: rgba(148, 163, 184, 0.15);
-  border: 1px solid rgba(148, 163, 184, 0.3);
-  color: rgba(148, 163, 184, 0.8);
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  padding: 0;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, border-color 0.2s ease;
-  flex-shrink: 0;
-  flex-grow: 0;
-  position: relative;
-  overflow: hidden;
-}
-
-.audio-play-button:hover {
-  background: rgba(148, 163, 184, 0.25);
-  border-color: rgba(148, 163, 184, 0.4);
-  color: rgba(148, 163, 184, 1);
-}
-
-.audio-play-button.is-playing {
-  background: rgba(148, 163, 184, 0.2);
-  border-color: rgba(148, 163, 184, 0.35);
-  color: rgba(148, 163, 184, 0.9);
-}
-
-.audio-play-button svg {
-  width: 18px;
-  height: 18px;
-  position: relative;
-  z-index: 1;
-}
-
-.audio-equalizer {
-  display: flex;
-  align-items: flex-end;
-  gap: 3px;
-  height: 24px;
-  flex: 1 1 0;
-  min-width: 0;
-  max-width: 100%;
-}
-
-.equalizer-bar {
-  width: 4px;
-  background: linear-gradient(
-    to top,
-    rgba(148, 163, 184, 0.5) 0%,
-    rgba(148, 163, 184, 0.3) 100%
-  );
-  border-radius: 2px;
-  animation: equalizer-idle 1.5s ease-in-out infinite;
-}
-
-.audio-control-block.is-playing .equalizer-bar {
-  background: linear-gradient(
-    to top,
-    rgba(148, 163, 184, 0.7) 0%,
-    rgba(148, 163, 184, 0.5) 100%
-  );
-  animation: equalizer-active 1.2s ease-in-out infinite;
-}
-
-.equalizer-bar:nth-child(1) {
-  height: 50%;
-}
-
-.equalizer-bar:nth-child(2) {
-  height: 80%;
-}
-
-.equalizer-bar:nth-child(3) {
-  height: 100%;
-}
-
-.equalizer-bar:nth-child(4) {
-  height: 70%;
-}
-
-.equalizer-bar:nth-child(5) {
-  height: 90%;
-}
-
-.equalizer-bar:nth-child(6) {
-  height: 100%;
-}
-
-.equalizer-bar:nth-child(7) {
-  height: 60%;
-}
-
-.equalizer-bar:nth-child(8) {
-  height: 85%;
-}
-
-.equalizer-bar:nth-child(9) {
-  height: 100%;
-}
-
-.equalizer-bar:nth-child(10) {
-  height: 75%;
-}
-
-.equalizer-bar:nth-child(11) {
-  height: 95%;
-}
-
-.equalizer-bar:nth-child(12) {
-  height: 65%;
-}
-
-.equalizer-bar:nth-child(13) {
-  height: 90%;
-}
-
-.equalizer-bar:nth-child(14) {
-  height: 55%;
-}
-
-.equalizer-bar:nth-child(15) {
-  height: 100%;
-}
-
-.equalizer-bar:nth-child(16) {
-  height: 80%;
-}
-
-.equalizer-bar:nth-child(17) {
-  height: 70%;
-}
-
-@keyframes equalizer-idle {
-  0%, 100% {
-    transform: scaleY(0.4);
-    opacity: 0.5;
-  }
-  50% {
-    transform: scaleY(0.6);
-    opacity: 0.7;
-  }
-}
-
-@keyframes equalizer-active {
-  0%, 100% {
-    transform: scaleY(0.3);
-    opacity: 0.7;
-  }
-  50% {
-    transform: scaleY(1);
-    opacity: 1;
-  }
 }
 
 .responder-banner {
@@ -1826,26 +1541,6 @@ function handleClose() {
     height: 70px;
     padding: 0.65rem 0.85rem;
   }
-
-  .audio-control-block {
-    padding: 0.75rem 1rem;
-    min-width: 280px;
-  }
-
-  .audio-play-button {
-    width: 36px;
-    height: 36px;
-  }
-
-  .audio-play-button svg {
-    width: 16px;
-    height: 16px;
-  }
-
-  .audio-equalizer {
-    height: 20px;
-  }
-
   .media-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
@@ -1905,26 +1600,6 @@ function handleClose() {
     height: 65px;
     padding: 0.6rem 0.75rem;
   }
-
-  .audio-control-block {
-    padding: 0.65rem 0.875rem;
-    min-width: 260px;
-  }
-
-  .audio-play-button {
-    width: 34px;
-    height: 34px;
-  }
-
-  .audio-play-button svg {
-    width: 15px;
-    height: 15px;
-  }
-
-  .audio-equalizer {
-    height: 18px;
-  }
-
   .media-grid {
     grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
     gap: 0.75rem;
@@ -1967,26 +1642,6 @@ function handleClose() {
     height: 60px;
     padding: 0.55rem 0.65rem;
   }
-
-  .audio-control-block {
-    padding: 0.6rem 0.75rem;
-    min-width: 240px;
-  }
-
-  .audio-play-button {
-    width: 32px;
-    height: 32px;
-  }
-
-  .audio-play-button svg {
-    width: 14px;
-    height: 14px;
-  }
-
-  .audio-equalizer {
-    height: 16px;
-  }
-
   .media-grid {
     grid-template-columns: repeat(auto-fit, minmax(85px, 1fr));
     gap: 0.6rem;
@@ -2029,26 +1684,6 @@ function handleClose() {
     height: 55px;
     padding: 0.5rem 0.6rem;
   }
-
-  .audio-control-block {
-    padding: 0.55rem 0.65rem;
-    min-width: 220px;
-  }
-
-  .audio-play-button {
-    width: 30px;
-    height: 30px;
-  }
-
-  .audio-play-button svg {
-    width: 13px;
-    height: 13px;
-  }
-
-  .audio-equalizer {
-    height: 14px;
-  }
-
   .media-grid {
     grid-template-columns: repeat(auto-fit, minmax(75px, 1fr));
     gap: 0.5rem;
