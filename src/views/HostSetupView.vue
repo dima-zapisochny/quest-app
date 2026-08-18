@@ -77,8 +77,8 @@
             </div>
             <p class="quest-description">{{ quest.description || '' }}</p>
             <div class="quest-meta">
-              <span>Раундов: {{ quest.rounds ? quest.rounds.length : 0 }}</span>
-              <span>Вопросов: {{ questQuestions(quest.id) }}</span>
+              <span>Раундов: {{ quest.roundsCount ?? (quest.rounds?.length ?? 0) }}</span>
+              <span>Вопросов: {{ questQuestions(quest) }}</span>
             </div>
           </article>
           <article class="quest-card quest-card--new" @click="createNewQuest">
@@ -245,7 +245,9 @@ onBeforeUnmount(() => {
   window.removeEventListener('click', handleClickOutside)
 })
 
-const questQuestions = (questId: string) => quizStore.getQuestProgress(questId).totalQuestions
+// Из лёгкого списка (#16) берём questionsCount; иначе считаем по загруженной структуре
+const questQuestions = (quest: { id: string; questionsCount?: number }) =>
+  quest.questionsCount ?? quizStore.getQuestProgress(quest.id).totalQuestions
 
 function handleCardClick(event: MouseEvent, questId: string) {
   const target = event.target as HTMLElement | null
@@ -320,10 +322,16 @@ function goToQuestEditor(questId: string) {
   router.push({ name: 'admin-quest', params: { questId } })
 }
 
-function exportQuest(questId: string) {
-  const quest = quizStore.getQuestById(questId)
-  if (!quest) return
-  const json = JSON.stringify(quest, null, 2)
+async function exportQuest(questId: string) {
+  // В списке квест лёгкий (без rounds, #16) — подгружаем полный перед экспортом
+  let quest = quizStore.getQuestById(questId)
+  if (!quest || !quest.rounds?.length) {
+    quest = await quizStore.loadQuestFull(questId) ?? quest
+  }
+  if (!quest || !quest.rounds?.length) return
+  // Экспортируем чистую структуру без служебных счётчиков
+  const { roundsCount, questionsCount, ...clean } = quest
+  const json = JSON.stringify(clean, null, 2)
   const blob = new Blob([json], { type: 'application/json' })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')

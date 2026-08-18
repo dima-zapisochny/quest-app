@@ -60,11 +60,39 @@ export async function upsertUserProfile(profile: UserProfile): Promise<UserProfi
 // Quests
 // ============================================================================
 
-/** Список квестів з полем data (раунди/питання), щоб на головній і після оновлення сторінки показувались коректні кількості. */
+/**
+ * Лёгкий список квестов (#16): из quest_list_view приходят только счётчики
+ * (rounds_count/questions_count), без тяжёлого data. Полный квест подгружается
+ * по требованию через loadQuestFull.
+ * Fallback: если view не задеплоен (007), берём старый путь с полем data.
+ */
 export async function getQuestList(userId: string): Promise<Quest[]> {
   const { data, error } = await supabase
+    .from('quest_list_view')
+    .select('id, title, description, rounds_count, questions_count')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+
+  if (error) {
+    console.warn('[Supabase] quest_list_view недоступен, fallback на полный data:', error.message)
+    return getQuestListFallback(userId)
+  }
+
+  return (data || []).map((row: { id: string; title: string; description?: string | null; rounds_count?: number; questions_count?: number }) => ({
+    id: row.id,
+    title: row.title,
+    description: row.description ?? undefined,
+    rounds: [], // структура подгрузится через loadQuestFull
+    roundsCount: row.rounds_count ?? 0,
+    questionsCount: row.questions_count ?? 0
+  }))
+}
+
+/** Старый путь: тянет полный data и считает на клиенте (пока view не задеплоен). */
+async function getQuestListFallback(userId: string): Promise<Quest[]> {
+  const { data, error } = await supabase
     .from('quests')
-    .select('id, title, description, user_id, created_at, updated_at, data')
+    .select('id, title, description, data')
     .eq('user_id', userId)
     .order('created_at', { ascending: false })
 
@@ -73,13 +101,18 @@ export async function getQuestList(userId: string): Promise<Quest[]> {
     return []
   }
 
-  return (data || []).map((row: { id: string; title: string; description?: string | null; user_id: string; data?: Quest | null }) => {
+  return (data || []).map((row: { id: string; title: string; description?: string | null; data?: Quest | null }) => {
     const q = row.data
-    if (!q || typeof q !== 'object') {
-      return { id: row.id, title: row.title, description: row.description ?? undefined, rounds: [] } as Quest
-    }
-    const rounds = Array.isArray((q as Quest).rounds) ? (q as Quest).rounds : []
-    return { ...q, id: row.id, title: row.title ?? (q as Quest).title, description: row.description ?? (q as Quest).description ?? undefined, rounds } as Quest
+    const rounds = q && Array.isArray(q.rounds) ? q.rounds : []
+    const questionsCount = rounds.reduce((sum, r) => sum + (r.categories || []).reduce((cs, c) => cs + (c.questions?.length ?? 0), 0), 0)
+    return {
+      id: row.id,
+      title: row.title ?? q?.title ?? '',
+      description: row.description ?? q?.description ?? undefined,
+      rounds,
+      roundsCount: rounds.length,
+      questionsCount
+    } as Quest
   })
 }
 
@@ -582,90 +615,40 @@ export async function resetRoundProgress(
 // Real-time subscriptions
 // ============================================================================
 
-export function subscribeToSessions(
+/**
+ * Подписка на ОДНУ сессию по id (#17): realtime фильтрует по id=eq.<sessionId>,
+ * поэтому клиент не получает изменения чужих игр. payload.new маппится напрямую —
+ * без лишнего getSessionById на каждое событие.
+ */
+export function subscribeToSession(
+  sessionId: string,
   callback: (session: GameSession) => void,
   onSessionDeleted?: (sessionId: string) => void
 ): () => void {
-  const channelName = `game_sessions_changes_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-  
+  const channelName = `session_${sessionId}_${Math.random().toString(36).slice(2, 8)}`
   const channel = supabase
-    .channel(channelName, {
-      config: {
-        broadcast: { self: true },
-        presence: { key: 'session' }
-      }
-    })
+    .channel(channelName)
     .on(
       'postgres_changes',
-      {
-        event: '*',
-        schema: 'public',
-        table: 'game_sessions',
-        filter: undefined // Подписываемся на все изменения
-      },
-      async (payload) => {
+      { event: '*', schema: 'public', table: 'game_sessions', filter: `id=eq.${sessionId}` },
+      (payload) => {
         try {
-          const newRow = payload.new as { id?: string } | null
-          const oldRow = payload.old as { id?: string } | null
-          console.log('📨 [Realtime] game_sessions payload:', {
-            eventType: payload.eventType,
-            sessionId: newRow?.id ?? oldRow?.id,
-            timestamp: new Date().toISOString()
-          })
-
-          if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
-            const sessionId = newRow?.id
-            if (!sessionId) return
-            console.log('🔄 [Realtime] Loading session:', sessionId)
-            
-            const session = await getSessionById(sessionId)
-            if (session) {
-              console.log('✅ [Realtime] Session loaded, players:', session.players.length)
-              callback(session)
-            } else {
-              console.warn('⚠️ [Realtime] Session not found:', sessionId)
-            }
-          } else if (payload.eventType === 'DELETE') {
-            const deletedId = oldRow?.id
-            console.log('🗑️ [Realtime] Session deleted:', deletedId)
-            if (deletedId && onSessionDeleted) {
-              onSessionDeleted(deletedId)
-            }
+          if (payload.eventType === 'DELETE') {
+            onSessionDeleted?.(sessionId)
+            return
           }
+          const row = payload.new as Parameters<typeof mapSessionRow>[0] | null
+          if (row?.id) callback(mapSessionRow(row))
         } catch (error) {
-          console.error('❌ [Realtime] Error in game_sessions subscription:', error)
+          console.error('❌ [Realtime] Error in session subscription:', error)
         }
       }
     )
-    .on('system', {}, (payload) => {
-      // Обработка системных событий (подключение, отключение)
-      if (payload.status === 'SUBSCRIBED') {
-        console.log('✅ WebSocket connected to game_sessions')
-      } else if (payload.status === 'CHANNEL_ERROR') {
-        console.error('❌ WebSocket channel error:', payload)
-      } else if (payload.status === 'TIMED_OUT') {
-        console.warn('⏱️ WebSocket connection timed out, reconnecting...')
-      } else if (payload.status === 'CLOSED') {
-        console.warn('🔌 WebSocket connection closed')
-      }
-    })
     .subscribe((status) => {
       if (status === 'SUBSCRIBED') {
-        console.log('✅ Successfully subscribed to game_sessions changes via WebSocket')
-        console.log('📡 WebSocket channel:', channelName, 'is now listening for changes')
+        console.log('✅ Subscribed to session:', sessionId)
       } else if (status === 'CHANNEL_ERROR') {
-        console.error('❌ Error subscribing to game_sessions:', status)
-        console.error('💡 Убедитесь, что real-time включен для таблицы game_sessions в Supabase Dashboard')
-      } else if (status === 'TIMED_OUT') {
-        console.warn('⏱️ Subscription timeout, retrying...')
-        // Попытка переподключения
-        setTimeout(() => {
-          channel.subscribe()
-        }, 1000)
-      } else if (status === 'CLOSED') {
-        console.warn('🔌 Subscription closed')
-      } else {
-        console.log('ℹ️ WebSocket subscription status:', status)
+        console.error('❌ Error subscribing to session:', sessionId)
       }
     })
 

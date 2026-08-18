@@ -306,6 +306,9 @@ onMounted(async () => {
     }
   }
   
+  // Подписка на realtime именно этой сессии (#17)
+  sessionStore.watchSession(sessionId)
+
   // Ждём готовности store без busy-wait (#35)
   await sessionStore.whenReady()
   
@@ -459,6 +462,7 @@ onBeforeUnmount(() => {
     clearInterval(heartbeatTimer)
     heartbeatTimer = null
   }
+  sessionStore.unwatchSession()
   // Игрока НЕ удаляем вручную: heartbeat остановится, и хост уберёт его по TTL (#5).
   // Явный выход («Выйти») по-прежнему делает leaveSession в confirmExit.
 })
