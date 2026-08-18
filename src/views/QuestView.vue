@@ -732,6 +732,14 @@ const PRUNE_TTL_MS = 90000
 const PRUNE_CHECK_MS = 20000
 let prunePlayersInterval: ReturnType<typeof setInterval> | null = null
 
+// Если сессия загрузилась после mount (например, при перезагрузке страницы) —
+// подписываемся на её realtime (#17)
+watch(
+  () => session.value?.id,
+  (id) => { if (id) sessionStore.watchSession(id) },
+  { immediate: false }
+)
+
 // Хост — авторитет по таймауту отвечающего (#12): даже если у отвечающего закрыта
 // вкладка, хост снимет право ответа через RESPONDER_LIMIT_MS от серверного responderStartedAt.
 const RESPONDER_LIMIT_MS = 10000
@@ -771,6 +779,9 @@ onMounted(async () => {
   if (session.value && !session.value.roundId && quest.value?.rounds?.length) {
     sessionStore.setActiveRound(session.value.id, quest.value.rounds[0].id)
   }
+
+  // Подписка на realtime именно этой сессии (#17)
+  if (session.value?.id) sessionStore.watchSession(session.value.id)
 
   // Періодично оновлювати сесію з сервера, щоб нові учасники з’являлись без перезавантаження (fallback якщо Realtime не спрацював)
   if (session.value?.id) {
@@ -852,6 +863,7 @@ onBeforeUnmount(() => {
     prunePlayersInterval = null
   }
   clearResponderTimeout()
+  sessionStore.unwatchSession()
 })
 
 watch(

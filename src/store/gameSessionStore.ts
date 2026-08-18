@@ -21,7 +21,7 @@ import {
   updateSession,
   tryBuzz as tryBuzzInDb,
   deleteSession as deleteSessionInDb,
-  subscribeToSessions,
+  subscribeToSession,
   joinSessionRpc,
   leaveSessionRpc,
   awardPointsRpc,
@@ -126,76 +126,50 @@ export const useGameSessionStore = defineStore('game-session', () => {
     }
   }
 
-  // Инициализация при монтировании store
+  // Инициализация при монтировании store. Realtime-подписка больше НЕ глобальная (#17):
+  // на конкретную сессию подписываемся через watchSession() из QuestView/PlayerSessionView.
   if (typeof window !== 'undefined') {
     loadData()
+  }
 
-    // Подписываемся на изменения сессий через WebSocket real-time.
-    // Store живёт весь жизненный цикл приложения, поэтому отписка не требуется.
-    subscribeToSessions(
-      (session) => {
-      console.log('📡 WebSocket update received for session:', session.id, {
-        playersCount: session.players.length,
-        players: session.players.map(p => ({ id: p.id, name: p.name }))
-      })
-      
-      const existingIndex = sessions.value.findIndex(s => s.id === session.id)
-      if (existingIndex >= 0) {
-        const oldSession = sessions.value[existingIndex]
-        const oldPlayersCount = oldSession.players.length
-        const newPlayersCount = session.players.length
+  /** Применяет realtime-обновление сессии в store (новые объекты для реактивности Vue). */
+  function applySessionUpdate(session: GameSession) {
+    const existingIndex = sessions.value.findIndex(s => s.id === session.id)
+    const rebuilt: GameSession = {
+      ...session,
+      players: session.players.map(player => ({ ...player })),
+      activeQuestion: session.activeQuestion ? { ...session.activeQuestion } : undefined
+    }
+    if (existingIndex >= 0) {
+      updateSessionInArray(rebuilt)
+    } else {
+      sessions.value = [...sessions.value, rebuilt]
+    }
+  }
 
-        // Realtime-обновления применяем как есть. Костыль «игнорировать удаление
-        // активного игрока в течение 10с» убран (#10): presence-heartbeat + prune
-        // на хосте теперь авторитетно решают, кто в сессии, без гонок при reload.
+  // Подписка на текущую сессию (одну, с фильтром по id — #17)
+  let unsubscribeSession: (() => void) | null = null
+  let subscribedSessionId: string | null = null
 
-        // Очки — авторитетно с сервера (session.players[].score). localStorage не используем (#14).
-
-        // Создаем полностью новый объект для правильной реактивности Vue
-        // Важно создать новый объект, чтобы Vue отследил изменения
-        // Также создаем новые объекты для каждого игрока, чтобы Vue отследил изменения в score
-        const updatedSession: GameSession = {
-          id: session.id,
-          code: session.code,
-          questId: session.questId,
-          quest: session.quest,
-          hostId: session.hostId,
-          hostName: session.hostName,
-          hostAvatar: session.hostAvatar,
-          state: session.state,
-          roundId: session.roundId,
-          players: session.players.map(player => ({ ...player })), // Создаем новый объект для каждого игрока
-          activeQuestion: session.activeQuestion ? { ...session.activeQuestion } : undefined,
-          createdAt: session.createdAt,
-          updatedAt: session.updatedAt
-        }
-        
-        // Обновляем сессию через helper функцию для правильной реактивности
-        updateSessionInArray(updatedSession)
-        
-        console.log('✅ Session updated via WebSocket:', {
-          sessionId: session.id,
-          oldPlayersCount,
-          newPlayersCount,
-          playersChanged: oldPlayersCount !== newPlayersCount,
-          hasActiveQuestion: !!session.activeQuestion,
-          activeQuestionId: session.activeQuestion?.questionId,
-          newArrayLength: sessions.value.length
-        })
-      } else {
-        // Новая сессия добавлена
-        sessions.value = [...sessions.value, {
-          ...session,
-          players: session.players.map(player => ({ ...player })) // Создаем новый объект для каждого игрока
-        }]
-        console.log('➕ [Session] New session via WebSocket:', session.id)
-      }
-    },
-      (deletedSessionId) => {
-        sessions.value = sessions.value.filter(s => s.id !== deletedSessionId)
-        console.log('🗑️ [Session] Removed deleted session from store:', deletedSessionId)
-      }
+  /** Подписаться на realtime конкретной сессии (вызывается из вью при входе в игру). */
+  function watchSession(sessionId: string) {
+    if (subscribedSessionId === sessionId && unsubscribeSession) return
+    unwatchSession()
+    subscribedSessionId = sessionId
+    unsubscribeSession = subscribeToSession(
+      sessionId,
+      (session) => applySessionUpdate(session),
+      (deletedId) => { sessions.value = sessions.value.filter(s => s.id !== deletedId) }
     )
+  }
+
+  /** Отписаться от realtime текущей сессии. */
+  function unwatchSession() {
+    if (unsubscribeSession) {
+      unsubscribeSession()
+      unsubscribeSession = null
+    }
+    subscribedSessionId = null
   }
 
   async function setUserProfile(profile: { name: string; avatar: string }) {
@@ -1191,6 +1165,8 @@ export const useGameSessionStore = defineStore('game-session', () => {
     getCurrentDevicePlayer,
     refreshSessionFromServer,
     heartbeat,
-    pruneStalePlayers
+    pruneStalePlayers,
+    watchSession,
+    unwatchSession
   }
 })

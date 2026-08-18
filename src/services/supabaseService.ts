@@ -615,90 +615,40 @@ export async function resetRoundProgress(
 // Real-time subscriptions
 // ============================================================================
 
-export function subscribeToSessions(
+/**
+ * Подписка на ОДНУ сессию по id (#17): realtime фильтрует по id=eq.<sessionId>,
+ * поэтому клиент не получает изменения чужих игр. payload.new маппится напрямую —
+ * без лишнего getSessionById на каждое событие.
+ */
+export function subscribeToSession(
+  sessionId: string,
   callback: (session: GameSession) => void,
   onSessionDeleted?: (sessionId: string) => void
 ): () => void {
-  const channelName = `game_sessions_changes_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-  
+  const channelName = `session_${sessionId}_${Math.random().toString(36).slice(2, 8)}`
   const channel = supabase
-    .channel(channelName, {
-      config: {
-        broadcast: { self: true },
-        presence: { key: 'session' }
-      }
-    })
+    .channel(channelName)
     .on(
       'postgres_changes',
-      {
-        event: '*',
-        schema: 'public',
-        table: 'game_sessions',
-        filter: undefined // Подписываемся на все изменения
-      },
-      async (payload) => {
+      { event: '*', schema: 'public', table: 'game_sessions', filter: `id=eq.${sessionId}` },
+      (payload) => {
         try {
-          const newRow = payload.new as { id?: string } | null
-          const oldRow = payload.old as { id?: string } | null
-          console.log('📨 [Realtime] game_sessions payload:', {
-            eventType: payload.eventType,
-            sessionId: newRow?.id ?? oldRow?.id,
-            timestamp: new Date().toISOString()
-          })
-
-          if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
-            const sessionId = newRow?.id
-            if (!sessionId) return
-            console.log('🔄 [Realtime] Loading session:', sessionId)
-            
-            const session = await getSessionById(sessionId)
-            if (session) {
-              console.log('✅ [Realtime] Session loaded, players:', session.players.length)
-              callback(session)
-            } else {
-              console.warn('⚠️ [Realtime] Session not found:', sessionId)
-            }
-          } else if (payload.eventType === 'DELETE') {
-            const deletedId = oldRow?.id
-            console.log('🗑️ [Realtime] Session deleted:', deletedId)
-            if (deletedId && onSessionDeleted) {
-              onSessionDeleted(deletedId)
-            }
+          if (payload.eventType === 'DELETE') {
+            onSessionDeleted?.(sessionId)
+            return
           }
+          const row = payload.new as Parameters<typeof mapSessionRow>[0] | null
+          if (row?.id) callback(mapSessionRow(row))
         } catch (error) {
-          console.error('❌ [Realtime] Error in game_sessions subscription:', error)
+          console.error('❌ [Realtime] Error in session subscription:', error)
         }
       }
     )
-    .on('system', {}, (payload) => {
-      // Обработка системных событий (подключение, отключение)
-      if (payload.status === 'SUBSCRIBED') {
-        console.log('✅ WebSocket connected to game_sessions')
-      } else if (payload.status === 'CHANNEL_ERROR') {
-        console.error('❌ WebSocket channel error:', payload)
-      } else if (payload.status === 'TIMED_OUT') {
-        console.warn('⏱️ WebSocket connection timed out, reconnecting...')
-      } else if (payload.status === 'CLOSED') {
-        console.warn('🔌 WebSocket connection closed')
-      }
-    })
     .subscribe((status) => {
       if (status === 'SUBSCRIBED') {
-        console.log('✅ Successfully subscribed to game_sessions changes via WebSocket')
-        console.log('📡 WebSocket channel:', channelName, 'is now listening for changes')
+        console.log('✅ Subscribed to session:', sessionId)
       } else if (status === 'CHANNEL_ERROR') {
-        console.error('❌ Error subscribing to game_sessions:', status)
-        console.error('💡 Убедитесь, что real-time включен для таблицы game_sessions в Supabase Dashboard')
-      } else if (status === 'TIMED_OUT') {
-        console.warn('⏱️ Subscription timeout, retrying...')
-        // Попытка переподключения
-        setTimeout(() => {
-          channel.subscribe()
-        }, 1000)
-      } else if (status === 'CLOSED') {
-        console.warn('🔌 Subscription closed')
-      } else {
-        console.log('ℹ️ WebSocket subscription status:', status)
+        console.error('❌ Error subscribing to session:', sessionId)
       }
     })
 
