@@ -217,14 +217,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, nextTick, computed, onBeforeUnmount } from 'vue'
+import { ref, watch, nextTick, computed } from 'vue'
 import TimerCircle from './TimerCircle.vue'
 import QuestionMediaPreview from './QuestionMediaPreview.vue'
 import { useGameSessionStore } from '@/store/gameSessionStore'
 import { useQuizStore } from '@/store/quizStore'
-import type { Question, Player, MediaAsset } from '@/types'
-import { safeMediaUrl } from '@/utils/mediaUrl'
+import type { Question, Player } from '@/types'
+import { safeMediaUrl, isPlayableAudioMedia } from '@/utils/mediaUrl'
 import { avatarEmoji } from '@/utils/avatar'
+import { useAudioPlayer } from '@/composables/useAudioPlayer'
+import { useElapsedTime } from '@/composables/useElapsedTime'
 
 interface Props {
   isOpen: boolean
@@ -247,11 +249,10 @@ const quizStore = useQuizStore()
 
 const showAnswer = ref(false)
 const timerRef = ref<InstanceType<typeof TimerCircle> | null>(null)
-const playingAudioId = ref<string | null>(null)
-const audioRefs = ref<Record<string, HTMLAudioElement | null>>({})
-const questionOpenedAt = ref<number | null>(null)
-const elapsedTime = ref(0)
-let elapsedTimeInterval: number | null = null
+
+// Аудио-плеер (audioRefs/toggle/stopAll) и секундомер показа медиа с задержкой
+const { playingId: playingAudioId, setRef: setAudioRef, stopAll: stopAllAudio, toggle: toggleAudio, onEnded: handleAudioEnded } = useAudioPlayer()
+const { elapsed: elapsedTime, startedAt: questionOpenedAt, start: startElapsed, reset: resetElapsed } = useElapsedTime()
 
 const session = computed(() => (props.sessionId ? gameSessionStore.getSessionById(props.sessionId) : undefined))
 const activeQuestion = computed(() => session.value?.activeQuestion)
@@ -323,72 +324,8 @@ const questionMediaAudio = computed(() => {
   const fromUrl = props.question?.audioUrl && safeMediaUrl(props.question.audioUrl)
     ? [{ id: 'audio-url', type: 'audio' as const, name: '', url: safeMediaUrl(props.question.audioUrl)! }]
     : []
-  if (!props.question?.questionMedia) return fromUrl
-  if (!Array.isArray(props.question.questionMedia)) return fromUrl
-  const audioFiles = props.question.questionMedia.filter(media => {
-    // Проверяем существование объекта
-    if (!media || typeof media !== 'object') {
-      return false
-    }
-    
-    // Проверяем тип
-    if (!media.type || media.type !== 'audio') {
-      return false
-    }
-    
-    // Проверяем URL - должен быть непустой строкой
-    if (!media.url) {
-      return false
-    }
-    
-    if (typeof media.url !== 'string') {
-      return false
-    }
-    
-    const urlTrimmed = media.url.trim()
-    if (urlTrimmed === '') {
-      return false
-    }
-    
-    // Проверяем, что URL не является пустым data URL
-    if (urlTrimmed === 'data:' || urlTrimmed.startsWith('data:,') || urlTrimmed === 'data:audio/') {
-      return false
-    }
-    
-    // Проверяем, что это валидный data URL или обычный URL
-    if (urlTrimmed.startsWith('data:')) {
-      // Для data URL проверяем, что есть данные после типа
-      const dataUrlMatch = urlTrimmed.match(/^data:([^;]+);base64,(.+)$/)
-      if (!dataUrlMatch || !dataUrlMatch[2] || dataUrlMatch[2].trim() === '') {
-        return false
-      }
-    } else {
-      // Относительные пути (audio/файл.mp3, images/фото.jpg) — допускаем для импортированных квестов
-      if (!urlTrimmed.startsWith('http://') && !urlTrimmed.startsWith('https://')) {
-        return true
-      }
-      // Для абсолютных URL проверяем, что это не placeholder
-      const placeholderPatterns = [
-        /^https?:\/\/example\.(com|org|net)/i,
-        /^https?:\/\/placeholder/i,
-        /^https?:\/\/test\./i,
-        /^https?:\/\/dummy/i,
-        /^https?:\/\/fake/i
-      ]
-      if (placeholderPatterns.some(pattern => pattern.test(urlTrimmed))) {
-        return false
-      }
-      try {
-        const urlObj = new URL(urlTrimmed)
-        if (urlObj.hostname.includes('example.com') || urlObj.hostname.includes('example.org') || urlObj.hostname.includes('example.net')) {
-          return false
-        }
-      } catch {
-        return false
-      }
-    }
-    return true
-  })
+  if (!Array.isArray(props.question?.questionMedia)) return fromUrl
+  const audioFiles = props.question.questionMedia.filter(isPlayableAudioMedia)
   return [...fromUrl, ...audioFiles]
 })
 
@@ -408,96 +345,14 @@ const answerMediaAudio = computed(() => {
   const fromUrl = answerAudioSafe
     ? [{ id: 'ans-audio-url', type: 'audio' as const, name: '', url: answerAudioSafe }]
     : []
-  const list = props.question?.answerMedia ?? []
+  const list = props.question?.answerMedia
   if (!Array.isArray(list)) return fromUrl
-  const fromMedia = list.filter((media): media is import('@/types').MediaAsset => {
-    if (!media || media.type !== 'audio' || !media.url || typeof media.url !== 'string') return false
-    const url = media.url.trim()
-    if (!url || url === 'data:' || url.startsWith('data:,')) return false
-    if (url.startsWith('data:')) {
-      const m = url.match(/^data:([^;]+);base64,(.+)$/)
-      return !!(m && m[2]?.trim())
-    }
-    if (!url.startsWith('http://') && !url.startsWith('https://')) return true
-    if (/^https?:\/\/example\.(com|org|net)|placeholder|dummy|fake/i.test(url)) return false
-    try {
-      const u = new URL(url)
-      return !['example.com', 'example.org', 'example.net'].includes(u.hostname)
-    } catch {
-      return false
-    }
-  })
+  const fromMedia = list.filter(isPlayableAudioMedia)
   return [...fromUrl, ...fromMedia]
 })
 
-// Проверка наличия валидного аудио
-const hasAudio = computed(() => {
-  const audioList = questionMediaAudio.value
-  const count = audioList.length
-  
-  if (count === 0) {
-    return false
-  }
-  
-  // Дополнительная проверка - убеждаемся, что все аудио имеют валидные URL
-  const allValid = audioList.every(audio => {
-    if (!audio) return false
-    if (!audio.url) return false
-    if (typeof audio.url !== 'string') return false
-    
-    const urlTrimmed = audio.url.trim()
-    if (urlTrimmed === '') return false
-    if (urlTrimmed === 'data:') return false
-    if (urlTrimmed.startsWith('data:,')) return false
-    
-    // Для data URL проверяем наличие данных
-    if (urlTrimmed.startsWith('data:')) {
-      const parts = urlTrimmed.split(',')
-      if (parts.length < 2 || parts[1].trim() === '') {
-        return false
-      }
-    }
-    
-    return true
-  })
-  
-  return allValid
-})
-
-function setAudioRef(id: string, el: unknown) {
-  if (el instanceof HTMLAudioElement) {
-    audioRefs.value[id] = el
-  }
-}
-
-function toggleAudio(audio: MediaAsset) {
-  const audioElement = audioRefs.value[audio.id]
-  if (!audioElement) return
-
-  if (playingAudioId.value === audio.id) {
-    // Останавливаем текущее аудио
-    audioElement.pause()
-    audioElement.currentTime = 0
-    playingAudioId.value = null
-  } else {
-    // Останавливаем все другие аудио
-    Object.values(audioRefs.value).forEach(a => {
-      if (a && a !== audioElement) {
-        a.pause()
-        a.currentTime = 0
-      }
-    })
-    // Воспроизводим выбранное аудио
-    audioElement.play().catch(error => {
-      console.error('Error playing audio:', error)
-    })
-    playingAudioId.value = audio.id
-  }
-}
-
-function handleAudioEnded() {
-  playingAudioId.value = null
-}
+// Аудио есть, если список воспроизводимого аудио непуст (уже отфильтрован isPlayableAudioMedia)
+const hasAudio = computed(() => questionMediaAudio.value.length > 0)
 
 // Кнопки доступны только когда есть отвечающий и время установлено
 const canResolve = computed(() => {
@@ -524,21 +379,10 @@ watch(
   async (newVal) => {
     if (newVal) {
       resetModal()
-      
-      // Сбрасываем время открытия вопроса
-      questionOpenedAt.value = Date.now()
-      elapsedTime.value = 0
-      
-      // Запускаем отсчет времени для отображения изображений с задержкой
-      if (elapsedTimeInterval) {
-        clearInterval(elapsedTimeInterval)
-      }
-      elapsedTimeInterval = window.setInterval(() => {
-        if (questionOpenedAt.value) {
-          elapsedTime.value = (Date.now() - questionOpenedAt.value) / 1000
-        }
-      }, 100) // Обновляем каждые 100мс для плавности
-      
+
+      // Запускаем отсчёт для отображения изображений с задержкой
+      startElapsed()
+
       // Если есть сессия, открываем вопрос в store для синхронизации с участниками
       if (props.sessionId && props.question && props.roundId && props.categoryId) {
         console.log('📤 Opening question in session:', {
@@ -589,19 +433,9 @@ watch(
   () => {
     if (props.isOpen) {
       resetModal()
-      // Якщо питання змінюється, коли модалка вже відкрита,
-      // resetModal() скидає questionOpenedAt та зупиняє interval,
-      // тому відкладені картинки з questionMedia можуть не з’являтися.
-      questionOpenedAt.value = Date.now()
-      elapsedTime.value = 0
-      if (elapsedTimeInterval) {
-        clearInterval(elapsedTimeInterval)
-      }
-      elapsedTimeInterval = window.setInterval(() => {
-        if (questionOpenedAt.value) {
-          elapsedTime.value = (Date.now() - questionOpenedAt.value) / 1000
-        }
-      }, 100) // Обновляем каждые 100мс для плавности
+      // Питання змінилось при відкритій модалці: resetModal() зупиняє секундомір,
+      // тому перезапускаємо, щоб відкладені картинки з questionMedia з’являлися.
+      startElapsed()
     }
   }
 )
@@ -662,14 +496,9 @@ function resetModal() {
     activeQuestion.value.showAnswer
   )
   
-  // Очищаем интервал отсчета времени
-  if (elapsedTimeInterval) {
-    clearInterval(elapsedTimeInterval)
-    elapsedTimeInterval = null
-  }
-  questionOpenedAt.value = null
-  elapsedTime.value = 0
-  
+  // Сбрасываем секундомер показа медиа
+  resetElapsed()
+
   nextTick(() => {
     timerRef.value?.reset()
     if (activeQuestion.value?.timerPaused) {
@@ -721,13 +550,7 @@ function handleResolve(correct: boolean) {
 
 function handleClose() {
   // Останавливаем все аудио при закрытии
-  Object.values(audioRefs.value).forEach(audio => {
-    if (audio) {
-      audio.pause()
-      audio.currentTime = 0
-    }
-  })
-  playingAudioId.value = null
+  stopAllAudio()
 
   // closeQuestion вызывается один раз — из watch(props.isOpen) при закрытии модалки
   // (родитель ставит isOpen=false после emit('close')). Здесь не дублируем (было #13).
@@ -749,13 +572,6 @@ function handleClose() {
   
   emit('close')
 }
-
-onBeforeUnmount(() => {
-  if (elapsedTimeInterval) {
-    clearInterval(elapsedTimeInterval)
-    elapsedTimeInterval = null
-  }
-})
 
 </script>
 

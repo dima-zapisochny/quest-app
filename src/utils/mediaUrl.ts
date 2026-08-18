@@ -45,3 +45,39 @@ export function getFirstAudioUrl(media: MediaAsset[] | null | undefined): string
   const m = media.find((x) => x.type === 'audio' && x.url)
   return m ? safeMediaUrl(m.url) ?? null : null
 }
+
+const PLACEHOLDER_URL = /^https?:\/\/(example\.(com|org|net)|placeholder|test\.|dummy|fake)/i
+
+/**
+ * True, если url годится для реального воспроизведения аудио: непустой,
+ * валидный data:base64 с данными, относительный путь (импортированные квесты)
+ * или внешний http(s), не являющийся плейсхолдером (example.com и т.п.).
+ * Вынесено из QuestionModal, где эта проверка дублировалась для вопроса и ответа.
+ */
+export function isPlayableAudioUrl(url: string | null | undefined): boolean {
+  if (!url || typeof url !== 'string') return false
+  const t = url.trim()
+  if (t === '' || t === 'data:' || t.startsWith('data:,') || t === 'data:audio/') return false
+
+  if (t.startsWith('data:')) {
+    // data:[mime];base64,<данные> — должны быть непустые данные
+    const m = t.match(/^data:([^;]+);base64,(.+)$/)
+    return !!(m && m[2]?.trim())
+  }
+
+  // Относительные пути (audio/файл.mp3) допускаем для импортированных квестов
+  if (!t.startsWith('http://') && !t.startsWith('https://')) return true
+
+  if (PLACEHOLDER_URL.test(t)) return false
+  try {
+    const u = new URL(t)
+    return !['example.com', 'example.org', 'example.net'].includes(u.hostname)
+  } catch {
+    return false
+  }
+}
+
+/** True, если медиа — аудио с воспроизводимым URL. */
+export function isPlayableAudioMedia(media: MediaAsset | null | undefined): boolean {
+  return !!media && media.type === 'audio' && isPlayableAudioUrl(media.url)
+}
