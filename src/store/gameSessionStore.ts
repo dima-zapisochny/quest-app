@@ -68,9 +68,17 @@ export const useGameSessionStore = defineStore('game-session', () => {
       // Если провайдер не включён — uid === null, работаем на клиентском id (без регрессии).
       const authUid = await ensureAnonymousSession()
       if (authUid) {
-        const legacyId = localStorage.getItem('quiz-app-user-id')
+        // Старый клиентский id (player-xxx) мог быть уже перезаписан в quiz-app-user-id
+        // на прошлой загрузке — тогда берём его из сохранённого профиля, чтобы всё-таки
+        // привязать старые квесты к новому uid (claim, требует 005_anon_auth_claim.sql).
+        let legacyId = localStorage.getItem('quiz-app-user-id')
+        if (!legacyId || legacyId === authUid) {
+          try {
+            const raw = localStorage.getItem('quiz-app-user-profile')
+            if (raw) legacyId = JSON.parse(raw).id
+          } catch { /* ignore */ }
+        }
         if (legacyId && legacyId !== authUid) {
-          // Разовая привязка старых квестов/прогресса/сессий к новому uid
           await claimLegacyData(legacyId)
         }
         localStorage.setItem('quiz-app-user-id', authUid)
@@ -96,7 +104,11 @@ export const useGameSessionStore = defineStore('game-session', () => {
           const storedProfile = localStorage.getItem('quiz-app-user-profile')
           if (storedProfile) {
             try {
-              userProfile.value = JSON.parse(storedProfile)
+              const p = JSON.parse(storedProfile)
+              // id профиля ВСЕГДА = текущий auth uid (profileId), иначе RLS блокирует
+              // create/read под старым player-xxx (прод-инцидент). Имя/аватар сохраняем.
+              userProfile.value = { ...p, id: profileId }
+              localStorage.setItem('quiz-app-user-profile', JSON.stringify(userProfile.value))
             } catch (e) {
               console.error('Error parsing stored profile:', e)
             }
@@ -179,6 +191,9 @@ export const useGameSessionStore = defineStore('game-session', () => {
     const existing = userProfile.value ?? { id: storedId || generateId('player'), name: '', avatar: '' }
     const newProfile: UserProfile = {
       ...existing,
+      // id профиля ВСЕГДА = текущий auth uid: иначе upsert профиля и создание квестов
+      // блокируются RLS (WITH CHECK id/user_id = auth.uid()). Прод-инцидент.
+      id: storedId || existing.id,
       name: profile.name.trim(),
       avatar: profile.avatar
     }
