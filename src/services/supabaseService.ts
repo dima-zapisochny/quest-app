@@ -60,11 +60,39 @@ export async function upsertUserProfile(profile: UserProfile): Promise<UserProfi
 // Quests
 // ============================================================================
 
-/** Список квестів з полем data (раунди/питання), щоб на головній і після оновлення сторінки показувались коректні кількості. */
+/**
+ * Лёгкий список квестов (#16): из quest_list_view приходят только счётчики
+ * (rounds_count/questions_count), без тяжёлого data. Полный квест подгружается
+ * по требованию через loadQuestFull.
+ * Fallback: если view не задеплоен (007), берём старый путь с полем data.
+ */
 export async function getQuestList(userId: string): Promise<Quest[]> {
   const { data, error } = await supabase
+    .from('quest_list_view')
+    .select('id, title, description, rounds_count, questions_count')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+
+  if (error) {
+    console.warn('[Supabase] quest_list_view недоступен, fallback на полный data:', error.message)
+    return getQuestListFallback(userId)
+  }
+
+  return (data || []).map((row: { id: string; title: string; description?: string | null; rounds_count?: number; questions_count?: number }) => ({
+    id: row.id,
+    title: row.title,
+    description: row.description ?? undefined,
+    rounds: [], // структура подгрузится через loadQuestFull
+    roundsCount: row.rounds_count ?? 0,
+    questionsCount: row.questions_count ?? 0
+  }))
+}
+
+/** Старый путь: тянет полный data и считает на клиенте (пока view не задеплоен). */
+async function getQuestListFallback(userId: string): Promise<Quest[]> {
+  const { data, error } = await supabase
     .from('quests')
-    .select('id, title, description, user_id, created_at, updated_at, data')
+    .select('id, title, description, data')
     .eq('user_id', userId)
     .order('created_at', { ascending: false })
 
@@ -73,13 +101,18 @@ export async function getQuestList(userId: string): Promise<Quest[]> {
     return []
   }
 
-  return (data || []).map((row: { id: string; title: string; description?: string | null; user_id: string; data?: Quest | null }) => {
+  return (data || []).map((row: { id: string; title: string; description?: string | null; data?: Quest | null }) => {
     const q = row.data
-    if (!q || typeof q !== 'object') {
-      return { id: row.id, title: row.title, description: row.description ?? undefined, rounds: [] } as Quest
-    }
-    const rounds = Array.isArray((q as Quest).rounds) ? (q as Quest).rounds : []
-    return { ...q, id: row.id, title: row.title ?? (q as Quest).title, description: row.description ?? (q as Quest).description ?? undefined, rounds } as Quest
+    const rounds = q && Array.isArray(q.rounds) ? q.rounds : []
+    const questionsCount = rounds.reduce((sum, r) => sum + (r.categories || []).reduce((cs, c) => cs + (c.questions?.length ?? 0), 0), 0)
+    return {
+      id: row.id,
+      title: row.title ?? q?.title ?? '',
+      description: row.description ?? q?.description ?? undefined,
+      rounds,
+      roundsCount: rounds.length,
+      questionsCount
+    } as Quest
   })
 }
 
