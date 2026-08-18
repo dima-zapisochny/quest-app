@@ -106,6 +106,7 @@ import TimerCircle from '@/components/quiz/TimerCircle.vue'
 import { useGameSessionStore } from '@/store/gameSessionStore'
 import { useQuizStore } from '@/store/quizStore'
 import AppHeader from '@/components/common/AppHeader.vue'
+import { usePresenceHeartbeat } from '@/composables/usePresenceHeartbeat'
 
 const route = useRoute()
 const router = useRouter()
@@ -278,17 +279,9 @@ async function confirmExit() {
 }
 
 // Presence (#5/#10): пока игрок на странице — периодически пингуем «я здесь».
-// Уход/закрытие вкладки больше НЕ пытаемся ловить хрупким isPageReloading —
-// heartbeat просто перестаёт идти, и хост убирает игрока по TTL (prune_stale_players).
-// Это разом закрывает и игроков-призраков (#5), и надобность в realtime-костыле (#10).
-const HEARTBEAT_MS = 15000
-let heartbeatTimer: ReturnType<typeof setInterval> | null = null
-
-function sendHeartbeat() {
-  if (sessionId && playerId.value) sessionStore.heartbeat(sessionId, playerId.value)
-}
-
-let handleVisibilityChange: (() => void) | null = null
+// Уход/закрытие вкладки больше НЕ ловим — heartbeat просто перестаёт идти, и хост
+// убирает игрока по TTL (prune_stale_players). Логика вынесена в usePresenceHeartbeat.
+const { start: startHeartbeat } = usePresenceHeartbeat(sessionId, playerId)
 
 onMounted(async () => {
   console.log('🎮 PlayerSessionView mounted, sessionId:', sessionId)
@@ -428,14 +421,8 @@ onMounted(async () => {
   
   console.log('✅ PlayerSessionView initialized successfully')
 
-  // Запускаем presence-heartbeat: сразу и далее каждые HEARTBEAT_MS
-  sendHeartbeat()
-  heartbeatTimer = setInterval(sendHeartbeat, HEARTBEAT_MS)
-  // При возврате на вкладку — сразу пингуем (после фонового троттлинга)
-  handleVisibilityChange = () => {
-    if (document.visibilityState === 'visible') sendHeartbeat()
-  }
-  document.addEventListener('visibilitychange', handleVisibilityChange)
+  // Запускаем presence-heartbeat (сразу и далее каждые 15с, + при возврате вкладки)
+  startHeartbeat()
 })
 
 // Отслеживаем удаление сессии (когда хост выходит из игры)
@@ -455,13 +442,7 @@ watch(
 )
 
 onBeforeUnmount(() => {
-  if (handleVisibilityChange) {
-    document.removeEventListener('visibilitychange', handleVisibilityChange)
-  }
-  if (heartbeatTimer) {
-    clearInterval(heartbeatTimer)
-    heartbeatTimer = null
-  }
+  // heartbeat/visibility снимает usePresenceHeartbeat автоматически
   sessionStore.unwatchSession()
   // Игрока НЕ удаляем вручную: heartbeat остановится, и хост уберёт его по TTL (#5).
   // Явный выход («Выйти») по-прежнему делает leaveSession в confirmExit.
