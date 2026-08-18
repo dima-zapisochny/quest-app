@@ -33,6 +33,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import type { Question } from '@/types'
+import { avatarEmoji } from '@/utils/avatar'
 
 interface Props {
   question?: Question
@@ -67,26 +68,6 @@ function handleClick() {
   }
 }
 
-function avatarEmoji(avatarId: string): string {
-  const map: Record<string, string> = {
-    fox: '🦊',
-    panda: '🐼',
-    tiger: '🐯',
-    owl: '🦉',
-    whale: '🐳',
-    parrot: '🦜',
-    koala: '🐨',
-    dino: '🦕',
-    crocodile: '🐊',
-    lion: '🦁',
-    penguin: '🐧',
-    elephant: '🐘',
-    seal: '🦭',
-    hedgehog: '🦔',
-    lily: '🌸'
-  }
-  return map[avatarId] ?? '🙂'
-}
 </script>
 
 <style scoped>

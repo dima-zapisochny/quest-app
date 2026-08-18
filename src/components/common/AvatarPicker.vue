@@ -11,30 +11,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
-
-interface AvatarOption {
-  id: string
-  emoji: string
-  label: string
-}
-
-const avatars: AvatarOption[] = [
-  { id: 'fox', emoji: '🦊', label: 'Лис' },
-  { id: 'panda', emoji: '🐼', label: 'Панда' },
-  { id: 'tiger', emoji: '🐯', label: 'Тигр' },
-  { id: 'owl', emoji: '🦉', label: 'Сова' },
-  { id: 'whale', emoji: '🐳', label: 'Кит' },
-  { id: 'parrot', emoji: '🦜', label: 'Попугай' },
-  { id: 'koala', emoji: '🐨', label: 'Коала' },
-  { id: 'dino', emoji: '🦕', label: 'Дино' },
-  { id: 'crocodile', emoji: '🐊', label: 'Крокодил' },
-  { id: 'lion', emoji: '🦁', label: 'Лев' },
-  { id: 'penguin', emoji: '🐧', label: 'Пингвин' },
-  { id: 'elephant', emoji: '🐘', label: 'Слон' },
-  { id: 'seal', emoji: '🦭', label: 'Тюлень' },
-  { id: 'hedgehog', emoji: '🦔', label: 'Ёж' },
-  { id: 'lily', emoji: '🌸', label: 'Лілія' }
-]
+import { AVATARS as avatars } from '@/utils/avatar'
 
 const props = defineProps<{
   modelValue: string | null

@@ -224,6 +224,7 @@ import { useGameSessionStore } from '@/store/gameSessionStore'
 import { useQuizStore } from '@/store/quizStore'
 import type { Question, Player, MediaAsset } from '@/types'
 import { safeMediaUrl } from '@/utils/mediaUrl'
+import { avatarEmoji } from '@/utils/avatar'
 
 interface Props {
   isOpen: boolean
@@ -747,27 +748,6 @@ function handleClose() {
   }
   
   emit('close')
-}
-
-function avatarEmoji(avatarId: string): string {
-  const map: Record<string, string> = {
-    fox: '🦊',
-    panda: '🐼',
-    tiger: '🐯',
-    owl: '🦉',
-    whale: '🐳',
-    parrot: '🦜',
-    koala: '🐨',
-    dino: '🦕',
-    crocodile: '🐊',
-    lion: '🦁',
-    penguin: '🐧',
-    elephant: '🐘',
-    seal: '🦭',
-    hedgehog: '🦔',
-    lily: '🌸'
-  }
-  return map[avatarId] ?? '🙂'
 }
 
 onBeforeUnmount(() => {
