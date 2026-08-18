@@ -292,6 +292,8 @@ import { useGameSessionStore } from '@/store/gameSessionStore'
 import QuizBoard from '@/components/quiz/QuizBoard.vue'
 import AppHeader from '@/components/common/AppHeader.vue'
 import { useIsMobileViewport } from '@/composables/useIsMobileViewport'
+import { useHostSessionSync } from '@/composables/useHostSessionSync'
+import { useResponderTimeout } from '@/composables/useResponderTimeout'
 import { avatarEmoji } from '@/utils/avatar'
 
 interface Props {
@@ -716,15 +718,8 @@ watch(
   { immediate: true }
 )
 
-// Realtime тянет большинство обновлений; поллинг — лишь резервный fallback на
-// случай обрыва WebSocket (мы наблюдали CHANNEL_ERROR). Поэтому редкий интервал (#18).
-const SESSION_POLL_MS = 15000
-let sessionPollInterval: ReturnType<typeof setInterval> | null = null
-
-// Presence-prune (#5): TTL с запасом на фоновый троттлинг heartbeat
-const PRUNE_TTL_MS = 90000
-const PRUNE_CHECK_MS = 20000
-let prunePlayersInterval: ReturnType<typeof setInterval> | null = null
+// Резервный поллинг сессии (#18) + prune протухших игроков (#5) на стороне хоста
+const { start: startHostSync } = useHostSessionSync(() => session.value?.id)
 
 // Если сессия загрузилась после mount (например, при перезагрузке страницы) —
 // подписываемся на её realtime (#17)
@@ -734,37 +729,9 @@ watch(
   { immediate: false }
 )
 
-// Хост — авторитет по таймауту отвечающего (#12): даже если у отвечающего закрыта
-// вкладка, хост снимет право ответа через RESPONDER_LIMIT_MS от серверного responderStartedAt.
-const RESPONDER_LIMIT_MS = 10000
-let responderTimeoutId: ReturnType<typeof setTimeout> | null = null
-
-function clearResponderTimeout() {
-  if (responderTimeoutId) {
-    clearTimeout(responderTimeoutId)
-    responderTimeoutId = null
-  }
-}
-
-watch(
-  () => {
-    const aq = session.value?.activeQuestion
-    return aq && aq.currentResponderId && !aq.showAnswer ? aq.responderStartedAt ?? null : null
-  },
-  (startedAt) => {
-    clearResponderTimeout()
-    if (!session.value || startedAt == null) return
-    const remaining = Math.max(0, RESPONDER_LIMIT_MS - (Date.now() - startedAt))
-    responderTimeoutId = setTimeout(() => {
-      const sid = session.value?.id
-      const aq = session.value?.activeQuestion
-      if (sid && aq?.currentResponderId && !aq.showAnswer) {
-        sessionStore.timeoutResponder(sid)
-      }
-    }, remaining)
-  },
-  { immediate: true }
-)
+// Хост — авторитет по таймауту отвечающего (#12): снимает право ответа через 10с
+// от серверного responderStartedAt, даже если у отвечающего закрыта вкладка.
+useResponderTimeout(() => session.value)
 
 onMounted(async () => {
   buildLeaderboardFromSession()
@@ -777,19 +744,9 @@ onMounted(async () => {
   // Подписка на realtime именно этой сессии (#17)
   if (session.value?.id) sessionStore.watchSession(session.value.id)
 
-  // Періодично оновлювати сесію з сервера, щоб нові учасники з’являлись без перезавантаження (fallback якщо Realtime не спрацював)
-  if (session.value?.id) {
-    sessionPollInterval = setInterval(() => {
-      if (session.value?.id) sessionStore.refreshSessionFromServer(session.value!.id)
-    }, SESSION_POLL_MS)
-
-    // Хост убирает игроков с протухшим heartbeat (#5). TTL 90с переживает
-    // фоновый троттлинг вкладки игрока (heartbeat ~1/мин в фоне), а закрытая
-    // вкладка удаляется в пределах ~минуты.
-    prunePlayersInterval = setInterval(() => {
-      if (session.value?.id) sessionStore.pruneStalePlayers(session.value!.id, PRUNE_TTL_MS)
-    }, PRUNE_CHECK_MS)
-  }
+  // Резервный поллинг сессии + prune протухших игроков (нові учасники з’являються
+  // без перезавантаження, вкладка гравця чиститься по TTL). Живе поза mount через getter.
+  if (session.value?.id) startHostSync()
 
   // Завантажуємо список (якщо треба) і повний квест для перегляду/гри
   if (!quest.value || !quest.value.rounds) {
@@ -847,16 +804,8 @@ watch(
 )
 
 onBeforeUnmount(() => {
+  // poll/prune и responder-timeout снимают useHostSessionSync/useResponderTimeout сами
   leaderboardState.value = []
-  if (sessionPollInterval) {
-    clearInterval(sessionPollInterval)
-    sessionPollInterval = null
-  }
-  if (prunePlayersInterval) {
-    clearInterval(prunePlayersInterval)
-    prunePlayersInterval = null
-  }
-  clearResponderTimeout()
   sessionStore.unwatchSession()
 })
 
