@@ -141,10 +141,41 @@
               rows="3"
               placeholder="Кратко расскажите о квесте"
             ></textarea>
+
+            <span class="quest-modal__label">С чего начать</span>
+            <div class="new-quest-mode" role="radiogroup" aria-label="С чего начать">
+              <button
+                type="button"
+                :class="['mode-chip', { 'mode-chip--active': newQuestMode === 'grid' }]"
+                role="radio"
+                :aria-checked="newQuestMode === 'grid'"
+                @click="newQuestMode = 'grid'"
+              >Готовая сетка</button>
+              <button
+                type="button"
+                :class="['mode-chip', { 'mode-chip--active': newQuestMode === 'empty' }]"
+                role="radio"
+                :aria-checked="newQuestMode === 'empty'"
+                @click="newQuestMode = 'empty'"
+              >Пустой квест</button>
+            </div>
+            <div v-if="newQuestMode === 'grid'" class="new-quest-grid-size">
+              <select v-model.number="newQuestCategories" aria-label="Категорий">
+                <option v-for="n in 8" :key="n" :value="n">{{ n }}</option>
+              </select>
+              <span>категорий ×</span>
+              <select v-model.number="newQuestQuestions" aria-label="Вопросов в категории">
+                <option v-for="n in 10" :key="n" :value="n">{{ n }}</option>
+              </select>
+              <span>вопросов ({{ newQuestCategories * newQuestQuestions }} шт.)</span>
+            </div>
+
             <p v-if="createQuestError" class="quest-modal__error">{{ createQuestError }}</p>
             <div class="quest-modal__actions">
               <button type="button" class="secondary" @click="closeCreateQuestModal">Отмена</button>
-              <button type="submit" class="primary">Создать</button>
+              <button type="submit" class="primary" :disabled="isCreatingQuest">
+                {{ isCreatingQuest ? 'Создание…' : 'Создать' }}
+              </button>
             </div>
           </form>
         </div>
@@ -193,6 +224,11 @@ const showCreateQuestModal = ref(false)
 const newQuestTitle = ref('')
 const newQuestDescription = ref('')
 const createQuestError = ref('')
+// Начинать сразу с сетки (доска N×M) или с пустого квеста
+const newQuestMode = ref<'grid' | 'empty'>('grid')
+const newQuestCategories = ref(5)
+const newQuestQuestions = ref(5)
+const isCreatingQuest = ref(false)
 const confirmDeleteModal = ref<{ visible: boolean; questId: string | null; questTitle: string }>({
   visible: false,
   questId: null,
@@ -344,6 +380,9 @@ function createNewQuest() {
   newQuestTitle.value = ''
   newQuestDescription.value = ''
   createQuestError.value = ''
+  newQuestMode.value = 'grid'
+  newQuestCategories.value = 5
+  newQuestQuestions.value = 5
   showCreateQuestModal.value = true
 }
 
@@ -392,15 +431,21 @@ async function submitCreateQuest() {
     createQuestError.value = 'Название квеста обязательно'
     return
   }
+  if (isCreatingQuest.value) return
+  isCreatingQuest.value = true
   try {
-    const questId = await quizStore.createQuest(title, newQuestDescription.value.trim())
-    // Квест уже добавлен в store функцией createQuest
+    const description = newQuestDescription.value.trim()
+    const questId = newQuestMode.value === 'grid'
+      ? await quizStore.createQuestWithBoard(title, description, newQuestCategories.value, newQuestQuestions.value)
+      : await quizStore.createQuest(title, description)
     showCreateQuestModal.value = false
     // Небольшая задержка для гарантии, что квест сохранен
     await new Promise(resolve => setTimeout(resolve, 100))
     router.push({ name: 'admin-quest', params: { questId } })
   } catch (error: any) {
     createQuestError.value = error?.message ?? 'Не удалось создать квест'
+  } finally {
+    isCreatingQuest.value = false
   }
 }
 
@@ -1124,6 +1169,45 @@ async function onImportQuestFile(event: Event) {
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: rgb(var(--c-text-muted) / 0.65);
+}
+
+.new-quest-mode {
+  display: flex;
+  gap: 0.5rem;
+}
+.mode-chip {
+  flex: 1;
+  padding: 0.55rem 0.75rem;
+  border-radius: 12px;
+  border: 1px solid rgb(var(--c-accent-sky) / 0.25);
+  background: rgb(var(--c-bg) / 0.4);
+  color: rgb(var(--c-text-soft) / 0.85);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+.mode-chip--active {
+  background: rgb(var(--c-accent) / 0.22);
+  border-color: rgb(var(--c-accent) / 0.6);
+  color: rgb(var(--c-accent-soft));
+}
+.new-quest-grid-size {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+  font-size: 0.85rem;
+  color: rgb(var(--c-text-soft) / 0.75);
+}
+.new-quest-grid-size select {
+  background: rgb(var(--c-bg) / 0.6);
+  border: 1px solid rgb(var(--c-accent-sky) / 0.3);
+  border-radius: 8px;
+  color: rgb(var(--c-text));
+  padding: 0.3rem 0.4rem;
+  font-size: 0.9rem;
+  cursor: pointer;
 }
 
 .quest-modal__input,

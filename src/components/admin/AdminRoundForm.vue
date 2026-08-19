@@ -197,15 +197,12 @@ async function createPresetBoard() {
   if (isBuildingBoard.value || categoriesCount.value > 0) return
   isBuildingBoard.value = true
   try {
-    let firstCatId: string | null = null
-    for (let c = 0; c < presetCategories.value; c++) {
-      const catId = await store.addCategory(props.questId, props.round.id, '')
-      if (!catId) continue
-      if (!firstCatId) firstCatId = catId
-      for (let q = 1; q <= presetQuestions.value; q++) {
-        await store.addQuestion(props.questId, props.round.id, catId, q * 100, '', '')
-      }
-    }
+    const firstCatId = await store.buildBoard(
+      props.questId,
+      props.round.id,
+      presetCategories.value,
+      presetQuestions.value
+    )
     if (firstCatId) editingCategoryId.value = firstCatId
   } finally {
     isBuildingBoard.value = false

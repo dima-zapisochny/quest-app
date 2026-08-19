@@ -486,6 +486,44 @@ export const useQuizStore = defineStore('quiz', () => {
     return newQuestion.id
   }
 
+  /**
+   * Заполняет раунд сеткой N категорий × M вопросов: авто-баллы (100, 200, …),
+   * пустые названия/тексты. Возвращает id первой категории (для фокуса).
+   */
+  async function buildBoard(
+    questId: string,
+    roundId: string,
+    categories: number,
+    questions: number
+  ): Promise<string | null> {
+    let firstCategoryId: string | null = null
+    for (let c = 0; c < categories; c++) {
+      const categoryId = await addCategory(questId, roundId, '')
+      if (!categoryId) continue
+      if (!firstCategoryId) firstCategoryId = categoryId
+      for (let q = 1; q <= questions; q++) {
+        await addQuestion(questId, roundId, categoryId, q * 100, '', '')
+      }
+    }
+    return firstCategoryId
+  }
+
+  /** Создаёт квест сразу с готовой доской (раунд 1 + сетка N×M). Возвращает questId. */
+  async function createQuestWithBoard(
+    title: string,
+    description: string,
+    categories: number,
+    questions: number
+  ): Promise<string> {
+    const questId = await createQuest(title, description)
+    const roundId = await addRound(questId, '')
+    if (roundId) await buildBoard(questId, roundId, categories, questions)
+    // Сохраняем доску немедленно: иначе loadQuestFull в редакторе перезапишет
+    // ещё не сохранённый (in-memory) квест пустой версией из БД.
+    await flushSave()
+    return questId
+  }
+
   async function updateQuestion(
     questId: string,
     roundId: string,
@@ -785,6 +823,8 @@ export const useQuizStore = defineStore('quiz', () => {
     getRoundById,
     getQuestProgress,
     createQuest,
+    createQuestWithBoard,
+    buildBoard,
     updateQuest,
     replaceQuest,
     deleteQuest,
