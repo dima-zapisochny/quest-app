@@ -11,10 +11,10 @@
             <slot><p>{{ message }}</p></slot>
           </div>
           <div class="confirm-dialog__actions">
-            <button type="button" class="secondary" :disabled="busy" @click="emit('cancel')">{{ cancelLabel }}</button>
-            <button type="button" class="danger" :disabled="busy" @click="emit('confirm')">
+            <BaseButton variant="secondary" :disabled="busy" @click="emit('cancel')">{{ cancelLabel }}</BaseButton>
+            <BaseButton variant="danger" :disabled="busy" @click="emit('confirm')">
               {{ busy ? (busyLabel ?? confirmLabel) : confirmLabel }}
-            </button>
+            </BaseButton>
           </div>
         </div>
       </div>
@@ -23,6 +23,8 @@
 </template>
 
 <script setup lang="ts">
+import BaseButton from './BaseButton.vue'
+
 interface Props {
   show: boolean
   title: string
@@ -126,43 +128,7 @@ const emit = defineEmits<{
   margin-top: 0.5rem;
 }
 
-.confirm-dialog__actions .secondary,
-.confirm-dialog__actions .danger {
-  min-width: 140px;
-  padding: 0.75rem 1.5rem;
-  border-radius: 999px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  border: none;
-}
-
-.confirm-dialog__actions .secondary {
-  background: rgb(var(--c-teal) / 0.15);
-  border: 1px solid rgb(var(--c-accent) / 0.45);
-  color: rgb(var(--c-accent-soft));
-}
-
-.confirm-dialog__actions .secondary:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 14px 24px rgb(var(--c-accent) / 0.22);
-}
-
-.confirm-dialog__actions .danger {
-  background: linear-gradient(135deg, rgb(var(--c-danger)), rgb(var(--c-danger-strong)));
-  color: rgb(var(--c-white));
-  box-shadow: 0 12px 24px rgb(var(--c-danger) / 0.28);
-}
-
-.confirm-dialog__actions .danger:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 16px 26px rgb(var(--c-danger) / 0.32);
-}
-
-.confirm-dialog__actions button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
+/* Кнопки — BaseButton (variant secondary/danger) */
 
 .confirm-dialog-enter-active,
 .confirm-dialog-leave-active {
@@ -184,8 +150,7 @@ const emit = defineEmits<{
     align-items: stretch;
   }
 
-  .confirm-dialog__actions .secondary,
-  .confirm-dialog__actions .danger {
+  .confirm-dialog__actions :deep(.base-button) {
     width: 100%;
   }
 }
