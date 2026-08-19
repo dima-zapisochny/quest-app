@@ -107,26 +107,16 @@
     <BackLink to="/host/setup">Вернуться к списку квестов</BackLink>
   </div>
 
-  <div v-if="confirmModal.visible" class="confirm-backdrop" @click="cancelConfirmModal">
-    <div class="confirm-dialog" role="dialog" aria-modal="true" @click.stop>
-      <h2 class="confirm-title">{{ confirmModal.title }}</h2>
-      <p class="confirm-message">{{ confirmModal.message }}</p>
-      <div class="confirm-actions">
-        <button
-          v-if="confirmModal.kind !== 'info'"
-          type="button"
-          class="confirm-btn confirm-btn--cancel"
-          @click="cancelConfirmModal"
-        >Отмена</button>
-        <button
-          type="button"
-          class="confirm-btn"
-          :class="confirmModal.kind === 'info' ? 'confirm-btn--neutral' : 'confirm-btn--danger'"
-          @click="confirmModalAction"
-        >{{ confirmModal.confirmLabel }}</button>
-      </div>
-    </div>
-  </div>
+  <ConfirmDialog
+    :show="confirmModal.visible"
+    :title="confirmModal.title"
+    :message="confirmModal.message"
+    :confirm-label="confirmModal.confirmLabel"
+    :confirm-variant="confirmModal.kind === 'info' ? 'secondary' : 'danger'"
+    :hide-cancel="confirmModal.kind === 'info'"
+    @confirm="confirmModalAction"
+    @cancel="cancelConfirmModal"
+  />
 </template>
 
 <script setup lang="ts">
@@ -137,6 +127,7 @@ import { useGameSessionStore } from '@/store/gameSessionStore'
 import AdminRoundForm from '@/components/admin/AdminRoundForm.vue'
 import AppHeader from '@/components/common/AppHeader.vue'
 import BackLink from '@/components/common/BackLink.vue'
+import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
 
 interface Props {
   questId: string
@@ -404,67 +395,6 @@ function goBack() {
 </script>
 
 <style scoped>
-/* Модалка подтверждения (замена нативного confirm/alert, #33) */
-.confirm-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 100;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1.5rem;
-  background: rgba(4, 8, 20, 0.72);
-  backdrop-filter: blur(4px);
-}
-.confirm-dialog {
-  width: min(28rem, 100%);
-  background: rgba(20, 28, 48, 0.98);
-  border: 1px solid rgb(var(--c-indigo) / 0.4);
-  border-radius: 18px;
-  padding: 1.5rem;
-  box-shadow: 0 24px 60px rgba(4, 8, 20, 0.6);
-}
-.confirm-title {
-  margin: 0 0 0.5rem;
-  font-size: 1.15rem;
-  color: rgb(var(--c-text));
-}
-.confirm-message {
-  margin: 0 0 1.25rem;
-  color: #cbd5f5;
-  font-size: 0.95rem;
-  line-height: 1.5;
-}
-.confirm-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.6rem;
-}
-.confirm-btn {
-  padding: 0.55rem 1.2rem;
-  border-radius: 999px;
-  border: 1px solid transparent;
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
-.confirm-btn:hover { transform: translateY(-1px); }
-.confirm-btn--cancel {
-  background: transparent;
-  border-color: rgb(var(--c-text-muted) / 0.5);
-  color: rgb(var(--c-text-soft));
-}
-.confirm-btn--danger {
-  background: rgb(var(--c-danger-strong));
-  color: rgb(var(--c-white));
-}
-.confirm-btn--neutral {
-  background: rgb(var(--c-accent-sky) / 0.25);
-  border-color: rgb(var(--c-accent-sky) / 0.5);
-  color: rgb(var(--c-text));
-}
-
 .admin-quest-view {
   min-height: 100dvh;
   background: linear-gradient(135deg, rgb(var(--c-bg)) 0%, rgb(var(--c-surface)) 100%);

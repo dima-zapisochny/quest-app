@@ -11,8 +11,8 @@
             <slot><p>{{ message }}</p></slot>
           </div>
           <div class="confirm-dialog__actions">
-            <BaseButton variant="secondary" :disabled="busy" @click="emit('cancel')">{{ cancelLabel }}</BaseButton>
-            <BaseButton variant="danger" :disabled="busy" @click="emit('confirm')">
+            <BaseButton v-if="!hideCancel" variant="secondary" :disabled="busy" @click="emit('cancel')">{{ cancelLabel }}</BaseButton>
+            <BaseButton :variant="confirmVariant" :disabled="busy" @click="emit('confirm')">
               {{ busy ? (busyLabel ?? confirmLabel) : confirmLabel }}
             </BaseButton>
           </div>
@@ -34,6 +34,10 @@ interface Props {
   /** Пока идёт действие: блокирует кнопки и показывает busyLabel на «подтвердить». */
   busy?: boolean
   busyLabel?: string
+  /** Вариант кнопки подтверждения: danger (по умолч.), primary или secondary. */
+  confirmVariant?: 'danger' | 'primary' | 'secondary'
+  /** Скрыть кнопку «Отмена» — для info/acknowledge-диалогов с одной кнопкой. */
+  hideCancel?: boolean
 }
 
 withDefaults(defineProps<Props>(), {
@@ -41,7 +45,9 @@ withDefaults(defineProps<Props>(), {
   confirmLabel: 'Подтвердить',
   cancelLabel: 'Отмена',
   busy: false,
-  busyLabel: undefined
+  busyLabel: undefined,
+  confirmVariant: 'danger',
+  hideCancel: false
 })
 
 const emit = defineEmits<{
