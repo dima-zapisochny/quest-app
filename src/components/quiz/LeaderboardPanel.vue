@@ -1,6 +1,6 @@
 <template>
   <section v-if="leaderboardEntries.length" class="quest-leaderboard">
-    <div class="leaderboard-card">
+    <BaseCard class="leaderboard-card">
       <header class="leaderboard-header">
         <span class="leaderboard-label">Участники</span>
       </header>
@@ -40,7 +40,7 @@
           </div>
         </li>
       </TransitionGroup>
-    </div>
+    </BaseCard>
   </section>
 
   <!-- Мини-окно участника поверх полосы с участниками -->
@@ -111,6 +111,7 @@
 
 <script setup lang="ts">
 import { useLeaderboard } from '@/composables/useLeaderboard'
+import BaseCard from '@/components/common/BaseCard.vue'
 import type { GameSession } from '@/types'
 
 const props = defineProps<{
@@ -167,23 +168,9 @@ function isPlayerAnswered(playerId: string): boolean {
   color: rgb(var(--c-text-muted) / 0.8);
 }
 
+/* Корпус карточки — в BaseCard; здесь только специфика лидерборда */
 .leaderboard-card {
-  background: rgb(var(--c-bg) / 0.3);
-  border: 1px solid rgb(var(--c-accent-sky) / 0.18);
-  border-radius: 18px;
-  padding: 0.9rem 1rem;
-  box-shadow:
-    0 8px 32px rgb(var(--c-bg-deep) / 0.3),
-    0 4px 16px rgb(var(--c-bg-deep) / 0.2),
-    inset 0 2px 4px rgb(var(--c-white) / 0.1),
-    inset 0 -2px 4px rgb(var(--c-black) / 0.2);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  display: flex;
-  flex-direction: column;
-  gap: 0.65rem;
   width: 100%;
-  box-sizing: border-box;
   overflow: visible;
 }
 
