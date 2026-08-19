@@ -73,9 +73,29 @@
             @delete="handleDeleteCategory(editingCategory.id)"
           />
         </template>
-        <p v-else class="empty-categories">
-          Категории пока не созданы. Добавьте первую.
-        </p>
+        <div v-else class="empty-categories">
+          <p>Категории пока не созданы. Добавьте первую или создайте доску сразу.</p>
+          <div class="quick-board">
+            <span class="quick-board__label">Быстрая доска</span>
+            <select v-model.number="presetCategories" class="quick-board__select" aria-label="Категорий">
+              <option v-for="n in 8" :key="n" :value="n">{{ n }}</option>
+            </select>
+            <span class="quick-board__x">категорий ×</span>
+            <select v-model.number="presetQuestions" class="quick-board__select" aria-label="Вопросов в категории">
+              <option v-for="n in 10" :key="n" :value="n">{{ n }}</option>
+            </select>
+            <span class="quick-board__x">вопросов</span>
+            <button
+              type="button"
+              class="quick-board__btn"
+              :disabled="isBuildingBoard"
+              @click="createPresetBoard"
+            >
+              <span v-if="!isBuildingBoard">Создать доску</span>
+              <span v-else class="mini-loader"></span>
+            </button>
+          </div>
+        </div>
       </div>
     </section>
   </section>
@@ -164,6 +184,31 @@ async function handleAddCategory() {
     isAddingCategory.value = false
     newlyAddedCategoryId.value = null
     throw error
+  }
+}
+
+// Быстрая доска: заполняет пустой раунд сеткой N категорий × M вопросов с
+// авто-баллами (100, 200, …). Тексты пустые — остаётся только вписать.
+const presetCategories = ref(5)
+const presetQuestions = ref(5)
+const isBuildingBoard = ref(false)
+
+async function createPresetBoard() {
+  if (isBuildingBoard.value || categoriesCount.value > 0) return
+  isBuildingBoard.value = true
+  try {
+    let firstCatId: string | null = null
+    for (let c = 0; c < presetCategories.value; c++) {
+      const catId = await store.addCategory(props.questId, props.round.id, '')
+      if (!catId) continue
+      if (!firstCatId) firstCatId = catId
+      for (let q = 1; q <= presetQuestions.value; q++) {
+        await store.addQuestion(props.questId, props.round.id, catId, q * 100, '', '')
+      }
+    }
+    if (firstCatId) editingCategoryId.value = firstCatId
+  } finally {
+    isBuildingBoard.value = false
   }
 }
 
@@ -448,6 +493,62 @@ function handleCategorySlotClick(index: number) {
   text-align: center;
   color: rgb(var(--c-text-soft) / 0.5);
   font-size: 0.9rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+}
+.empty-categories p {
+  margin: 0;
+}
+
+.quick-board {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.quick-board__label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgb(var(--c-accent-soft));
+}
+.quick-board__x {
+  font-size: 0.8rem;
+  color: rgb(var(--c-text-soft) / 0.7);
+}
+.quick-board__select {
+  background: rgb(var(--c-bg) / 0.6);
+  border: 1px solid rgb(var(--c-accent-sky) / 0.3);
+  border-radius: 8px;
+  color: rgb(var(--c-text));
+  padding: 0.3rem 0.4rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.quick-board__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgb(var(--c-accent) / 0.2);
+  border: 1px solid rgb(var(--c-accent) / 0.5);
+  color: rgb(var(--c-accent-soft));
+  border-radius: var(--radius-pill);
+  padding: 0.4rem 1rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+.quick-board__btn:hover:not(:disabled) {
+  background: rgb(var(--c-accent) / 0.3);
+  transform: translateY(-1px);
+}
+.quick-board__btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .questions-table th,
