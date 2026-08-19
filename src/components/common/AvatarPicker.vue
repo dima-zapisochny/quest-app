@@ -54,13 +54,13 @@ defineExpose({ randomize })
   width: 96px;
   height: 96px;
   border-radius: 50%;
-  background: radial-gradient(circle at 35% 25%, rgba(59, 130, 246, 0.2), rgba(15, 118, 110, 0.45));
+  background: radial-gradient(circle at 35% 25%, rgb(var(--c-blue) / 0.2), rgb(var(--c-teal) / 0.45));
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
-  box-shadow: 0 16px 30px rgba(59, 130, 246, 0.25);
-  border: 2px solid rgba(14, 165, 233, 0.5);
+  box-shadow: 0 16px 30px rgb(var(--c-blue) / 0.25);
+  border: 2px solid rgb(var(--c-sky-500) / 0.5);
   animation: pulse 4s ease-in-out infinite;
 }
 
@@ -77,13 +77,13 @@ defineExpose({ randomize })
   height: 40px;
   border-radius: 50%;
   border: none;
-  background: linear-gradient(135deg, #22d3ee, #38bdf8);
-  color: #0f172a;
+  background: linear-gradient(135deg, rgb(var(--c-accent)), rgb(var(--c-accent-sky)));
+  color: rgb(var(--c-bg));
   font-size: 1.8rem;
   font-weight: 700;
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
-  box-shadow: 0 10px 18px rgba(34, 211, 238, 0.3);
+  box-shadow: 0 10px 18px rgb(var(--c-accent) / 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -105,10 +105,10 @@ defineExpose({ randomize })
 
 @keyframes pulse {
   0%, 100% {
-    box-shadow: 0 16px 30px rgba(59, 130, 246, 0.25);
+    box-shadow: 0 16px 30px rgb(var(--c-blue) / 0.25);
   }
   50% {
-    box-shadow: 0 20px 40px rgba(14, 165, 233, 0.32);
+    box-shadow: 0 20px 40px rgb(var(--c-sky-500) / 0.32);
   }
 }
 

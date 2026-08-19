@@ -4,6 +4,64 @@
 @tailwind components;
 @tailwind utilities;
 
+/**
+ * Дизайн-токены. Цвета хранятся как RGB-тройки, чтобы задавать прозрачность через
+ * rgb(var(--c-x) / <alpha>) — заменяет разрозненные rgba(...) по всему приложению.
+ * Значения соответствуют фактической палитре (Tailwind slate/cyan/sky/red/green/…).
+ */
+:root {
+  /* Фон и поверхности */
+  --c-bg: 15 23 42;          /* slate-900  #0f172a */
+  --c-bg-deep: 2 6 23;       /* slate-950  #020617 */
+  --c-surface: 30 41 59;     /* slate-800  #1e293b */
+  --c-surface-2: 51 65 85;   /* slate-700  #334155 */
+
+  /* Текст */
+  --c-text: 248 250 252;     /* slate-50   #f8fafc */
+  --c-text-soft: 226 232 240;/* slate-200  #e2e8f0 */
+  --c-text-muted: 148 163 184;/* slate-400  #94a3b8 */
+
+  /* Акцент (cyan / sky) */
+  --c-accent: 34 211 238;    /* cyan-400   #22d3ee */
+  --c-accent-sky: 56 189 248;/* sky-400    #38bdf8 */
+  --c-accent-soft: 186 230 253;/* sky-200  #bae6fd */
+
+  /* Статусы */
+  --c-danger: 239 68 68;     /* red-500    #ef4444 */
+  --c-danger-soft: 252 165 165;/* red-300  #fca5a5 */
+  --c-success: 34 197 94;    /* green-500  #22c55e */
+  --c-gold: 250 204 21;      /* yellow-400 #facc15 */
+  --c-violet: 139 92 246;    /* violet-500 #8b5cf6 */
+  --c-teal: 15 118 110;      /* teal-700   #0f766e */
+  --c-indigo: 129 140 248;   /* indigo-400 #818cf8 */
+  --c-blue: 59 130 246;      /* blue-500   #3b82f6 */
+  --c-sky-500: 14 165 233;   /* sky-500    #0ea5e9 */
+  --c-sky-deep: 8 47 73;     /* cyan-950   #082f49 (глубокие тени) */
+  --c-danger-strong: 220 38 38;/* red-600  #dc2626 */
+
+  /* Нейтральные для теней/бликов */
+  --c-white: 255 255 255;
+  --c-black: 0 0 0;
+
+  /* Радиусы */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-pill: 999px;
+
+  /* Размытие (glassmorphism) */
+  --blur-sm: 10px;
+  --blur-md: 12px;
+  --blur-lg: 15px;
+  --blur-xl: 20px;
+
+  /* Семантические solid-алиасы (для удобства) */
+  --color-bg: rgb(var(--c-bg));
+  --color-text: rgb(var(--c-text));
+  --color-accent: rgb(var(--c-accent));
+}
+
 body {
   margin: 0;
   font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -11,8 +69,8 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #0f172a;
-  color: #f8fafc;
+  background-color: rgb(var(--c-bg));
+  color: rgb(var(--c-text));
 }
 
 h1, h2, h3, .page-title, .quiz-title {
@@ -27,4 +85,3 @@ strong {
 #app {
   min-height: 100dvh;
 }
-

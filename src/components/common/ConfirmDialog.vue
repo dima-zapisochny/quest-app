@@ -52,7 +52,7 @@ const emit = defineEmits<{
 .confirm-dialog-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.65);
+  background: rgb(var(--c-bg) / 0.65);
   backdrop-filter: blur(12px);
   display: flex;
   align-items: center;
@@ -64,10 +64,10 @@ const emit = defineEmits<{
 .confirm-dialog {
   width: min(500px, 100%);
   border-radius: 20px;
-  background: rgba(15, 23, 42, 0.95);
-  border: 1px solid rgba(56, 189, 248, 0.28);
-  box-shadow: 0 30px 60px rgba(8, 47, 73, 0.45);
-  color: #f8fafc;
+  background: rgb(var(--c-bg) / 0.95);
+  border: 1px solid rgb(var(--c-accent-sky) / 0.28);
+  box-shadow: 0 30px 60px rgb(var(--c-sky-deep) / 0.45);
+  color: rgb(var(--c-text));
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -86,13 +86,13 @@ const emit = defineEmits<{
   font-size: 1.25rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #22d3ee;
+  color: rgb(var(--c-accent));
 }
 
 .confirm-dialog__close {
-  background: rgba(15, 118, 110, 0.15);
-  border: 1px solid rgba(34, 211, 238, 0.45);
-  color: #bae6fd;
+  background: rgb(var(--c-teal) / 0.15);
+  border: 1px solid rgb(var(--c-accent) / 0.45);
+  color: rgb(var(--c-accent-soft));
   border-radius: 50%;
   width: 34px;
   height: 34px;
@@ -107,11 +107,11 @@ const emit = defineEmits<{
 
 .confirm-dialog__close:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(34, 211, 238, 0.3);
+  box-shadow: 0 10px 20px rgb(var(--c-accent) / 0.3);
 }
 
 .confirm-dialog__body {
-  color: rgba(226, 232, 240, 0.9);
+  color: rgb(var(--c-text-soft) / 0.9);
   line-height: 1.6;
 }
 
@@ -138,25 +138,25 @@ const emit = defineEmits<{
 }
 
 .confirm-dialog__actions .secondary {
-  background: rgba(15, 118, 110, 0.15);
-  border: 1px solid rgba(34, 211, 238, 0.45);
-  color: #bae6fd;
+  background: rgb(var(--c-teal) / 0.15);
+  border: 1px solid rgb(var(--c-accent) / 0.45);
+  color: rgb(var(--c-accent-soft));
 }
 
 .confirm-dialog__actions .secondary:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 14px 24px rgba(34, 211, 238, 0.22);
+  box-shadow: 0 14px 24px rgb(var(--c-accent) / 0.22);
 }
 
 .confirm-dialog__actions .danger {
-  background: linear-gradient(135deg, #ef4444, #dc2626);
-  color: #fff;
-  box-shadow: 0 12px 24px rgba(239, 68, 68, 0.28);
+  background: linear-gradient(135deg, rgb(var(--c-danger)), rgb(var(--c-danger-strong)));
+  color: rgb(var(--c-white));
+  box-shadow: 0 12px 24px rgb(var(--c-danger) / 0.28);
 }
 
 .confirm-dialog__actions .danger:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 16px 26px rgba(239, 68, 68, 0.32);
+  box-shadow: 0 16px 26px rgb(var(--c-danger) / 0.32);
 }
 
 .confirm-dialog__actions button:disabled {

@@ -55,26 +55,26 @@ const buttonClass = computed(() => {
 }
 
 .nav-button--back {
-  background: rgba(15, 118, 110, 0.12);
-  border: 1px solid rgba(34, 211, 238, 0.4);
-  color: #f8fafc;
+  background: rgb(var(--c-teal) / 0.12);
+  border: 1px solid rgb(var(--c-accent) / 0.4);
+  color: rgb(var(--c-text));
 }
 
 .nav-button--back:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(34, 211, 238, 0.25);
+  box-shadow: 0 10px 20px rgb(var(--c-accent) / 0.25);
 }
 
 .nav-button--exit {
-  background: rgba(239, 68, 68, 0.25);
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  color: #f8fafc;
+  background: rgb(var(--c-danger) / 0.25);
+  border: 1px solid rgb(var(--c-text-muted) / 0.2);
+  color: rgb(var(--c-text));
   backdrop-filter: blur(12px);
   box-shadow: 
-    0 4px 12px rgba(2, 6, 23, 0.3),
-    0 2px 6px rgba(2, 6, 23, 0.2),
-    inset 0 2px 4px rgba(255, 255, 255, 0.15),
-    inset 0 -2px 4px rgba(0, 0, 0, 0.25);
+    0 4px 12px rgb(var(--c-bg-deep) / 0.3),
+    0 2px 6px rgb(var(--c-bg-deep) / 0.2),
+    inset 0 2px 4px rgb(var(--c-white) / 0.15),
+    inset 0 -2px 4px rgb(var(--c-black) / 0.25);
 }
 
 .nav-button--exit::before {
@@ -86,9 +86,9 @@ const buttonClass = computed(() => {
   bottom: 0;
   background: linear-gradient(
     135deg,
-    rgba(255, 255, 255, 0.1) 0%,
+    rgb(var(--c-white) / 0.1) 0%,
     transparent 50%,
-    rgba(255, 255, 255, 0.05) 100%
+    rgb(var(--c-white) / 0.05) 100%
   );
   border-radius: 9999px;
   pointer-events: none;
@@ -98,11 +98,11 @@ const buttonClass = computed(() => {
 .nav-button--exit:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 
-    0 6px 16px rgba(239, 68, 68, 0.35),
-    0 3px 8px rgba(239, 68, 68, 0.25),
-    inset 0 2px 4px rgba(255, 255, 255, 0.2),
-    inset 0 -2px 4px rgba(0, 0, 0, 0.25);
-  background: rgba(239, 68, 68, 0.3);
+    0 6px 16px rgb(var(--c-danger) / 0.35),
+    0 3px 8px rgb(var(--c-danger) / 0.25),
+    inset 0 2px 4px rgb(var(--c-white) / 0.2),
+    inset 0 -2px 4px rgb(var(--c-black) / 0.25);
+  background: rgb(var(--c-danger) / 0.3);
 }
 
 .nav-button:disabled {
