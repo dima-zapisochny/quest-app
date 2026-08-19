@@ -194,7 +194,7 @@ function handleCategorySlotClick(index: number) {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  color: #e2e8f0;
+  color: rgb(var(--c-text-soft));
 }
 
 .round-section {
@@ -204,10 +204,10 @@ function handleCategorySlotClick(index: number) {
 }
 
 .round-section--meta {
-  background: linear-gradient(130deg, rgba(15, 23, 42, 0.78), rgba(18, 30, 52, 0.92));
-  border: 1px solid rgba(56, 189, 248, 0.28);
+  background: linear-gradient(130deg, rgb(var(--c-bg) / 0.78), rgba(18, 30, 52, 0.92));
+  border: 1px solid rgb(var(--c-accent-sky) / 0.28);
   padding: 1.45rem 1.6rem 1.35rem;
-  box-shadow: 0 22px 48px rgba(8, 47, 73, 0.38);
+  box-shadow: 0 22px 48px rgb(var(--c-sky-deep) / 0.38);
 }
 
 .round-section--meta::before {
@@ -216,14 +216,14 @@ function handleCategorySlotClick(index: number) {
   inset: -40% 35% auto;
   height: 160px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(56, 189, 248, 0.35), transparent 60%);
+  background: radial-gradient(circle, rgb(var(--c-accent-sky) / 0.35), transparent 60%);
   opacity: 0.45;
   pointer-events: none;
 }
 
 .round-section--categories {
   background: linear-gradient(140deg, rgba(8, 22, 43, 0.82), rgba(7, 14, 28, 0.94));
-  border: 1px solid rgba(59, 130, 246, 0.22);
+  border: 1px solid rgb(var(--c-blue) / 0.22);
   padding: 1.45rem 1.6rem 1.25rem;
   box-shadow: 0 26px 56px rgba(7, 16, 33, 0.36);
 }
@@ -234,7 +234,7 @@ function handleCategorySlotClick(index: number) {
   inset: -50% 10% auto;
   height: 220px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(59, 130, 246, 0.28), transparent 65%);
+  background: radial-gradient(circle, rgb(var(--c-blue) / 0.28), transparent 65%);
   opacity: 0.4;
   pointer-events: none;
 }
@@ -251,13 +251,13 @@ function handleCategorySlotClick(index: number) {
   gap: 0.35rem;
   padding: 0.35rem 0.95rem;
   border-radius: 999px;
-  background: rgba(15, 118, 110, 0.28);
-  border: 1px solid rgba(34, 211, 238, 0.45);
+  background: rgb(var(--c-teal) / 0.28);
+  border: 1px solid rgb(var(--c-accent) / 0.45);
   color: #f0fdf4;
   letter-spacing: 0.08em;
   font-size: 0.7rem;
   text-transform: uppercase;
-  box-shadow: inset 0 0 12px rgba(34, 211, 238, 0.2);
+  box-shadow: inset 0 0 12px rgb(var(--c-accent) / 0.2);
 }
 
 .round-meta {
@@ -274,19 +274,19 @@ function handleCategorySlotClick(index: number) {
   font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: rgba(148, 163, 184, 0.65);
+  color: rgb(var(--c-text-muted) / 0.65);
   padding-left: 0.2rem;
   display: block;
 }
 
 .round-title-input {
   padding: 0.55rem 0.75rem;
-  border: 1px solid rgba(59, 130, 246, 0.28);
+  border: 1px solid rgb(var(--c-blue) / 0.28);
   border-radius: 14px;
   font-size: 0.95rem;
   font-weight: 600;
-  background: rgba(15, 23, 42, 0.55);
-  color: #f8fafc;
+  background: rgb(var(--c-bg) / 0.55);
+  color: rgb(var(--c-text));
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
   width: 100%;
   box-sizing: border-box;
@@ -294,8 +294,8 @@ function handleCategorySlotClick(index: number) {
 
 .round-title-input:focus {
   outline: none;
-  border-color: rgba(56, 189, 248, 0.6);
-  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25);
+  border-color: rgb(var(--c-accent-sky) / 0.6);
+  box-shadow: 0 0 0 3px rgb(var(--c-accent-sky) / 0.25);
 }
 
 .delete-round-text {
@@ -305,9 +305,9 @@ function handleCategorySlotClick(index: number) {
   margin-top: 0.6rem;
   padding: 0.5rem 1.55rem;
   border-radius: 14px;
-  border: 1px solid rgba(239, 68, 68, 0.45);
-  background: rgba(239, 68, 68, 0.12);
-  color: #fca5a5;
+  border: 1px solid rgb(var(--c-danger) / 0.45);
+  background: rgb(var(--c-danger) / 0.12);
+  color: rgb(var(--c-danger-soft));
   font-size: 0.85rem;
   font-weight: 600;
   letter-spacing: 0.03em;
@@ -317,8 +317,8 @@ function handleCategorySlotClick(index: number) {
 
 .delete-round-text:hover {
   transform: translateY(-1px);
-  background: rgba(239, 68, 68, 0.2);
-  box-shadow: 0 12px 26px rgba(239, 68, 68, 0.22);
+  background: rgb(var(--c-danger) / 0.2);
+  box-shadow: 0 12px 26px rgb(var(--c-danger) / 0.22);
 }
 
 .delete-round-text svg {
@@ -351,9 +351,9 @@ function handleCategorySlotClick(index: number) {
   width: 100%;
   aspect-ratio: 5 / 2;
   border-radius: 18px;
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(56, 189, 248, 0.14);
-  color: rgba(226, 232, 240, 0.85);
+  background: rgb(var(--c-bg) / 0.6);
+  border: 1px solid rgb(var(--c-accent-sky) / 0.14);
+  color: rgb(var(--c-text-soft) / 0.85);
   font-size: 1rem;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -365,27 +365,27 @@ function handleCategorySlotClick(index: number) {
 }
 
 .category-slot--add {
-  border: 1px dashed rgba(56, 189, 248, 0.35);
-  background: rgba(15, 23, 42, 0.45);
-  color: #bae6fd;
+  border: 1px dashed rgb(var(--c-accent-sky) / 0.35);
+  background: rgb(var(--c-bg) / 0.45);
+  color: rgb(var(--c-accent-soft));
   font-size: 1.4rem;
 }
 
 .category-slot--add:hover {
-  border-color: rgba(56, 189, 248, 0.55);
-  box-shadow: 0 14px 28px rgba(56, 189, 248, 0.22);
+  border-color: rgb(var(--c-accent-sky) / 0.55);
+  box-shadow: 0 14px 28px rgb(var(--c-accent-sky) / 0.22);
 }
 
 .category-slot--active {
-  border-color: rgba(34, 211, 238, 0.5);
-  color: #bae6fd;
-  box-shadow: 0 16px 32px rgba(34, 211, 238, 0.22);
+  border-color: rgb(var(--c-accent) / 0.5);
+  color: rgb(var(--c-accent-soft));
+  box-shadow: 0 16px 32px rgb(var(--c-accent) / 0.22);
   transform: translateY(-2px);
 }
 
 .category-slot--empty {
-  border: 1px dashed rgba(56, 189, 248, 0.1);
-  color: rgba(226, 232, 240, 0.2);
+  border: 1px dashed rgb(var(--c-accent-sky) / 0.1);
+  color: rgb(var(--c-text-soft) / 0.2);
   cursor: default;
   pointer-events: none;
 }
@@ -398,8 +398,8 @@ function handleCategorySlotClick(index: number) {
   display: inline-block;
   width: 16px;
   height: 16px;
-  border: 2px solid rgba(186, 230, 253, 0.3);
-  border-top-color: #bae6fd;
+  border: 2px solid rgb(var(--c-accent-soft) / 0.3);
+  border-top-color: rgb(var(--c-accent-soft));
   border-radius: 50%;
   animation: spin 0.6s linear infinite;
 }
@@ -416,7 +416,7 @@ function handleCategorySlotClick(index: number) {
 }
 
 .category-slot:not(.category-slot--empty):hover {
-  border-color: rgba(56, 189, 248, 0.3);
+  border-color: rgb(var(--c-accent-sky) / 0.3);
   transform: translateY(-1px);
 }
 
@@ -428,14 +428,14 @@ function handleCategorySlotClick(index: number) {
   background: rgba(4, 10, 22, 0.55);
   border-radius: 18px;
   padding: 1rem;
-  border: 1px solid rgba(56, 189, 248, 0.12);
+  border: 1px solid rgb(var(--c-accent-sky) / 0.12);
   box-shadow: inset 0 0 20px rgba(7, 16, 33, 0.45);
 }
 
 .category-heading {
   font-size: clamp(0.95rem, 1.8vw, 1.2rem);
   letter-spacing: 0.12em;
-  color: #f8fafc;
+  color: rgb(var(--c-text));
   text-align: center;
   margin: 1.4rem 0 0.4rem 0;
 }
@@ -443,10 +443,10 @@ function handleCategorySlotClick(index: number) {
 .empty-categories {
   margin: 0;
   padding: 0.9rem;
-  background: rgba(15, 23, 42, 0.55);
+  background: rgb(var(--c-bg) / 0.55);
   border-radius: 16px;
   text-align: center;
-  color: rgba(226, 232, 240, 0.5);
+  color: rgb(var(--c-text-soft) / 0.5);
   font-size: 0.9rem;
 }
 
@@ -460,7 +460,7 @@ function handleCategorySlotClick(index: number) {
   font-size: 1.1rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #f8fafc;
+  color: rgb(var(--c-text));
   text-align: center;
 }
 

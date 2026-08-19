@@ -434,7 +434,7 @@ async function onImportQuestFile(event: Event) {
 .host-setup {
   height: 100dvh;
   overflow: hidden;
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  background: linear-gradient(135deg, rgb(var(--c-bg)) 0%, rgb(var(--c-surface)) 100%);
   padding: 0 clamp(1rem, 4vw, 3rem) 0;
   display: flex;
   flex-direction: column;
@@ -451,7 +451,7 @@ async function onImportQuestFile(event: Event) {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  background: linear-gradient(135deg, rgb(var(--c-bg)) 0%, rgb(var(--c-surface)) 100%);
   z-index: 1000;
 }
 
@@ -468,14 +468,14 @@ async function onImportQuestFile(event: Event) {
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: linear-gradient(135deg, rgba(34, 211, 238, 0.2), rgba(56, 189, 248, 0.15));
-  border: 3px solid rgba(56, 189, 248, 0.3);
+  background: linear-gradient(135deg, rgb(var(--c-accent) / 0.2), rgb(var(--c-accent-sky) / 0.15));
+  border: 3px solid rgb(var(--c-accent-sky) / 0.3);
   position: relative;
   animation: pulse 2s ease-in-out infinite;
   box-shadow: 
-    0 0 0 0 rgba(34, 211, 238, 0.4),
-    0 8px 24px rgba(15, 23, 42, 0.3),
-    inset 0 2px 4px rgba(255, 255, 255, 0.1);
+    0 0 0 0 rgb(var(--c-accent) / 0.4),
+    0 8px 24px rgb(var(--c-bg) / 0.3),
+    inset 0 2px 4px rgb(var(--c-white) / 0.1);
 }
 
 .loader::before {
@@ -488,8 +488,8 @@ async function onImportQuestFile(event: Event) {
   height: 32px;
   border-radius: 50%;
   border: 3px solid transparent;
-  border-top-color: #22d3ee;
-  border-right-color: #38bdf8;
+  border-top-color: rgb(var(--c-accent));
+  border-right-color: rgb(var(--c-accent-sky));
   animation: spin 1s linear infinite;
 }
 
@@ -502,7 +502,7 @@ async function onImportQuestFile(event: Event) {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(34, 211, 238, 0.6), transparent);
+  background: radial-gradient(circle, rgb(var(--c-accent) / 0.6), transparent);
   animation: pulse-inner 1.5s ease-in-out infinite;
 }
 
@@ -515,16 +515,16 @@ async function onImportQuestFile(event: Event) {
   0%, 100% {
     transform: scale(1);
     box-shadow: 
-      0 0 0 0 rgba(34, 211, 238, 0.4),
-      0 8px 24px rgba(15, 23, 42, 0.3),
-      inset 0 2px 4px rgba(255, 255, 255, 0.1);
+      0 0 0 0 rgb(var(--c-accent) / 0.4),
+      0 8px 24px rgb(var(--c-bg) / 0.3),
+      inset 0 2px 4px rgb(var(--c-white) / 0.1);
   }
   50% {
     transform: scale(1.05);
     box-shadow: 
-      0 0 0 8px rgba(34, 211, 238, 0),
-      0 12px 32px rgba(15, 23, 42, 0.4),
-      inset 0 2px 4px rgba(255, 255, 255, 0.15);
+      0 0 0 8px rgb(var(--c-accent) / 0),
+      0 12px 32px rgb(var(--c-bg) / 0.4),
+      inset 0 2px 4px rgb(var(--c-white) / 0.15);
   }
 }
 
@@ -540,22 +540,22 @@ async function onImportQuestFile(event: Event) {
 }
 
 .loading-state p {
-  color: rgba(226, 232, 240, 0.9);
+  color: rgb(var(--c-text-soft) / 0.9);
   font-size: 1.05rem;
   font-weight: 600;
   margin: 0;
   letter-spacing: 0.05em;
-  text-shadow: 0 2px 8px rgba(15, 23, 42, 0.3);
+  text-shadow: 0 2px 8px rgb(var(--c-bg) / 0.3);
 }
 
 
 
 .host-header {
-  background: rgba(15, 23, 42, 0.78);
+  background: rgb(var(--c-bg) / 0.78);
   border-radius: 1.25rem;
   padding: 2rem;
-  box-shadow: 0 25px 60px rgba(8, 47, 73, 0.45);
-  color: #f8fafc;
+  box-shadow: 0 25px 60px rgb(var(--c-sky-deep) / 0.45);
+  color: rgb(var(--c-text));
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -580,7 +580,7 @@ async function onImportQuestFile(event: Event) {
 
 .host-title p {
   margin: 0.5rem 0 0;
-  color: rgba(226, 232, 240, 0.85);
+  color: rgb(var(--c-text-soft) / 0.85);
 }
 
 .host-pixel-story {
@@ -612,7 +612,7 @@ async function onImportQuestFile(event: Event) {
 }
 
 .quest-selection::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, rgba(34, 211, 238, 0.45), rgba(59, 130, 246, 0.45));
+  background: linear-gradient(180deg, rgb(var(--c-accent) / 0.45), rgb(var(--c-blue) / 0.45));
   border-radius: 999px;
 }
 
@@ -637,12 +637,12 @@ async function onImportQuestFile(event: Event) {
   font-size: clamp(1.1rem, 3vw, 1.35rem);
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: rgba(226, 232, 240, 0.92);
+  color: rgb(var(--c-text-soft) / 0.92);
 }
 
 .section-subtitle {
   margin: 0;
-  color: rgba(148, 163, 184, 0.9);
+  color: rgb(var(--c-text-muted) / 0.9);
   font-size: 0.95rem;
 }
 
@@ -654,7 +654,7 @@ async function onImportQuestFile(event: Event) {
   overflow-y: auto;
   padding-right: 0.75rem;
   scrollbar-width: thin;
-  scrollbar-color: rgba(148, 163, 184, 0.6) transparent;
+  scrollbar-color: rgb(var(--c-text-muted) / 0.6) transparent;
   flex: 1;
   min-height: 0;
   max-height: calc(2 * (120px + 2 * 2rem) + 1 * 2rem);
@@ -669,22 +669,22 @@ async function onImportQuestFile(event: Event) {
 }
 
 .quests-grid::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, rgba(34, 211, 238, 0.45), rgba(59, 130, 246, 0.45));
+  background: linear-gradient(180deg, rgb(var(--c-accent) / 0.45), rgb(var(--c-blue) / 0.45));
   border-radius: 999px;
 }
 
 .quests-grid::-webkit-scrollbar-thumb:hover {
-  background: rgba(148, 163, 184, 0.7);
+  background: rgb(var(--c-text-muted) / 0.7);
 }
 
 .quest-card {
   position: relative;
   z-index: 0;
-  background: rgba(15, 23, 42, 0.78);
+  background: rgb(var(--c-bg) / 0.78);
   border-radius: 1.25rem;
   padding: 2rem;
-  border: 1px solid rgba(148, 163, 184, 0.28);
-  color: #f8fafc;
+  border: 1px solid rgb(var(--c-text-muted) / 0.28);
+  color: rgb(var(--c-text));
   display: flex;
   flex-direction: column;
   gap: 0.95rem;
@@ -699,8 +699,8 @@ async function onImportQuestFile(event: Event) {
 .quest-card:hover,
 .quest-card.active {
   transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(148, 163, 184, 0.1);
-  border-color: rgba(148, 163, 184, 0.5);
+  box-shadow: 0 10px 20px rgb(var(--c-text-muted) / 0.1);
+  border-color: rgb(var(--c-text-muted) / 0.5);
 }
 
 .quest-topline {
@@ -736,9 +736,9 @@ async function onImportQuestFile(event: Event) {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  border: 1px solid rgba(148, 163, 184, 0.45);
-  background: rgba(2, 6, 23, 0.75);
-  color: rgba(226, 232, 240, 0.95);
+  border: 1px solid rgb(var(--c-text-muted) / 0.45);
+  background: rgb(var(--c-bg-deep) / 0.75);
+  color: rgb(var(--c-text-soft) / 0.95);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -759,14 +759,14 @@ async function onImportQuestFile(event: Event) {
   bottom: calc(100% + 0.4rem);
   left: 50%;
   transform: translate(-50%, 6px);
-  background: rgba(15, 23, 42, 0.92);
-  color: #e2e8f0;
+  background: rgb(var(--c-bg) / 0.92);
+  color: rgb(var(--c-text-soft));
   padding: 0.25rem 0.6rem;
   border-radius: 9999px;
   font-size: 0.75rem;
   letter-spacing: 0.05em;
   white-space: nowrap;
-  box-shadow: 0 12px 20px rgba(15, 23, 42, 0.35);
+  box-shadow: 0 12px 20px rgb(var(--c-bg) / 0.35);
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.2s ease, transform 0.2s ease;
@@ -775,9 +775,9 @@ async function onImportQuestFile(event: Event) {
 .quest-action-button:hover,
 .quest-action-button:focus-visible {
   transform: translateY(-2px);
-  border-color: rgba(34, 211, 238, 0.65);
-  background: rgba(14, 165, 233, 0.18);
-  box-shadow: 0 12px 24px rgba(34, 211, 238, 0.25);
+  border-color: rgb(var(--c-accent) / 0.65);
+  background: rgb(var(--c-sky-500) / 0.18);
+  box-shadow: 0 12px 24px rgb(var(--c-accent) / 0.25);
 }
 
 .quest-action-button:hover svg,
@@ -792,15 +792,15 @@ async function onImportQuestFile(event: Event) {
 }
 
 .quest-action-button--danger {
-  border-color: rgba(248, 113, 113, 0.35);
-  color: #fca5a5;
+  border-color: rgb(var(--c-danger-light) / 0.35);
+  color: rgb(var(--c-danger-soft));
 }
 
 .quest-action-button--danger:hover,
 .quest-action-button--danger:focus-visible {
-  border-color: rgba(248, 113, 113, 0.7);
-  background: rgba(248, 113, 113, 0.18);
-  box-shadow: 0 12px 24px rgba(248, 113, 113, 0.25);
+  border-color: rgb(var(--c-danger-light) / 0.7);
+  background: rgb(var(--c-danger-light) / 0.18);
+  box-shadow: 0 12px 24px rgb(var(--c-danger-light) / 0.25);
 }
 
 .quest-action-button--danger:hover svg,
@@ -809,26 +809,26 @@ async function onImportQuestFile(event: Event) {
 }
 
 .quest-card--new {
-  border: 1px dashed rgba(59, 130, 246, 0.5);
-  background: rgba(15, 23, 42, 0.6);
+  border: 1px dashed rgb(var(--c-blue) / 0.5);
+  background: rgb(var(--c-bg) / 0.6);
   align-items: center;
   justify-content: center;
   gap: 0.55rem;
   text-align: center;
-  color: rgba(226, 232, 240, 0.9);
+  color: rgb(var(--c-text-soft) / 0.9);
 }
 
 .quest-card--new:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(148, 163, 184, 0.1);
-  border-color: rgba(148, 163, 184, 0.5);
+  box-shadow: 0 10px 20px rgb(var(--c-text-muted) / 0.1);
+  border-color: rgb(var(--c-text-muted) / 0.5);
 }
 
 .new-quest-circle {
   width: 78px;
   height: 78px;
   border-radius: 50%;
-  border: 2px dashed rgba(59, 130, 246, 0.5);
+  border: 2px dashed rgb(var(--c-blue) / 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -844,19 +844,19 @@ async function onImportQuestFile(event: Event) {
 }
 
 .quest-card--import {
-  border: 1px dashed rgba(59, 130, 246, 0.5);
-  background: rgba(15, 23, 42, 0.6);
+  border: 1px dashed rgb(var(--c-blue) / 0.5);
+  background: rgb(var(--c-bg) / 0.6);
   align-items: center;
   justify-content: center;
   gap: 0.55rem;
   text-align: center;
-  color: rgba(226, 232, 240, 0.9);
+  color: rgb(var(--c-text-soft) / 0.9);
   position: relative;
 }
 .quest-card--import:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(148, 163, 184, 0.1);
-  border-color: rgba(148, 163, 184, 0.5);
+  box-shadow: 0 10px 20px rgb(var(--c-text-muted) / 0.1);
+  border-color: rgb(var(--c-text-muted) / 0.5);
 }
 .quest-import-input {
   position: absolute;
@@ -879,7 +879,7 @@ async function onImportQuestFile(event: Event) {
   right: -30%;
   width: 60%;
   height: 60%;
-  background: radial-gradient(circle, rgba(168, 85, 247, 0.4), transparent 60%);
+  background: radial-gradient(circle, rgb(var(--c-purple) / 0.4), transparent 60%);
   transform: rotate(20deg);
   opacity: 0;
   transition: opacity 0.3s ease;
@@ -891,7 +891,7 @@ async function onImportQuestFile(event: Event) {
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at 20% 25%, rgba(34, 211, 238, 0.3), transparent 70%);
+  background: radial-gradient(circle at 20% 25%, rgb(var(--c-accent) / 0.3), transparent 70%);
   opacity: 0;
   transition: opacity 0.3s ease;
   pointer-events: none;
@@ -906,7 +906,7 @@ async function onImportQuestFile(event: Event) {
 
 .quest-description {
   margin: 0;
-  color: #475569;
+  color: rgb(var(--c-slate-600));
   font-size: 0.9rem;
   line-height: 1.4;
   overflow: hidden;
@@ -923,7 +923,7 @@ async function onImportQuestFile(event: Event) {
   display: flex;
   gap: 0.6rem;
   font-size: 0.85rem;
-  color: rgba(226, 232, 240, 0.8);
+  color: rgb(var(--c-text-soft) / 0.8);
   flex-shrink: 0;
   margin-top: auto;
 }
@@ -959,15 +959,15 @@ async function onImportQuestFile(event: Event) {
 }
 
 .primary {
-  background: rgba(15, 118, 110, 0.12);
-  border: 1px solid rgba(34, 211, 238, 0.45);
-  color: #f8fafc;
+  background: rgb(var(--c-teal) / 0.12);
+  border: 1px solid rgb(var(--c-accent) / 0.45);
+  color: rgb(var(--c-text));
   letter-spacing: 0.04em;
 }
 
 .primary:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 12px 22px rgba(34, 211, 238, 0.28);
+  box-shadow: 0 12px 22px rgb(var(--c-accent) / 0.28);
 }
 
 .primary:disabled {
@@ -976,15 +976,15 @@ async function onImportQuestFile(event: Event) {
   transform: none;
   box-shadow: none;
   filter: grayscale(0.6);
-  border-color: rgba(148, 163, 184, 0.35);
-  background: rgba(15, 118, 110, 0.08);
-  color: rgba(226, 232, 240, 0.4);
+  border-color: rgb(var(--c-text-muted) / 0.35);
+  background: rgb(var(--c-teal) / 0.08);
+  color: rgb(var(--c-text-soft) / 0.4);
 }
 
 .secondary {
-  background: linear-gradient(135deg, #22d3ee, #a855f7);
+  background: linear-gradient(135deg, rgb(var(--c-accent)), rgb(var(--c-purple)));
   border: 1px solid transparent;
-  color: #fff;
+  color: rgb(var(--c-white));
   min-width: 220px;
 }
 
@@ -995,7 +995,7 @@ async function onImportQuestFile(event: Event) {
 
 .error {
   margin: 0;
-  color: #ef4444;
+  color: rgb(var(--c-danger));
   font-weight: 600;
 }
 
@@ -1003,7 +1003,7 @@ async function onImportQuestFile(event: Event) {
 .quest-modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.65);
+  background: rgb(var(--c-bg) / 0.65);
   backdrop-filter: blur(12px);
   display: flex;
   align-items: center;
@@ -1016,10 +1016,10 @@ async function onImportQuestFile(event: Event) {
   width: min(480px, 100%);
   box-sizing: border-box;
   border-radius: 20px;
-  background: rgba(15, 23, 42, 0.95);
-  border: 1px solid rgba(56, 189, 248, 0.28);
-  box-shadow: 0 30px 60px rgba(8, 47, 73, 0.45);
-  color: #f8fafc;
+  background: rgb(var(--c-bg) / 0.95);
+  border: 1px solid rgb(var(--c-accent-sky) / 0.28);
+  box-shadow: 0 30px 60px rgb(var(--c-sky-deep) / 0.45);
+  color: rgb(var(--c-text));
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
@@ -1047,9 +1047,9 @@ async function onImportQuestFile(event: Event) {
 }
 
 .quest-modal__close {
-  background: rgba(15, 118, 110, 0.15);
-  border: 1px solid rgba(34, 211, 238, 0.45);
-  color: #bae6fd;
+  background: rgb(var(--c-teal) / 0.15);
+  border: 1px solid rgb(var(--c-accent) / 0.45);
+  color: rgb(var(--c-accent-soft));
   border-radius: 50%;
   width: 34px;
   height: 34px;
@@ -1059,7 +1059,7 @@ async function onImportQuestFile(event: Event) {
 
 .quest-modal__close:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(34, 211, 238, 0.3);
+  box-shadow: 0 10px 20px rgb(var(--c-accent) / 0.3);
 }
 
 .quest-modal__form {
@@ -1074,7 +1074,7 @@ async function onImportQuestFile(event: Event) {
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: rgba(148, 163, 184, 0.65);
+  color: rgb(var(--c-text-muted) / 0.65);
 }
 
 .quest-modal__input,
@@ -1082,10 +1082,10 @@ async function onImportQuestFile(event: Event) {
   width: 100%;
   box-sizing: border-box;
   border-radius: 14px;
-  border: 1px solid rgba(59, 130, 246, 0.24);
+  border: 1px solid rgb(var(--c-blue) / 0.24);
   padding: 0.65rem 0.8rem;
-  background: rgba(15, 23, 42, 0.6);
-  color: #f8fafc;
+  background: rgb(var(--c-bg) / 0.6);
+  color: rgb(var(--c-text));
   font-size: 0.95rem;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
@@ -1098,8 +1098,8 @@ async function onImportQuestFile(event: Event) {
 .quest-modal__input:focus,
 .quest-modal__textarea:focus {
   outline: none;
-  border-color: rgba(56, 189, 248, 0.6);
-  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.22);
+  border-color: rgb(var(--c-accent-sky) / 0.6);
+  box-shadow: 0 0 0 3px rgb(var(--c-accent-sky) / 0.22);
 }
 
 .quest-modal__error {
@@ -1121,42 +1121,42 @@ async function onImportQuestFile(event: Event) {
 }
 
 .quest-modal__actions .primary {
-  background: linear-gradient(135deg, #22d3ee, #38bdf8);
+  background: linear-gradient(135deg, rgb(var(--c-accent)), rgb(var(--c-accent-sky)));
   border: 1px solid transparent;
-  color: #0f172a;
-  box-shadow: 0 12px 24px rgba(34, 211, 238, 0.28);
+  color: rgb(var(--c-bg));
+  box-shadow: 0 12px 24px rgb(var(--c-accent) / 0.28);
   border-radius: 999px;
 }
 
 .quest-modal__actions .primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 16px 26px rgba(34, 211, 238, 0.32);
+  box-shadow: 0 16px 26px rgb(var(--c-accent) / 0.32);
 }
 
 .quest-modal__actions .secondary {
-  background: rgba(15, 118, 110, 0.15);
-  border: 1px solid rgba(34, 211, 238, 0.45);
-  color: #bae6fd;
+  background: rgb(var(--c-teal) / 0.15);
+  border: 1px solid rgb(var(--c-accent) / 0.45);
+  color: rgb(var(--c-accent-soft));
   border-radius: 999px;
 }
 
 .quest-modal__actions .secondary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 14px 24px rgba(34, 211, 238, 0.22);
+  box-shadow: 0 14px 24px rgb(var(--c-accent) / 0.22);
 }
 
 .quest-modal__actions .danger {
   min-width: 140px;
-  background: linear-gradient(135deg, #22d3ee, #38bdf8);
+  background: linear-gradient(135deg, rgb(var(--c-accent)), rgb(var(--c-accent-sky)));
   border: 1px solid transparent;
-  color: #0f172a;
-  box-shadow: 0 12px 24px rgba(34, 211, 238, 0.28);
+  color: rgb(var(--c-bg));
+  box-shadow: 0 12px 24px rgb(var(--c-accent) / 0.28);
   border-radius: 999px;
 }
 
 .quest-modal__actions .danger:hover {
   transform: translateY(-2px);
-  box-shadow: 0 16px 26px rgba(34, 211, 238, 0.32);
+  box-shadow: 0 16px 26px rgb(var(--c-accent) / 0.32);
 }
 
 @media (max-width: 640px) {
@@ -1563,7 +1563,7 @@ async function onImportQuestFile(event: Event) {
 
 .host-user-avatar--placeholder {
   border-style: dashed;
-  color: #bae6fd;
+  color: rgb(var(--c-accent-soft));
 }
 
 </style>

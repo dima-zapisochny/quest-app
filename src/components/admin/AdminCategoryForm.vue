@@ -220,8 +220,8 @@ function handleQuestionDeleted(questionId: string) {
 .category-panel {
   background: rgba(13, 23, 42, 0.62);
   border-radius: 18px;
-  border: 1px solid rgba(56, 189, 248, 0.15);
-  color: #e2e8f0;
+  border: 1px solid rgb(var(--c-accent-sky) / 0.15);
+  color: rgb(var(--c-text-soft));
   padding: 0.85rem 1rem;
   display: flex;
   flex-direction: column;
@@ -236,7 +236,7 @@ function handleQuestionDeleted(questionId: string) {
 
 .category-panel--questions {
   background: rgba(8, 22, 43, 0.62);
-  border: 1px dashed rgba(56, 189, 248, 0.18);
+  border: 1px dashed rgb(var(--c-accent-sky) / 0.18);
   margin-top: 0.6rem;
 }
 
@@ -257,8 +257,8 @@ function handleQuestionDeleted(questionId: string) {
   justify-content: center;
   padding: 0.35rem 0.9rem;
   border-radius: 999px;
-  background: rgba(56, 189, 248, 0.18);
-  color: #bae6fd;
+  background: rgb(var(--c-accent-sky) / 0.18);
+  color: rgb(var(--c-accent-soft));
   font-size: 0.85rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -269,19 +269,19 @@ function handleQuestionDeleted(questionId: string) {
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: #64748b;
+  color: rgb(var(--c-slate-500));
   padding-left: 0.2rem;
   display: block;
 }
 
 .category-title-input {
   padding: 0.5rem 0.7rem;
-  border: 1px solid rgba(59, 130, 246, 0.24);
+  border: 1px solid rgb(var(--c-blue) / 0.24);
   border-radius: 14px;
   font-weight: 600;
   font-size: 0.95rem;
-  background: rgba(15, 23, 42, 0.55);
-  color: #f8fafc;
+  background: rgb(var(--c-bg) / 0.55);
+  color: rgb(var(--c-text));
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
   width: 100%;
   box-sizing: border-box;
@@ -289,8 +289,8 @@ function handleQuestionDeleted(questionId: string) {
 
 .category-title-input:focus {
   outline: none;
-  border-color: rgba(56, 189, 248, 0.6);
-  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25);
+  border-color: rgb(var(--c-accent-sky) / 0.6);
+  box-shadow: 0 0 0 3px rgb(var(--c-accent-sky) / 0.25);
 }
 
 @media (max-width: 1024px) {
@@ -310,8 +310,8 @@ function handleQuestionDeleted(questionId: string) {
 }
 
 .badge {
-  background: rgba(56, 189, 248, 0.16);
-  color: #bae6fd;
+  background: rgb(var(--c-accent-sky) / 0.16);
+  color: rgb(var(--c-accent-soft));
   border-radius: 999px;
   padding: 0.35rem 0.75rem;
   font-size: 0.7rem;
@@ -331,9 +331,9 @@ function handleQuestionDeleted(questionId: string) {
   align-items: center;
   padding: 0.5rem 1.55rem;
   border-radius: 14px;
-  border: 1px solid rgba(239, 68, 68, 0.45);
-  background: rgba(239, 68, 68, 0.12);
-  color: #fca5a5;
+  border: 1px solid rgb(var(--c-danger) / 0.45);
+  background: rgb(var(--c-danger) / 0.12);
+  color: rgb(var(--c-danger-soft));
   font-size: 0.82rem;
   font-weight: 600;
   letter-spacing: 0.03em;
@@ -343,8 +343,8 @@ function handleQuestionDeleted(questionId: string) {
 
 .delete-category-text:hover {
   transform: translateY(-1px);
-  background: rgba(239, 68, 68, 0.2);
-  box-shadow: 0 12px 24px rgba(239, 68, 68, 0.22);
+  background: rgb(var(--c-danger) / 0.2);
+  box-shadow: 0 12px 24px rgb(var(--c-danger) / 0.22);
 }
 
 .delete-category-text svg {
@@ -362,7 +362,7 @@ function handleQuestionDeleted(questionId: string) {
 
 .questions-header h4 {
   font-size: 0.9rem;
-  color: #f8fafc;
+  color: rgb(var(--c-text));
   margin: 0;
   letter-spacing: 0.04em;
 }
@@ -374,7 +374,7 @@ function handleQuestionDeleted(questionId: string) {
 }
 
 .accordion-item {
-  border: 1px solid rgba(56, 189, 248, 0.18);
+  border: 1px solid rgb(var(--c-accent-sky) / 0.18);
   border-radius: 16px;
   background: rgba(10, 17, 33, 0.7);
   overflow: hidden;
@@ -382,14 +382,14 @@ function handleQuestionDeleted(questionId: string) {
 }
 
 .accordion-item.open {
-  border-color: rgba(34, 211, 238, 0.5);
-  box-shadow: 0 16px 32px rgba(34, 211, 238, 0.18);
+  border-color: rgb(var(--c-accent) / 0.5);
+  box-shadow: 0 16px 32px rgb(var(--c-accent) / 0.18);
 }
 
 .accordion-toggle {
   width: 100%;
   background: linear-gradient(90deg, rgba(13, 31, 53, 0.85) 0%, rgba(18, 51, 75, 0.85) 100%);
-  color: #f8fafc;
+  color: rgb(var(--c-text));
   border: none;
   padding: 0.75rem 1rem;
   display: grid;
@@ -408,8 +408,8 @@ function handleQuestionDeleted(questionId: string) {
 }
 
 .accordion-toggle[aria-expanded="true"] {
-  background: rgba(15, 23, 42, 0.8);
-  box-shadow: 0 4px 12px rgba(56, 189, 248, 0.1);
+  background: rgb(var(--c-bg) / 0.8);
+  box-shadow: 0 4px 12px rgb(var(--c-accent-sky) / 0.1);
 }
 
 .accordion-icon {
@@ -419,9 +419,9 @@ function handleQuestionDeleted(questionId: string) {
   width: 28px;
   height: 28px;
   border-radius: 999px;
-  background: rgba(15, 23, 42, 0.55);
-  border: 1px solid rgba(56, 189, 248, 0.22);
-  color: #bae6fd;
+  background: rgb(var(--c-bg) / 0.55);
+  border: 1px solid rgb(var(--c-accent-sky) / 0.22);
+  color: rgb(var(--c-accent-soft));
   transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
 }
 
@@ -434,8 +434,8 @@ function handleQuestionDeleted(questionId: string) {
 }
 
 .accordion-icon.open {
-  border-color: rgba(34, 211, 238, 0.45);
-  background: rgba(56, 189, 248, 0.18);
+  border-color: rgb(var(--c-accent) / 0.45);
+  background: rgb(var(--c-accent-sky) / 0.18);
 }
 
 .accordion-icon.open svg {
@@ -454,7 +454,7 @@ function handleQuestionDeleted(questionId: string) {
   font-size: 0.85rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #bae6fd;
+  color: rgb(var(--c-accent-soft));
   flex-shrink: 0;
 }
 
@@ -488,9 +488,9 @@ function handleQuestionDeleted(questionId: string) {
   justify-content: center;
   padding: 0.6rem 1.9rem;
   border-radius: 18px;
-  border: 1px dashed rgba(56, 189, 248, 0.35);
-  background: rgba(15, 23, 42, 0.6);
-  color: #bae6fd;
+  border: 1px dashed rgb(var(--c-accent-sky) / 0.35);
+  background: rgb(var(--c-bg) / 0.6);
+  color: rgb(var(--c-accent-soft));
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
   min-width: 200px;
@@ -498,9 +498,9 @@ function handleQuestionDeleted(questionId: string) {
 
 .add-question-button:hover:not(:disabled) {
   transform: translateY(-1.5px);
-  border-color: rgba(56, 189, 248, 0.55);
+  border-color: rgb(var(--c-accent-sky) / 0.55);
   background: rgba(15, 32, 56, 0.72);
-  box-shadow: 0 16px 32px rgba(56, 189, 248, 0.22);
+  box-shadow: 0 16px 32px rgb(var(--c-accent-sky) / 0.22);
 }
 
 .add-question-button:disabled {
@@ -518,8 +518,8 @@ function handleQuestionDeleted(questionId: string) {
   display: inline-block;
   width: 14px;
   height: 14px;
-  border: 2px solid rgba(186, 230, 253, 0.3);
-  border-top-color: #bae6fd;
+  border: 2px solid rgb(var(--c-accent-soft) / 0.3);
+  border-top-color: rgb(var(--c-accent-soft));
   border-radius: 50%;
   animation: spin 0.6s linear infinite;
 }
@@ -540,10 +540,10 @@ function handleQuestionDeleted(questionId: string) {
 .empty-questions {
   margin: 0;
   padding: 0.9rem;
-  background: rgba(15, 23, 42, 0.55);
-  border: 1px dashed rgba(148, 163, 184, 0.35);
+  background: rgb(var(--c-bg) / 0.55);
+  border: 1px dashed rgb(var(--c-text-muted) / 0.35);
   border-radius: 14px;
-  color: rgba(226, 232, 240, 0.7);
+  color: rgb(var(--c-text-soft) / 0.7);
   text-align: center;
   font-size: 0.85rem;
 }
