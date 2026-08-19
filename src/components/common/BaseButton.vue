@@ -1,7 +1,7 @@
 <template>
   <button
     class="base-button"
-    :class="`base-button--${variant}`"
+    :class="[`base-button--${variant}`, `base-button--${size}`]"
     :type="type"
     :disabled="disabled"
   >
@@ -20,10 +20,11 @@
 withDefaults(
   defineProps<{
     variant?: 'primary' | 'secondary' | 'danger' | 'danger-ghost'
+    size?: 'md' | 'sm'
     type?: 'button' | 'submit'
     disabled?: boolean
   }>(),
-  { variant: 'primary', type: 'button', disabled: false }
+  { variant: 'primary', size: 'md', type: 'button', disabled: false }
 )
 </script>
 
@@ -41,6 +42,13 @@ withDefaults(
 .base-button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+/* Размеры */
+.base-button--sm {
+  min-width: 0;
+  padding: 0.65rem 1.2rem;
+  font-size: 0.85rem;
 }
 
 /* primary */
@@ -85,5 +93,11 @@ withDefaults(
   transform: translateY(-1px);
   box-shadow: 0 12px 22px rgb(var(--c-danger) / 0.25);
   background: rgb(var(--c-danger) / 0.25);
+}
+.base-button--danger-ghost:disabled {
+  opacity: 0.5;
+  background: rgb(var(--c-danger) / 0.1);
+  border-color: rgb(var(--c-danger) / 0.25);
+  color: rgb(var(--c-danger-soft) / 0.6);
 }
 </style>
