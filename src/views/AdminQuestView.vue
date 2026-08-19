@@ -29,6 +29,19 @@
           <div class="toolbar-stats">
             <span class="stat-chip">Раундов: {{ Array.isArray(quest.rounds) ? quest.rounds.length : 0 }}/5</span>
             <span class="stat-chip">Вопросов: {{ questStats.totalQuestions }}</span>
+            <span
+              v-if="store.saveState !== 'idle'"
+              class="save-indicator"
+              :class="`save-indicator--${store.saveState}`"
+              aria-live="polite"
+            >
+              <template v-if="store.saveState === 'saving'">
+                <span class="save-indicator__spinner" aria-hidden="true"></span> Сохранение…
+              </template>
+              <template v-else>
+                <span aria-hidden="true">✓</span> Сохранено
+              </template>
+            </span>
           </div>
           <button
             class="toolbar-delete-text"
@@ -395,6 +408,39 @@ function goBack() {
 </script>
 
 <style scoped>
+.save-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  padding: 0.3rem 0.7rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid transparent;
+  transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+}
+.save-indicator--saving {
+  color: rgb(var(--c-text-muted));
+  background: rgb(var(--c-text-muted) / 0.12);
+  border-color: rgb(var(--c-text-muted) / 0.25);
+}
+.save-indicator--saved {
+  color: rgb(var(--c-success));
+  background: rgb(var(--c-success) / 0.14);
+  border-color: rgb(var(--c-success) / 0.35);
+}
+.save-indicator__spinner {
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 50%;
+  border: 2px solid rgb(var(--c-text-muted) / 0.35);
+  border-top-color: rgb(var(--c-text-muted));
+  animation: save-spin 0.7s linear infinite;
+}
+@keyframes save-spin {
+  to { transform: rotate(360deg); }
+}
+
 .admin-quest-view {
   min-height: 100dvh;
   background: linear-gradient(135deg, rgb(var(--c-bg)) 0%, rgb(var(--c-surface)) 100%);

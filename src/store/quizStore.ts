@@ -54,6 +54,8 @@ const SAVE_DEBOUNCE_MS = 2500
 export const useQuizStore = defineStore('quiz', () => {
   const quests = ref<Quest[]>([])
   const isLoading = ref(false)
+  /** Состояние автосохранения для индикатора в редакторе. */
+  const saveState = ref<'idle' | 'saving' | 'saved'>('idle')
   let saveTimeoutId: ReturnType<typeof setTimeout> | null = null
   // Квесты, изменённые с прошлого сохранения — сохраняем только их, а не все (#15)
   const dirtyQuestIds = new Set<string>()
@@ -63,6 +65,7 @@ export const useQuizStore = defineStore('quiz', () => {
     if (!isSupabaseConfigured) return
     if (questId) dirtyQuestIds.add(questId)
     else quests.value.forEach(q => dirtyQuestIds.add(q.id)) // fallback: пометить все
+    saveState.value = 'saving'
     if (saveTimeoutId) clearTimeout(saveTimeoutId)
     saveTimeoutId = setTimeout(() => {
       saveTimeoutId = null
@@ -87,11 +90,18 @@ export const useQuizStore = defineStore('quiz', () => {
     if (!userId) {
       console.warn('Cannot save quests: user not authenticated')
       dirtyQuestIds.clear()
+      saveState.value = 'idle'
       return
     }
     // Сохраняем только изменённые квесты (#15), а не весь список
     const ids = Array.from(dirtyQuestIds)
     dirtyQuestIds.clear()
+    if (ids.length === 0) {
+      saveState.value = 'saved'
+      return
+    }
+    saveState.value = 'saving'
+    let failed = false
     for (const id of ids) {
       const quest = quests.value.find(q => q.id === id)
       if (!quest) continue
@@ -105,8 +115,11 @@ export const useQuizStore = defineStore('quiz', () => {
       } catch (error) {
         console.error('Failed to save quest to Supabase:', error)
         dirtyQuestIds.add(id) // вернуть в очередь, чтобы повторить позже
+        failed = true
       }
     }
+    // saved, только если очередь пуста (ничего не откатилось на повтор)
+    saveState.value = failed || dirtyQuestIds.size > 0 ? 'saving' : 'saved'
   }
 
   async function loadFromStorage() {
@@ -761,6 +774,7 @@ export const useQuizStore = defineStore('quiz', () => {
   return {
     quests,
     isLoading,
+    saveState,
     loadFromStorage,
     loadQuestFull,
     saveToStorage,
