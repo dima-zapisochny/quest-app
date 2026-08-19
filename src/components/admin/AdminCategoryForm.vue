@@ -57,6 +57,7 @@
                 :category-id="category.id"
                 :question="question"
                 @deleted="handleQuestionDeleted(question.id)"
+                @add-next="handleAddQuestion(true)"
               />
             </div>
           </transition>
@@ -71,7 +72,7 @@
         class="add-question-button"
         type="button"
         :disabled="isAddingQuestion"
-        @click="handleAddQuestion"
+        @click="handleAddQuestion(true)"
       >
         <span v-if="!isAddingQuestion">Добавить вопрос</span>
         <span v-else class="add-question-loading">
@@ -84,7 +85,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watchEffect } from 'vue'
+import { computed, ref, watchEffect, nextTick } from 'vue'
 import { useQuizStore } from '@/store/quizStore'
 import AdminQuestionRow from './AdminQuestionRow.vue'
 import type { Category } from '@/types'
@@ -122,7 +123,8 @@ const categoryTitle = computed({
   }
 })
 
-async function handleAddQuestion() {
+async function handleAddQuestion(focusNew = false) {
+  if (props.category.questions.length >= 10) return
   isAddingQuestion.value = true
   try {
     const defaultValue = 100 * (props.category.questions.length + 1)
@@ -140,6 +142,12 @@ async function handleAddQuestion() {
     openQuestionId.value = newId
     // Сбрасываем флаг сразу
     isAddingQuestion.value = false
+    // Быстрый ввод: фокус в текст нового вопроса, чтобы набивать без мыши
+    if (focusNew && newId) {
+      await nextTick()
+      const el = document.getElementById(`question-text-${newId}`)
+      if (el instanceof HTMLTextAreaElement) el.focus()
+    }
   } catch (error) {
     isAddingQuestion.value = false
     newlyAddedQuestionId.value = null

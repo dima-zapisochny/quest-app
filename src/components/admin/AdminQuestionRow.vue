@@ -82,7 +82,8 @@
           :id="`answer-text-${question.id}`"
           v-model="answerText"
           rows="3"
-          placeholder="Текст ответа"
+          placeholder="Текст ответа (Enter — следующий вопрос, Shift+Enter — новая строка)"
+          @keydown.enter.exact.prevent="emit('addNext')"
         ></textarea>
         <div class="media-section">
           <div v-for="media in answerMediaList" :key="media.id" class="media-item">
@@ -156,6 +157,8 @@ interface Props {
 
 const emit = defineEmits<{
   deleted: []
+  /** Enter в поле «Ответ» — быстро добавить следующий вопрос. */
+  addNext: []
 }>()
 
 const props = defineProps<Props>()
