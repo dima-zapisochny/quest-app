@@ -55,7 +55,7 @@
   </div>
   <div v-else class="not-found">
     <p>Квест не найден.</p>
-    <router-link to="/host/setup" class="back-link">← Вернуться к списку квестов</router-link>
+    <BackLink to="/host/setup">Вернуться к списку квестов</BackLink>
   </div>
 
   <!-- Полноэкранный лоадер при выходе из игры -->
@@ -99,6 +99,7 @@ import { useGameSessionStore } from '@/store/gameSessionStore'
 import QuizBoard from '@/components/quiz/QuizBoard.vue'
 import AppHeader from '@/components/common/AppHeader.vue'
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
+import BackLink from '@/components/common/BackLink.vue'
 import { useIsMobileViewport } from '@/composables/useIsMobileViewport'
 import { useHostSessionSync } from '@/composables/useHostSessionSync'
 import { useResponderTimeout } from '@/composables/useResponderTimeout'
@@ -737,13 +738,7 @@ async function confirmReset() {
 }
 
 .empty-round__link,
-.back-link {
-  color: rgb(var(--c-accent));
-  text-decoration: none;
-}
-
-.empty-round__link:hover,
-.back-link:hover {
+.empty-round__link:hover {
   text-decoration: underline;
 }
 

@@ -104,7 +104,7 @@
   </div>
   <div v-else class="not-found">
     <h1>Квест не найден</h1>
-    <router-link to="/host/setup" class="back-link">← Вернуться к списку квестов</router-link>
+    <BackLink to="/host/setup">Вернуться к списку квестов</BackLink>
   </div>
 
   <div v-if="confirmModal.visible" class="confirm-backdrop" @click="cancelConfirmModal">
@@ -136,6 +136,7 @@ import { useQuizStore } from '@/store/quizStore'
 import { useGameSessionStore } from '@/store/gameSessionStore'
 import AdminRoundForm from '@/components/admin/AdminRoundForm.vue'
 import AppHeader from '@/components/common/AppHeader.vue'
+import BackLink from '@/components/common/BackLink.vue'
 
 interface Props {
   questId: string
@@ -791,16 +792,6 @@ function goBack() {
 .not-found h1 {
   color: rgb(var(--c-danger-soft));
   margin: 0;
-}
-
-.back-link {
-  color: rgb(var(--c-accent-sky));
-  text-decoration: none;
-  font-weight: 600;
-}
-
-.back-link:hover {
-  text-decoration: underline;
 }
 
 @media (max-width: 1024px) {
