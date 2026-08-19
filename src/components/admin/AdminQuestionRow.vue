@@ -378,18 +378,18 @@ function removeMedia(target: 'question' | 'answer', mediaId: string) {
   font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: rgba(148, 163, 184, 0.7);
+  color: rgb(var(--c-text-muted) / 0.7);
 }
 
 .value-field input {
   width: 100%;
   box-sizing: border-box;
   padding: 0.5rem 0.6rem;
-  border: 1px solid rgba(59, 130, 246, 0.22);
+  border: 1px solid rgb(var(--c-blue) / 0.22);
   border-radius: 12px;
   font-size: 0.85rem;
-  background: rgba(15, 23, 42, 0.55);
-  color: #f8fafc;
+  background: rgb(var(--c-bg) / 0.55);
+  color: rgb(var(--c-text));
   -moz-appearance: textfield;
 }
 
@@ -402,22 +402,22 @@ function removeMedia(target: 'question' | 'answer', mediaId: string) {
 textarea {
   width: 100%;
   box-sizing: border-box;
-  border: 1px solid rgba(59, 130, 246, 0.2);
+  border: 1px solid rgb(var(--c-blue) / 0.2);
   border-radius: 14px;
   padding: 0.55rem 0.7rem;
   font-size: 0.9rem;
   line-height: 1.45;
   resize: vertical;
   min-height: 96px;
-  background: rgba(15, 23, 42, 0.5);
-  color: #f8fafc;
+  background: rgb(var(--c-bg) / 0.5);
+  color: rgb(var(--c-text));
 }
 
 textarea:focus,
 .value-field input:focus {
   outline: none;
-  border-color: rgba(56, 189, 248, 0.6);
-  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.22);
+  border-color: rgb(var(--c-accent-sky) / 0.6);
+  box-shadow: 0 0 0 3px rgb(var(--c-accent-sky) / 0.22);
 }
 
 .text-field {
@@ -449,8 +449,8 @@ textarea:focus,
   flex-direction: column;
   gap: 0.5rem;
   padding: 0.5rem;
-  background: rgba(15, 23, 42, 0.3);
-  border: 1px solid rgba(59, 130, 246, 0.15);
+  background: rgb(var(--c-bg) / 0.3);
+  border: 1px solid rgb(var(--c-blue) / 0.15);
   border-radius: 10px;
 }
 
@@ -480,18 +480,18 @@ textarea:focus,
 
 .delay-label {
   font-size: 0.7rem;
-  color: rgba(148, 163, 184, 0.8);
+  color: rgb(var(--c-text-muted) / 0.8);
   white-space: nowrap;
 }
 
 .delay-input {
   width: 80px;
   padding: 0.3rem 0.5rem;
-  border: 1px solid rgba(59, 130, 246, 0.22);
+  border: 1px solid rgb(var(--c-blue) / 0.22);
   border-radius: 8px;
   font-size: 0.8rem;
-  background: rgba(15, 23, 42, 0.55);
-  color: #f8fafc;
+  background: rgb(var(--c-bg) / 0.55);
+  color: rgb(var(--c-text));
   -moz-appearance: textfield;
   box-sizing: border-box;
 }
@@ -504,17 +504,17 @@ textarea:focus,
 
 .delay-input:focus {
   outline: none;
-  border-color: rgba(56, 189, 248, 0.6);
-  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.22);
+  border-color: rgb(var(--c-accent-sky) / 0.6);
+  box-shadow: 0 0 0 2px rgb(var(--c-accent-sky) / 0.22);
 }
 
 .media-name {
   font-size: 0.75rem;
-  background: rgba(15, 23, 42, 0.55);
-  border: 1px solid rgba(59, 130, 246, 0.18);
+  background: rgb(var(--c-bg) / 0.55);
+  border: 1px solid rgb(var(--c-blue) / 0.18);
   padding: 0.35rem 0.6rem;
   border-radius: 10px;
-  color: rgba(226, 232, 240, 0.85);
+  color: rgb(var(--c-text-soft) / 0.85);
   display: inline-flex;
   align-items: center;
   gap: 0.7rem;
@@ -523,8 +523,8 @@ textarea:focus,
 
 .media-remove {
   border: none;
-  background: rgba(239, 68, 68, 0.15);
-  color: #fca5a5;
+  background: rgb(var(--c-danger) / 0.15);
+  color: rgb(var(--c-danger-soft));
   width: 1.5rem;
   height: 1.5rem;
   border-radius: 0.45rem;
@@ -534,24 +534,24 @@ textarea:focus,
 }
 
 .media-remove:hover {
-  background: rgba(239, 68, 68, 0.25);
+  background: rgb(var(--c-danger) / 0.25);
 }
 
 .upload-chip {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px dashed rgba(148, 163, 184, 0.4);
+  border: 1px dashed rgb(var(--c-text-muted) / 0.4);
   border-radius: 12px;
   padding: 0.4rem 0.75rem;
   cursor: pointer;
-  color: #bae6fd;
+  color: rgb(var(--c-accent-soft));
   font-weight: 600;
   font-size: 0.8rem;
   min-width: 130px;
   position: relative;
   overflow: hidden;
-  background: rgba(15, 23, 42, 0.45);
+  background: rgb(var(--c-bg) / 0.45);
 }
 
 .upload-chip input[type='file'] {
@@ -581,9 +581,9 @@ textarea:focus,
   align-items: center;
   padding: 0.5rem 1.55rem;
   border-radius: 14px;
-  border: 1px solid rgba(239, 68, 68, 0.45);
-  background: rgba(239, 68, 68, 0.12);
-  color: #fca5a5;
+  border: 1px solid rgb(var(--c-danger) / 0.45);
+  background: rgb(var(--c-danger) / 0.12);
+  color: rgb(var(--c-danger-soft));
   cursor: pointer;
   font-size: 0.85rem;
   font-weight: 600;
@@ -593,8 +593,8 @@ textarea:focus,
 
 .delete-question:hover {
   transform: translateY(-1px);
-  background: rgba(239, 68, 68, 0.2);
-  box-shadow: 0 12px 22px rgba(239, 68, 68, 0.22);
+  background: rgb(var(--c-danger) / 0.2);
+  box-shadow: 0 12px 22px rgb(var(--c-danger) / 0.22);
 }
 
 @media (max-width: 1024px) {
