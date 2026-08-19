@@ -40,10 +40,10 @@ defineProps<{
   height: 80px;
   background: linear-gradient(
     135deg,
-    rgba(30, 41, 59, 0.8) 0%,
-    rgba(15, 23, 42, 0.9) 100%
+    rgb(var(--c-surface) / 0.8) 0%,
+    rgb(var(--c-bg) / 0.9) 100%
   );
-  border: 1.5px solid rgba(139, 92, 246, 0.4);
+  border: 1.5px solid rgb(var(--c-violet) / 0.4);
   border-radius: 16px;
   padding: 1rem;
   display: flex;
@@ -51,10 +51,10 @@ defineProps<{
   gap: 1rem;
   backdrop-filter: blur(15px);
   box-shadow:
-    0 8px 24px rgba(139, 92, 246, 0.2),
-    0 4px 12px rgba(2, 6, 23, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+    0 8px 24px rgb(var(--c-violet) / 0.2),
+    0 4px 12px rgb(var(--c-bg-deep) / 0.3),
+    inset 0 1px 0 rgb(var(--c-white) / 0.1),
+    inset 0 -1px 0 rgb(var(--c-black) / 0.2);
   position: relative;
   overflow: hidden;
   box-sizing: border-box;
@@ -69,9 +69,9 @@ defineProps<{
   bottom: 0;
   background: linear-gradient(
     135deg,
-    rgba(139, 92, 246, 0.1) 0%,
+    rgb(var(--c-violet) / 0.1) 0%,
     transparent 50%,
-    rgba(59, 130, 246, 0.1) 100%
+    rgb(var(--c-blue) / 0.1) 100%
   );
   pointer-events: none;
 }
@@ -80,8 +80,8 @@ defineProps<{
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: rgba(139, 92, 246, 0.2);
-  border: 2px solid rgba(139, 92, 246, 0.4);
+  background: rgb(var(--c-violet) / 0.2);
+  border: 2px solid rgb(var(--c-violet) / 0.4);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -104,7 +104,7 @@ defineProps<{
 .responder-name {
   font-size: 1rem;
   font-weight: 600;
-  color: #f8fafc;
+  color: rgb(var(--c-text));
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -112,7 +112,7 @@ defineProps<{
 
 .responder-label {
   font-size: 0.75rem;
-  color: rgba(186, 230, 253, 0.7);
+  color: rgb(var(--c-accent-soft) / 0.7);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -124,10 +124,10 @@ defineProps<{
   height: 80px;
   background: linear-gradient(
     135deg,
-    rgba(30, 41, 59, 0.6) 0%,
-    rgba(15, 23, 42, 0.7) 100%
+    rgb(var(--c-surface) / 0.6) 0%,
+    rgb(var(--c-bg) / 0.7) 100%
   );
-  border: 1.5px solid rgba(148, 163, 184, 0.2);
+  border: 1.5px solid rgb(var(--c-text-muted) / 0.2);
   border-radius: 16px;
   padding: 1rem;
   display: flex;
@@ -135,14 +135,14 @@ defineProps<{
   justify-content: center;
   backdrop-filter: blur(15px);
   box-shadow:
-    0 4px 12px rgba(0, 0, 0, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    0 4px 12px rgb(var(--c-black) / 0.2),
+    inset 0 1px 0 rgb(var(--c-white) / 0.05);
   box-sizing: border-box;
 }
 
 .responder-empty span {
   font-size: 0.875rem;
-  color: rgba(148, 163, 184, 0.7);
+  color: rgb(var(--c-text-muted) / 0.7);
   font-style: italic;
 }
 </style>

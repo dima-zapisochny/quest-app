@@ -100,7 +100,7 @@ const emit = defineEmits<{
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(255, 255, 255, 0.3),
+    rgb(var(--c-white) / 0.3),
     transparent
   );
   transition: left 0.5s ease;
@@ -111,24 +111,24 @@ const emit = defineEmits<{
 }
 
 .host-button-success {
-  background: rgba(34, 197, 94, 0.25);
-  color: rgba(34, 197, 94, 0.9);
+  background: rgb(var(--c-success) / 0.25);
+  color: rgb(var(--c-success) / 0.9);
   box-shadow:
-    0 2px 8px rgba(34, 197, 94, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.1);
-  border: 1.5px solid rgba(34, 197, 94, 0.4);
+    0 2px 8px rgb(var(--c-success) / 0.2),
+    inset 0 1px 0 rgb(var(--c-white) / 0.1),
+    inset 0 -1px 0 rgb(var(--c-black) / 0.1);
+  border: 1.5px solid rgb(var(--c-success) / 0.4);
 }
 
 .host-button-success:not(:disabled):hover {
-  background: rgba(34, 197, 94, 0.35);
-  color: rgba(34, 197, 94, 1);
+  background: rgb(var(--c-success) / 0.35);
+  color: rgb(var(--c-success) / 1);
   box-shadow:
-    0 4px 12px rgba(34, 197, 94, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.15),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.15);
+    0 4px 12px rgb(var(--c-success) / 0.3),
+    inset 0 1px 0 rgb(var(--c-white) / 0.15),
+    inset 0 -1px 0 rgb(var(--c-black) / 0.15);
   transform: translateY(-1px);
-  border-color: rgba(34, 197, 94, 0.6);
+  border-color: rgb(var(--c-success) / 0.6);
 }
 
 .host-button-success:not(:disabled):hover svg {
@@ -144,24 +144,24 @@ const emit = defineEmits<{
 }
 
 .host-button-danger {
-  background: rgba(239, 68, 68, 0.25);
-  color: rgba(239, 68, 68, 0.9);
+  background: rgb(var(--c-danger) / 0.25);
+  color: rgb(var(--c-danger) / 0.9);
   box-shadow:
-    0 2px 8px rgba(239, 68, 68, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.1);
-  border: 1.5px solid rgba(239, 68, 68, 0.4);
+    0 2px 8px rgb(var(--c-danger) / 0.2),
+    inset 0 1px 0 rgb(var(--c-white) / 0.1),
+    inset 0 -1px 0 rgb(var(--c-black) / 0.1);
+  border: 1.5px solid rgb(var(--c-danger) / 0.4);
 }
 
 .host-button-danger:not(:disabled):hover {
-  background: rgba(239, 68, 68, 0.35);
-  color: rgba(239, 68, 68, 1);
+  background: rgb(var(--c-danger) / 0.35);
+  color: rgb(var(--c-danger) / 1);
   box-shadow:
-    0 4px 12px rgba(239, 68, 68, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.15),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.15);
+    0 4px 12px rgb(var(--c-danger) / 0.3),
+    inset 0 1px 0 rgb(var(--c-white) / 0.15),
+    inset 0 -1px 0 rgb(var(--c-black) / 0.15);
   transform: translateY(-1px);
-  border-color: rgba(239, 68, 68, 0.6);
+  border-color: rgb(var(--c-danger) / 0.6);
 }
 
 .host-button-danger:not(:disabled):hover svg {
@@ -177,15 +177,15 @@ const emit = defineEmits<{
 }
 
 .host-button-pause {
-  background: rgba(56, 189, 248, 0.25);
-  color: rgba(56, 189, 248, 0.95);
-  box-shadow: 0 2px 8px rgba(56, 189, 248, 0.2);
+  background: rgb(var(--c-accent-sky) / 0.25);
+  color: rgb(var(--c-accent-sky) / 0.95);
+  box-shadow: 0 2px 8px rgb(var(--c-accent-sky) / 0.2);
 }
 
 .host-button-pause:hover {
-  background: rgba(56, 189, 248, 0.35);
-  color: #22d3ee;
-  box-shadow: 0 2px 10px rgba(56, 189, 248, 0.3);
+  background: rgb(var(--c-accent-sky) / 0.35);
+  color: rgb(var(--c-accent));
+  box-shadow: 0 2px 10px rgb(var(--c-accent-sky) / 0.3);
 }
 
 .host-button-pause:hover svg {

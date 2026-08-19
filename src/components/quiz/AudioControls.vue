@@ -75,17 +75,17 @@ const emit = defineEmits<{
   gap: 1rem;
   background: linear-gradient(
     135deg,
-    rgba(30, 41, 59, 0.6) 0%,
-    rgba(15, 23, 42, 0.7) 100%
+    rgb(var(--c-surface) / 0.6) 0%,
+    rgb(var(--c-bg) / 0.7) 100%
   );
-  border: 1.5px solid rgba(148, 163, 184, 0.2);
+  border: 1.5px solid rgb(var(--c-text-muted) / 0.2);
   border-radius: 16px;
   padding: 1rem 1.25rem;
   backdrop-filter: blur(15px);
   -webkit-backdrop-filter: blur(15px);
   box-shadow:
-    0 4px 12px rgba(0, 0, 0, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    0 4px 12px rgb(var(--c-black) / 0.2),
+    inset 0 1px 0 rgb(var(--c-white) / 0.05);
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
@@ -96,19 +96,19 @@ const emit = defineEmits<{
 .audio-control-block.is-playing {
   background: linear-gradient(
     135deg,
-    rgba(30, 41, 59, 0.6) 0%,
-    rgba(15, 23, 42, 0.7) 100%
+    rgb(var(--c-surface) / 0.6) 0%,
+    rgb(var(--c-bg) / 0.7) 100%
   );
-  border-color: rgba(148, 163, 184, 0.2);
+  border-color: rgb(var(--c-text-muted) / 0.2);
   box-shadow:
-    0 4px 12px rgba(0, 0, 0, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    0 4px 12px rgb(var(--c-black) / 0.2),
+    inset 0 1px 0 rgb(var(--c-white) / 0.05);
 }
 
 .audio-play-button {
-  background: rgba(148, 163, 184, 0.15);
-  border: 1px solid rgba(148, 163, 184, 0.3);
-  color: rgba(148, 163, 184, 0.8);
+  background: rgb(var(--c-text-muted) / 0.15);
+  border: 1px solid rgb(var(--c-text-muted) / 0.3);
+  color: rgb(var(--c-text-muted) / 0.8);
   border-radius: 50%;
   width: 40px;
   height: 40px;
@@ -125,15 +125,15 @@ const emit = defineEmits<{
 }
 
 .audio-play-button:hover {
-  background: rgba(148, 163, 184, 0.25);
-  border-color: rgba(148, 163, 184, 0.4);
-  color: rgba(148, 163, 184, 1);
+  background: rgb(var(--c-text-muted) / 0.25);
+  border-color: rgb(var(--c-text-muted) / 0.4);
+  color: rgb(var(--c-text-muted) / 1);
 }
 
 .audio-play-button.is-playing {
-  background: rgba(148, 163, 184, 0.2);
-  border-color: rgba(148, 163, 184, 0.35);
-  color: rgba(148, 163, 184, 0.9);
+  background: rgb(var(--c-text-muted) / 0.2);
+  border-color: rgb(var(--c-text-muted) / 0.35);
+  color: rgb(var(--c-text-muted) / 0.9);
 }
 
 .audio-play-button svg {
@@ -157,8 +157,8 @@ const emit = defineEmits<{
   width: 4px;
   background: linear-gradient(
     to top,
-    rgba(148, 163, 184, 0.5) 0%,
-    rgba(148, 163, 184, 0.3) 100%
+    rgb(var(--c-text-muted) / 0.5) 0%,
+    rgb(var(--c-text-muted) / 0.3) 100%
   );
   border-radius: 2px;
   animation: equalizer-idle 1.5s ease-in-out infinite;
@@ -167,8 +167,8 @@ const emit = defineEmits<{
 .audio-control-block.is-playing .equalizer-bar {
   background: linear-gradient(
     to top,
-    rgba(148, 163, 184, 0.7) 0%,
-    rgba(148, 163, 184, 0.5) 100%
+    rgb(var(--c-text-muted) / 0.7) 0%,
+    rgb(var(--c-text-muted) / 0.5) 100%
   );
   animation: equalizer-active 1.2s ease-in-out infinite;
 }

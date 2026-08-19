@@ -67,8 +67,8 @@ function handleQuestionClick(question: Question) {
 .category-title {
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   text-align: center;
-  background: linear-gradient(160deg, rgba(30, 27, 75, 0.85) 0%, rgba(49, 46, 129, 0.7) 50%, rgba(55, 48, 163, 0.6) 100%);
-  border: 1px solid rgba(129, 140, 248, 0.55);
+  background: linear-gradient(160deg, rgb(var(--c-tile-950) / 0.85) 0%, rgb(var(--c-tile-900) / 0.7) 50%, rgb(var(--c-tile-800) / 0.6) 100%);
+  border: 1px solid rgb(var(--c-indigo) / 0.55);
   color: #c7d2fe;
   padding: 0.45rem 0.85rem;
   font-size: 0.7rem;
@@ -89,10 +89,10 @@ function handleQuestionClick(question: Question) {
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   box-shadow: 
-    0 2px 8px rgba(67, 56, 202, 0.25),
-    0 1px 4px rgba(0, 0, 0, 0.2),
-    inset 0 1px 2px rgba(255, 255, 255, 0.12),
-    inset 0 -1px 2px rgba(0, 0, 0, 0.25);
+    0 2px 8px rgb(var(--c-tile-700) / 0.25),
+    0 1px 4px rgb(var(--c-black) / 0.2),
+    inset 0 1px 2px rgb(var(--c-white) / 0.12),
+    inset 0 -1px 2px rgb(var(--c-black) / 0.25);
   transform: perspective(1000px) rotateX(1deg);
   transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
@@ -106,7 +106,7 @@ function handleQuestionClick(question: Question) {
   height: 200%;
   background: radial-gradient(
     circle at 30% 30%,
-    rgba(255, 255, 255, 0.15) 0%,
+    rgb(var(--c-white) / 0.15) 0%,
     transparent 50%
   );
   opacity: 0;
@@ -123,9 +123,9 @@ function handleQuestionClick(question: Question) {
   bottom: 0;
   background: linear-gradient(
     135deg,
-    rgba(255, 255, 255, 0.08) 0%,
+    rgb(var(--c-white) / 0.08) 0%,
     transparent 50%,
-    rgba(255, 255, 255, 0.04) 100%
+    rgb(var(--c-white) / 0.04) 100%
   );
   border-radius: 0.55rem;
   pointer-events: none;
@@ -154,8 +154,8 @@ function handleQuestionClick(question: Question) {
 
 .category-tiles :deep(.quiz-tile--placeholder) {
   border-style: dashed;
-  border-color: rgba(148, 163, 184, 0.3);
-  background: rgba(30, 41, 59, 0.3);
+  border-color: rgb(var(--c-text-muted) / 0.3);
+  background: rgb(var(--c-surface) / 0.3);
   cursor: default;
   opacity: 0.75;
 }
