@@ -79,6 +79,9 @@
             <div class="quest-meta">
               <span>Раундов: {{ quest.roundsCount ?? (quest.rounds?.length ?? 0) }}</span>
               <span>Вопросов: {{ questQuestions(quest) }}</span>
+              <span v-if="questQuestions(quest) === 0" class="quest-empty-badge">
+                <i aria-hidden="true">⚠</i> Нет вопросов
+              </span>
             </div>
           </article>
           <article class="quest-card quest-card--new" @click="createNewQuest">
@@ -103,10 +106,13 @@
       <section class="actions actions--fixed">
         <button
           class="primary"
-          :disabled="!selectedQuestId || isMobileViewport"
-          :title="isMobileViewport ? 'Доступно только с компьютера или планшета' : undefined"
+          :disabled="!selectedQuestId || isMobileViewport || selectedQuestEmpty"
+          :title="startDisabledReason"
           @click="handleStart"
         >Начать игру</button>
+        <p v-if="selectedQuestId && selectedQuestEmpty" class="start-hint">
+          Добавьте хотя бы один вопрос, чтобы начать игру.
+        </p>
         <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
       </section>
     </template>
@@ -249,6 +255,19 @@ onBeforeUnmount(() => {
 const questQuestions = (quest: { id: string; questionsCount?: number }) =>
   quest.questionsCount ?? quizStore.getQuestProgress(quest.id).totalQuestions
 
+// Нельзя начать игру по квесту без вопросов
+const selectedQuestEmpty = computed(() => {
+  if (!selectedQuestId.value) return false
+  const q = quizStore.quests.find(x => x.id === selectedQuestId.value)
+  return !!q && questQuestions(q) === 0
+})
+
+const startDisabledReason = computed(() => {
+  if (isMobileViewport.value) return 'Доступно только с компьютера или планшета'
+  if (selectedQuestId.value && selectedQuestEmpty.value) return 'Добавьте хотя бы один вопрос'
+  return undefined
+})
+
 function handleCardClick(event: MouseEvent, questId: string) {
   const target = event.target as HTMLElement | null
   if (target?.closest('.quest-action-button')) {
@@ -286,6 +305,16 @@ async function handleStart() {
     const firstRound = quest.rounds.find(round => Array.isArray(round.categories)) ?? quest.rounds[0]
     if (!firstRound) {
       errorMessage.value = 'В раунде отсутствуют категории'
+      return
+    }
+
+    // Квест без вопросов запускать нельзя — иначе пустая, «сломанная» игра
+    const totalQuestions = quest.rounds.reduce(
+      (sum, r) => sum + (r.categories ?? []).reduce((cs, c) => cs + (c.questions?.length ?? 0), 0),
+      0
+    )
+    if (totalQuestions === 0) {
+      errorMessage.value = 'Добавьте хотя бы один вопрос в квест'
       return
     }
 
@@ -922,10 +951,30 @@ async function onImportQuestFile(event: Event) {
 .quest-meta {
   display: flex;
   gap: 0.6rem;
+  align-items: center;
+  flex-wrap: wrap;
   font-size: 0.85rem;
   color: rgb(var(--c-text-soft) / 0.8);
   flex-shrink: 0;
   margin-top: auto;
+}
+
+.quest-empty-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.72rem;
+  padding: 0.15rem 0.55rem;
+  border-radius: var(--radius-pill);
+  color: rgb(var(--c-danger-soft));
+  background: rgb(var(--c-danger) / 0.15);
+  border: 1px solid rgb(var(--c-danger) / 0.35);
+}
+
+.start-hint {
+  margin: 0.4rem 0 0;
+  font-size: 0.8rem;
+  color: rgb(var(--c-danger-soft));
 }
 
 .actions {
