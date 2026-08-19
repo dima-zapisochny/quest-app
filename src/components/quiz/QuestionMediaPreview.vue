@@ -46,8 +46,8 @@ const mediaUrl = computed(() => safeMediaUrl(props.media?.url) ?? null)
 
 <style scoped>
 .media-card {
-  background: rgba(15, 23, 42, 0.65);
-  border: 1px solid rgba(148, 163, 184, 0.25);
+  background: rgb(var(--c-bg) / 0.65);
+  border: 1px solid rgb(var(--c-text-muted) / 0.25);
   border-radius: 1rem;
   padding: 0.75rem;
   display: flex;
@@ -55,8 +55,8 @@ const mediaUrl = computed(() => safeMediaUrl(props.media?.url) ?? null)
   gap: 0.75rem;
   align-items: center;
   justify-content: center;
-  color: #e2e8f0;
-  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.45);
+  color: rgb(var(--c-text-soft));
+  box-shadow: 0 12px 24px rgb(var(--c-bg) / 0.45);
 }
 
 .image-wrapper {
@@ -83,21 +83,21 @@ audio {
 .media-name {
   font-size: 0.75rem;
   text-align: center;
-  color: #94a3b8;
+  color: rgb(var(--c-text-muted));
   word-break: break-word;
 }
 
 .media-placeholder {
   padding: 1rem;
   text-align: center;
-  color: #64748b;
+  color: rgb(var(--c-slate-500));
   font-size: 0.8rem;
-  background: rgba(15, 23, 42, 0.5);
+  background: rgb(var(--c-bg) / 0.5);
   border-radius: 0.5rem;
 }
 
 .media-card.media-error .media-placeholder {
-  color: #94a3b8;
+  color: rgb(var(--c-text-muted));
 }
 
 @media (max-width: 768px) {

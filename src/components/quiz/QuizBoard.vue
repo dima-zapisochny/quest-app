@@ -93,9 +93,9 @@ function handleFinished() {
 
 .board-reset {
   align-self: flex-end;
-  background: rgba(14, 165, 233, 0.2);
-  border: 1px solid rgba(56, 189, 248, 0.4);
-  color: #f8fafc;
+  background: rgb(var(--c-sky-500) / 0.2);
+  border: 1px solid rgb(var(--c-accent-sky) / 0.4);
+  color: rgb(var(--c-text));
   padding: 0.4rem 1.1rem;
   border-radius: 999px;
   font-size: 0.78rem;
@@ -107,7 +107,7 @@ function handleFinished() {
 
 .board-reset:hover {
   transform: translateY(-1px);
-  box-shadow: 0 12px 22px rgba(56, 189, 248, 0.25);
+  box-shadow: 0 12px 22px rgb(var(--c-accent-sky) / 0.25);
 }
 
 .board-grid {
@@ -121,13 +121,13 @@ function handleFinished() {
   align-items: stretch;
   padding: clamp(0.5rem, 1.2vw, 0.9rem);
   border-radius: 18px;
-  border: 1px solid rgba(129, 140, 248, 0.45);
-  background: rgba(30, 41, 59, 0.55);
+  border: 1px solid rgb(var(--c-indigo) / 0.45);
+  background: rgb(var(--c-surface) / 0.55);
   box-shadow: 
-    0 8px 32px rgba(15, 23, 42, 0.45),
-    0 4px 16px rgba(79, 70, 229, 0.12),
-    inset 0 2px 4px rgba(255, 255, 255, 0.06),
-    inset 0 -2px 4px rgba(0, 0, 0, 0.3);
+    0 8px 32px rgb(var(--c-bg) / 0.45),
+    0 4px 16px rgb(var(--c-tile-600) / 0.12),
+    inset 0 2px 4px rgb(var(--c-white) / 0.06),
+    inset 0 -2px 4px rgb(var(--c-black) / 0.3);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   transform: perspective(1000px) rotateX(1deg);
@@ -217,18 +217,18 @@ function handleFinished() {
 .empty-categories {
   text-align: center;
   padding: 3rem 1.5rem;
-  color: rgba(226, 232, 240, 0.85);
+  color: rgb(var(--c-text-soft) / 0.85);
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 .empty-categories p {
   font-size: 1.1rem;
   margin-bottom: 1rem;
-  color: #94a3b8;
+  color: rgb(var(--c-text-muted));
 }
 
 .admin-link {
-  color: rgba(34, 211, 238, 0.95);
+  color: rgb(var(--c-accent) / 0.95);
   text-decoration: none;
   font-size: 0.95rem;
   font-weight: 600;
@@ -246,7 +246,7 @@ function handleFinished() {
   align-items: center;
   justify-content: center;
   background: transparent;
-  color: #94a3b8;
+  color: rgb(var(--c-text-muted));
   font-size: 1rem;
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
 }

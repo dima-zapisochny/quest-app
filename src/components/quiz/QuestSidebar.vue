@@ -171,18 +171,18 @@ async function handleJoinSession() {
 }
 
 .sidebar-card {
-  background: rgba(15, 23, 42, 0.3);
-  border: 1px solid rgba(56, 189, 248, 0.18);
+  background: rgb(var(--c-bg) / 0.3);
+  border: 1px solid rgb(var(--c-accent-sky) / 0.18);
   border-radius: 18px;
   padding: 0.9rem 1rem;
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
   box-shadow:
-    0 8px 32px rgba(2, 6, 23, 0.3),
-    0 4px 16px rgba(2, 6, 23, 0.2),
-    inset 0 2px 4px rgba(255, 255, 255, 0.1),
-    inset 0 -2px 4px rgba(0, 0, 0, 0.2);
+    0 8px 32px rgb(var(--c-bg-deep) / 0.3),
+    0 4px 16px rgb(var(--c-bg-deep) / 0.2),
+    inset 0 2px 4px rgb(var(--c-white) / 0.1),
+    inset 0 -2px 4px rgb(var(--c-black) / 0.2);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
 }
@@ -206,7 +206,7 @@ async function handleJoinSession() {
   margin: 0;
   font-size: clamp(1.2rem, 2.5vw, 1.6rem);
   font-weight: 600;
-  color: #f8fafc;
+  color: rgb(var(--c-text));
   line-height: 1.25;
   overflow: hidden;
   display: -webkit-box;
@@ -220,13 +220,13 @@ async function handleJoinSession() {
   margin: 0;
   font-size: 0.8rem;
   line-height: 1.5;
-  color: rgba(226, 232, 240, 0.86);
+  color: rgb(var(--c-text-soft) / 0.86);
   max-height: 7rem;
   overflow: hidden;
 }
 
 .sidebar-description--muted {
-  color: rgba(148, 163, 184, 0.65);
+  color: rgb(var(--c-text-muted) / 0.65);
 }
 
 .sidebar-stats {
@@ -247,13 +247,13 @@ async function handleJoinSession() {
   font-size: 0.72rem;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: rgba(148, 163, 184, 0.75);
+  color: rgb(var(--c-text-muted) / 0.75);
 }
 
 .sidebar-stat__value {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #facc15;
+  color: rgb(var(--c-gold));
 }
 
 .sidebar-progress {
@@ -266,14 +266,14 @@ async function handleJoinSession() {
   width: 100%;
   height: 6px;
   border-radius: 999px;
-  background: rgba(30, 41, 59, 0.65);
+  background: rgb(var(--c-surface) / 0.65);
   overflow: hidden;
 }
 
 .sidebar-progress__fill {
   display: block;
   height: 100%;
-  background: linear-gradient(135deg, #22d3ee, #818cf8);
+  background: linear-gradient(135deg, rgb(var(--c-accent)), rgb(var(--c-indigo)));
   border-radius: inherit;
   transition: width 0.35s ease;
 }
@@ -283,7 +283,7 @@ async function handleJoinSession() {
 }
 
 .sidebar-progress__fill--quest {
-  background: linear-gradient(135deg, #22d3ee, #06b6d4);
+  background: linear-gradient(135deg, rgb(var(--c-accent)), #06b6d4);
 }
 
 .sidebar-progress__meta {
@@ -293,16 +293,16 @@ async function handleJoinSession() {
   font-size: 0.68rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: rgba(148, 163, 184, 0.75);
+  color: rgb(var(--c-text-muted) / 0.75);
   text-align: center;
 }
 
 .sidebar-reset {
   align-self: center;
   margin-top: auto;
-  background: rgba(239, 68, 68, 0.18);
-  border: 1px solid rgba(239, 68, 68, 0.45);
-  color: #fca5a5;
+  background: rgb(var(--c-danger) / 0.18);
+  border: 1px solid rgb(var(--c-danger) / 0.45);
+  color: rgb(var(--c-danger-soft));
   padding: 0.65rem 1.2rem;
   border-radius: 999px;
   font-size: 0.85rem;
@@ -314,16 +314,16 @@ async function handleJoinSession() {
 
 .sidebar-reset:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 12px 22px rgba(239, 68, 68, 0.25);
-  background: rgba(239, 68, 68, 0.25);
+  box-shadow: 0 12px 22px rgb(var(--c-danger) / 0.25);
+  background: rgb(var(--c-danger) / 0.25);
 }
 
 .sidebar-reset:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-  background: rgba(239, 68, 68, 0.1);
-  border-color: rgba(239, 68, 68, 0.25);
-  color: rgba(252, 165, 165, 0.6);
+  background: rgb(var(--c-danger) / 0.1);
+  border-color: rgb(var(--c-danger) / 0.25);
+  color: rgb(var(--c-danger-soft) / 0.6);
 }
 
 .join-form {
@@ -341,11 +341,11 @@ async function handleJoinSession() {
 
 .join-code-input {
   flex: 1;
-  background: rgba(15, 23, 42, 0.5);
-  border: 1px solid rgba(56, 189, 248, 0.3);
+  background: rgb(var(--c-bg) / 0.5);
+  border: 1px solid rgb(var(--c-accent-sky) / 0.3);
   border-radius: 10px;
   padding: 0.65rem 0.85rem;
-  color: #f8fafc;
+  color: rgb(var(--c-text));
   font-size: 1rem;
   font-weight: 600;
   letter-spacing: 0.15em;
@@ -357,22 +357,22 @@ async function handleJoinSession() {
 
 .join-code-input:focus {
   outline: none;
-  border-color: rgba(56, 189, 248, 0.6);
-  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.1);
+  border-color: rgb(var(--c-accent-sky) / 0.6);
+  box-shadow: 0 0 0 3px rgb(var(--c-accent-sky) / 0.1);
 }
 
 .join-code-input::placeholder {
-  color: rgba(148, 163, 184, 0.5);
+  color: rgb(var(--c-text-muted) / 0.5);
   letter-spacing: 0.1em;
 }
 
 .join-button {
   flex: 0 0 auto;
-  background: rgba(34, 197, 94, 0.85);
+  background: rgb(var(--c-success) / 0.85);
   border: none;
   border-radius: 10px;
   padding: 0.65rem 1rem;
-  color: #ffffff;
+  color: rgb(var(--c-white));
   font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
@@ -382,15 +382,15 @@ async function handleJoinSession() {
   letter-spacing: 0.05em;
   white-space: nowrap;
   box-shadow:
-    0 4px 8px rgba(34, 197, 94, 0.3),
-    inset 0 1px 2px rgba(255, 255, 255, 0.2);
+    0 4px 8px rgb(var(--c-success) / 0.3),
+    inset 0 1px 2px rgb(var(--c-white) / 0.2);
 }
 
 .join-button:hover:not(:disabled) {
-  background: rgba(34, 197, 94, 1);
+  background: rgb(var(--c-success) / 1);
   box-shadow:
-    0 6px 12px rgba(34, 197, 94, 0.4),
-    inset 0 1px 2px rgba(255, 255, 255, 0.25);
+    0 6px 12px rgb(var(--c-success) / 0.4),
+    inset 0 1px 2px rgb(var(--c-white) / 0.25);
   transform: translateY(-1px);
 }
 
@@ -403,11 +403,11 @@ async function handleJoinSession() {
 .join-error {
   margin: 0;
   font-size: 0.75rem;
-  color: #f87171;
+  color: rgb(var(--c-danger-light));
   text-align: center;
   padding: 0.5rem;
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  background: rgb(var(--c-danger) / 0.1);
+  border: 1px solid rgb(var(--c-danger) / 0.3);
   border-radius: 8px;
 }
 </style>

@@ -12,7 +12,7 @@
         :cy="center"
         :r="radius"
         fill="none"
-        stroke="rgba(255, 255, 255, 0.2)"
+        stroke="rgb(var(--c-white) / 0.2)"
         :stroke-width="strokeWidth"
       />
       <circle
@@ -185,29 +185,29 @@ defineExpose({
 
 .timer-progress {
   transition: stroke-dashoffset 0.1s linear;
-  color: #22d3ee;
+  color: rgb(var(--c-accent));
 }
 
 .timer-bg {
-  color: rgba(255, 255, 255, 0.2);
+  color: rgb(var(--c-white) / 0.2);
 }
 
 .timer-text {
   position: absolute;
   font-size: 2rem;
   font-weight: bold;
-  color: #22d3ee;
-  text-shadow: 0 0 10px rgba(34, 211, 238, 0.5);
+  color: rgb(var(--c-accent));
+  text-shadow: 0 0 10px rgb(var(--c-accent) / 0.5);
   transition: color 0.3s ease, text-shadow 0.3s ease;
 }
 
 .timer-warning .timer-progress {
-  color: #ef4444;
+  color: rgb(var(--c-danger));
 }
 
 .timer-warning .timer-text {
-  color: #f87171;
-  text-shadow: 0 0 10px rgba(239, 68, 68, 0.6);
+  color: rgb(var(--c-danger-light));
+  text-shadow: 0 0 10px rgb(var(--c-danger) / 0.6);
 }
 
 </style>

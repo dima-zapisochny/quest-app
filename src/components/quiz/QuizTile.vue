@@ -76,10 +76,10 @@ function handleClick() {
   height: 100%;
   flex: 1 1 0;
   min-height: 66px;
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.35) 0%, rgba(99, 102, 241, 0.28) 50%, rgba(139, 92, 246, 0.3) 100%);
-  border: 1px solid rgba(129, 140, 248, 0.55);
+  background: linear-gradient(135deg, rgb(var(--c-blue) / 0.35) 0%, rgb(var(--c-indigo-500) / 0.28) 50%, rgb(var(--c-violet) / 0.3) 100%);
+  border: 1px solid rgb(var(--c-indigo) / 0.55);
   border-radius: 12px;
-  color: #e0e7ff;
+  color: rgb(var(--c-indigo-100));
   font-size: clamp(0.75rem, 1.5vw, 1.1rem);
   font-weight: 700;
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -92,10 +92,10 @@ function handleClick() {
   overflow: hidden;
   padding: 0.45rem;
   box-shadow: 
-    0 2px 6px rgba(15, 23, 42, 0.25),
-    0 1px 4px rgba(99, 102, 241, 0.2),
-    inset 0 1px 2px rgba(255, 255, 255, 0.08),
-    inset 0 -1px 2px rgba(0, 0, 0, 0.2);
+    0 2px 6px rgb(var(--c-bg) / 0.25),
+    0 1px 4px rgb(var(--c-indigo-500) / 0.2),
+    inset 0 1px 2px rgb(var(--c-white) / 0.08),
+    inset 0 -1px 2px rgb(var(--c-black) / 0.2);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   transform: perspective(1000px) rotateX(1deg);
@@ -110,7 +110,7 @@ function handleClick() {
   height: 200%;
   background: radial-gradient(
     circle at 30% 30%,
-    rgba(255, 255, 255, 0.15) 0%,
+    rgb(var(--c-white) / 0.15) 0%,
     transparent 50%
   );
   opacity: 0;
@@ -131,9 +131,9 @@ function handleClick() {
   bottom: 0;
   background: linear-gradient(
     135deg,
-    rgba(255, 255, 255, 0.1) 0%,
+    rgb(var(--c-white) / 0.1) 0%,
     transparent 45%,
-    rgba(167, 139, 250, 0.06) 100%
+    rgb(var(--c-violet-light) / 0.06) 100%
   );
   border-radius: 12px;
   pointer-events: none;
@@ -141,45 +141,45 @@ function handleClick() {
 }
 
 .quiz-tile:hover {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.45) 0%, rgba(99, 102, 241, 0.38) 50%, rgba(139, 92, 246, 0.4) 100%);
-  border-color: rgba(167, 139, 250, 0.75);
+  background: linear-gradient(135deg, rgb(var(--c-blue) / 0.45) 0%, rgb(var(--c-indigo-500) / 0.38) 50%, rgb(var(--c-violet) / 0.4) 100%);
+  border-color: rgb(var(--c-violet-light) / 0.75);
   transform: perspective(1000px) rotateX(1deg) translateY(-2px);
   box-shadow: 
-    0 4px 12px rgba(15, 23, 42, 0.35),
-    0 2px 8px rgba(139, 92, 246, 0.25),
-    inset 0 1px 2px rgba(255, 255, 255, 0.1),
-    inset 0 -1px 2px rgba(0, 0, 0, 0.22);
+    0 4px 12px rgb(var(--c-bg) / 0.35),
+    0 2px 8px rgb(var(--c-violet) / 0.25),
+    inset 0 1px 2px rgb(var(--c-white) / 0.1),
+    inset 0 -1px 2px rgb(var(--c-black) / 0.22);
 }
 
 .quiz-tile--hovered {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.45) 0%, rgba(99, 102, 241, 0.38) 50%, rgba(139, 92, 246, 0.4) 100%);
-  border-color: rgba(167, 139, 250, 0.75);
+  background: linear-gradient(135deg, rgb(var(--c-blue) / 0.45) 0%, rgb(var(--c-indigo-500) / 0.38) 50%, rgb(var(--c-violet) / 0.4) 100%);
+  border-color: rgb(var(--c-violet-light) / 0.75);
   transform: perspective(1000px) rotateX(1deg) translateY(-2px);
   box-shadow: 
-    0 4px 12px rgba(15, 23, 42, 0.35),
-    0 2px 8px rgba(139, 92, 246, 0.25),
-    inset 0 1px 2px rgba(255, 255, 255, 0.1),
-    inset 0 -1px 2px rgba(0, 0, 0, 0.22);
+    0 4px 12px rgb(var(--c-bg) / 0.35),
+    0 2px 8px rgb(var(--c-violet) / 0.25),
+    inset 0 1px 2px rgb(var(--c-white) / 0.1),
+    inset 0 -1px 2px rgb(var(--c-black) / 0.22);
 }
 
 .quiz-tile--placeholder {
-  background: rgba(30, 41, 59, 0.35);
-  border: 1px dashed rgba(148, 163, 184, 0.3);
+  background: rgb(var(--c-surface) / 0.35);
+  border: 1px dashed rgb(var(--c-text-muted) / 0.3);
   cursor: default;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.15);
+  box-shadow: inset 0 1px 3px rgb(var(--c-black) / 0.15);
   transform: perspective(1000px) rotateX(1deg);
   backdrop-filter: blur(10px);
 }
 
 .quiz-tile--played {
-  background: rgba(15, 23, 42, 0.75);
-  border-color: rgba(100, 116, 139, 0.4);
+  background: rgb(var(--c-bg) / 0.75);
+  border-color: rgb(var(--c-slate-500) / 0.4);
   cursor: not-allowed;
   opacity: 0.9;
   box-shadow: 
-    0 1px 3px rgba(2, 6, 23, 0.2),
-    inset 0 1px 2px rgba(255, 255, 255, 0.04),
-    inset 0 -1px 2px rgba(0, 0, 0, 0.2);
+    0 1px 3px rgb(var(--c-bg-deep) / 0.2),
+    inset 0 1px 2px rgb(var(--c-white) / 0.04),
+    inset 0 -1px 2px rgb(var(--c-black) / 0.2);
   transform: perspective(1000px) rotateX(1deg);
   backdrop-filter: blur(10px);
 }
@@ -187,11 +187,11 @@ function handleClick() {
 .quiz-tile--played:hover {
   transform: perspective(1000px) rotateX(1deg) !important;
   box-shadow: 
-    0 1px 3px rgba(2, 6, 23, 0.2),
-    inset 0 1px 2px rgba(255, 255, 255, 0.04),
-    inset 0 -1px 2px rgba(0, 0, 0, 0.2) !important;
-  border-color: rgba(100, 116, 139, 0.4) !important;
-  background: rgba(15, 23, 42, 0.75) !important;
+    0 1px 3px rgb(var(--c-bg-deep) / 0.2),
+    inset 0 1px 2px rgb(var(--c-white) / 0.04),
+    inset 0 -1px 2px rgb(var(--c-black) / 0.2) !important;
+  border-color: rgb(var(--c-slate-500) / 0.4) !important;
+  background: rgb(var(--c-bg) / 0.75) !important;
 }
 
 .quiz-tile--played:hover::before {
@@ -205,8 +205,8 @@ function handleClick() {
 .quiz-tile-value {
   position: relative;
   z-index: 1;
-  color: #e0e7ff;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  color: rgb(var(--c-indigo-100));
+  text-shadow: 0 1px 3px rgb(var(--c-black) / 0.3);
   line-height: 1;
 }
 
@@ -223,7 +223,7 @@ function handleClick() {
 }
 
 .quiz-tile-played-icon {
-  color: #64748b;
+  color: rgb(var(--c-slate-500));
   font-size: clamp(1.25rem, 2.5vw, 2rem);
   line-height: 1;
   flex-shrink: 0;
@@ -248,7 +248,7 @@ function handleClick() {
 .quiz-tile-user-name {
   font-size: clamp(0.95rem, 2vw, 1.15rem);
   font-weight: 600;
-  color: rgba(226, 232, 240, 0.95);
+  color: rgb(var(--c-text-soft) / 0.95);
   text-align: center;
   max-width: 100%;
   overflow: hidden;
@@ -263,18 +263,18 @@ function handleClick() {
   width: clamp(38px, 5vw, 44px);
   height: clamp(38px, 5vw, 44px);
   border-radius: 50%;
-  border: 2px solid rgba(56, 189, 248, 0.4);
-  background: rgba(2, 6, 23, 0.8);
+  border: 2px solid rgb(var(--c-accent-sky) / 0.4);
+  background: rgb(var(--c-bg-deep) / 0.8);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: clamp(1.3rem, 3vw, 1.5rem);
-  color: #f8fafc;
+  color: rgb(var(--c-text));
   position: relative;
   z-index: 1;
   box-shadow: 
-    inset 0 1px 2px rgba(255, 255, 255, 0.1),
-    0 2px 4px rgba(0, 0, 0, 0.3);
+    inset 0 1px 2px rgb(var(--c-white) / 0.1),
+    0 2px 4px rgb(var(--c-black) / 0.3);
   flex-shrink: 0;
 }
 
@@ -285,23 +285,23 @@ function handleClick() {
   width: clamp(22px, 3vw, 26px);
   height: clamp(22px, 3vw, 26px);
   border-radius: 50%;
-  background: rgba(34, 197, 94, 0.9);
-  color: #fff;
+  background: rgb(var(--c-success) / 0.9);
+  color: rgb(var(--c-white));
   font-size: clamp(0.75rem, 2vw, 0.9rem);
   font-weight: 700;
   flex-shrink: 0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 1px 3px rgb(var(--c-black) / 0.3);
 }
 
 .quiz-tile-cross {
-  color: rgba(239, 68, 68, 0.85);
+  color: rgb(var(--c-danger) / 0.85);
   font-size: clamp(2rem, 4vw, 2.8rem);
   line-height: 1;
   font-weight: 300;
   text-shadow: 
-    0 0 16px rgba(239, 68, 68, 0.7),
-    0 0 32px rgba(239, 68, 68, 0.5),
-    0 0 48px rgba(239, 68, 68, 0.3);
+    0 0 16px rgb(var(--c-danger) / 0.7),
+    0 0 32px rgb(var(--c-danger) / 0.5),
+    0 0 48px rgb(var(--c-danger) / 0.3);
   filter: blur(1.5px);
   position: relative;
   z-index: 1;
@@ -313,7 +313,7 @@ function handleClick() {
 .quiz-tile-placeholder {
   position: relative;
   z-index: 1;
-  color: rgba(148, 163, 184, 0.6);
+  color: rgb(var(--c-text-muted) / 0.6);
   font-size: clamp(1.25rem, 2vw, 1.75rem);
   letter-spacing: 0.1em;
 }
