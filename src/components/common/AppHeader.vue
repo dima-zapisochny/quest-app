@@ -74,12 +74,12 @@ defineEmits<{
 }
 
 .session-chip {
-  background: rgba(34, 211, 238, 0.15);
-  border: 1px solid rgba(34, 211, 238, 0.4);
+  background: rgb(var(--c-accent) / 0.15);
+  border: 1px solid rgb(var(--c-accent) / 0.4);
   padding: 0.6rem 1.25rem;
   border-radius: 9999px;
   font-weight: 600;
-  color: #f8fafc;
+  color: rgb(var(--c-text));
   font-size: 0.9rem;
 }
 

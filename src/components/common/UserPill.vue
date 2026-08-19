@@ -45,17 +45,17 @@ const avatarInitial = computed(() => displayName.value.charAt(0).toUpperCase())
   gap: 1.1rem;
   padding: 0.75rem 1.75rem;
   border-radius: 9999px;
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  background: rgba(15, 23, 42, 0.25);
+  border: 1px solid rgb(var(--c-text-muted) / 0.2);
+  background: rgb(var(--c-bg) / 0.25);
   backdrop-filter: blur(12px);
   position: relative;
   overflow: visible;
   transform: perspective(1000px) rotateY(-5deg) rotateX(2deg);
   box-shadow: 
-    0 4px 12px rgba(2, 6, 23, 0.3),
-    0 2px 6px rgba(2, 6, 23, 0.2),
-    inset 0 2px 4px rgba(255, 255, 255, 0.15),
-    inset 0 -2px 4px rgba(0, 0, 0, 0.25);
+    0 4px 12px rgb(var(--c-bg-deep) / 0.3),
+    0 2px 6px rgb(var(--c-bg-deep) / 0.2),
+    inset 0 2px 4px rgb(var(--c-white) / 0.15),
+    inset 0 -2px 4px rgb(var(--c-black) / 0.25);
   height: 72px;
   min-height: 72px;
   box-sizing: border-box;
@@ -70,9 +70,9 @@ const avatarInitial = computed(() => displayName.value.charAt(0).toUpperCase())
   bottom: 0;
   background: linear-gradient(
     135deg,
-    rgba(255, 255, 255, 0.1) 0%,
+    rgb(var(--c-white) / 0.1) 0%,
     transparent 50%,
-    rgba(255, 255, 255, 0.05) 100%
+    rgb(var(--c-white) / 0.05) 100%
   );
   border-radius: 9999px;
   pointer-events: none;
@@ -89,19 +89,19 @@ const avatarInitial = computed(() => displayName.value.charAt(0).toUpperCase())
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  border: 2px solid rgba(56, 189, 248, 0.45);
-  background: rgba(8, 47, 73, 0.75);
+  border: 2px solid rgb(var(--c-accent-sky) / 0.45);
+  background: rgb(var(--c-sky-deep) / 0.75);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.65rem;
-  color: #e2e8f0;
+  color: rgb(var(--c-text-soft));
   flex-shrink: 0;
 }
 
 .user-avatar--placeholder {
   border-style: dashed;
-  color: #bae6fd;
+  color: rgb(var(--c-accent-soft));
 }
 
 @media (max-width: 768px) {
