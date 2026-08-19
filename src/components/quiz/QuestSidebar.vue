@@ -1,13 +1,13 @@
 <template>
   <aside class="quest-sidebar">
-    <div class="sidebar-card">
+    <BaseCard>
       <span class="sidebar-chip">Квест</span>
       <h2 class="sidebar-title">{{ quest.title }}</h2>
       <p v-if="quest.description" class="sidebar-description">{{ quest.description }}</p>
       <p v-else class="sidebar-description sidebar-description--muted">Описание пока не добавлено.</p>
-    </div>
+    </BaseCard>
 
-    <div v-if="session && !isPlayerInSession" class="sidebar-card sidebar-card--join">
+    <BaseCard v-if="session && !isPlayerInSession">
       <span class="sidebar-chip">Присоединиться к игре</span>
       <p class="sidebar-description">Введите код игры, чтобы присоединиться как участник</p>
       <div class="join-form">
@@ -31,9 +31,9 @@
         </div>
         <p v-if="joinError" class="join-error">{{ joinError }}</p>
       </div>
-    </div>
+    </BaseCard>
 
-    <div class="sidebar-card">
+    <BaseCard class="sidebar-card--stats">
       <span class="sidebar-chip">Статистика</span>
       <div class="sidebar-stats">
         <div class="sidebar-stat">
@@ -65,7 +65,7 @@
       >
         Сбросить прогресс
       </button>
-    </div>
+    </BaseCard>
   </aside>
 </template>
 
@@ -74,6 +74,7 @@ import { ref, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGameSessionStore } from '@/store/gameSessionStore'
 import { useQuizStore } from '@/store/quizStore'
+import BaseCard from '@/components/common/BaseCard.vue'
 import type { Quest, GameSession } from '@/types'
 
 const props = defineProps<{
@@ -170,24 +171,8 @@ async function handleJoinSession() {
   gap: 0.75rem;
 }
 
-.sidebar-card {
-  background: rgb(var(--c-bg) / 0.3);
-  border: 1px solid rgb(var(--c-accent-sky) / 0.18);
-  border-radius: 18px;
-  padding: 0.9rem 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-  box-shadow:
-    0 8px 32px rgb(var(--c-bg-deep) / 0.3),
-    0 4px 16px rgb(var(--c-bg-deep) / 0.2),
-    inset 0 2px 4px rgb(var(--c-white) / 0.1),
-    inset 0 -2px 4px rgb(var(--c-black) / 0.2);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-}
-
-.sidebar-card:has(.sidebar-stats) {
+/* Корпус карточки — в BaseCard; здесь только специфика статистики (растягивается) */
+.sidebar-card--stats {
   flex: 1;
   min-height: 0;
 }
