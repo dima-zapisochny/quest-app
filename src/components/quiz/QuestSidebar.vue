@@ -57,14 +57,15 @@
           </div>
         </div>
       </div>
-      <button
+      <BaseButton
+        variant="danger-ghost"
+        size="sm"
         class="sidebar-reset"
-        type="button"
         :disabled="!questProgress.playedQuestions || questProgress.playedQuestions === 0"
         @click="emit('reset')"
       >
         Сбросить прогресс
-      </button>
+      </BaseButton>
     </BaseCard>
   </aside>
 </template>
@@ -75,6 +76,7 @@ import { useRouter } from 'vue-router'
 import { useGameSessionStore } from '@/store/gameSessionStore'
 import { useQuizStore } from '@/store/quizStore'
 import BaseCard from '@/components/common/BaseCard.vue'
+import BaseButton from '@/components/common/BaseButton.vue'
 import type { Quest, GameSession } from '@/types'
 
 const props = defineProps<{
@@ -282,33 +284,11 @@ async function handleJoinSession() {
   text-align: center;
 }
 
+/* Цвет/размер/disabled — из BaseButton (danger-ghost, sm); здесь только раскладка */
 .sidebar-reset {
   align-self: center;
   margin-top: auto;
-  background: rgb(var(--c-danger) / 0.18);
-  border: 1px solid rgb(var(--c-danger) / 0.45);
-  color: rgb(var(--c-danger-soft));
-  padding: 0.65rem 1.2rem;
-  border-radius: 999px;
-  font-size: 0.85rem;
-  font-weight: 600;
   letter-spacing: 0.08em;
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
-}
-
-.sidebar-reset:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 12px 22px rgb(var(--c-danger) / 0.25);
-  background: rgb(var(--c-danger) / 0.25);
-}
-
-.sidebar-reset:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  background: rgb(var(--c-danger) / 0.1);
-  border-color: rgb(var(--c-danger) / 0.25);
-  color: rgb(var(--c-danger-soft) / 0.6);
 }
 
 .join-form {
