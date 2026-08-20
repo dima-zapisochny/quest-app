@@ -10,7 +10,7 @@
         class="audio-play-button"
         :class="{ 'is-playing': playingId === audio.id }"
         type="button"
-        :aria-label="ariaLabel"
+        :aria-label="ariaLabel ?? t('game.playAudio')"
         @click="emit('toggle', audio)"
       >
         <svg v-if="playingId !== audio.id" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -42,16 +42,16 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import type { MediaAsset } from '@/types'
 
-withDefaults(
-  defineProps<{
-    tracks: MediaAsset[]
-    playingId: string | null
-    ariaLabel?: string
-  }>(),
-  { ariaLabel: 'Проиграть аудио' }
-)
+const { t } = useI18n()
+
+defineProps<{
+  tracks: MediaAsset[]
+  playingId: string | null
+  ariaLabel?: string
+}>()
 
 const emit = defineEmits<{
   toggle: [audio: MediaAsset]

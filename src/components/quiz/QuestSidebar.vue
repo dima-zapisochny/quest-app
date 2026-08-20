@@ -1,22 +1,22 @@
 <template>
   <aside class="quest-sidebar">
     <BaseCard>
-      <span class="sidebar-chip">Квест</span>
+      <span class="sidebar-chip">{{ t('game.questChip') }}</span>
       <h2 class="sidebar-title">{{ quest.title }}</h2>
       <p v-if="quest.description" class="sidebar-description">{{ quest.description }}</p>
-      <p v-else class="sidebar-description sidebar-description--muted">Описание пока не добавлено.</p>
+      <p v-else class="sidebar-description sidebar-description--muted">{{ t('game.noDescription') }}</p>
     </BaseCard>
 
     <BaseCard v-if="session && !isPlayerInSession">
-      <span class="sidebar-chip">Присоединиться к игре</span>
-      <p class="sidebar-description">Введите код игры, чтобы присоединиться как участник</p>
+      <span class="sidebar-chip">{{ t('game.joinChip') }}</span>
+      <p class="sidebar-description">{{ t('game.joinHint') }}</p>
       <div class="join-form">
         <div class="join-form-row">
           <input
             v-model="joinCodeInput"
             type="text"
             maxlength="4"
-            placeholder="КОД"
+            :placeholder="t('landing.codePlaceholder')"
             class="join-code-input"
             @input="handleJoinCodeInput"
           />
@@ -34,18 +34,18 @@
     </BaseCard>
 
     <BaseCard class="sidebar-card--stats">
-      <span class="sidebar-chip">Статистика</span>
+      <span class="sidebar-chip">{{ t('game.statsChip') }}</span>
       <div class="sidebar-stats">
         <div class="sidebar-stat">
-          <span class="sidebar-stat__label">Всего вопросов</span>
+          <span class="sidebar-stat__label">{{ t('game.totalQuestions') }}</span>
           <span class="sidebar-stat__value">{{ questProgress.totalQuestions }}</span>
         </div>
         <div class="sidebar-stat">
-          <span class="sidebar-stat__label">Сыграно</span>
+          <span class="sidebar-stat__label">{{ t('game.played') }}</span>
           <span class="sidebar-stat__value">{{ questProgress.playedQuestions }}</span>
         </div>
         <div class="sidebar-stat">
-          <span class="sidebar-stat__label">Осталось</span>
+          <span class="sidebar-stat__label">{{ t('game.remaining') }}</span>
           <span class="sidebar-stat__value">{{ questProgress.totalQuestions - questProgress.playedQuestions }}</span>
         </div>
         <div class="sidebar-progress sidebar-progress--quest">
@@ -71,6 +71,7 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { ref, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGameSessionStore } from '@/store/gameSessionStore'
@@ -78,6 +79,8 @@ import { useQuizStore } from '@/store/quizStore'
 import BaseCard from '@/components/common/BaseCard.vue'
 import BaseButton from '@/components/common/BaseButton.vue'
 import type { Quest, GameSession } from '@/types'
+
+const { t } = useI18n()
 
 const props = defineProps<{
   quest: Quest
@@ -148,18 +151,18 @@ async function handleJoinSession() {
   joinError.value = ''
   try {
     if (props.session && joinCodeInput.value.toUpperCase() !== props.session.code.toUpperCase()) {
-      joinError.value = 'Неверный код игры'
+      joinError.value = t('game.errInvalidCode')
       return
     }
     const result = await sessionStore.joinSessionByCode(joinCodeInput.value)
     if (!result || !result.session) {
-      joinError.value = 'Сессия с таким кодом не найдена'
+      joinError.value = t('landing.errNotFound')
       return
     }
     sessionStore.setActivePlayer(result.session.id, result.playerId)
     router.push({ name: 'player-session', params: { sessionId: result.session.id } })
   } catch (error: any) {
-    joinError.value = error?.message ?? 'Не удалось присоединиться к игре. Убедитесь, что игра запущена в другой вкладке.'
+    joinError.value = error?.message ?? t('game.errJoin')
   }
 }
 </script>

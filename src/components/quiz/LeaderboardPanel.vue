@@ -2,7 +2,7 @@
   <section v-if="leaderboardEntries.length" class="quest-leaderboard">
     <BaseCard class="leaderboard-card">
       <header class="leaderboard-header">
-        <span class="leaderboard-label">Участники</span>
+        <span class="leaderboard-label">{{ t('game.participants') }}</span>
       </header>
       <TransitionGroup name="leaderboard" tag="ul" class="leaderboard-list">
         <li
@@ -34,7 +34,7 @@
               <span class="leaderboard-name">{{ player.name }}</span>
               <span class="leaderboard-score">
                 <strong>{{ player.score.toLocaleString('ru-RU') }}</strong>
-                <span>баллов</span>
+                <span>{{ t('game.pointsWord') }}</span>
               </span>
             </div>
           </div>
@@ -61,7 +61,7 @@
           </div>
         </div>
         <div class="participant-popover__actions">
-          <p class="participant-popover__label">Шаг (кратно 5):</p>
+          <p class="participant-popover__label">{{ t('game.stepLabel') }}</p>
           <div class="participant-popover__step-select">
             <button
               v-for="step in STEP_OPTIONS"
@@ -73,7 +73,7 @@
               @click.stop="selectedStep = step"
             >{{ step }}</button>
           </div>
-          <p class="participant-popover__sublabel participant-popover__sublabel--minus">Отнять баллы</p>
+          <p class="participant-popover__sublabel participant-popover__sublabel--minus">{{ t('game.subtractPoints') }}</p>
           <button
             type="button"
             class="participant-popover__btn participant-popover__btn--subtract"
@@ -82,7 +82,7 @@
           >
             <span class="participant-popover__btn-icon">−</span> Отнять {{ selectedStep }} баллов
           </button>
-          <p class="participant-popover__sublabel participant-popover__sublabel--plus">Прибавить баллы</p>
+          <p class="participant-popover__sublabel participant-popover__sublabel--plus">{{ t('game.addPoints') }}</p>
           <button
             type="button"
             class="participant-popover__btn participant-popover__btn--add"
@@ -90,7 +90,7 @@
           >
             <span class="participant-popover__btn-icon">+</span> Прибавить {{ selectedStep }} баллов
           </button>
-          <p class="participant-popover__label">Задать баллы вручную:</p>
+          <p class="participant-popover__label">{{ t('game.setManual') }}</p>
           <div class="participant-popover__manual">
             <input
               v-model.number="manualScoreInput"
@@ -101,7 +101,7 @@
               placeholder="0"
               @keydown.enter="handleApplyClick()"
             />
-            <button type="button" class="participant-popover__btn participant-popover__btn--apply" @click.stop="handleApplyClick()">Применить</button>
+            <button type="button" class="participant-popover__btn participant-popover__btn--apply" @click.stop="handleApplyClick()">{{ t('game.apply') }}</button>
           </div>
         </div>
       </div>
@@ -110,9 +110,12 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { useLeaderboard } from '@/composables/useLeaderboard'
 import BaseCard from '@/components/common/BaseCard.vue'
 import type { GameSession } from '@/types'
+
+const { t } = useI18n()
 
 const props = defineProps<{
   session: GameSession | undefined

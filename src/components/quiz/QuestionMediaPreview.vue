@@ -9,7 +9,7 @@
         loading="lazy"
         @error="loadError = true"
       />
-      <div v-else-if="loadError" class="media-placeholder">Изображение не загружено</div>
+      <div v-else-if="loadError" class="media-placeholder">{{ t('game.imageNotLoaded') }}</div>
       <div v-else class="media-placeholder"></div>
     </div>
     <div v-else class="audio-wrapper">
@@ -20,8 +20,8 @@
         preload="none"
         @error="loadError = true"
       ></audio>
-      <div v-else-if="loadError" class="media-placeholder">Аудио не загружено</div>
-      <div v-else class="media-placeholder">Нет аудио</div>
+      <div v-else-if="loadError" class="media-placeholder">{{ t('game.audioNotLoaded') }}</div>
+      <div v-else class="media-placeholder">{{ t('game.noAudio') }}</div>
     </div>
     <!-- Якщо медіа не має валідного URL (safeMediaUrl повернув null), не показуємо підпис,
          щоб "нет изображения"/ім'я не з'являлось як зайвий текст. -->
@@ -30,9 +30,12 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { ref, computed } from 'vue'
 import type { MediaAsset } from '@/types'
 import { safeMediaUrl } from '@/utils/mediaUrl'
+
+const { t } = useI18n()
 
 interface Props {
   media: MediaAsset

@@ -1,7 +1,7 @@
 <template>
   <div v-if="round" class="board-container">
     <div v-if="!round.categories || round.categories.length === 0" class="empty-categories">
-      <p>В этом раунде пока нет категорий.</p>
+      <p>{{ t('game.noCategories') }}</p>
       <router-link to="/host/setup" class="admin-link">
         Перейти к управлению квестами для добавления категорий
       </router-link>
@@ -27,16 +27,19 @@
     />
   </div>
   <div v-else class="loading">
-    <p>Загрузка раунда...</p>
+    <p>{{ t('game.loadingRound') }}</p>
   </div>
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { ref, computed } from 'vue'
 import CategoryColumn from './CategoryColumn.vue'
 import QuestionModal from './QuestionModal.vue'
 import { useQuizStore } from '@/store/quizStore'
 import type { Round, Question } from '@/types'
+
+const { t } = useI18n()
 
 interface Props {
   questId: string
