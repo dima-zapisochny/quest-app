@@ -84,7 +84,7 @@
           aria-label="Добавить раунд"
           @click="handleAddRound"
         >
-          <span v-if="!isAddingRound">+ Раунд</span>
+          <span v-if="!isAddingRound">+</span>
           <span v-else class="mini-loader"></span>
         </button>
       </div>
@@ -587,7 +587,7 @@ function goBack() {
   align-self: center;
   display: inline-flex;
   justify-content: center;
-  padding: 0.4rem;
+  padding: 0.85rem 1.9rem;
   border-radius: var(--radius-pill);
   background: rgb(var(--c-bg) / 0.72);
   border: 1px solid rgb(var(--c-accent-sky) / 0.2);
