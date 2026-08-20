@@ -53,11 +53,21 @@
               :key="question.id"
               type="button"
               :class="['board-tile', { 'board-tile--filled': isFilled(question) }]"
+              :title="isFilled(question) ? 'Вопрос заполнен' : 'Вопрос ещё не заполнен'"
               @click="openQuestion(category.id, question.id)"
             >
               <span class="board-tile__value">{{ question.value }}</span>
-              <span class="board-tile__state" aria-hidden="true">
-                {{ isFilled(question) ? '✓' : '—' }}
+              <span v-if="isFilled(question)" class="board-tile__badge" aria-hidden="true">
+                <svg viewBox="0 0 16 16">
+                  <path
+                    d="M3.5 8.5l3 3 6-7"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
               </span>
             </button>
 
@@ -426,20 +436,21 @@ watch(() => props.round.id, closeModal)
   width: 100%;
   min-height: 58px;
   border-radius: 12px;
-  border: 1px dashed rgb(var(--c-accent-sky) / 0.3);
-  background: rgb(var(--c-bg) / 0.5);
-  color: rgb(var(--c-text-soft) / 0.85);
+  border: 1px dashed rgb(var(--c-accent-sky) / 0.28);
+  background: rgb(var(--c-bg) / 0.4);
+  color: rgb(var(--c-text-soft) / 0.5);
   font-size: 1.15rem;
   font-weight: 700;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
 }
 .board-tile:hover {
   transform: translateY(-2px);
   border-color: rgb(var(--c-accent-sky) / 0.55);
+  color: rgb(var(--c-text-soft) / 0.8);
   box-shadow: 0 12px 24px rgb(var(--c-sky-deep) / 0.3);
 }
 .board-tile--filled {
@@ -448,19 +459,30 @@ watch(() => props.round.id, closeModal)
   background: linear-gradient(135deg, rgb(var(--c-blue) / 0.35) 0%, rgb(var(--c-indigo-500) / 0.28) 50%, rgb(var(--c-violet) / 0.3) 100%);
   color: rgb(var(--c-indigo-100));
 }
+.board-tile--filled:hover {
+  color: rgb(var(--c-indigo-100));
+}
 .board-tile__value {
   line-height: 1;
 }
-.board-tile__state {
+/* Аккуратный бейдж-галочка на заполненной плитке */
+.board-tile__badge {
   position: absolute;
-  top: 0.3rem;
-  right: 0.45rem;
-  font-size: 0.7rem;
-  opacity: 0.6;
+  top: 0.4rem;
+  right: 0.4rem;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background: rgb(var(--c-success));
+  color: rgb(var(--c-white));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 3px rgb(var(--c-bg-deep) / 0.45);
 }
-.board-tile--filled .board-tile__state {
-  color: rgb(var(--c-success));
-  opacity: 0.9;
+.board-tile__badge svg {
+  width: 0.65rem;
+  height: 0.65rem;
 }
 .board-tile--add {
   border-style: dashed;
@@ -535,7 +557,8 @@ watch(() => props.round.id, closeModal)
 .board-delete-round {
   display: inline-flex;
   align-items: center;
-  padding: 0.5rem 1.55rem;
+  padding: 0.65rem 1.5rem;
+  line-height: 1.3;
   border-radius: 14px;
   border: 1px solid rgb(var(--c-danger) / 0.45);
   background: rgb(var(--c-danger) / 0.12);

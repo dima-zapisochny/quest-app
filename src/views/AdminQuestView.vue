@@ -508,7 +508,8 @@ function goBack() {
   align-self: flex-start;
   display: inline-flex;
   align-items: center;
-  padding: 0.45rem 1.45rem;
+  padding: 0.6rem 1.45rem;
+  line-height: 1.3;
   border-radius: 16px;
   border: 1px solid rgb(var(--c-danger) / 0.45);
   background: rgb(var(--c-danger) / 0.12);
@@ -553,14 +554,14 @@ function goBack() {
 }
 
 .round-tab {
-  padding: 0.5rem 1.1rem;
+  padding: 0.4rem 0.95rem;
   border-radius: var(--radius-pill);
   border: 1px solid rgb(var(--c-accent-sky) / 0.2);
   background: rgb(var(--c-bg) / 0.55);
   color: rgb(var(--c-text-soft) / 0.8);
-  font-size: 0.9rem;
+  font-size: 0.82rem;
   font-weight: 600;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.02em;
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
 }
