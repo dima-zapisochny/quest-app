@@ -53,14 +53,17 @@
           </div>
 
           <div v-if="mode === 'grid'" class="grid-size">
-            <select v-model.number="categories" aria-label="Категорий">
-              <option v-for="n in 8" :key="n" :value="n">{{ n }}</option>
-            </select>
-            <span>категорий ×</span>
-            <select v-model.number="questions" aria-label="Вопросов в категории">
-              <option v-for="n in 10" :key="n" :value="n">{{ n }}</option>
-            </select>
-            <span>вопросов ({{ categories * questions }} шт.)</span>
+            <div class="grid-size__steppers">
+              <NumberStepper v-model="categories" :min="1" :max="8" label="Категории" block />
+              <span class="grid-size__times" aria-hidden="true">×</span>
+              <NumberStepper v-model="questions" :min="1" :max="10" label="Вопросы" block />
+            </div>
+            <div class="grid-size__preview">
+              <div class="grid-size__mini" :style="miniStyle" aria-hidden="true">
+                <span v-for="n in categories * questions" :key="n" class="grid-size__cell"></span>
+              </div>
+              <span class="grid-size__total">{{ categories * questions }} плиток</span>
+            </div>
           </div>
 
           <p v-if="error" class="field-error">{{ error }}</p>
@@ -86,6 +89,7 @@ import { useQuizStore } from '@/store/quizStore'
 import { useGameSessionStore } from '@/store/gameSessionStore'
 import AppHeader from '@/components/common/AppHeader.vue'
 import BaseCard from '@/components/common/BaseCard.vue'
+import NumberStepper from '@/components/common/NumberStepper.vue'
 
 const router = useRouter()
 const quizStore = useQuizStore()
@@ -101,6 +105,10 @@ const questions = ref(5)
 const error = ref('')
 const isCreating = ref(false)
 const titleInput = ref<HTMLInputElement | null>(null)
+
+const miniStyle = computed(() => ({
+  gridTemplateColumns: `repeat(${categories.value}, 1fr)`
+}))
 
 onMounted(() => {
   nextTick(() => titleInput.value?.focus())
@@ -218,19 +226,52 @@ async function submit() {
 .grid-size {
   display: flex;
   align-items: center;
-  gap: 0.45rem;
+  justify-content: space-between;
+  gap: 1rem;
   flex-wrap: wrap;
-  font-size: 0.9rem;
-  color: rgb(var(--c-text-soft) / 0.8);
+  padding: 1rem 1.1rem;
+  border-radius: 16px;
+  border: 1px solid rgb(var(--c-accent-sky) / 0.18);
+  background: rgb(var(--c-bg) / 0.4);
 }
-.grid-size select {
-  background: rgb(var(--c-bg) / 0.6);
-  border: 1px solid rgb(var(--c-accent-sky) / 0.3);
-  border-radius: 8px;
-  color: rgb(var(--c-text));
-  padding: 0.35rem 0.45rem;
-  font-size: 0.95rem;
-  cursor: pointer;
+.grid-size__steppers {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+.grid-size__times {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: rgb(var(--c-text-soft) / 0.6);
+  align-self: flex-end;
+  padding-bottom: 0.4rem;
+}
+.grid-size__preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+.grid-size__mini {
+  display: grid;
+  gap: 2px;
+  width: clamp(72px, 22vw, 104px);
+}
+.grid-size__cell {
+  aspect-ratio: 1;
+  border-radius: 2px;
+  background: linear-gradient(135deg, rgb(var(--c-accent-sky) / 0.5), rgb(var(--c-accent) / 0.4));
+}
+.grid-size__total {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: rgb(var(--c-accent-soft));
+}
+@media (max-width: 420px) {
+  .grid-size {
+    justify-content: center;
+  }
 }
 
 .field-error {
