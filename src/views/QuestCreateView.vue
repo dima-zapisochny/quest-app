@@ -54,17 +54,24 @@
 
           <div v-if="mode === 'grid'" class="grid-size">
             <div class="grid-size__rounds">
-              <NumberStepper v-model="rounds" :min="1" :max="5" label="Раунды" />
+              <span class="seg-label">Раунды</span>
+              <div class="seg" role="group" aria-label="Количество раундов">
+                <button
+                  v-for="n in 5"
+                  :key="n"
+                  type="button"
+                  class="seg__btn"
+                  :class="{ 'seg__btn--active': rounds === n }"
+                  @click="rounds = n"
+                >{{ n }}</button>
+              </div>
             </div>
             <div class="grid-size__picker">
-              <span class="grid-size__hint">
-                Наведите и выберите размер доски: категории — по горизонтали, вопросы — по вертикали
-              </span>
               <GridSizePicker
                 v-model:categories="categories"
                 v-model:questions="questions"
                 :max-categories="8"
-                :max-questions="10"
+                :max-questions="8"
               />
               <span v-if="rounds > 1" class="grid-size__rounds-note">× {{ rounds }} {{ roundsWord }}</span>
             </div>
@@ -93,7 +100,6 @@ import { useQuizStore } from '@/store/quizStore'
 import { useGameSessionStore } from '@/store/gameSessionStore'
 import AppHeader from '@/components/common/AppHeader.vue'
 import BaseCard from '@/components/common/BaseCard.vue'
-import NumberStepper from '@/components/common/NumberStepper.vue'
 import GridSizePicker from '@/components/common/GridSizePicker.vue'
 
 const router = useRouter()
@@ -249,21 +255,50 @@ async function submit() {
 }
 .grid-size__rounds {
   display: flex;
+  align-items: center;
   justify-content: center;
+  gap: 0.85rem;
   padding-bottom: 1.1rem;
   border-bottom: 1px solid rgb(var(--c-accent-sky) / 0.14);
+}
+.seg-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgb(var(--c-text-muted) / 0.75);
+}
+.seg {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgb(var(--c-accent-sky) / 0.22);
+  background: rgb(var(--c-bg) / 0.5);
+}
+.seg__btn {
+  width: 2.2rem;
+  height: 2.2rem;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: rgb(var(--c-text-soft) / 0.8);
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.seg__btn:hover:not(.seg__btn--active) {
+  background: rgb(var(--c-accent-sky) / 0.12);
+}
+.seg__btn--active {
+  background: linear-gradient(135deg, rgb(var(--c-accent-sky)), rgb(var(--c-accent)));
+  color: rgb(var(--c-bg));
 }
 .grid-size__picker {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0.75rem;
-}
-.grid-size__hint {
-  font-size: 0.8rem;
-  color: rgb(var(--c-text-soft) / 0.65);
-  text-align: center;
-  max-width: 340px;
 }
 .grid-size__rounds-note {
   font-size: 0.82rem;
