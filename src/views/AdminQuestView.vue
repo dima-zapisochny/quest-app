@@ -21,17 +21,16 @@
       <transition name="save-pill">
         <span
           v-if="store.saveState !== 'idle'"
-          class="save-pill"
-          :class="`save-pill--${store.saveState}`"
+          class="save-icon"
+          :class="`save-icon--${store.saveState}`"
+          :title="store.saveState === 'saving' ? 'Сохраняем…' : 'Сохранено'"
+          :aria-label="store.saveState === 'saving' ? 'Сохраняем' : 'Сохранено'"
           aria-live="polite"
         >
-          <span class="save-pill__icon" aria-hidden="true">
-            <span v-if="store.saveState === 'saving'" class="save-pill__spinner"></span>
-            <svg v-else class="save-pill__check" viewBox="0 0 24 24">
-              <path d="M5 12.5l4.5 4.5L19 7" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
-          </span>
-          <span class="save-pill__text">{{ store.saveState === 'saving' ? 'Сохраняем…' : 'Сохранено' }}</span>
+          <span v-if="store.saveState === 'saving'" class="save-icon__spinner" aria-hidden="true"></span>
+          <svg v-else class="save-icon__check" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M5 12.5l4.5 4.5L19 7" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
         </span>
       </transition>
     </div>
@@ -381,60 +380,38 @@ function goBack() {
 </script>
 
 <style scoped>
-/* Индикатор автосохранения */
-.save-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  font-size: 0.82rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  padding: 0.35rem 0.85rem 0.35rem 0.4rem;
-  border-radius: var(--radius-pill);
-  border: 1px solid transparent;
-  transition: color 0.25s ease, background 0.25s ease, border-color 0.25s ease;
-}
-.save-pill__icon {
+/* Индикатор автосохранения — только иконка, без текста */
+.save-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1.35rem;
-  height: 1.35rem;
+  width: 1.6rem;
+  height: 1.6rem;
   border-radius: 50%;
   flex-shrink: 0;
 }
-.save-pill--saving {
-  color: rgb(var(--c-text-muted));
-  background: rgb(var(--c-text-muted) / 0.1);
-  border-color: rgb(var(--c-text-muted) / 0.22);
+.save-icon--saving {
+  background: rgb(var(--c-text-muted) / 0.14);
 }
-.save-pill--saving .save-pill__icon {
-  background: rgb(var(--c-text-muted) / 0.12);
-}
-.save-pill--saved {
-  color: rgb(var(--c-success));
-  background: linear-gradient(120deg, rgb(var(--c-success) / 0.18), rgb(var(--c-success) / 0.08));
-  border-color: rgb(var(--c-success) / 0.4);
-}
-.save-pill--saved .save-pill__icon {
+.save-icon--saved {
   background: rgb(var(--c-success));
   color: rgb(var(--c-white));
-  box-shadow: 0 2px 8px rgb(var(--c-success) / 0.4);
+  box-shadow: 0 2px 10px rgb(var(--c-success) / 0.45);
   animation: save-pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
-.save-pill__spinner {
-  width: 0.85rem;
-  height: 0.85rem;
+.save-icon__spinner {
+  width: 0.9rem;
+  height: 0.9rem;
   border-radius: 50%;
   border: 2px solid rgb(var(--c-text-muted) / 0.35);
   border-top-color: rgb(var(--c-text-muted));
   animation: save-spin 0.7s linear infinite;
 }
-.save-pill__check {
-  width: 0.85rem;
-  height: 0.85rem;
+.save-icon__check {
+  width: 1rem;
+  height: 1rem;
 }
-.save-pill__check path {
+.save-icon__check path {
   stroke-dasharray: 26;
   stroke-dashoffset: 26;
   animation: save-draw 0.4s ease 0.1s forwards;
@@ -449,7 +426,7 @@ function goBack() {
 @keyframes save-draw {
   to { stroke-dashoffset: 0; }
 }
-/* Появление/скрытие пилюли */
+/* Появление/скрытие иконки */
 .save-pill-enter-active,
 .save-pill-leave-active {
   transition: opacity 0.25s ease, transform 0.25s ease;
@@ -457,7 +434,7 @@ function goBack() {
 .save-pill-enter-from,
 .save-pill-leave-to {
   opacity: 0;
-  transform: translateX(-6px);
+  transform: scale(0.6);
 }
 
 .admin-quest-view {
@@ -486,7 +463,8 @@ function goBack() {
 .toolbar-delete-btn {
   justify-self: center;
   min-width: 240px;
-  margin-top: 0.5rem;
+  /* отступ от описания до кнопки = паддинг блока (минус gap грида) */
+  margin-top: calc(clamp(1rem, 3vw, 1.8rem) - 0.6rem);
 }
 
 .toolbar-fields {
@@ -544,10 +522,10 @@ function goBack() {
   align-self: center;
   display: inline-flex;
   align-items: center;
-  gap: 0.9rem;
+  gap: 1.15rem;
   flex-wrap: wrap;
   justify-content: center;
-  padding: 0.5rem 1.3rem;
+  padding: 0.85rem 1.9rem;
   border-radius: var(--radius-pill);
   background: rgb(var(--c-bg) / 0.72);
   border: 1px solid rgb(var(--c-accent-sky) / 0.2);
