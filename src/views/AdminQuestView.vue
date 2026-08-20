@@ -616,6 +616,7 @@ function goBack() {
 }
 
 .round-tab {
+  min-width: 6.25rem;
   padding: 0.55rem 1.3rem;
   border-radius: var(--radius-pill);
   border: 1px solid transparent;
@@ -624,6 +625,7 @@ function goBack() {
   font-size: 0.88rem;
   font-weight: 600;
   letter-spacing: 0.02em;
+  text-align: center;
   cursor: pointer;
   transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
@@ -645,8 +647,10 @@ function goBack() {
   background: transparent;
   color: rgb(var(--c-text-soft) / 0.7);
   font-weight: 500;
+  font-size: 1.1rem;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.35rem;
 }
 .round-tab--add:hover {
