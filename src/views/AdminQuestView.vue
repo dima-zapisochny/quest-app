@@ -25,9 +25,7 @@
           class="toolbar-textarea"
           placeholder="Короткое описание для ведущего и игроков"
         ></textarea>
-      </div>
 
-      <aside class="toolbar-side">
         <div class="toolbar-stats">
           <span class="stat-chip">
             <span class="stat-chip__label">Раундов</span>
@@ -55,7 +53,7 @@
           </transition>
         </div>
         <button
-          class="danger-btn"
+          class="danger-btn toolbar-delete-btn"
           type="button"
           title="Удалить квест"
           aria-label="Удалить квест"
@@ -63,7 +61,7 @@
         >
           Удалить квест
         </button>
-      </aside>
+      </div>
     </header>
 
     <section class="rounds-panel">
@@ -483,12 +481,9 @@ function goBack() {
   backdrop-filter: blur(12px);
 }
 
-.toolbar-side {
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0.9rem;
+.toolbar-delete-btn {
+  justify-self: start;
+  margin-top: 0.2rem;
 }
 
 .toolbar-fields {
@@ -546,7 +541,8 @@ function goBack() {
   align-items: center;
   gap: 0.6rem;
   flex-wrap: wrap;
-  justify-content: flex-end;
+  justify-content: flex-start;
+  margin-top: 0.4rem;
 }
 
 .stat-chip {
@@ -597,7 +593,7 @@ function goBack() {
   background: rgb(var(--c-bg) / 0.72);
   border-radius: 24px;
   border: 1px solid rgb(var(--c-accent-sky) / 0.16);
-  padding: clamp(1.35rem, 3.5vw, 2.25rem);
+  padding: clamp(1rem, 3vw, 1.8rem);
   display: flex;
   flex-direction: column;
   gap: 1.6rem;
@@ -630,18 +626,28 @@ function goBack() {
 }
 
 .round-tab--active {
-  border-color: rgb(var(--c-accent) / 0.55);
-  background: rgb(var(--c-accent) / 0.18);
-  color: rgb(var(--c-accent-soft));
-  box-shadow: 0 12px 24px rgb(var(--c-accent) / 0.2);
+  border-color: transparent;
+  background: linear-gradient(135deg, rgb(var(--c-accent-sky)), rgb(var(--c-accent)));
+  color: rgb(var(--c-bg));
+  box-shadow: none;
+}
+.round-tab--active:hover {
+  transform: none;
 }
 
 .round-tab--add {
   border-style: dashed;
-  color: rgb(var(--c-accent-soft));
+  border-color: rgb(var(--c-accent-sky) / 0.3);
+  background: transparent;
+  color: rgb(var(--c-text-soft) / 0.7);
+  font-weight: 500;
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.35rem;
+}
+.round-tab--add:hover {
+  color: rgb(var(--c-accent-soft));
+  border-color: rgb(var(--c-accent-sky) / 0.5);
 }
 
 .round-tab--add:disabled {
@@ -710,11 +716,6 @@ function goBack() {
   margin: 0;
 }
 
-@media (max-width: 1024px) {
-  .rounds-panel {
-    padding: 1rem;
-  }
-}
 
 @media (max-width: 768px) {
   .admin-quest-view {
@@ -724,21 +725,6 @@ function goBack() {
 
   .quest-toolbar {
     border-radius: 18px;
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .toolbar-side {
-    width: 100%;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-  }
-
-  .toolbar-stats {
-    justify-content: flex-start;
   }
 
   .toolbar-input {
@@ -793,8 +779,8 @@ function goBack() {
   }
 
   .rounds-panel {
-    padding: 0.75rem;
-    border-radius: 18px;
+    padding: 0.85rem;
+    border-radius: 14px;
     gap: 0.75rem;
   }
 
@@ -822,8 +808,8 @@ function goBack() {
   }
 
   .rounds-panel {
-    padding: 0.6rem;
-    border-radius: 14px;
+    padding: 0.7rem;
+    border-radius: 12px;
   }
 }
 
@@ -854,8 +840,8 @@ function goBack() {
   }
 
   .rounds-panel {
-    padding: 0.5rem;
-    border-radius: 12px;
+    padding: 0.6rem;
+    border-radius: 10px;
   }
 }
 </style>

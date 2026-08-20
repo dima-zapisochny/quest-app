@@ -521,7 +521,7 @@ watch(() => props.round.id, closeModal)
 /* --- Футер --- */
 .board-footer {
   display: flex;
-  justify-content: flex-end;
+  justify-content: flex-start;
   margin-top: 0.75rem;
 }
 .board-delete-round {
