@@ -35,29 +35,32 @@
               <span class="stat-chip__label">Вопросов</span>
               <span class="stat-chip__value">{{ questStats.totalQuestions }}</span>
             </span>
-            <span
-              v-if="store.saveState !== 'idle'"
-              class="save-indicator"
-              :class="`save-indicator--${store.saveState}`"
-              aria-live="polite"
+            <transition name="save-pill">
+              <span
+                v-if="store.saveState !== 'idle'"
+                class="save-pill"
+                :class="`save-pill--${store.saveState}`"
+                aria-live="polite"
+              >
+                <span class="save-pill__icon" aria-hidden="true">
+                  <span v-if="store.saveState === 'saving'" class="save-pill__spinner"></span>
+                  <svg v-else class="save-pill__check" viewBox="0 0 24 24">
+                    <path d="M5 12.5l4.5 4.5L19 7" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                </span>
+                <span class="save-pill__text">{{ store.saveState === 'saving' ? 'Сохраняем…' : 'Сохранено' }}</span>
+              </span>
+            </transition>
+            <button
+              class="toolbar-delete-text"
+              type="button"
+              title="Удалить квест"
+              aria-label="Удалить квест"
+              @click="handleDeleteQuest"
             >
-              <template v-if="store.saveState === 'saving'">
-                <span class="save-indicator__spinner" aria-hidden="true"></span> Сохранение…
-              </template>
-              <template v-else>
-                <span aria-hidden="true">✓</span> Сохранено
-              </template>
-            </span>
+              Удалить квест
+            </button>
           </div>
-          <button
-            class="toolbar-delete-text"
-            type="button"
-            title="Удалить квест"
-            aria-label="Удалить квест"
-            @click="handleDeleteQuest"
-          >
-            Удалить
-          </button>
         </div>
       </div>
     </header>
@@ -377,28 +380,48 @@ function goBack() {
 </script>
 
 <style scoped>
-.save-indicator {
+/* Индикатор автосохранения */
+.save-pill {
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
-  font-size: 0.85rem;
-  letter-spacing: 0.04em;
-  padding: 0.5rem 1rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 0.35rem 0.85rem 0.35rem 0.4rem;
   border-radius: var(--radius-pill);
   border: 1px solid transparent;
-  transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+  transition: color 0.25s ease, background 0.25s ease, border-color 0.25s ease;
 }
-.save-indicator--saving {
+.save-pill__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.save-pill--saving {
   color: rgb(var(--c-text-muted));
+  background: rgb(var(--c-text-muted) / 0.1);
+  border-color: rgb(var(--c-text-muted) / 0.22);
+}
+.save-pill--saving .save-pill__icon {
   background: rgb(var(--c-text-muted) / 0.12);
-  border-color: rgb(var(--c-text-muted) / 0.25);
 }
-.save-indicator--saved {
+.save-pill--saved {
   color: rgb(var(--c-success));
-  background: rgb(var(--c-success) / 0.14);
-  border-color: rgb(var(--c-success) / 0.35);
+  background: linear-gradient(120deg, rgb(var(--c-success) / 0.18), rgb(var(--c-success) / 0.08));
+  border-color: rgb(var(--c-success) / 0.4);
 }
-.save-indicator__spinner {
+.save-pill--saved .save-pill__icon {
+  background: rgb(var(--c-success));
+  color: rgb(var(--c-white));
+  box-shadow: 0 2px 8px rgb(var(--c-success) / 0.4);
+  animation: save-pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.save-pill__spinner {
   width: 0.85rem;
   height: 0.85rem;
   border-radius: 50%;
@@ -406,8 +429,34 @@ function goBack() {
   border-top-color: rgb(var(--c-text-muted));
   animation: save-spin 0.7s linear infinite;
 }
+.save-pill__check {
+  width: 0.85rem;
+  height: 0.85rem;
+}
+.save-pill__check path {
+  stroke-dasharray: 26;
+  stroke-dashoffset: 26;
+  animation: save-draw 0.4s ease 0.1s forwards;
+}
 @keyframes save-spin {
   to { transform: rotate(360deg); }
+}
+@keyframes save-pop {
+  0% { transform: scale(0.4); }
+  100% { transform: scale(1); }
+}
+@keyframes save-draw {
+  to { stroke-dashoffset: 0; }
+}
+/* Появление/скрытие пилюли */
+.save-pill-enter-active,
+.save-pill-leave-active {
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.save-pill-enter-from,
+.save-pill-leave-to {
+  opacity: 0;
+  transform: translateX(-6px);
 }
 
 .admin-quest-view {
@@ -494,6 +543,7 @@ function goBack() {
 
 .toolbar-stats {
   display: flex;
+  align-items: center;
   gap: 0.6rem;
   flex-wrap: wrap;
   margin-top: 0.4rem;
@@ -514,29 +564,27 @@ function goBack() {
   opacity: 0.85;
 }
 .stat-chip__value {
-  font-size: 1.2rem;
+  font-size: 0.95rem;
   font-weight: 700;
   letter-spacing: 0.02em;
 }
 
 .toolbar-delete-text {
-  margin-top: 0.8rem;
-  align-self: flex-start;
+  margin-left: auto;
   display: inline-flex;
   align-items: center;
-  padding: 0.6rem 1.45rem;
-  line-height: 1.3;
-  border-radius: 16px;
-  border: 1px solid rgb(var(--c-danger) / 0.45);
-  background: rgb(var(--c-danger) / 0.12);
+  padding: 0.45rem 1.1rem;
+  line-height: 1.2;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgb(var(--c-danger) / 0.4);
+  background: rgb(var(--c-danger) / 0.1);
   color: rgb(var(--c-danger-soft));
-  font-size: 0.88rem;
+  font-size: 0.82rem;
   font-weight: 600;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.02em;
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
   width: auto;
-  justify-self: start;
 }
 
 .toolbar-delete-text:hover {
@@ -570,12 +618,12 @@ function goBack() {
 }
 
 .round-tab {
-  padding: 0.7rem 1.6rem;
+  padding: 0.6rem 1.4rem;
   border-radius: var(--radius-pill);
   border: 1px solid rgb(var(--c-accent-sky) / 0.2);
   background: rgb(var(--c-bg) / 0.55);
   color: rgb(var(--c-text-soft) / 0.8);
-  font-size: 1rem;
+  font-size: 0.88rem;
   font-weight: 600;
   letter-spacing: 0.02em;
   cursor: pointer;
