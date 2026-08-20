@@ -9,7 +9,7 @@
         :max-questions="5"
         @select="onGridSelect"
       />
-      <span v-if="isBuildingBoard" class="mini-loader" aria-label="Создание доски"></span>
+      <span v-if="isBuildingBoard" class="mini-loader" :aria-label="t('editor.buildingBoard')"></span>
     </div>
 
     <!-- Игровая доска раунда: категории-колонки + плитки-вопросы -->
@@ -24,15 +24,15 @@
             <input
               :value="category.title"
               class="board-col__title"
-              :placeholder="`Категория ${ci + 1}`"
-              aria-label="Название категории"
+              :placeholder="t('editor.category', { n: ci + 1 })"
+              :aria-label="t('editor.categoryNameAria')"
               @input="onCategoryTitle(category.id, $event)"
             />
             <button
               type="button"
               class="board-col__del"
-              title="Удалить категорию"
-              aria-label="Удалить категорию"
+              :title="t('editor.deleteCategory')"
+              :aria-label="t('editor.deleteCategory')"
               @click="removeCategory(category.id)"
             >✕</button>
           </div>
@@ -43,7 +43,7 @@
               :key="question.id"
               type="button"
               :class="['board-tile', { 'board-tile--filled': isFilled(question) }]"
-              :title="isFilled(question) ? 'Вопрос заполнен' : 'Вопрос ещё не заполнен'"
+              :title="isFilled(question) ? t('editor.questionFilled') : t('editor.questionEmpty')"
               @click="openQuestion(category.id, question.id)"
             >
               <span class="board-tile__value">{{ question.value }}</span>
@@ -54,7 +54,7 @@
               type="button"
               class="board-tile board-tile--add"
               :disabled="addingCategoryId === category.id || isBusy"
-              aria-label="Добавить вопрос"
+              :aria-label="t('editor.addQuestion')"
               @click="addQuestion(category.id)"
             >+</button>
           </div>
@@ -65,8 +65,8 @@
           type="button"
           class="board-col board-col--add"
           :disabled="isBusy"
-          title="Добавить категорию"
-          aria-label="Добавить категорию"
+          :title="t('editor.addCategory')"
+          :aria-label="t('editor.addCategory')"
           @click="addCategory"
         >
           <span class="board-col-add__head">
@@ -86,12 +86,12 @@
           <div class="q-modal" role="dialog" aria-modal="true">
             <header class="q-modal__head">
               <span class="q-modal__title">
-                {{ editingCategoryTitle }} · {{ editingQuestion.value }} баллов
+                {{ editingCategoryTitle }} · {{ t('editor.points', { value: editingQuestion.value }) }}
               </span>
               <button
                 type="button"
                 class="q-modal__close"
-                aria-label="Закрыть"
+                :aria-label="t('common.close')"
                 @click="closeModal"
               >✕</button>
             </header>
@@ -107,7 +107,7 @@
               />
             </div>
             <footer class="q-modal__foot">
-              <button type="button" class="q-modal__done" @click="closeModal">Готово</button>
+              <button type="button" class="q-modal__done" @click="closeModal">{{ t('editor.done') }}</button>
             </footer>
           </div>
         </div>
@@ -116,9 +116,9 @@
 
     <ConfirmDialog
       :show="pendingDeleteCategoryId !== null"
-      title="Удалить категорию?"
-      message="Категория и все её вопросы будут удалены."
-      confirm-label="Удалить"
+      :title="t('editor.deleteCategoryTitle')"
+      :message="t('editor.deleteCategoryBody')"
+      :confirm-label="t('common.delete')"
       confirm-variant="danger"
       @confirm="confirmDeleteCategory"
       @cancel="cancelDeleteCategory"
@@ -128,6 +128,7 @@
 
 <script setup lang="ts">
 import { computed, ref, watch, nextTick } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useQuizStore } from '@/store/quizStore'
 import AdminQuestionRow from './AdminQuestionRow.vue'
 import GridSizePicker from '@/components/common/GridSizePicker.vue'
@@ -141,6 +142,7 @@ interface Props {
 
 const props = defineProps<Props>()
 
+const { t } = useI18n()
 const store = useQuizStore()
 
 const categories = computed(() => props.round.categories ?? [])

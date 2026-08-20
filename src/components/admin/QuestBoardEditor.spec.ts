@@ -73,6 +73,8 @@ function mountWithStore() {
 describe('QuestBoardEditor', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
+    // Фиксируем язык, чтобы проверки текста не зависели от локали окружения.
+    i18n.global.locale.value = 'ru'
     const store = useQuizStore()
     store.quests = JSON.parse(JSON.stringify([questTemplate]))
   })
