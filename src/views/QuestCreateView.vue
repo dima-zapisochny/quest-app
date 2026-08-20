@@ -56,18 +56,17 @@
             <div class="grid-size__rounds">
               <NumberStepper v-model="rounds" :min="1" :max="5" label="Раунды" />
             </div>
-            <div class="grid-size__row">
-              <div class="grid-size__steppers">
-                <NumberStepper v-model="categories" :min="1" :max="8" label="Категории" block />
-                <span class="grid-size__times" aria-hidden="true">×</span>
-                <NumberStepper v-model="questions" :min="1" :max="10" label="Вопросы" block />
-              </div>
-              <div class="grid-size__preview">
-                <div class="grid-size__mini" :style="miniStyle" aria-hidden="true">
-                  <span v-for="n in categories * questions" :key="n" class="grid-size__cell"></span>
-                </div>
-                <span class="grid-size__total">{{ boardSummary }}</span>
-              </div>
+            <div class="grid-size__picker">
+              <span class="grid-size__hint">
+                Наведите и выберите размер доски: категории — по горизонтали, вопросы — по вертикали
+              </span>
+              <GridSizePicker
+                v-model:categories="categories"
+                v-model:questions="questions"
+                :max-categories="8"
+                :max-questions="10"
+              />
+              <span v-if="rounds > 1" class="grid-size__rounds-note">× {{ rounds }} {{ roundsWord }}</span>
             </div>
           </div>
 
@@ -95,6 +94,7 @@ import { useGameSessionStore } from '@/store/gameSessionStore'
 import AppHeader from '@/components/common/AppHeader.vue'
 import BaseCard from '@/components/common/BaseCard.vue'
 import NumberStepper from '@/components/common/NumberStepper.vue'
+import GridSizePicker from '@/components/common/GridSizePicker.vue'
 
 const router = useRouter()
 const quizStore = useQuizStore()
@@ -112,23 +112,13 @@ const error = ref('')
 const isCreating = ref(false)
 const titleInput = ref<HTMLInputElement | null>(null)
 
-const miniStyle = computed(() => ({
-  gridTemplateColumns: `repeat(${categories.value}, 1fr)`
-}))
-
-function plural(n: number, forms: [string, string, string]) {
+const roundsWord = computed(() => {
+  const n = rounds.value
   const mod10 = n % 10
   const mod100 = n % 100
-  if (mod10 === 1 && mod100 !== 11) return forms[0]
-  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return forms[1]
-  return forms[2]
-}
-
-const boardSummary = computed(() => {
-  const tiles = categories.value * questions.value
-  const tilesLabel = `${tiles} ${plural(tiles, ['плитка', 'плитки', 'плиток'])}`
-  if (rounds.value === 1) return tilesLabel
-  return `${rounds.value} ${plural(rounds.value, ['раунд', 'раунда', 'раундов'])} · ${tilesLabel}`
+  if (mod10 === 1 && mod100 !== 11) return 'раунд'
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return 'раунда'
+  return 'раундов'
 })
 
 onMounted(() => {
@@ -263,51 +253,22 @@ async function submit() {
   padding-bottom: 1.1rem;
   border-bottom: 1px solid rgb(var(--c-accent-sky) / 0.14);
 }
-.grid-size__row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1.25rem;
-  flex-wrap: wrap;
-}
-.grid-size__steppers {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-.grid-size__times {
-  font-size: 1.3rem;
-  font-weight: 600;
-  color: rgb(var(--c-text-soft) / 0.6);
-  align-self: flex-end;
-  padding-bottom: 0.4rem;
-}
-.grid-size__preview {
+.grid-size__picker {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.75rem;
 }
-.grid-size__mini {
-  display: grid;
-  gap: 3px;
-  width: clamp(88px, 24vw, 128px);
+.grid-size__hint {
+  font-size: 0.8rem;
+  color: rgb(var(--c-text-soft) / 0.65);
+  text-align: center;
+  max-width: 340px;
 }
-.grid-size__cell {
-  aspect-ratio: 1;
-  border-radius: 2px;
-  background: linear-gradient(135deg, rgb(var(--c-accent-sky) / 0.5), rgb(var(--c-accent) / 0.4));
-}
-.grid-size__total {
-  font-size: 0.78rem;
+.grid-size__rounds-note {
+  font-size: 0.82rem;
   font-weight: 600;
-  letter-spacing: 0.04em;
   color: rgb(var(--c-accent-soft));
-}
-@media (max-width: 420px) {
-  .grid-size {
-    justify-content: center;
-  }
 }
 
 .field-error {

@@ -30,13 +30,6 @@
           :key="category.id"
           class="board-col"
         >
-          <button
-            type="button"
-            class="board-col__del"
-            title="Удалить категорию"
-            aria-label="Удалить категорию"
-            @click="removeCategory(category.id)"
-          >✕</button>
           <div class="board-col__head">
             <input
               :value="category.title"
@@ -45,6 +38,13 @@
               aria-label="Название категории"
               @input="onCategoryTitle(category.id, $event)"
             />
+            <button
+              type="button"
+              class="board-col__del"
+              title="Удалить категорию"
+              aria-label="Удалить категорию"
+              @click="removeCategory(category.id)"
+            >✕</button>
           </div>
 
           <div class="board-col__tiles">
@@ -75,13 +75,18 @@
         <button
           v-if="categories.length < 8"
           type="button"
-          class="board-col--add"
+          class="board-col board-col--add"
           :disabled="isBusy"
           title="Добавить категорию"
           aria-label="Добавить категорию"
           @click="addCategory"
         >
-          <span class="board-col-add__plus">+</span>
+          <span class="board-col-add__head">
+            <span class="board-col-add__plus">+</span>
+          </span>
+          <span class="board-col-add__tiles" aria-hidden="true">
+            <span v-for="n in 3" :key="n" class="board-col-add__tile"></span>
+          </span>
         </button>
       </div>
     </div>
@@ -358,17 +363,21 @@ watch(() => props.round.id, closeModal)
 }
 
 .board-col__head {
-  display: block;
+  position: relative;
+  display: flex;
+  align-items: center;
 }
 .board-col__title {
   width: 100%;
   box-sizing: border-box;
-  padding: 0.55rem 0.7rem;
+  /* справа место под крестик */
+  padding: 0.55rem 2rem 0.55rem 0.9rem;
   border: 1px solid rgb(var(--c-blue) / 0.28);
   border-radius: 12px;
   font-size: 0.9rem;
   font-weight: 700;
   text-align: center;
+  text-overflow: ellipsis;
   background: linear-gradient(135deg, rgb(var(--c-accent-sky) / 0.18), rgb(var(--c-blue) / 0.14));
   color: rgb(var(--c-text));
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
@@ -382,36 +391,28 @@ watch(() => props.round.id, closeModal)
   border-color: rgb(var(--c-accent-sky) / 0.6);
   box-shadow: 0 0 0 3px rgb(var(--c-accent-sky) / 0.22);
 }
-/* Крестик появляется в углу колонки только при наведении/фокусе */
+/* Крестик внутри плитки категории справа: приглушён, краснеет при наведении */
 .board-col__del {
   position: absolute;
-  top: -7px;
-  right: -7px;
+  right: 0.45rem;
+  top: 50%;
+  transform: translateY(-50%);
   z-index: 2;
-  width: 1.35rem;
-  height: 1.35rem;
+  width: 1.4rem;
+  height: 1.4rem;
   padding: 0;
-  border-radius: 50%;
-  border: 1px solid rgb(var(--c-danger) / 0.5);
-  background: rgb(var(--c-danger) / 0.9);
-  color: rgb(var(--c-white));
-  font-size: 0.7rem;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: rgb(var(--c-text-soft) / 0.45);
+  font-size: 0.85rem;
   line-height: 1;
   cursor: pointer;
-  opacity: 0;
-  transform: scale(0.7);
-  box-shadow: 0 3px 8px rgb(var(--c-bg-deep) / 0.5);
-  transition: opacity 0.15s ease, transform 0.15s ease, background 0.15s ease;
-}
-.board-col:hover .board-col__del,
-.board-col:focus-within .board-col__del,
-.board-col__del:focus-visible {
-  opacity: 1;
-  transform: scale(1);
+  transition: color 0.15s ease, background 0.15s ease;
 }
 .board-col__del:hover {
-  background: rgb(var(--c-danger));
-  transform: scale(1.1);
+  color: rgb(var(--c-danger-soft));
+  background: rgb(var(--c-danger) / 0.15);
 }
 
 .board-col__tiles {
@@ -477,33 +478,52 @@ watch(() => props.round.id, closeModal)
   cursor: not-allowed;
 }
 
-/* Узкая полоса «добавить категорию» */
+/* Колонка-призрак «добавить категорию»: имитирует категорию, пунктир, «+» по центру */
 .board-col--add {
-  flex: 0 0 44px;
-  align-self: stretch;
-  min-height: 96px;
-  border-radius: 12px;
-  border: 1px dashed rgb(var(--c-accent-sky) / 0.3);
-  background: rgb(var(--c-bg) / 0.3);
-  color: rgb(var(--c-accent-soft) / 0.8);
+  padding: 0;
+  background: transparent;
+  border: none;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  color: rgb(var(--c-accent-soft) / 0.85);
+  transition: color 0.2s ease;
 }
 .board-col--add:hover:not(:disabled) {
-  background: rgb(var(--c-accent-sky) / 0.12);
-  border-color: rgb(var(--c-accent-sky) / 0.55);
   color: rgb(var(--c-accent-soft));
+}
+.board-col--add:hover:not(:disabled) .board-col-add__head {
+  border-color: rgb(var(--c-accent-sky) / 0.6);
+  background: rgb(var(--c-accent-sky) / 0.12);
 }
 .board-col--add:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
+.board-col-add__head {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-height: 2.5rem;
+  border: 1px dashed rgb(var(--c-accent-sky) / 0.4);
+  border-radius: 12px;
+  background: rgb(var(--c-bg) / 0.3);
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
 .board-col-add__plus {
-  font-size: 1.6rem;
+  font-size: 1.5rem;
   line-height: 1;
+}
+.board-col-add__tiles {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-top: 0.6rem;
+}
+.board-col-add__tile {
+  min-height: 58px;
+  border-radius: 12px;
+  border: 1px dashed rgb(var(--c-accent-sky) / 0.18);
+  background: rgb(var(--c-bg) / 0.2);
 }
 
 /* --- Футер --- */
