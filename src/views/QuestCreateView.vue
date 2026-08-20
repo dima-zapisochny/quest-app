@@ -69,8 +69,8 @@
               <GridSizePicker
                 v-model:categories="categories"
                 v-model:questions="questions"
-                :max-categories="8"
-                :max-questions="8"
+                :max-categories="5"
+                :max-questions="5"
                 :suffix="`${rounds} ${roundsWord}`"
               />
             </div>

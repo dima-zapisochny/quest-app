@@ -374,10 +374,10 @@ function goBack() {
 .save-indicator {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  font-size: 0.72rem;
+  gap: 0.45rem;
+  font-size: 0.85rem;
   letter-spacing: 0.04em;
-  padding: 0.3rem 0.7rem;
+  padding: 0.5rem 1rem;
   border-radius: var(--radius-pill);
   border: 1px solid transparent;
   transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease;
@@ -393,8 +393,8 @@ function goBack() {
   border-color: rgb(var(--c-success) / 0.35);
 }
 .save-indicator__spinner {
-  width: 0.7rem;
-  height: 0.7rem;
+  width: 0.85rem;
+  height: 0.85rem;
   border-radius: 50%;
   border: 2px solid rgb(var(--c-text-muted) / 0.35);
   border-top-color: rgb(var(--c-text-muted));
@@ -497,8 +497,8 @@ function goBack() {
   background: rgb(var(--c-accent-sky) / 0.15);
   color: rgb(var(--c-accent-soft));
   border-radius: 999px;
-  padding: 0.35rem 0.85rem;
-  font-size: 0.78rem;
+  padding: 0.5rem 1.15rem;
+  font-size: 0.9rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
 }

@@ -46,8 +46,8 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  maxCategories: 8,
-  maxQuestions: 10
+  maxCategories: 5,
+  maxQuestions: 5
 })
 
 const emit = defineEmits<{
@@ -104,8 +104,8 @@ function apply(c: number, r: number) {
   gap: 4px;
 }
 .gp__header {
-  height: 8px;
-  border-radius: 3px 3px 1px 1px;
+  height: 12px;
+  border-radius: 4px 4px 1px 1px;
   background: rgb(var(--c-accent-sky) / 0.12);
   transition: background 0.12s ease;
 }
@@ -118,7 +118,7 @@ function apply(c: number, r: number) {
   gap: 4px;
 }
 .gp__cell {
-  width: clamp(22px, 4vw, 32px);
+  width: clamp(34px, 6vw, 48px);
   aspect-ratio: 1;
   padding: 0;
   border: 1px solid rgb(var(--c-accent-sky) / 0.22);

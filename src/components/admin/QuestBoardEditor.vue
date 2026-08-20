@@ -4,9 +4,9 @@
     <div v-if="categories.length === 0" class="board-empty">
       <p>В раунде пока нет категорий. Создайте доску сразу или добавьте первую категорию.</p>
       <div class="quick-board">
-        <NumberStepper v-model="presetCategories" :min="1" :max="8" label="Категории" block />
+        <NumberStepper v-model="presetCategories" :min="1" :max="5" label="Категории" block />
         <span class="quick-board__x" aria-hidden="true">×</span>
-        <NumberStepper v-model="presetQuestions" :min="1" :max="10" label="Вопросы" block />
+        <NumberStepper v-model="presetQuestions" :min="1" :max="5" label="Вопросы" block />
         <button
           type="button"
           class="quick-board__btn"
@@ -57,22 +57,10 @@
               @click="openQuestion(category.id, question.id)"
             >
               <span class="board-tile__value">{{ question.value }}</span>
-              <span v-if="isFilled(question)" class="board-tile__badge" aria-hidden="true">
-                <svg viewBox="0 0 16 16">
-                  <path
-                    d="M3.5 8.5l3 3 6-7"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-              </span>
             </button>
 
             <button
-              v-if="category.questions.length < 10"
+              v-if="category.questions.length < 5"
               type="button"
               class="board-tile board-tile--add"
               :disabled="addingCategoryId === category.id || isBusy"
@@ -83,7 +71,7 @@
         </div>
 
         <button
-          v-if="categories.length < 8"
+          v-if="categories.length < 5"
           type="button"
           class="board-col board-col--add"
           :disabled="isBusy"
@@ -190,7 +178,7 @@ const isBuildingBoard = ref(false)
 const isBusy = computed(() => isAddingCategory.value || isBuildingBoard.value)
 
 async function addCategory() {
-  if (isAddingCategory.value || categories.value.length >= 8) return
+  if (isAddingCategory.value || categories.value.length >= 5) return
   isAddingCategory.value = true
   try {
     await store.addCategory(props.questId, props.round.id, '')
@@ -201,7 +189,7 @@ async function addCategory() {
 
 async function addQuestion(categoryId: string) {
   const category = categories.value.find(c => c.id === categoryId)
-  if (!category || category.questions.length >= 10 || addingCategoryId.value) return
+  if (!category || category.questions.length >= 5 || addingCategoryId.value) return
   addingCategoryId.value = categoryId
   try {
     const value = 100 * (category.questions.length + 1)
@@ -263,7 +251,7 @@ async function handleAddNext() {
   const categoryId = editingCategoryId.value
   if (!categoryId) return
   const category = categories.value.find(c => c.id === categoryId)
-  if (!category || category.questions.length >= 10) return
+  if (!category || category.questions.length >= 5) return
   const value = 100 * (category.questions.length + 1)
   const newId = await store.addQuestion(props.questId, props.round.id, categoryId, value, '', '')
   if (newId) {
@@ -464,25 +452,6 @@ watch(() => props.round.id, closeModal)
 }
 .board-tile__value {
   line-height: 1;
-}
-/* Аккуратный бейдж-галочка на заполненной плитке */
-.board-tile__badge {
-  position: absolute;
-  top: 0.4rem;
-  right: 0.4rem;
-  width: 1rem;
-  height: 1rem;
-  border-radius: 50%;
-  background: rgb(var(--c-success));
-  color: rgb(var(--c-white));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 1px 3px rgb(var(--c-bg-deep) / 0.45);
-}
-.board-tile__badge svg {
-  width: 0.65rem;
-  height: 0.65rem;
 }
 .board-tile--add {
   border-style: dashed;
