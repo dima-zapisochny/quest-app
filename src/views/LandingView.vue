@@ -596,7 +596,7 @@ watch(() => route.path, (newPath) => {
 .landing-brand p {
   margin: 0.5rem 0 0;
   color: rgb(var(--c-text-soft) / 0.9);
-  font-family: 'Kalam', 'Nunito', cursive;
+  font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: clamp(1.1rem, 2.2vw, 1.35rem);
 }
 
@@ -657,7 +657,7 @@ watch(() => route.path, (newPath) => {
 .brand-subtitle {
   margin: 0.85rem 0 0;
   color: rgb(var(--c-text-soft) / 0.9);
-  font-family: 'Kalam', 'Nunito', cursive;
+  font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: clamp(0.95rem, 2vw, 1.2rem);
   font-weight: 500;
   opacity: 0;
@@ -746,7 +746,7 @@ watch(() => route.path, (newPath) => {
 
 .actions .divider {
   text-align: center;
-  font-family: 'Kalam', 'Nunito', cursive;
+  font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
   color: rgb(var(--c-text-soft) / 0.85);
   letter-spacing: 0.12em;
 }
