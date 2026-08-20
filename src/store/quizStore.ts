@@ -414,7 +414,7 @@ export const useQuizStore = defineStore('quiz', () => {
     if (!Array.isArray(round.categories)) {
       round.categories = []
     }
-    if (round.categories.length >= 8) throw new Error('Maximum 8 categories per round')
+    if (round.categories.length >= 5) throw new Error('Maximum 5 categories per round')
     const newCategory: Category = {
       id: generateId('category'),
       title,
@@ -470,7 +470,7 @@ export const useQuizStore = defineStore('quiz', () => {
     if (!Array.isArray(category.questions)) {
       category.questions = []
     }
-    if (category.questions.length >= 10) throw new Error('Maximum 10 questions per category')
+    if (category.questions.length >= 5) throw new Error('Maximum 5 questions per category')
 
     const newQuestion: Question = {
       id: generateId('question'),
@@ -508,16 +508,23 @@ export const useQuizStore = defineStore('quiz', () => {
     return firstCategoryId
   }
 
-  /** Создаёт квест сразу с готовой доской (раунд 1 + сетка N×M). Возвращает questId. */
+  /**
+   * Создаёт квест сразу с готовой доской: `rounds` раундов, в каждом сетка N×M.
+   * Возвращает questId.
+   */
   async function createQuestWithBoard(
     title: string,
     description: string,
     categories: number,
-    questions: number
+    questions: number,
+    rounds = 1
   ): Promise<string> {
     const questId = await createQuest(title, description)
-    const roundId = await addRound(questId, '')
-    if (roundId) await buildBoard(questId, roundId, categories, questions)
+    const roundCount = Math.max(1, Math.min(5, rounds))
+    for (let r = 0; r < roundCount; r++) {
+      const roundId = await addRound(questId, '')
+      if (roundId) await buildBoard(questId, roundId, categories, questions)
+    }
     // Сохраняем доску немедленно: иначе loadQuestFull в редакторе перезапишет
     // ещё не сохранённый (in-memory) квест пустой версией из БД.
     await flushSave()

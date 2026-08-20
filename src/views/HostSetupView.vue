@@ -567,7 +567,12 @@ async function onImportQuestFile(event: Event) {
   margin-right: -0.5rem;
   padding-bottom: 1rem;
   min-height: 0;
-
+  /* Занимает всё свободное место между шапкой и кнопкой «Начать игру»,
+     список внутри скроллится — без наложения на кнопку. */
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .quest-selection::-webkit-scrollbar {
@@ -622,9 +627,8 @@ async function onImportQuestFile(event: Event) {
   padding-right: 0.75rem;
   scrollbar-width: thin;
   scrollbar-color: rgb(var(--c-text-muted) / 0.6) transparent;
-  flex: 1;
+  flex: 1 1 auto;
   min-height: 0;
-  max-height: calc(2 * (120px + 2 * 2rem) + 1 * 2rem);
 }
 
 .quests-grid::-webkit-scrollbar {
@@ -1230,7 +1234,6 @@ async function onImportQuestFile(event: Event) {
 
   .quests-grid {
     gap: 1rem;
-    max-height: calc(2 * (80px + 2 * 1.25rem) + 1 * 1rem);
   }
 
   .section-title h2 {
@@ -1308,7 +1311,6 @@ async function onImportQuestFile(event: Event) {
 
   .quests-grid {
     gap: 0.75rem;
-    max-height: calc(2 * (72px + 2 * 1rem) + 1 * 0.75rem);
   }
 
   .primary,
@@ -1448,8 +1450,6 @@ async function onImportQuestFile(event: Event) {
 
   .quests-grid {
     grid-template-columns: 1fr;
-    max-height: none;
-    overflow: visible;
     padding-right: 0;
     margin-top: 1.2rem;
   }

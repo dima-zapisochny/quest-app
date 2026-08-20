@@ -53,14 +53,27 @@
           </div>
 
           <div v-if="mode === 'grid'" class="grid-size">
-            <select v-model.number="categories" aria-label="Категорий">
-              <option v-for="n in 8" :key="n" :value="n">{{ n }}</option>
-            </select>
-            <span>категорий ×</span>
-            <select v-model.number="questions" aria-label="Вопросов в категории">
-              <option v-for="n in 10" :key="n" :value="n">{{ n }}</option>
-            </select>
-            <span>вопросов ({{ categories * questions }} шт.)</span>
+            <div class="grid-size__rounds">
+              <div class="seg" role="group" aria-label="Количество раундов">
+                <button
+                  v-for="n in 5"
+                  :key="n"
+                  type="button"
+                  class="seg__btn"
+                  :class="{ 'seg__btn--active': rounds === n }"
+                  @click="rounds = n"
+                >{{ n }}</button>
+              </div>
+            </div>
+            <div class="grid-size__picker">
+              <GridSizePicker
+                v-model:categories="categories"
+                v-model:questions="questions"
+                :max-categories="5"
+                :max-questions="5"
+                :suffix="`${rounds} ${roundsWord}`"
+              />
+            </div>
           </div>
 
           <p v-if="error" class="field-error">{{ error }}</p>
@@ -70,7 +83,6 @@
             <button type="submit" class="btn-primary" :disabled="isCreating">
               <span v-if="!isCreating">Далее</span>
               <span v-else>Создание…</span>
-              <span v-if="!isCreating" aria-hidden="true">→</span>
             </button>
           </div>
         </form>
@@ -86,6 +98,7 @@ import { useQuizStore } from '@/store/quizStore'
 import { useGameSessionStore } from '@/store/gameSessionStore'
 import AppHeader from '@/components/common/AppHeader.vue'
 import BaseCard from '@/components/common/BaseCard.vue'
+import GridSizePicker from '@/components/common/GridSizePicker.vue'
 
 const router = useRouter()
 const quizStore = useQuizStore()
@@ -96,11 +109,21 @@ const userProfile = computed(() => sessionStore.userProfile)
 const title = ref('')
 const description = ref('')
 const mode = ref<'grid' | 'empty'>('grid')
+const rounds = ref(1)
 const categories = ref(5)
 const questions = ref(5)
 const error = ref('')
 const isCreating = ref(false)
 const titleInput = ref<HTMLInputElement | null>(null)
+
+const roundsWord = computed(() => {
+  const n = rounds.value
+  const mod10 = n % 10
+  const mod100 = n % 100
+  if (mod10 === 1 && mod100 !== 11) return 'раунд'
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return 'раунда'
+  return 'раундов'
+})
 
 onMounted(() => {
   nextTick(() => titleInput.value?.focus())
@@ -122,7 +145,7 @@ async function submit() {
   try {
     const desc = description.value.trim()
     const questId = mode.value === 'grid'
-      ? await quizStore.createQuestWithBoard(name, desc, categories.value, questions.value)
+      ? await quizStore.createQuestWithBoard(name, desc, categories.value, questions.value, rounds.value)
       : await quizStore.createQuest(name, desc)
     router.replace({ name: 'admin-quest', params: { questId } })
   } catch (e: any) {
@@ -140,27 +163,31 @@ async function submit() {
 }
 
 .quest-create__main {
-  max-width: 520px;
+  max-width: 680px;
   margin: 0 auto;
-  padding: 1.5rem 1.25rem 3rem;
+  padding: 2.5rem 1.5rem 4rem;
 }
 
 .quest-create__title {
-  margin: 0.5rem 0 0.35rem;
-  font-size: clamp(1.5rem, 4vw, 2rem);
+  margin: 0.5rem 0 0.4rem;
+  font-size: clamp(1.8rem, 5vw, 2.6rem);
   color: rgb(var(--c-text));
 }
 
 .quest-create__subtitle {
-  margin: 0 0 1.5rem;
+  margin: 0 0 1.75rem;
   color: rgb(var(--c-text-soft) / 0.75);
-  font-size: 0.95rem;
+  font-size: 1.02rem;
+}
+
+.quest-create__card {
+  padding: clamp(1.5rem, 4vw, 2.5rem);
 }
 
 .quest-create__form {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.65rem;
 }
 
 .field-label {
@@ -217,20 +244,53 @@ async function submit() {
 
 .grid-size {
   display: flex;
-  align-items: center;
-  gap: 0.45rem;
-  flex-wrap: wrap;
-  font-size: 0.9rem;
-  color: rgb(var(--c-text-soft) / 0.8);
+  flex-direction: column;
+  gap: 1.1rem;
+  padding: 1.35rem 1.4rem;
+  border-radius: 18px;
+  border: 1px solid rgb(var(--c-accent-sky) / 0.18);
+  background: rgb(var(--c-bg) / 0.4);
 }
-.grid-size select {
-  background: rgb(var(--c-bg) / 0.6);
-  border: 1px solid rgb(var(--c-accent-sky) / 0.3);
-  border-radius: 8px;
-  color: rgb(var(--c-text));
-  padding: 0.35rem 0.45rem;
+.grid-size__rounds {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.85rem;
+  padding-bottom: 1.1rem;
+  border-bottom: 1px solid rgb(var(--c-accent-sky) / 0.14);
+}
+.seg {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgb(var(--c-accent-sky) / 0.22);
+  background: rgb(var(--c-bg) / 0.5);
+}
+.seg__btn {
+  width: 2.2rem;
+  height: 2.2rem;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: rgb(var(--c-text-soft) / 0.8);
   font-size: 0.95rem;
+  font-weight: 700;
   cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.seg__btn:hover:not(.seg__btn--active) {
+  background: rgb(var(--c-accent-sky) / 0.12);
+}
+.seg__btn--active {
+  background: linear-gradient(135deg, rgb(var(--c-accent-sky)), rgb(var(--c-accent)));
+  color: rgb(var(--c-bg));
+}
+.grid-size__picker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
 }
 
 .field-error {

@@ -8,107 +8,98 @@
       @button-click="goBack"
     />
 
+    <div class="stats-capsule">
+      <span class="stat-chip">
+        <span class="stat-chip__label">Раундов</span>
+        <span class="stat-chip__value">{{ Array.isArray(quest.rounds) ? quest.rounds.length : 0 }}/5</span>
+      </span>
+      <span class="stats-capsule__divider" aria-hidden="true"></span>
+      <span class="stat-chip">
+        <span class="stat-chip__label">Вопросов</span>
+        <span class="stat-chip__value">{{ questStats.totalQuestions }}</span>
+      </span>
+      <transition name="save-pill">
+        <span
+          v-if="store.saveState !== 'idle'"
+          class="save-icon"
+          :class="`save-icon--${store.saveState}`"
+          :title="store.saveState === 'saving' ? 'Сохраняем…' : 'Сохранено'"
+          :aria-label="store.saveState === 'saving' ? 'Сохраняем' : 'Сохранено'"
+          aria-live="polite"
+        >
+          <span v-if="store.saveState === 'saving'" class="save-icon__spinner" aria-hidden="true"></span>
+          <svg v-else class="save-icon__check" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M5 12.5l4.5 4.5L19 7" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </span>
+      </transition>
+    </div>
+
     <header class="quest-toolbar">
-      <div class="toolbar-left">
-        <div class="toolbar-fields">
-          <label class="toolbar-label" for="quest-title">Название квеста</label>
-          <input
-            id="quest-title"
-            v-model="questTitle"
-            class="toolbar-input"
-            placeholder="Название квеста"
-          />
-          <label class="toolbar-label" for="quest-description">Описание</label>
-          <textarea
-            id="quest-description"
-            v-model="questDescription"
-            rows="2"
-            class="toolbar-textarea"
-            placeholder="Короткое описание для ведущего и игроков"
-          ></textarea>
-          <div class="toolbar-stats">
-            <span class="stat-chip">Раундов: {{ Array.isArray(quest.rounds) ? quest.rounds.length : 0 }}/5</span>
-            <span class="stat-chip">Вопросов: {{ questStats.totalQuestions }}</span>
-            <span
-              v-if="store.saveState !== 'idle'"
-              class="save-indicator"
-              :class="`save-indicator--${store.saveState}`"
-              aria-live="polite"
-            >
-              <template v-if="store.saveState === 'saving'">
-                <span class="save-indicator__spinner" aria-hidden="true"></span> Сохранение…
-              </template>
-              <template v-else>
-                <span aria-hidden="true">✓</span> Сохранено
-              </template>
-            </span>
-          </div>
-          <button
-            class="toolbar-delete-text"
-            type="button"
-            title="Удалить квест"
-            aria-label="Удалить квест"
-            @click="handleDeleteQuest"
-          >
-            Удалить
-          </button>
-        </div>
+      <div class="toolbar-fields">
+        <label class="toolbar-label" for="quest-title">Название квеста</label>
+        <input
+          id="quest-title"
+          v-model="questTitle"
+          class="toolbar-input"
+          placeholder="Название квеста"
+        />
+        <label class="toolbar-label" for="quest-description">Описание</label>
+        <textarea
+          id="quest-description"
+          v-model="questDescription"
+          rows="2"
+          class="toolbar-textarea"
+          placeholder="Короткое описание для ведущего и игроков"
+        ></textarea>
       </div>
     </header>
 
-    <section class="rounds-panel">
-      <header class="panel-header">
-        <h2>Раунды</h2>
-       </header>
- 
-       <p v-if="!quest.rounds || quest.rounds.length === 0" class="panel-empty">
-         Пока нет раундов. Создайте первый, чтобы добавить категории и вопросы.
-       </p>
- 
-      <div class="rounds-grid">
-        <template v-for="index in 5" :key="index">
-          <button
-            v-if="index <= roundsCount"
-            :class="['round-slot', { active: activeRoundIndex === index - 1 }]"
-            type="button"
-            :aria-label="roundSlotLabel(index)"
-            @click="handleSlotClick(index - 1)"
-          >
-            <span>{{ index }}</span>
+    <div class="rounds-capsule">
+      <div class="round-tabs">
+        <div
+          v-for="(round, index) in quest.rounds"
+          :key="round.id"
+          :class="['round-tab', { 'round-tab--active': editingRoundId === round.id }]"
+        >
+          <button type="button" class="round-tab__select" @click="editingRoundId = round.id">
+            Раунд {{ index + 1 }}
           </button>
-          <button
-            v-else-if="index === roundsCount + 1 && roundsCount < 5"
-            class="round-slot round-slot--add"
-            type="button"
-            :disabled="isAddingRound"
-            aria-label="Добавить раунд"
-            @click="handleAddRound"
-          >
-            <span v-if="!isAddingRound">+</span>
-            <span v-else class="mini-loader"></span>
-          </button>
-          <button
-            v-else
-            class="round-slot round-slot--empty"
-            type="button"
-            disabled
-            aria-hidden="true"
-          >
-            <span>{{ index }}</span>
-          </button>
-        </template>
+          <transition name="round-del">
+            <button
+              v-if="editingRoundId === round.id"
+              type="button"
+              class="round-tab__del"
+              title="Удалить раунд"
+              aria-label="Удалить раунд"
+              @click="handleDeleteCurrentRound"
+            >✕</button>
+          </transition>
+        </div>
+        <button
+          v-if="roundsCount < 5"
+          class="round-tab round-tab--add"
+          type="button"
+          :disabled="isAddingRound"
+          aria-label="Добавить раунд"
+          @click="handleAddRound"
+        >
+          <span v-if="!isAddingRound">+</span>
+          <span v-else class="mini-loader"></span>
+        </button>
       </div>
- 
-      <section v-if="editingRound" class="round-editor">
-        <header class="round-editor-header">
-          <span class="round-editor-index">Раунд {{ editingRoundIndex >= 0 ? editingRoundIndex + 1 : '—' }}</span>
-        </header>
-        <AdminRoundForm
-          :quest-id="quest.id"
-          :round="editingRound"
-          @delete="handleDeleteCurrentRound"
-        />
-      </section>
+    </div>
+
+    <section class="board-panel">
+      <p v-if="roundsCount === 0" class="panel-empty">
+        Пока нет раундов. Создайте первый, чтобы добавить категории и вопросы.
+      </p>
+
+      <QuestBoardEditor
+        v-if="editingRound"
+        :quest-id="quest.id"
+        :round="editingRound"
+      />
     </section>
   </div>
   <div v-else-if="showLoading" class="not-found admin-quest-loading">
@@ -125,8 +116,7 @@
     :title="confirmModal.title"
     :message="confirmModal.message"
     :confirm-label="confirmModal.confirmLabel"
-    :confirm-variant="confirmModal.kind === 'info' ? 'secondary' : 'danger'"
-    :hide-cancel="confirmModal.kind === 'info'"
+    confirm-variant="danger"
     @confirm="confirmModalAction"
     @cancel="cancelConfirmModal"
   />
@@ -137,7 +127,7 @@ import { computed, ref, watch, watchEffect, onMounted, onBeforeUnmount } from 'v
 import { useRouter } from 'vue-router'
 import { useQuizStore } from '@/store/quizStore'
 import { useGameSessionStore } from '@/store/gameSessionStore'
-import AdminRoundForm from '@/components/admin/AdminRoundForm.vue'
+import QuestBoardEditor from '@/components/admin/QuestBoardEditor.vue'
 import AppHeader from '@/components/common/AppHeader.vue'
 import BackLink from '@/components/common/BackLink.vue'
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
@@ -154,11 +144,15 @@ const sessionStore = useGameSessionStore()
 const quest = computed(() => store.getQuestById(props.questId))
 
 const isLoadingFullQuest = ref(false)
+// id квеста, для которого уже подгружены полные данные (раунды/категории/вопросы).
+// Легковесный элемент списка приходит с rounds: [] — поэтому опираться на наличие
+// rounds нельзя, иначе полный квест никогда не догрузится и доска будет пустой.
+const fullyLoadedId = ref<string | null>(null)
 const showLoading = computed(() => {
   if (store.isLoading) return true
   if (isLoadingFullQuest.value) return true
-  if (quest.value?.rounds) return false
-  if (quest.value && !quest.value.rounds) return true
+  if (fullyLoadedId.value === props.questId) return false
+  if (quest.value) return true
   if (!sessionStore.userProfile?.id) return false
   if (store.quests.length > 0) return false
   return true
@@ -173,12 +167,6 @@ const editingRound = computed(() => {
   return quest.value.rounds.find(round => round.id === editingRoundId.value) ?? null
 })
 
-const editingRoundIndex = computed(() => {
-  if (!quest.value?.rounds || !editingRoundId.value) return -1
-  return quest.value.rounds.findIndex(round => round.id === editingRoundId.value)
-})
-
-const activeRoundIndex = computed(() => editingRoundIndex.value)
 const roundsCount = computed(() => quest.value?.rounds?.length ?? 0)
 
 const userProfile = computed(() => sessionStore.userProfile)
@@ -218,10 +206,13 @@ async function loadQuestIfNeeded() {
   if (!quest.value) {
     await store.loadFromStorage()
   }
-  if (!quest.value?.rounds) {
+  // Догружаем полный квест ровно один раз на каждый questId. Проверять rounds
+  // недостаточно: у элемента списка rounds — пустой массив, а не undefined.
+  if (fullyLoadedId.value !== props.questId) {
     isLoadingFullQuest.value = true
     try {
       await store.loadQuestFull(props.questId)
+      fullyLoadedId.value = props.questId
     } finally {
       isLoadingFullQuest.value = false
     }
@@ -320,20 +311,19 @@ async function handleAddRound() {
   }
 }
 
-// Единая модалка подтверждения вместо нативного confirm()/alert() (#33)
+// Единая модалка подтверждения удаления раунда (#33)
 const confirmModal = ref<{
   visible: boolean
-  kind: 'round' | 'quest' | 'info'
   roundId: string | null
   title: string
   message: string
   confirmLabel: string
-}>({ visible: false, kind: 'info', roundId: null, title: '', message: '', confirmLabel: 'ОК' })
+}>({ visible: false, roundId: null, title: '', message: '', confirmLabel: 'Удалить' })
 
 function handleDeleteRound(roundId: string) {
   if (!quest.value) return
   confirmModal.value = {
-    visible: true, kind: 'round', roundId,
+    visible: true, roundId,
     title: 'Удалить раунд?', message: 'Раунд и все его категории будут удалены.',
     confirmLabel: 'Удалить'
   }
@@ -343,62 +333,19 @@ function cancelConfirmModal() {
   confirmModal.value = { ...confirmModal.value, visible: false }
 }
 
-async function confirmModalAction() {
-  const { kind, roundId } = confirmModal.value
-  if (kind === 'info') { cancelConfirmModal(); return }
+function confirmModalAction() {
+  const { roundId } = confirmModal.value
   cancelConfirmModal()
-  if (!quest.value) return
-  if (kind === 'round' && roundId) {
-    store.deleteRound(quest.value.id, roundId)
-    if (editingRoundId.value === roundId) {
-      editingRoundId.value = quest.value.rounds?.[0]?.id ?? null
-    }
-  } else if (kind === 'quest') {
-    try {
-      await store.deleteQuest(quest.value.id)
-      router.push('/host/setup')
-    } catch (err) {
-      confirmModal.value = {
-        visible: true, kind: 'info', roundId: null,
-        title: 'Не удалось удалить квест',
-        message: (err as Error)?.message ?? 'Попробуйте ещё раз.',
-        confirmLabel: 'Понятно'
-      }
-    }
+  if (!quest.value || !roundId) return
+  store.deleteRound(quest.value.id, roundId)
+  if (editingRoundId.value === roundId) {
+    editingRoundId.value = quest.value.rounds?.[0]?.id ?? null
   }
-}
-
-function handleSlotClick(index: number) {
-  const rounds = quest.value?.rounds
-  if (!rounds) return
-  const round = rounds[index]
-  if (round) {
-    editingRoundId.value = round.id
-  }
-}
-
-function roundSlotLabel(index: number) {
-  const actualIndex = index - 1
-  const rounds = quest.value?.rounds
-  if (!rounds || actualIndex < 0 || actualIndex >= rounds.length) {
-    return `Пустой слот раунда ${index}`
-  }
-  const round = rounds[actualIndex]
-  return `Раунд ${index}: ${round.title?.trim() || 'без названия'}`
 }
 
 function handleDeleteCurrentRound() {
   if (!editingRoundId.value) return
   handleDeleteRound(editingRoundId.value)
-}
-
-function handleDeleteQuest() {
-  if (!quest.value) return
-  confirmModal.value = {
-    visible: true, kind: 'quest', roundId: null,
-    title: 'Удалить квест целиком?', message: 'Это действие нельзя отменить.',
-    confirmLabel: 'Удалить'
-  }
 }
 
 function goBack() {
@@ -408,50 +355,73 @@ function goBack() {
 </script>
 
 <style scoped>
-.save-indicator {
+/* Индикатор автосохранения — только иконка, без текста */
+.save-icon {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  font-size: 0.72rem;
-  letter-spacing: 0.04em;
-  padding: 0.3rem 0.7rem;
-  border-radius: var(--radius-pill);
-  border: 1px solid transparent;
-  transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+  justify-content: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 50%;
+  flex-shrink: 0;
 }
-.save-indicator--saving {
-  color: rgb(var(--c-text-muted));
-  background: rgb(var(--c-text-muted) / 0.12);
-  border-color: rgb(var(--c-text-muted) / 0.25);
+.save-icon--saving {
+  background: rgb(var(--c-text-muted) / 0.14);
 }
-.save-indicator--saved {
-  color: rgb(var(--c-success));
-  background: rgb(var(--c-success) / 0.14);
-  border-color: rgb(var(--c-success) / 0.35);
+.save-icon--saved {
+  background: rgb(var(--c-success));
+  color: rgb(var(--c-white));
+  box-shadow: 0 2px 10px rgb(var(--c-success) / 0.45);
+  animation: save-pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
-.save-indicator__spinner {
-  width: 0.7rem;
-  height: 0.7rem;
+.save-icon__spinner {
+  width: 0.9rem;
+  height: 0.9rem;
   border-radius: 50%;
   border: 2px solid rgb(var(--c-text-muted) / 0.35);
   border-top-color: rgb(var(--c-text-muted));
   animation: save-spin 0.7s linear infinite;
 }
+.save-icon__check {
+  width: 1rem;
+  height: 1rem;
+}
+.save-icon__check path {
+  stroke-dasharray: 26;
+  stroke-dashoffset: 26;
+  animation: save-draw 0.4s ease 0.1s forwards;
+}
 @keyframes save-spin {
   to { transform: rotate(360deg); }
+}
+@keyframes save-pop {
+  0% { transform: scale(0.4); }
+  100% { transform: scale(1); }
+}
+@keyframes save-draw {
+  to { stroke-dashoffset: 0; }
+}
+/* Появление/скрытие иконки */
+.save-pill-enter-active,
+.save-pill-leave-active {
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.save-pill-enter-from,
+.save-pill-leave-to {
+  opacity: 0;
+  transform: scale(0.6);
 }
 
 .admin-quest-view {
   min-height: 100dvh;
+  box-sizing: border-box;
   background: linear-gradient(135deg, rgb(var(--c-bg)) 0%, rgb(var(--c-surface)) 100%);
-  padding: 0 clamp(1rem, 4vw, 3rem) 2rem;
+  padding: 0 clamp(1.25rem, 4vw, 3.5rem) 2.5rem;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.75rem;
   color: rgb(var(--c-text-soft));
 }
-
-
 
 .quest-toolbar {
   display: flex;
@@ -464,13 +434,6 @@ function goBack() {
   border: 1px solid rgb(var(--c-accent-sky) / 0.18);
   box-shadow: 0 26px 52px rgb(var(--c-sky-deep) / 0.42);
   backdrop-filter: blur(12px);
-}
-
-.toolbar-left {
-  flex: 1 1 auto;
-  display: flex;
-  gap: clamp(1rem, 3vw, 1.75rem);
-  align-items: flex-start;
 }
 
 .toolbar-fields {
@@ -509,11 +472,12 @@ function goBack() {
 .toolbar-textarea {
   font-weight: 500;
   resize: vertical;
+  min-height: 3.4rem;
 }
 
 .toolbar-input::placeholder,
 .toolbar-textarea::placeholder {
-  color: rgb(var(--c-text-soft) / 0.6);
+  color: rgb(var(--c-text-muted) / 0.45);
 }
 
 .toolbar-input:focus,
@@ -523,92 +487,189 @@ function goBack() {
   box-shadow: 0 0 0 3px rgb(var(--c-accent-sky) / 0.25);
 }
 
-.toolbar-stats {
-  display: flex;
-  gap: 0.6rem;
+/* Капсула статистики над блоком названия — по центру, не на всю ширину */
+.stats-capsule {
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 1.15rem;
   flex-wrap: wrap;
-  margin-top: 0.4rem;
+  justify-content: center;
+  padding: 0.85rem 1.9rem;
+  border-radius: var(--radius-pill);
+  background: rgb(var(--c-bg) / 0.72);
+  border: 1px solid rgb(var(--c-accent-sky) / 0.2);
+  box-shadow: 0 14px 32px rgb(var(--c-sky-deep) / 0.3);
+  backdrop-filter: blur(10px);
+}
+.stats-capsule__divider {
+  width: 1px;
+  height: 1.1rem;
+  background: rgb(var(--c-accent-sky) / 0.25);
 }
 
 .stat-chip {
-  background: rgb(var(--c-accent-sky) / 0.15);
-  color: rgb(var(--c-accent-soft));
-  border-radius: 999px;
-  padding: 0.35rem 0.85rem;
-  font-size: 0.78rem;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-}
-
-.toolbar-delete-text {
-  margin-top: 0.8rem;
-  align-self: flex-start;
   display: inline-flex;
-  align-items: center;
-  padding: 0.45rem 1.45rem;
-  border-radius: 16px;
-  border: 1px solid rgb(var(--c-danger) / 0.45);
-  background: rgb(var(--c-danger) / 0.12);
-  color: rgb(var(--c-danger-soft));
-  font-size: 0.88rem;
-  font-weight: 600;
-  letter-spacing: 0.03em;
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
-  width: auto;
-  justify-self: start;
+  align-items: baseline;
+  gap: 0.4rem;
+  color: rgb(var(--c-accent-soft));
+}
+.stat-chip__label {
+  font-size: 0.92rem;
+  letter-spacing: 0.01em;
+  opacity: 0.85;
+}
+.stat-chip__value {
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
 }
 
-.toolbar-delete-text:hover {
-  transform: translateY(-1px);
-  background: rgb(var(--c-danger) / 0.2);
-  box-shadow: 0 14px 30px rgb(var(--c-danger) / 0.24);
+/* Отдельная капсула раундов — по центру, не на всю ширину (как статистика) */
+.rounds-capsule {
+  align-self: center;
+  display: inline-flex;
+  justify-content: center;
+  padding: 0.85rem 1.9rem;
+  border-radius: var(--radius-pill);
+  background: rgb(var(--c-bg) / 0.72);
+  border: 1px solid rgb(var(--c-accent-sky) / 0.2);
+  box-shadow: 0 14px 32px rgb(var(--c-sky-deep) / 0.3);
+  backdrop-filter: blur(10px);
 }
 
-.toolbar-delete-text svg {
-  width: 18px;
-  height: 18px;
-  fill: currentColor;
-}
-
-.rounds-panel {
+/* Блок с плитками вопросов */
+.board-panel {
   background: rgb(var(--c-bg) / 0.72);
   border-radius: 24px;
   border: 1px solid rgb(var(--c-accent-sky) / 0.16);
-  padding: clamp(1rem, 3vw, 1.75rem);
+  padding: clamp(1rem, 3vw, 1.8rem);
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.6rem;
   box-shadow: 0 24px 46px rgb(var(--c-sky-deep) / 0.35);
 }
 
-.panel-header {
+.round-tabs {
   display: flex;
-  justify-content: space-between;
+  gap: 0.6rem;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 1rem;
+  justify-content: center;
 }
 
-.panel-header h2 {
-  margin: 0;
-  font-size: 1.25rem;
-  letter-spacing: 0.04em;
+.round-tab {
+  min-width: 6.25rem;
+  min-height: 2.6rem;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  border-radius: var(--radius-pill);
+  border: 1px solid transparent;
+  background: transparent;
+  transition: background 0.2s ease, border-color 0.2s ease;
 }
-
-.panel-action {
-  background: rgb(var(--c-accent-sky) / 0.16);
-  color: rgb(var(--c-accent-soft));
-  border: 1px solid rgb(var(--c-accent-sky) / 0.35);
-  border-radius: 16px;
-  padding: 0.45rem 1.1rem;
-  cursor: pointer;
+.round-tab__select {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 1.3rem;
+  border: none;
+  background: transparent;
+  color: rgb(var(--c-text-soft) / 0.75);
+  font-size: 0.88rem;
   font-weight: 600;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  letter-spacing: 0.02em;
+  text-align: center;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+.round-tab:hover {
+  background: rgb(var(--c-accent-sky) / 0.1);
+}
+.round-tab:hover .round-tab__select {
+  color: rgb(var(--c-text));
 }
 
-.panel-action:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 14px 28px rgb(var(--c-accent-sky) / 0.25);
+.round-tab--active {
+  background: rgb(var(--c-accent-sky) / 0.16);
+  border-color: rgb(var(--c-accent-sky) / 0.35);
+}
+.round-tab--active .round-tab__select {
+  color: rgb(var(--c-accent-soft));
+}
+
+/* Крестик удаления раунда — как у категорий: приглушён, краснеет при наведении */
+.round-tab__del {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  margin: auto 0.5rem auto 0;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: rgb(var(--c-accent-soft) / 0.55);
+  font-size: 0.8rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+.round-tab__del:hover {
+  color: rgb(var(--c-danger-soft));
+  background: rgb(var(--c-danger) / 0.15);
+}
+/* Плавное появление крестика при выборе раунда */
+.round-del-enter-active,
+.round-del-leave-active {
+  overflow: hidden;
+  transition: opacity 0.22s ease, transform 0.22s ease, width 0.22s ease, margin-right 0.22s ease;
+}
+.round-del-enter-from,
+.round-del-leave-to {
+  opacity: 0;
+  transform: scale(0.4);
+  width: 0;
+  margin-right: 0;
+}
+
+.round-tab--add {
+  padding: 0 1.3rem;
+  border: 1px dashed rgb(var(--c-accent-sky) / 0.35);
+  background: transparent;
+  color: rgb(var(--c-text-soft) / 0.7);
+  font-weight: 500;
+  font-size: 1.1rem;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.round-tab--add:hover {
+  color: rgb(var(--c-accent-soft));
+  border-color: rgb(var(--c-accent-sky) / 0.55);
+  background: transparent;
+}
+.round-tab--add:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Убираем стандартную (жёлтую) обводку фокуса, оставляем аккуратную для клавиатуры */
+.round-tab__select:focus,
+.round-tab__del:focus,
+.round-tab--add:focus {
+  outline: none;
+}
+.round-tab__select:focus-visible,
+.round-tab__del:focus-visible,
+.round-tab--add:focus-visible {
+  outline: 2px solid rgb(var(--c-accent-sky) / 0.6);
+  outline-offset: 2px;
+  border-radius: var(--radius-pill);
 }
 
 .panel-empty {
@@ -620,78 +681,6 @@ function goBack() {
   text-align: center;
   font-size: 0.9rem;
   background: rgb(var(--c-bg) / 0.55);
-}
-
-.rounds-grid {
-  display: grid;
-  grid-template-columns: repeat(8, minmax(40px, 1fr));
-  gap: 0.9rem;
-  align-items: center;
-}
-
-@media (max-width: 1200px) {
-  .rounds-grid {
-    grid-template-columns: repeat(4, minmax(60px, 1fr));
-  }
-}
-
-@media (max-width: 720px) {
-  .rounds-grid {
-    grid-template-columns: repeat(2, minmax(70px, 1fr));
-    gap: 0.75rem;
-  }
-}
-
-.round-slot {
-  width: 100%;
-  aspect-ratio: 5 / 2;
-  border-radius: 18px;
-  background: rgb(var(--c-bg) / 0.6);
-  border: 1px solid rgb(var(--c-accent-sky) / 0.14);
-  color: rgb(var(--c-text-soft) / 0.85);
-  font-size: 1rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, color 0.2s ease;
-}
-
-.round-slot.active {
-  border-color: rgb(var(--c-accent) / 0.5);
-  color: rgb(var(--c-accent-soft));
-  box-shadow: 0 16px 32px rgb(var(--c-accent) / 0.22);
-  transform: translateY(-2px);
-}
-
-.round-slot:not(.round-slot--empty):hover {
-  border-color: rgb(var(--c-accent-sky) / 0.3);
-  transform: translateY(-1px);
-}
-
-.round-slot--add {
-  border: 1px dashed rgb(var(--c-accent-sky) / 0.35);
-  background: rgb(var(--c-bg) / 0.45);
-  color: rgb(var(--c-accent-soft));
-  font-size: 1.4rem;
-}
-
-.round-slot--add:hover {
-  border-color: rgb(var(--c-accent-sky) / 0.55);
-  box-shadow: 0 14px 28px rgb(var(--c-accent-sky) / 0.22);
-}
-
-.round-slot--empty {
-  border: 1px dashed rgb(var(--c-accent-sky) / 0.1);
-  color: rgb(var(--c-text-soft) / 0.2);
-  cursor: default;
-  pointer-events: none;
-}
-
-.round-slot--empty span {
-  opacity: 0.35;
 }
 
 .mini-loader {
@@ -708,32 +697,6 @@ function goBack() {
   to {
     transform: rotate(360deg);
   }
-}
-
-.round-slot--add:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-
-.round-editor {
-  margin-top: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.round-editor-header {
-  display: flex;
-  justify-content: center;
-  color: rgb(var(--c-text-soft) / 0.8);
-}
-
-.round-editor-index {
-  font-size: clamp(0.95rem, 1.8vw, 1.2rem);
-  letter-spacing: 0.12em;
-  background: none;
-  color: rgb(var(--c-text));
-  margin: 0.4rem 0;
 }
 
 .not-found {
@@ -770,33 +733,6 @@ function goBack() {
   margin: 0;
 }
 
-@media (max-width: 1024px) {
-  .quest-toolbar {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .toolbar-left {
-    flex-direction: column;
-  }
-
-  .toolbar-fields {
-    width: 100%;
-  }
-
-  .rounds-panel {
-    padding: 1rem;
-  }
-
-  .toolbar-delete-text {
-    align-self: flex-start;
-    width: auto;
-  }
-
-  .user-pill {
-    align-self: center;
-  }
-}
 
 @media (max-width: 768px) {
   .admin-quest-view {
@@ -820,14 +756,6 @@ function goBack() {
     border-radius: 14px;
   }
 
-  .panel-header h2 {
-    font-size: 1.1rem;
-  }
-
-  .round-slot {
-    font-size: 0.9rem;
-    border-radius: 14px;
-  }
 }
 
 @media (max-width: 480px) {
@@ -857,39 +785,17 @@ function goBack() {
     font-size: 0.68rem;
   }
 
-  .stat-chip {
-    font-size: 0.7rem;
-    padding: 0.25rem 0.65rem;
+  .stats-capsule {
+    padding: 0.4rem 1rem;
+    gap: 0.7rem;
   }
 
-  .toolbar-delete-text {
-    font-size: 0.8rem;
-    padding: 0.35rem 1.1rem;
-    border-radius: 12px;
-  }
-
-  .rounds-panel {
-    padding: 0.75rem;
-    border-radius: 18px;
+  .board-panel {
+    padding: 0.85rem;
+    border-radius: 14px;
     gap: 0.75rem;
   }
 
-  .panel-header h2 {
-    font-size: 1rem;
-  }
-
-  .round-slot {
-    font-size: 0.85rem;
-    border-radius: 12px;
-  }
-
-  .round-slot--add {
-    font-size: 1.2rem;
-  }
-
-  .round-editor-index {
-    font-size: clamp(0.85rem, 1.8vw, 1rem);
-  }
 }
 
 @media (max-width: 360px) {
@@ -913,14 +819,9 @@ function goBack() {
     padding: 0.45rem 0.65rem;
   }
 
-  .rounds-panel {
-    padding: 0.6rem;
-    border-radius: 14px;
-  }
-
-  .round-slot {
-    font-size: 0.78rem;
-    border-radius: 10px;
+  .board-panel {
+    padding: 0.7rem;
+    border-radius: 12px;
   }
 }
 
@@ -945,22 +846,13 @@ function goBack() {
     padding: 0.4rem 0.55rem;
   }
 
-  .stat-chip {
-    font-size: 0.65rem;
-    padding: 0.2rem 0.5rem;
-  }
-
-  .rounds-panel {
-    padding: 0.5rem;
-    border-radius: 12px;
-  }
-
-  .panel-header h2 {
+  .stat-chip__value {
     font-size: 0.9rem;
   }
 
-  .round-slot {
-    font-size: 0.72rem;
+  .board-panel {
+    padding: 0.6rem;
+    border-radius: 10px;
   }
 }
 </style>
