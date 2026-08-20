@@ -3,6 +3,7 @@ import { mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import QuestBoardEditor from './QuestBoardEditor.vue'
 import { useQuizStore } from '@/store/quizStore'
+import { i18n } from '@/i18n'
 import type { Quest } from '@/types'
 
 const questTemplate: Quest = {
@@ -44,6 +45,7 @@ const questTemplate: Quest = {
 }
 
 const globalStubs = {
+  plugins: [i18n],
   stubs: {
     AdminQuestionRow: {
       template: '<div class="question-row-stub"></div>',

@@ -53,5 +53,31 @@
     "errCreateGame": "Impossible de créer la partie",
     "errDeleteQuest": "Impossible de supprimer le quiz",
     "errImportQuest": "Impossible d'importer le quiz"
+  },
+  "create": {
+    "title": "Nouveau quiz",
+    "subtitle": "Définissez un nom et la taille du plateau, puis remplissez les questions.",
+    "name": "Nom",
+    "namePlaceholder": "Ex. : Quiz cinéma",
+    "description": "Description (facultatif)",
+    "descriptionPlaceholder": "Une courte note sur le quiz",
+    "startFrom": "Par où commencer",
+    "grid": "Grille prête",
+    "empty": "Quiz vide",
+    "roundsAria": "Nombre de manches",
+    "next": "Suivant",
+    "creating": "Création…",
+    "errName": "Entrez un nom de quiz",
+    "errCreate": "Impossible de créer le quiz"
+  },
+  "plural": {
+    "rounds": [
+      "manche",
+      "manches"
+    ],
+    "tiles": [
+      "case",
+      "cases"
+    ]
   }
 }

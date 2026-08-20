@@ -53,5 +53,31 @@
     "errCreateGame": "Failed to create the game",
     "errDeleteQuest": "Failed to delete the quest",
     "errImportQuest": "Failed to import the quest"
+  },
+  "create": {
+    "title": "New quest",
+    "subtitle": "Set a name and board size — then fill in the questions.",
+    "name": "Name",
+    "namePlaceholder": "e.g. Movie trivia night",
+    "description": "Description (optional)",
+    "descriptionPlaceholder": "A short note about the quest",
+    "startFrom": "Where to start",
+    "grid": "Ready-made grid",
+    "empty": "Empty quest",
+    "roundsAria": "Number of rounds",
+    "next": "Next",
+    "creating": "Creating…",
+    "errName": "Enter a quest name",
+    "errCreate": "Failed to create the quest"
+  },
+  "plural": {
+    "rounds": [
+      "round",
+      "rounds"
+    ],
+    "tiles": [
+      "tile",
+      "tiles"
+    ]
   }
 }

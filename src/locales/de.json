@@ -53,5 +53,31 @@
     "errCreateGame": "Spiel konnte nicht erstellt werden",
     "errDeleteQuest": "Quiz konnte nicht gelöscht werden",
     "errImportQuest": "Quiz konnte nicht importiert werden"
+  },
+  "create": {
+    "title": "Neues Quiz",
+    "subtitle": "Lege Name und Spielfeldgröße fest – dann füllst du die Fragen aus.",
+    "name": "Name",
+    "namePlaceholder": "z. B. Film-Quiz",
+    "description": "Beschreibung (optional)",
+    "descriptionPlaceholder": "Eine kurze Notiz zum Quiz",
+    "startFrom": "Womit anfangen",
+    "grid": "Fertiges Raster",
+    "empty": "Leeres Quiz",
+    "roundsAria": "Anzahl der Runden",
+    "next": "Weiter",
+    "creating": "Wird erstellt…",
+    "errName": "Gib einen Quiznamen ein",
+    "errCreate": "Quiz konnte nicht erstellt werden"
+  },
+  "plural": {
+    "rounds": [
+      "Runde",
+      "Runden"
+    ],
+    "tiles": [
+      "Feld",
+      "Felder"
+    ]
   }
 }

@@ -53,5 +53,31 @@
     "errCreateGame": "No se pudo crear la partida",
     "errDeleteQuest": "No se pudo eliminar el cuestionario",
     "errImportQuest": "No se pudo importar el cuestionario"
+  },
+  "create": {
+    "title": "Nuevo cuestionario",
+    "subtitle": "Define un nombre y el tamaño del tablero, luego rellena las preguntas.",
+    "name": "Nombre",
+    "namePlaceholder": "Ej.: Trivia de cine",
+    "description": "Descripción (opcional)",
+    "descriptionPlaceholder": "Una nota breve sobre el cuestionario",
+    "startFrom": "Por dónde empezar",
+    "grid": "Tablero listo",
+    "empty": "Cuestionario vacío",
+    "roundsAria": "Número de rondas",
+    "next": "Siguiente",
+    "creating": "Creando…",
+    "errName": "Introduce un nombre para el cuestionario",
+    "errCreate": "No se pudo crear el cuestionario"
+  },
+  "plural": {
+    "rounds": [
+      "ronda",
+      "rondas"
+    ],
+    "tiles": [
+      "casilla",
+      "casillas"
+    ]
   }
 }
