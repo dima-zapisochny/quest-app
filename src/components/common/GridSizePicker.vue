@@ -28,6 +28,7 @@
     <p class="gp__label">
       <b>{{ selCols }} × {{ selRows }}</b>
       <span class="gp__label-soft">· {{ selCols * selRows }} {{ tilesWord }}</span>
+      <span v-if="suffix" class="gp__label-soft">· {{ suffix }}</span>
     </p>
   </div>
 </template>
@@ -40,6 +41,8 @@ interface Props {
   questions: number
   maxCategories?: number
   maxQuestions?: number
+  /** Доп. текст в строке-подписи (напр. «1 раунд»). */
+  suffix?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -115,7 +118,7 @@ function apply(c: number, r: number) {
   gap: 4px;
 }
 .gp__cell {
-  width: clamp(18px, 3.4vw, 26px);
+  width: clamp(22px, 4vw, 32px);
   aspect-ratio: 1;
   padding: 0;
   border: 1px solid rgb(var(--c-accent-sky) / 0.22);

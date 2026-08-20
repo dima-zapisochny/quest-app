@@ -54,7 +54,6 @@
 
           <div v-if="mode === 'grid'" class="grid-size">
             <div class="grid-size__rounds">
-              <span class="seg-label">Раунды</span>
               <div class="seg" role="group" aria-label="Количество раундов">
                 <button
                   v-for="n in 5"
@@ -72,8 +71,8 @@
                 v-model:questions="questions"
                 :max-categories="8"
                 :max-questions="8"
+                :suffix="`${rounds} ${roundsWord}`"
               />
-              <span v-if="rounds > 1" class="grid-size__rounds-note">× {{ rounds }} {{ roundsWord }}</span>
             </div>
           </div>
 
@@ -261,12 +260,6 @@ async function submit() {
   padding-bottom: 1.1rem;
   border-bottom: 1px solid rgb(var(--c-accent-sky) / 0.14);
 }
-.seg-label {
-  font-size: 0.72rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: rgb(var(--c-text-muted) / 0.75);
-}
 .seg {
   display: inline-flex;
   gap: 4px;
@@ -299,11 +292,6 @@ async function submit() {
   flex-direction: column;
   align-items: center;
   gap: 0.75rem;
-}
-.grid-size__rounds-note {
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: rgb(var(--c-accent-soft));
 }
 
 .field-error {
