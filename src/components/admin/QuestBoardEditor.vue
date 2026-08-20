@@ -274,7 +274,7 @@ watch(() => props.round.id, closeModal)
 .board-editor {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.25rem;
 }
 
 /* --- Пустой раунд --- */
@@ -347,7 +347,7 @@ watch(() => props.round.id, closeModal)
 }
 .board-columns {
   display: flex;
-  gap: 0.9rem;
+  gap: 1.1rem;
   align-items: flex-start;
 }
 
@@ -417,7 +417,7 @@ watch(() => props.round.id, closeModal)
 .board-col__tiles {
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
+  gap: 0.75rem;
 }
 
 .board-tile {
@@ -521,21 +521,22 @@ watch(() => props.round.id, closeModal)
 /* --- Футер --- */
 .board-footer {
   display: flex;
-  justify-content: flex-start;
-  margin-top: 0.5rem;
+  justify-content: flex-end;
+  margin-top: 0.75rem;
 }
 .board-delete-round {
   display: inline-flex;
   align-items: center;
-  padding: 0.65rem 1.5rem;
-  line-height: 1.3;
-  border-radius: 14px;
+  justify-content: center;
+  padding: 0.6rem 1.4rem;
+  line-height: 1.2;
+  border-radius: var(--radius-pill);
   border: 1px solid rgb(var(--c-danger) / 0.45);
   background: rgb(var(--c-danger) / 0.12);
   color: rgb(var(--c-danger-soft));
   font-size: 0.85rem;
   font-weight: 600;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.02em;
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }

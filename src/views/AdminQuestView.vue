@@ -9,60 +9,61 @@
     />
 
     <header class="quest-toolbar">
-      <div class="toolbar-left">
-        <div class="toolbar-fields">
-          <label class="toolbar-label" for="quest-title">Название квеста</label>
-          <input
-            id="quest-title"
-            v-model="questTitle"
-            class="toolbar-input"
-            placeholder="Название квеста"
-          />
-          <label class="toolbar-label" for="quest-description">Описание</label>
-          <textarea
-            id="quest-description"
-            v-model="questDescription"
-            rows="2"
-            class="toolbar-textarea"
-            placeholder="Короткое описание для ведущего и игроков"
-          ></textarea>
-          <div class="toolbar-stats">
-            <span class="stat-chip">
-              <span class="stat-chip__label">Раундов</span>
-              <span class="stat-chip__value">{{ Array.isArray(quest.rounds) ? quest.rounds.length : 0 }}/5</span>
-            </span>
-            <span class="stat-chip">
-              <span class="stat-chip__label">Вопросов</span>
-              <span class="stat-chip__value">{{ questStats.totalQuestions }}</span>
-            </span>
-            <transition name="save-pill">
-              <span
-                v-if="store.saveState !== 'idle'"
-                class="save-pill"
-                :class="`save-pill--${store.saveState}`"
-                aria-live="polite"
-              >
-                <span class="save-pill__icon" aria-hidden="true">
-                  <span v-if="store.saveState === 'saving'" class="save-pill__spinner"></span>
-                  <svg v-else class="save-pill__check" viewBox="0 0 24 24">
-                    <path d="M5 12.5l4.5 4.5L19 7" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
-                  </svg>
-                </span>
-                <span class="save-pill__text">{{ store.saveState === 'saving' ? 'Сохраняем…' : 'Сохранено' }}</span>
-              </span>
-            </transition>
-            <button
-              class="toolbar-delete-text"
-              type="button"
-              title="Удалить квест"
-              aria-label="Удалить квест"
-              @click="handleDeleteQuest"
-            >
-              Удалить квест
-            </button>
-          </div>
-        </div>
+      <div class="toolbar-fields">
+        <label class="toolbar-label" for="quest-title">Название квеста</label>
+        <input
+          id="quest-title"
+          v-model="questTitle"
+          class="toolbar-input"
+          placeholder="Название квеста"
+        />
+        <label class="toolbar-label" for="quest-description">Описание</label>
+        <textarea
+          id="quest-description"
+          v-model="questDescription"
+          rows="2"
+          class="toolbar-textarea"
+          placeholder="Короткое описание для ведущего и игроков"
+        ></textarea>
       </div>
+
+      <aside class="toolbar-side">
+        <div class="toolbar-stats">
+          <span class="stat-chip">
+            <span class="stat-chip__label">Раундов</span>
+            <span class="stat-chip__value">{{ Array.isArray(quest.rounds) ? quest.rounds.length : 0 }}/5</span>
+          </span>
+          <span class="stat-chip">
+            <span class="stat-chip__label">Вопросов</span>
+            <span class="stat-chip__value">{{ questStats.totalQuestions }}</span>
+          </span>
+          <transition name="save-pill">
+            <span
+              v-if="store.saveState !== 'idle'"
+              class="save-pill"
+              :class="`save-pill--${store.saveState}`"
+              aria-live="polite"
+            >
+              <span class="save-pill__icon" aria-hidden="true">
+                <span v-if="store.saveState === 'saving'" class="save-pill__spinner"></span>
+                <svg v-else class="save-pill__check" viewBox="0 0 24 24">
+                  <path d="M5 12.5l4.5 4.5L19 7" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </span>
+              <span class="save-pill__text">{{ store.saveState === 'saving' ? 'Сохраняем…' : 'Сохранено' }}</span>
+            </span>
+          </transition>
+        </div>
+        <button
+          class="danger-btn"
+          type="button"
+          title="Удалить квест"
+          aria-label="Удалить квест"
+          @click="handleDeleteQuest"
+        >
+          Удалить квест
+        </button>
+      </aside>
     </header>
 
     <section class="rounds-panel">
@@ -462,14 +463,12 @@ function goBack() {
 .admin-quest-view {
   min-height: 100dvh;
   background: linear-gradient(135deg, rgb(var(--c-bg)) 0%, rgb(var(--c-surface)) 100%);
-  padding: 0 clamp(1rem, 4vw, 3rem) 2rem;
+  padding: 0 clamp(1.25rem, 4vw, 3.5rem) 2.5rem;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.75rem;
   color: rgb(var(--c-text-soft));
 }
-
-
 
 .quest-toolbar {
   display: flex;
@@ -484,11 +483,12 @@ function goBack() {
   backdrop-filter: blur(12px);
 }
 
-.toolbar-left {
-  flex: 1 1 auto;
+.toolbar-side {
+  flex-shrink: 0;
   display: flex;
-  gap: clamp(1rem, 3vw, 1.75rem);
-  align-items: flex-start;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.9rem;
 }
 
 .toolbar-fields {
@@ -546,7 +546,7 @@ function goBack() {
   align-items: center;
   gap: 0.6rem;
   flex-wrap: wrap;
-  margin-top: 0.4rem;
+  justify-content: flex-end;
 }
 
 .stat-chip {
@@ -569,44 +569,38 @@ function goBack() {
   letter-spacing: 0.02em;
 }
 
-.toolbar-delete-text {
-  margin-left: auto;
+/* Единый стиль опасной кнопки (Удалить квест / Удалить раунд) */
+.danger-btn {
   display: inline-flex;
   align-items: center;
-  padding: 0.45rem 1.1rem;
+  justify-content: center;
+  padding: 0.6rem 1.4rem;
   line-height: 1.2;
   border-radius: var(--radius-pill);
-  border: 1px solid rgb(var(--c-danger) / 0.4);
-  background: rgb(var(--c-danger) / 0.1);
+  border: 1px solid rgb(var(--c-danger) / 0.45);
+  background: rgb(var(--c-danger) / 0.12);
   color: rgb(var(--c-danger-soft));
-  font-size: 0.82rem;
+  font-size: 0.85rem;
   font-weight: 600;
   letter-spacing: 0.02em;
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
-  width: auto;
 }
 
-.toolbar-delete-text:hover {
+.danger-btn:hover {
   transform: translateY(-1px);
   background: rgb(var(--c-danger) / 0.2);
-  box-shadow: 0 14px 30px rgb(var(--c-danger) / 0.24);
-}
-
-.toolbar-delete-text svg {
-  width: 18px;
-  height: 18px;
-  fill: currentColor;
+  box-shadow: 0 12px 26px rgb(var(--c-danger) / 0.22);
 }
 
 .rounds-panel {
   background: rgb(var(--c-bg) / 0.72);
   border-radius: 24px;
   border: 1px solid rgb(var(--c-accent-sky) / 0.16);
-  padding: clamp(1rem, 3vw, 1.75rem);
+  padding: clamp(1.35rem, 3.5vw, 2.25rem);
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.6rem;
   box-shadow: 0 24px 46px rgb(var(--c-sky-deep) / 0.35);
 }
 
@@ -717,30 +711,8 @@ function goBack() {
 }
 
 @media (max-width: 1024px) {
-  .quest-toolbar {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .toolbar-left {
-    flex-direction: column;
-  }
-
-  .toolbar-fields {
-    width: 100%;
-  }
-
   .rounds-panel {
     padding: 1rem;
-  }
-
-  .toolbar-delete-text {
-    align-self: flex-start;
-    width: auto;
-  }
-
-  .user-pill {
-    align-self: center;
   }
 }
 
@@ -752,6 +724,21 @@ function goBack() {
 
   .quest-toolbar {
     border-radius: 18px;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .toolbar-side {
+    width: 100%;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .toolbar-stats {
+    justify-content: flex-start;
   }
 
   .toolbar-input {
@@ -800,10 +787,9 @@ function goBack() {
     padding: 0.25rem 0.65rem;
   }
 
-  .toolbar-delete-text {
+  .danger-btn {
     font-size: 0.8rem;
-    padding: 0.35rem 1.1rem;
-    border-radius: 12px;
+    padding: 0.5rem 1.1rem;
   }
 
   .rounds-panel {
