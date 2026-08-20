@@ -27,8 +27,14 @@
             placeholder="Короткое описание для ведущего и игроков"
           ></textarea>
           <div class="toolbar-stats">
-            <span class="stat-chip">Раундов: {{ Array.isArray(quest.rounds) ? quest.rounds.length : 0 }}/5</span>
-            <span class="stat-chip">Вопросов: {{ questStats.totalQuestions }}</span>
+            <span class="stat-chip">
+              <span class="stat-chip__label">Раундов</span>
+              <span class="stat-chip__value">{{ Array.isArray(quest.rounds) ? quest.rounds.length : 0 }}/5</span>
+            </span>
+            <span class="stat-chip">
+              <span class="stat-chip__label">Вопросов</span>
+              <span class="stat-chip__value">{{ questStats.totalQuestions }}</span>
+            </span>
             <span
               v-if="store.saveState !== 'idle'"
               class="save-indicator"
@@ -494,13 +500,24 @@ function goBack() {
 }
 
 .stat-chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.45rem;
   background: rgb(var(--c-accent-sky) / 0.15);
   color: rgb(var(--c-accent-soft));
   border-radius: 999px;
-  padding: 0.5rem 1.15rem;
-  font-size: 0.9rem;
-  letter-spacing: 0.05em;
+  padding: 0.45rem 1.15rem;
+}
+.stat-chip__label {
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
+  opacity: 0.85;
+}
+.stat-chip__value {
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
 }
 
 .toolbar-delete-text {
@@ -554,12 +571,12 @@ function goBack() {
 }
 
 .round-tab {
-  padding: 0.4rem 0.95rem;
+  padding: 0.7rem 1.6rem;
   border-radius: var(--radius-pill);
   border: 1px solid rgb(var(--c-accent-sky) / 0.2);
   background: rgb(var(--c-bg) / 0.55);
   color: rgb(var(--c-text-soft) / 0.8);
-  font-size: 0.82rem;
+  font-size: 1rem;
   font-weight: 600;
   letter-spacing: 0.02em;
   cursor: pointer;
