@@ -441,6 +441,7 @@ function goBack() {
 
 .admin-quest-view {
   min-height: 100dvh;
+  box-sizing: border-box;
   background: linear-gradient(135deg, rgb(var(--c-bg)) 0%, rgb(var(--c-surface)) 100%);
   padding: 0 clamp(1.25rem, 4vw, 3.5rem) 2.5rem;
   display: flex;
@@ -547,7 +548,7 @@ function goBack() {
   color: rgb(var(--c-accent-soft));
 }
 .stat-chip__label {
-  font-size: 0.8rem;
+  font-size: 0.92rem;
   letter-spacing: 0.01em;
   opacity: 0.85;
 }
@@ -634,9 +635,9 @@ function goBack() {
 
 .round-tab--active,
 .round-tab--active:hover {
-  background: linear-gradient(135deg, rgb(var(--c-blue)), rgb(var(--c-indigo)));
-  color: rgb(var(--c-white));
-  border-color: transparent;
+  background: rgb(var(--c-accent-sky) / 0.16);
+  color: rgb(var(--c-accent-soft));
+  border-color: rgb(var(--c-accent-sky) / 0.35);
 }
 
 .round-tab--add {

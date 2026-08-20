@@ -358,7 +358,7 @@ watch(() => props.round.id, closeModal)
   min-width: 96px;
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
+  gap: 0.95rem;
 }
 
 .board-col__head {
