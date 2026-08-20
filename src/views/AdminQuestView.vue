@@ -65,7 +65,7 @@
       </div>
     </header>
 
-    <section class="rounds-panel">
+    <div class="rounds-capsule">
       <div class="round-tabs">
         <button
           v-for="(round, index) in quest.rounds"
@@ -88,7 +88,9 @@
           <span v-else class="mini-loader"></span>
         </button>
       </div>
+    </div>
 
+    <section class="board-panel">
       <p v-if="roundsCount === 0" class="panel-empty">
         Пока нет раундов. Создайте первый, чтобы добавить категории и вопросы.
       </p>
@@ -579,7 +581,21 @@ function goBack() {
   box-shadow: 0 12px 26px rgb(var(--c-danger) / 0.22);
 }
 
-.rounds-panel {
+/* Отдельная капсула раундов — по центру, не на всю ширину (как статистика) */
+.rounds-capsule {
+  align-self: center;
+  display: inline-flex;
+  justify-content: center;
+  padding: 0.4rem;
+  border-radius: var(--radius-pill);
+  background: rgb(var(--c-bg) / 0.72);
+  border: 1px solid rgb(var(--c-accent-sky) / 0.2);
+  box-shadow: 0 14px 32px rgb(var(--c-sky-deep) / 0.3);
+  backdrop-filter: blur(10px);
+}
+
+/* Блок с плитками вопросов */
+.board-panel {
   background: rgb(var(--c-bg) / 0.72);
   border-radius: 24px;
   border: 1px solid rgb(var(--c-accent-sky) / 0.16);
@@ -592,42 +608,39 @@ function goBack() {
 
 .round-tabs {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.35rem;
   flex-wrap: wrap;
   align-items: center;
+  justify-content: center;
 }
 
 .round-tab {
-  padding: 0.6rem 1.4rem;
+  padding: 0.55rem 1.3rem;
   border-radius: var(--radius-pill);
-  border: 1px solid rgb(var(--c-accent-sky) / 0.2);
-  background: rgb(var(--c-bg) / 0.55);
-  color: rgb(var(--c-text-soft) / 0.8);
+  border: 1px solid transparent;
+  background: transparent;
+  color: rgb(var(--c-text-soft) / 0.75);
   font-size: 0.88rem;
   font-weight: 600;
   letter-spacing: 0.02em;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
 .round-tab:hover {
-  border-color: rgb(var(--c-accent-sky) / 0.4);
-  transform: translateY(-1px);
+  background: rgb(var(--c-accent-sky) / 0.1);
+  color: rgb(var(--c-text));
 }
 
-.round-tab--active {
-  border-color: transparent;
-  background: linear-gradient(135deg, rgb(var(--c-accent-sky)), rgb(var(--c-accent)));
-  color: rgb(var(--c-bg));
-  box-shadow: none;
-}
+.round-tab--active,
 .round-tab--active:hover {
-  transform: none;
+  background: linear-gradient(135deg, rgb(var(--c-blue)), rgb(var(--c-indigo)));
+  color: rgb(var(--c-white));
+  border-color: transparent;
 }
 
 .round-tab--add {
-  border-style: dashed;
-  border-color: rgb(var(--c-accent-sky) / 0.3);
+  border: 1px dashed rgb(var(--c-accent-sky) / 0.35);
   background: transparent;
   color: rgb(var(--c-text-soft) / 0.7);
   font-weight: 500;
@@ -637,7 +650,8 @@ function goBack() {
 }
 .round-tab--add:hover {
   color: rgb(var(--c-accent-soft));
-  border-color: rgb(var(--c-accent-sky) / 0.5);
+  border-color: rgb(var(--c-accent-sky) / 0.55);
+  background: transparent;
 }
 
 .round-tab--add:disabled {
@@ -768,7 +782,7 @@ function goBack() {
     padding: 0.5rem 1.1rem;
   }
 
-  .rounds-panel {
+  .board-panel {
     padding: 0.85rem;
     border-radius: 14px;
     gap: 0.75rem;
@@ -797,7 +811,7 @@ function goBack() {
     padding: 0.45rem 0.65rem;
   }
 
-  .rounds-panel {
+  .board-panel {
     padding: 0.7rem;
     border-radius: 12px;
   }
@@ -828,7 +842,7 @@ function goBack() {
     font-size: 0.9rem;
   }
 
-  .rounds-panel {
+  .board-panel {
     padding: 0.6rem;
     border-radius: 10px;
   }

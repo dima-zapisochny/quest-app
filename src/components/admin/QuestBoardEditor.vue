@@ -344,7 +344,6 @@ watch(() => props.round.id, closeModal)
 /* --- Доска --- */
 .board-scroll {
   overflow-x: auto;
-  padding-bottom: 0.5rem;
 }
 .board-columns {
   display: flex;
