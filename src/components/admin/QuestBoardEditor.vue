@@ -349,12 +349,13 @@ watch(() => props.round.id, closeModal)
   display: flex;
   gap: 0.9rem;
   align-items: flex-start;
-  min-width: min-content;
 }
 
+/* Колонки тянутся и поровну заполняют всю ширину блока */
 .board-col {
   position: relative;
-  flex: 0 0 clamp(150px, 20vw, 210px);
+  flex: 1 1 0;
+  min-width: 96px;
   display: flex;
   flex-direction: column;
   gap: 0.6rem;

@@ -509,9 +509,8 @@ function goBack() {
   padding: 0.45rem 1.15rem;
 }
 .stat-chip__label {
-  font-size: 0.7rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font-size: 0.8rem;
+  letter-spacing: 0.01em;
   opacity: 0.85;
 }
 .stat-chip__value {
