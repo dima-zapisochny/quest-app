@@ -2,6 +2,13 @@
   "language": {
     "label": "Language"
   },
+  "common": {
+    "back": "Back",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "close": "Close",
+    "edit": "Edit"
+  },
   "landing": {
     "checkingAuth": "Checking authorization…",
     "subtitle": "Team quizzes with a game-show vibe",
@@ -15,5 +22,36 @@
     "errAvatar": "Choose an avatar",
     "errCode": "Enter the game code (4 characters)",
     "errNotFound": "No session found with this code"
+  },
+  "host": {
+    "preparing": "Preparing quests…",
+    "title": "Create a game",
+    "subtitle": "Choose a quest you'll host.",
+    "chooseQuest": "Choose a quest",
+    "chooseQuestHint": "Each quest is a separate adventure. Try different themes!",
+    "editQuestAria": "Edit quest",
+    "exportQuestAria": "Download quest as JSON",
+    "exportTooltip": "Export to JSON",
+    "deleteQuestAria": "Delete quest",
+    "createNewQuest": "Create a new quest",
+    "startGame": "Start game",
+    "startHint": "Add at least one question to start the game.",
+    "rounds": "Rounds: {count}",
+    "questions": "Questions: {count}",
+    "noQuestions": "No questions",
+    "importing": "Importing…",
+    "importQuest": "Import quest from file",
+    "deleteConfirmTitle": "Delete quest?",
+    "deleteConfirmBody": "Do you really want to delete the quest “{title}”? This action cannot be undone.",
+    "reasonMobile": "Available only on a computer or tablet",
+    "reasonNoQuestions": "Add at least one question",
+    "errSelectQuest": "Select a quest to start the game",
+    "errNoRounds": "Add at least one round to the quest",
+    "errNoCategories": "The round has no categories",
+    "errNoQuestions": "Add at least one question to the quest",
+    "errImportFormat": "Invalid file format: a quest JSON with title and rounds fields is required",
+    "errCreateGame": "Failed to create the game",
+    "errDeleteQuest": "Failed to delete the quest",
+    "errImportQuest": "Failed to import the quest"
   }
 }

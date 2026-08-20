@@ -2,7 +2,7 @@
   <div class="host-setup">
     <AppHeader
       button-variant="back"
-      button-label="Назад"
+      :button-label="t('common.back')"
       :user-name="userProfile?.name"
       :user-avatar="userProfile?.avatar"
       @button-click="goBack"
@@ -11,23 +11,23 @@
     <div v-if="loading" class="host-loading-wrapper">
       <div class="loading-state">
         <div class="loader"></div>
-        <p>Подготавливаем квесты…</p>
+        <p>{{ t('host.preparing') }}</p>
       </div>
     </div>
     <template v-else>
       <header class="host-header">
         <div class="host-title">
-          <h1>Создание игры</h1>
-          <p>Выберите квест, который будете вести.</p>
+          <h1>{{ t('host.title') }}</h1>
+          <p>{{ t('host.subtitle') }}</p>
         </div>
       </header>
 
       <section class="quest-selection">
         <div class="section-header">
           <div class="section-title">
-            <h2>Выберите квест</h2>
+            <h2>{{ t('host.chooseQuest') }}</h2>
           </div>
-          <p class="section-subtitle">Каждый квест — отдельное приключение. Попробуйте разные темы!</p>
+          <p class="section-subtitle">{{ t('host.chooseQuestHint') }}</p>
         </div>
 
         <div class="quests-grid">
@@ -44,8 +44,8 @@
                   type="button"
                   class="quest-action-button"
                   @click="goToQuestEditor(quest.id)"
-                  aria-label="Редактировать квест"
-                  data-tooltip="Редактировать"
+                  :aria-label="t('host.editQuestAria')"
+                  :data-tooltip="t('common.edit')"
                 >
                   <svg viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zm17.71-10.04a1.003 1.003 0 0 0 0-1.42l-2.5-2.5a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1-1z"></path>
@@ -55,8 +55,8 @@
                   type="button"
                   class="quest-action-button"
                   @click="exportQuest(quest.id)"
-                  aria-label="Скачать квест в JSON"
-                  data-tooltip="Экспорт в JSON"
+                  :aria-label="t('host.exportQuestAria')"
+                  :data-tooltip="t('host.exportTooltip')"
                 >
                   <svg viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
@@ -66,8 +66,8 @@
                   type="button"
                   class="quest-action-button quest-action-button--danger"
                   @click="deleteQuest(quest.id)"
-                  aria-label="Удалить квест"
-                  data-tooltip="Удалить"
+                  :aria-label="t('host.deleteQuestAria')"
+                  :data-tooltip="t('common.delete')"
                 >
                   <svg viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12zm12-15h-3.5l-1-1h-3l-1 1H6v2h12V4z"></path>
@@ -77,16 +77,16 @@
             </div>
             <p class="quest-description">{{ quest.description || '' }}</p>
             <div class="quest-meta">
-              <span>Раундов: {{ quest.roundsCount ?? (quest.rounds?.length ?? 0) }}</span>
-              <span>Вопросов: {{ questQuestions(quest) }}</span>
+              <span>{{ t('host.rounds', { count: quest.roundsCount ?? (quest.rounds?.length ?? 0) }) }}</span>
+              <span>{{ t('host.questions', { count: questQuestions(quest) }) }}</span>
               <span v-if="questQuestions(quest) === 0" class="quest-empty-badge">
-                <i aria-hidden="true">⚠</i> Нет вопросов
+                <i aria-hidden="true">⚠</i> {{ t('host.noQuestions') }}
               </span>
             </div>
           </article>
           <article class="quest-card quest-card--new" @click="createNewQuest">
             <div class="new-quest-circle">+</div>
-            <span>Создать новый квест</span>
+            <span>{{ t('host.createNewQuest') }}</span>
           </article>
           <article class="quest-card quest-card--import" @click.stop="triggerImportQuest">
             <input
@@ -98,7 +98,7 @@
               @change="onImportQuestFile"
             />
             <div class="new-quest-circle import-icon">📂</div>
-            <span>{{ importingQuest ? 'Импорт…' : 'Импортировать квест из файла' }}</span>
+            <span>{{ importingQuest ? t('host.importing') : t('host.importQuest') }}</span>
           </article>
         </div>
       </section>
@@ -109,9 +109,9 @@
           :disabled="!selectedQuestId || isMobileViewport || selectedQuestEmpty"
           :title="startDisabledReason"
           @click="handleStart"
-        >Начать игру</button>
+        >{{ t('host.startGame') }}</button>
         <p v-if="selectedQuestId && selectedQuestEmpty" class="start-hint">
-          Добавьте хотя бы один вопрос, чтобы начать игру.
+          {{ t('host.startHint') }}
         </p>
         <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
       </section>
@@ -120,15 +120,15 @@
       <div v-if="confirmDeleteModal.visible" class="quest-modal-backdrop" @click="cancelDeleteQuest">
         <div class="quest-modal quest-modal--confirm" role="dialog" aria-modal="true" @click.stop>
           <header class="quest-modal__header">
-            <h2>Удалить квест?</h2>
-            <button type="button" class="quest-modal__close" @click="cancelDeleteQuest" aria-label="Закрыть">✕</button>
+            <h2>{{ t('host.deleteConfirmTitle') }}</h2>
+            <button type="button" class="quest-modal__close" @click="cancelDeleteQuest" :aria-label="t('common.close')">✕</button>
           </header>
           <div class="quest-modal__body">
-            <p>Вы действительно хотите удалить квест «{{ confirmDeleteModal.questTitle }}»? Это действие нельзя отменить.</p>
+            <p>{{ t('host.deleteConfirmBody', { title: confirmDeleteModal.questTitle }) }}</p>
           </div>
           <div class="quest-modal__actions">
-            <button type="button" class="secondary" @click="cancelDeleteQuest">Отмена</button>
-            <button type="button" class="danger" @click="confirmDeleteQuest">Удалить</button>
+            <button type="button" class="secondary" @click="cancelDeleteQuest">{{ t('common.cancel') }}</button>
+            <button type="button" class="danger" @click="confirmDeleteQuest">{{ t('common.delete') }}</button>
           </div>
         </div>
       </div>
@@ -139,11 +139,13 @@
 <script setup lang="ts">
 import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useQuizStore } from '@/store/quizStore'
 import { useGameSessionStore } from '@/store/gameSessionStore'
 import AppHeader from '@/components/common/AppHeader.vue'
 import { useIsMobileViewport } from '@/composables/useIsMobileViewport'
 
+const { t } = useI18n()
 const importingQuest = ref(false)
 const importQuestInputRef = ref<HTMLInputElement | null>(null)
 
@@ -227,8 +229,8 @@ const selectedQuestEmpty = computed(() => {
 })
 
 const startDisabledReason = computed(() => {
-  if (isMobileViewport.value) return 'Доступно только с компьютера или планшета'
-  if (selectedQuestId.value && selectedQuestEmpty.value) return 'Добавьте хотя бы один вопрос'
+  if (isMobileViewport.value) return t('host.reasonMobile')
+  if (selectedQuestId.value && selectedQuestEmpty.value) return t('host.reasonNoQuestions')
   return undefined
 })
 
@@ -252,7 +254,7 @@ function selectQuest(questId: string) {
 async function handleStart() {
   errorMessage.value = ''
   if (!selectedQuestId.value) {
-    errorMessage.value = 'Выберите квест для старта игры'
+    errorMessage.value = t('host.errSelectQuest')
     return
   }
   try {
@@ -263,12 +265,12 @@ async function handleStart() {
       quest = (await quizStore.loadQuestFull(selectedQuestId.value)) ?? quest
     }
     if (!quest || !Array.isArray(quest.rounds) || !quest.rounds.length) {
-      errorMessage.value = 'Добавьте хотя бы один раунд в квест'
+      errorMessage.value = t('host.errNoRounds')
       return
     }
     const firstRound = quest.rounds.find(round => Array.isArray(round.categories)) ?? quest.rounds[0]
     if (!firstRound) {
-      errorMessage.value = 'В раунде отсутствуют категории'
+      errorMessage.value = t('host.errNoCategories')
       return
     }
 
@@ -278,7 +280,7 @@ async function handleStart() {
       0
     )
     if (totalQuestions === 0) {
-      errorMessage.value = 'Добавьте хотя бы один вопрос в квест'
+      errorMessage.value = t('host.errNoQuestions')
       return
     }
 
@@ -296,7 +298,7 @@ async function handleStart() {
       }
     })
   } catch (error: any) {
-    errorMessage.value = error?.message ?? 'Не удалось создать игру'
+    errorMessage.value = error?.message ?? t('host.errCreateGame')
   }
 }
 
@@ -356,7 +358,7 @@ async function confirmDeleteQuest() {
     confirmDeleteModal.value = { visible: false, questId: null, questTitle: '' }
     errorMessage.value = ''
   } catch (err) {
-    errorMessage.value = (err as Error)?.message ?? 'Не удалось удалить квест'
+    errorMessage.value = (err as Error)?.message ?? t('host.errDeleteQuest')
   }
 }
 
@@ -383,13 +385,13 @@ async function onImportQuestFile(event: Event) {
     const text = await file.text()
     const data = JSON.parse(text)
     if (!data || typeof data.title !== 'string' || !Array.isArray(data.rounds)) {
-      errorMessage.value = 'Неверный формат файла: нужен JSON квеста с полями title и rounds'
+      errorMessage.value = t('host.errImportFormat')
       return
     }
     const questId = await quizStore.importQuest(data)
     selectedQuestId.value = questId
   } catch (err: any) {
-    errorMessage.value = err?.message ?? 'Не удалось импортировать квест'
+    errorMessage.value = err?.message ?? t('host.errImportQuest')
   } finally {
     importingQuest.value = false
   }

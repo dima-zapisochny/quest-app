@@ -2,6 +2,13 @@
   "language": {
     "label": "Мова"
   },
+  "common": {
+    "back": "Назад",
+    "cancel": "Скасувати",
+    "delete": "Видалити",
+    "close": "Закрити",
+    "edit": "Редагувати"
+  },
   "landing": {
     "checkingAuth": "Перевірка авторизації…",
     "subtitle": "Командні вікторини з атмосферою шоу",
@@ -15,5 +22,36 @@
     "errAvatar": "Виберіть аватар",
     "errCode": "Введіть код гри (4 символи)",
     "errNotFound": "Сесію з таким кодом не знайдено"
+  },
+  "host": {
+    "preparing": "Готуємо квести…",
+    "title": "Створення гри",
+    "subtitle": "Виберіть квест, який будете вести.",
+    "chooseQuest": "Виберіть квест",
+    "chooseQuestHint": "Кожен квест — окрема пригода. Спробуйте різні теми!",
+    "editQuestAria": "Редагувати квест",
+    "exportQuestAria": "Завантажити квест у JSON",
+    "exportTooltip": "Експорт у JSON",
+    "deleteQuestAria": "Видалити квест",
+    "createNewQuest": "Створити новий квест",
+    "startGame": "Почати гру",
+    "startHint": "Додайте хоча б одне запитання, щоб почати гру.",
+    "rounds": "Раундів: {count}",
+    "questions": "Запитань: {count}",
+    "noQuestions": "Немає запитань",
+    "importing": "Імпорт…",
+    "importQuest": "Імпортувати квест із файлу",
+    "deleteConfirmTitle": "Видалити квест?",
+    "deleteConfirmBody": "Ви дійсно хочете видалити квест «{title}»? Цю дію не можна скасувати.",
+    "reasonMobile": "Доступно лише з комп'ютера або планшета",
+    "reasonNoQuestions": "Додайте хоча б одне запитання",
+    "errSelectQuest": "Виберіть квест для старту гри",
+    "errNoRounds": "Додайте хоча б один раунд у квест",
+    "errNoCategories": "У раунді немає категорій",
+    "errNoQuestions": "Додайте хоча б одне запитання в квест",
+    "errImportFormat": "Неправильний формат файлу: потрібен JSON квесту з полями title і rounds",
+    "errCreateGame": "Не вдалося створити гру",
+    "errDeleteQuest": "Не вдалося видалити квест",
+    "errImportQuest": "Не вдалося імпортувати квест"
   }
 }

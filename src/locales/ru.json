@@ -2,6 +2,13 @@
   "language": {
     "label": "Язык"
   },
+  "common": {
+    "back": "Назад",
+    "cancel": "Отмена",
+    "delete": "Удалить",
+    "close": "Закрыть",
+    "edit": "Редактировать"
+  },
   "landing": {
     "checkingAuth": "Проверка авторизации…",
     "subtitle": "Командные викторины с атмосферой шоу",
@@ -15,5 +22,36 @@
     "errAvatar": "Выберите аватар",
     "errCode": "Введите код игры (4 символа)",
     "errNotFound": "Сессия с таким кодом не найдена"
+  },
+  "host": {
+    "preparing": "Подготавливаем квесты…",
+    "title": "Создание игры",
+    "subtitle": "Выберите квест, который будете вести.",
+    "chooseQuest": "Выберите квест",
+    "chooseQuestHint": "Каждый квест — отдельное приключение. Попробуйте разные темы!",
+    "editQuestAria": "Редактировать квест",
+    "exportQuestAria": "Скачать квест в JSON",
+    "exportTooltip": "Экспорт в JSON",
+    "deleteQuestAria": "Удалить квест",
+    "createNewQuest": "Создать новый квест",
+    "startGame": "Начать игру",
+    "startHint": "Добавьте хотя бы один вопрос, чтобы начать игру.",
+    "rounds": "Раундов: {count}",
+    "questions": "Вопросов: {count}",
+    "noQuestions": "Нет вопросов",
+    "importing": "Импорт…",
+    "importQuest": "Импортировать квест из файла",
+    "deleteConfirmTitle": "Удалить квест?",
+    "deleteConfirmBody": "Вы действительно хотите удалить квест «{title}»? Это действие нельзя отменить.",
+    "reasonMobile": "Доступно только с компьютера или планшета",
+    "reasonNoQuestions": "Добавьте хотя бы один вопрос",
+    "errSelectQuest": "Выберите квест для старта игры",
+    "errNoRounds": "Добавьте хотя бы один раунд в квест",
+    "errNoCategories": "В раунде отсутствуют категории",
+    "errNoQuestions": "Добавьте хотя бы один вопрос в квест",
+    "errImportFormat": "Неверный формат файла: нужен JSON квеста с полями title и rounds",
+    "errCreateGame": "Не удалось создать игру",
+    "errDeleteQuest": "Не удалось удалить квест",
+    "errImportQuest": "Не удалось импортировать квест"
   }
 }

@@ -2,6 +2,13 @@
   "language": {
     "label": "Langue"
   },
+  "common": {
+    "back": "Retour",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "close": "Fermer",
+    "edit": "Modifier"
+  },
   "landing": {
     "checkingAuth": "Vérification de l'autorisation…",
     "subtitle": "Quiz en équipe avec une ambiance de show",
@@ -15,5 +22,36 @@
     "errAvatar": "Choisissez un avatar",
     "errCode": "Entrez le code de la partie (4 caractères)",
     "errNotFound": "Aucune session trouvée avec ce code"
+  },
+  "host": {
+    "preparing": "Préparation des quiz…",
+    "title": "Créer une partie",
+    "subtitle": "Choisissez le quiz que vous allez animer.",
+    "chooseQuest": "Choisissez un quiz",
+    "chooseQuestHint": "Chaque quiz est une aventure à part. Essayez différents thèmes !",
+    "editQuestAria": "Modifier le quiz",
+    "exportQuestAria": "Télécharger le quiz en JSON",
+    "exportTooltip": "Exporter en JSON",
+    "deleteQuestAria": "Supprimer le quiz",
+    "createNewQuest": "Créer un nouveau quiz",
+    "startGame": "Démarrer la partie",
+    "startHint": "Ajoutez au moins une question pour démarrer la partie.",
+    "rounds": "Manches : {count}",
+    "questions": "Questions : {count}",
+    "noQuestions": "Aucune question",
+    "importing": "Importation…",
+    "importQuest": "Importer un quiz depuis un fichier",
+    "deleteConfirmTitle": "Supprimer le quiz ?",
+    "deleteConfirmBody": "Voulez-vous vraiment supprimer le quiz « {title} » ? Cette action est irréversible.",
+    "reasonMobile": "Disponible uniquement sur ordinateur ou tablette",
+    "reasonNoQuestions": "Ajoutez au moins une question",
+    "errSelectQuest": "Sélectionnez un quiz pour démarrer la partie",
+    "errNoRounds": "Ajoutez au moins une manche au quiz",
+    "errNoCategories": "La manche n'a aucune catégorie",
+    "errNoQuestions": "Ajoutez au moins une question au quiz",
+    "errImportFormat": "Format de fichier invalide : un JSON de quiz avec les champs title et rounds est requis",
+    "errCreateGame": "Impossible de créer la partie",
+    "errDeleteQuest": "Impossible de supprimer le quiz",
+    "errImportQuest": "Impossible d'importer le quiz"
   }
 }

@@ -2,6 +2,13 @@
   "language": {
     "label": "Idioma"
   },
+  "common": {
+    "back": "Atrás",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "close": "Cerrar",
+    "edit": "Editar"
+  },
   "landing": {
     "checkingAuth": "Comprobando autorización…",
     "subtitle": "Cuestionarios en equipo con ambiente de show",
@@ -15,5 +22,36 @@
     "errAvatar": "Elige un avatar",
     "errCode": "Introduce el código de juego (4 caracteres)",
     "errNotFound": "No se encontró ninguna sesión con este código"
+  },
+  "host": {
+    "preparing": "Preparando los cuestionarios…",
+    "title": "Crear una partida",
+    "subtitle": "Elige el cuestionario que vas a dirigir.",
+    "chooseQuest": "Elige un cuestionario",
+    "chooseQuestHint": "Cada cuestionario es una aventura distinta. ¡Prueba diferentes temas!",
+    "editQuestAria": "Editar cuestionario",
+    "exportQuestAria": "Descargar cuestionario en JSON",
+    "exportTooltip": "Exportar a JSON",
+    "deleteQuestAria": "Eliminar cuestionario",
+    "createNewQuest": "Crear un cuestionario nuevo",
+    "startGame": "Empezar partida",
+    "startHint": "Añade al menos una pregunta para empezar la partida.",
+    "rounds": "Rondas: {count}",
+    "questions": "Preguntas: {count}",
+    "noQuestions": "Sin preguntas",
+    "importing": "Importando…",
+    "importQuest": "Importar cuestionario desde archivo",
+    "deleteConfirmTitle": "¿Eliminar el cuestionario?",
+    "deleteConfirmBody": "¿Seguro que quieres eliminar el cuestionario «{title}»? Esta acción no se puede deshacer.",
+    "reasonMobile": "Disponible solo en ordenador o tableta",
+    "reasonNoQuestions": "Añade al menos una pregunta",
+    "errSelectQuest": "Selecciona un cuestionario para empezar la partida",
+    "errNoRounds": "Añade al menos una ronda al cuestionario",
+    "errNoCategories": "La ronda no tiene categorías",
+    "errNoQuestions": "Añade al menos una pregunta al cuestionario",
+    "errImportFormat": "Formato de archivo no válido: se necesita un JSON de cuestionario con los campos title y rounds",
+    "errCreateGame": "No se pudo crear la partida",
+    "errDeleteQuest": "No se pudo eliminar el cuestionario",
+    "errImportQuest": "No se pudo importar el cuestionario"
   }
 }
