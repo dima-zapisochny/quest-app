@@ -30,6 +30,13 @@
           :key="category.id"
           class="board-col"
         >
+          <button
+            type="button"
+            class="board-col__del"
+            title="Удалить категорию"
+            aria-label="Удалить категорию"
+            @click="removeCategory(category.id)"
+          >✕</button>
           <div class="board-col__head">
             <input
               :value="category.title"
@@ -38,13 +45,6 @@
               aria-label="Название категории"
               @input="onCategoryTitle(category.id, $event)"
             />
-            <button
-              type="button"
-              class="board-col__del"
-              title="Удалить категорию"
-              aria-label="Удалить категорию"
-              @click="removeCategory(category.id)"
-            >✕</button>
           </div>
 
           <div class="board-col__tiles">
@@ -75,13 +75,13 @@
         <button
           v-if="categories.length < 8"
           type="button"
-          class="board-col board-col--add"
+          class="board-col--add"
           :disabled="isBusy"
+          title="Добавить категорию"
           aria-label="Добавить категорию"
           @click="addCategory"
         >
           <span class="board-col-add__plus">+</span>
-          <span class="board-col-add__label">Категория</span>
         </button>
       </div>
     </div>
@@ -350,6 +350,7 @@ watch(() => props.round.id, closeModal)
 }
 
 .board-col {
+  position: relative;
   flex: 0 0 clamp(150px, 20vw, 210px);
   display: flex;
   flex-direction: column;
@@ -357,13 +358,10 @@ watch(() => props.round.id, closeModal)
 }
 
 .board-col__head {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
+  display: block;
 }
 .board-col__title {
-  flex: 1 1 auto;
-  min-width: 0;
+  width: 100%;
   box-sizing: border-box;
   padding: 0.55rem 0.7rem;
   border: 1px solid rgb(var(--c-blue) / 0.28);
@@ -384,20 +382,36 @@ watch(() => props.round.id, closeModal)
   border-color: rgb(var(--c-accent-sky) / 0.6);
   box-shadow: 0 0 0 3px rgb(var(--c-accent-sky) / 0.22);
 }
+/* Крестик появляется в углу колонки только при наведении/фокусе */
 .board-col__del {
-  flex-shrink: 0;
-  width: 1.9rem;
-  height: 1.9rem;
-  border-radius: 10px;
-  border: 1px solid rgb(var(--c-danger) / 0.35);
-  background: rgb(var(--c-danger) / 0.1);
-  color: rgb(var(--c-danger-soft));
-  font-size: 0.8rem;
+  position: absolute;
+  top: -7px;
+  right: -7px;
+  z-index: 2;
+  width: 1.35rem;
+  height: 1.35rem;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid rgb(var(--c-danger) / 0.5);
+  background: rgb(var(--c-danger) / 0.9);
+  color: rgb(var(--c-white));
+  font-size: 0.7rem;
+  line-height: 1;
   cursor: pointer;
-  transition: background 0.2s ease;
+  opacity: 0;
+  transform: scale(0.7);
+  box-shadow: 0 3px 8px rgb(var(--c-bg-deep) / 0.5);
+  transition: opacity 0.15s ease, transform 0.15s ease, background 0.15s ease;
+}
+.board-col:hover .board-col__del,
+.board-col:focus-within .board-col__del,
+.board-col__del:focus-visible {
+  opacity: 1;
+  transform: scale(1);
 }
 .board-col__del:hover {
-  background: rgb(var(--c-danger) / 0.22);
+  background: rgb(var(--c-danger));
+  transform: scale(1.1);
 }
 
 .board-col__tiles {
@@ -463,39 +477,33 @@ watch(() => props.round.id, closeModal)
   cursor: not-allowed;
 }
 
+/* Узкая полоса «добавить категорию» */
 .board-col--add {
-  flex: 0 0 clamp(120px, 15vw, 160px);
+  flex: 0 0 44px;
   align-self: stretch;
-  min-height: 120px;
-  border-radius: 16px;
-  border: 1px dashed rgb(var(--c-accent-sky) / 0.35);
-  background: rgb(var(--c-bg) / 0.35);
-  color: rgb(var(--c-accent-soft));
+  min-height: 96px;
+  border-radius: 12px;
+  border: 1px dashed rgb(var(--c-accent-sky) / 0.3);
+  background: rgb(var(--c-bg) / 0.3);
+  color: rgb(var(--c-accent-soft) / 0.8);
   cursor: pointer;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.4rem;
-  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 .board-col--add:hover:not(:disabled) {
-  background: rgb(var(--c-accent-sky) / 0.1);
+  background: rgb(var(--c-accent-sky) / 0.12);
   border-color: rgb(var(--c-accent-sky) / 0.55);
-  transform: translateY(-2px);
+  color: rgb(var(--c-accent-soft));
 }
 .board-col--add:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 .board-col-add__plus {
-  font-size: 1.8rem;
+  font-size: 1.6rem;
   line-height: 1;
-}
-.board-col-add__label {
-  font-size: 0.78rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
 }
 
 /* --- Футер --- */

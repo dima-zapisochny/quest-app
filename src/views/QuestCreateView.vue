@@ -53,16 +53,21 @@
           </div>
 
           <div v-if="mode === 'grid'" class="grid-size">
-            <div class="grid-size__steppers">
-              <NumberStepper v-model="categories" :min="1" :max="8" label="Категории" block />
-              <span class="grid-size__times" aria-hidden="true">×</span>
-              <NumberStepper v-model="questions" :min="1" :max="10" label="Вопросы" block />
+            <div class="grid-size__rounds">
+              <NumberStepper v-model="rounds" :min="1" :max="5" label="Раунды" />
             </div>
-            <div class="grid-size__preview">
-              <div class="grid-size__mini" :style="miniStyle" aria-hidden="true">
-                <span v-for="n in categories * questions" :key="n" class="grid-size__cell"></span>
+            <div class="grid-size__row">
+              <div class="grid-size__steppers">
+                <NumberStepper v-model="categories" :min="1" :max="8" label="Категории" block />
+                <span class="grid-size__times" aria-hidden="true">×</span>
+                <NumberStepper v-model="questions" :min="1" :max="10" label="Вопросы" block />
               </div>
-              <span class="grid-size__total">{{ categories * questions }} плиток</span>
+              <div class="grid-size__preview">
+                <div class="grid-size__mini" :style="miniStyle" aria-hidden="true">
+                  <span v-for="n in categories * questions" :key="n" class="grid-size__cell"></span>
+                </div>
+                <span class="grid-size__total">{{ boardSummary }}</span>
+              </div>
             </div>
           </div>
 
@@ -100,6 +105,7 @@ const userProfile = computed(() => sessionStore.userProfile)
 const title = ref('')
 const description = ref('')
 const mode = ref<'grid' | 'empty'>('grid')
+const rounds = ref(1)
 const categories = ref(5)
 const questions = ref(5)
 const error = ref('')
@@ -109,6 +115,21 @@ const titleInput = ref<HTMLInputElement | null>(null)
 const miniStyle = computed(() => ({
   gridTemplateColumns: `repeat(${categories.value}, 1fr)`
 }))
+
+function plural(n: number, forms: [string, string, string]) {
+  const mod10 = n % 10
+  const mod100 = n % 100
+  if (mod10 === 1 && mod100 !== 11) return forms[0]
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return forms[1]
+  return forms[2]
+}
+
+const boardSummary = computed(() => {
+  const tiles = categories.value * questions.value
+  const tilesLabel = `${tiles} ${plural(tiles, ['плитка', 'плитки', 'плиток'])}`
+  if (rounds.value === 1) return tilesLabel
+  return `${rounds.value} ${plural(rounds.value, ['раунд', 'раунда', 'раундов'])} · ${tilesLabel}`
+})
 
 onMounted(() => {
   nextTick(() => titleInput.value?.focus())
@@ -130,7 +151,7 @@ async function submit() {
   try {
     const desc = description.value.trim()
     const questId = mode.value === 'grid'
-      ? await quizStore.createQuestWithBoard(name, desc, categories.value, questions.value)
+      ? await quizStore.createQuestWithBoard(name, desc, categories.value, questions.value, rounds.value)
       : await quizStore.createQuest(name, desc)
     router.replace({ name: 'admin-quest', params: { questId } })
   } catch (e: any) {
@@ -148,27 +169,31 @@ async function submit() {
 }
 
 .quest-create__main {
-  max-width: 520px;
+  max-width: 680px;
   margin: 0 auto;
-  padding: 1.5rem 1.25rem 3rem;
+  padding: 2.5rem 1.5rem 4rem;
 }
 
 .quest-create__title {
-  margin: 0.5rem 0 0.35rem;
-  font-size: clamp(1.5rem, 4vw, 2rem);
+  margin: 0.5rem 0 0.4rem;
+  font-size: clamp(1.8rem, 5vw, 2.6rem);
   color: rgb(var(--c-text));
 }
 
 .quest-create__subtitle {
-  margin: 0 0 1.5rem;
+  margin: 0 0 1.75rem;
   color: rgb(var(--c-text-soft) / 0.75);
-  font-size: 0.95rem;
+  font-size: 1.02rem;
+}
+
+.quest-create__card {
+  padding: clamp(1.5rem, 4vw, 2.5rem);
 }
 
 .quest-create__form {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.65rem;
 }
 
 .field-label {
@@ -225,19 +250,30 @@ async function submit() {
 
 .grid-size {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  flex-wrap: wrap;
-  padding: 1rem 1.1rem;
-  border-radius: 16px;
+  flex-direction: column;
+  gap: 1.1rem;
+  padding: 1.35rem 1.4rem;
+  border-radius: 18px;
   border: 1px solid rgb(var(--c-accent-sky) / 0.18);
   background: rgb(var(--c-bg) / 0.4);
+}
+.grid-size__rounds {
+  display: flex;
+  justify-content: center;
+  padding-bottom: 1.1rem;
+  border-bottom: 1px solid rgb(var(--c-accent-sky) / 0.14);
+}
+.grid-size__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  flex-wrap: wrap;
 }
 .grid-size__steppers {
   display: flex;
   align-items: center;
-  gap: 0.9rem;
+  gap: 1rem;
 }
 .grid-size__times {
   font-size: 1.3rem;
@@ -254,8 +290,8 @@ async function submit() {
 }
 .grid-size__mini {
   display: grid;
-  gap: 2px;
-  width: clamp(72px, 22vw, 104px);
+  gap: 3px;
+  width: clamp(88px, 24vw, 128px);
 }
 .grid-size__cell {
   aspect-ratio: 1;

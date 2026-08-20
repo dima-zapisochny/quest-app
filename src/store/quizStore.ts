@@ -508,16 +508,23 @@ export const useQuizStore = defineStore('quiz', () => {
     return firstCategoryId
   }
 
-  /** Создаёт квест сразу с готовой доской (раунд 1 + сетка N×M). Возвращает questId. */
+  /**
+   * Создаёт квест сразу с готовой доской: `rounds` раундов, в каждом сетка N×M.
+   * Возвращает questId.
+   */
   async function createQuestWithBoard(
     title: string,
     description: string,
     categories: number,
-    questions: number
+    questions: number,
+    rounds = 1
   ): Promise<string> {
     const questId = await createQuest(title, description)
-    const roundId = await addRound(questId, '')
-    if (roundId) await buildBoard(questId, roundId, categories, questions)
+    const roundCount = Math.max(1, Math.min(5, rounds))
+    for (let r = 0; r < roundCount; r++) {
+      const roundId = await addRound(questId, '')
+      if (roundId) await buildBoard(questId, roundId, categories, questions)
+    }
     // Сохраняем доску немедленно: иначе loadQuestFull в редакторе перезапишет
     // ещё не сохранённый (in-memory) квест пустой версией из БД.
     await flushSave()
