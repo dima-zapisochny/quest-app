@@ -4,6 +4,7 @@ import LandingView from '@/views/LandingView.vue'
 import QuestView from '@/views/QuestView.vue'
 import PlayerSessionView from '@/views/PlayerSessionView.vue'
 import HostSetupView from '@/views/HostSetupView.vue'
+import QuestCreateView from '@/views/QuestCreateView.vue'
 import AdminQuestView from '@/views/AdminQuestView.vue'
 
 const router = createRouter({
@@ -30,6 +31,11 @@ const router = createRouter({
       path: '/host/setup',
       name: 'host-setup',
       component: HostSetupView
+    },
+    {
+      path: '/host/quest/new',
+      name: 'quest-create',
+      component: QuestCreateView
     },
     {
       path: '/host/session/:sessionCode',
