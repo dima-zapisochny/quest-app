@@ -274,7 +274,8 @@ watch(() => props.round.id, closeModal)
 .board-editor {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  /* Отступ от плиток до кнопки «Удалить раунд» = паддинг всего блока */
+  gap: clamp(1rem, 3vw, 1.8rem);
 }
 
 /* --- Пустой раунд --- */
@@ -521,13 +522,14 @@ watch(() => props.round.id, closeModal)
 /* --- Футер --- */
 .board-footer {
   display: flex;
-  justify-content: flex-start;
-  margin-top: 0.75rem;
+  justify-content: center;
+  margin-top: 0;
 }
 .board-delete-round {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  min-width: 240px;
   padding: 0.6rem 1.4rem;
   line-height: 1.2;
   border-radius: var(--radius-pill);

@@ -8,6 +8,34 @@
       @button-click="goBack"
     />
 
+    <div class="stats-capsule">
+      <span class="stat-chip">
+        <span class="stat-chip__label">Раундов</span>
+        <span class="stat-chip__value">{{ Array.isArray(quest.rounds) ? quest.rounds.length : 0 }}/5</span>
+      </span>
+      <span class="stats-capsule__divider" aria-hidden="true"></span>
+      <span class="stat-chip">
+        <span class="stat-chip__label">Вопросов</span>
+        <span class="stat-chip__value">{{ questStats.totalQuestions }}</span>
+      </span>
+      <transition name="save-pill">
+        <span
+          v-if="store.saveState !== 'idle'"
+          class="save-pill"
+          :class="`save-pill--${store.saveState}`"
+          aria-live="polite"
+        >
+          <span class="save-pill__icon" aria-hidden="true">
+            <span v-if="store.saveState === 'saving'" class="save-pill__spinner"></span>
+            <svg v-else class="save-pill__check" viewBox="0 0 24 24">
+              <path d="M5 12.5l4.5 4.5L19 7" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </span>
+          <span class="save-pill__text">{{ store.saveState === 'saving' ? 'Сохраняем…' : 'Сохранено' }}</span>
+        </span>
+      </transition>
+    </div>
+
     <header class="quest-toolbar">
       <div class="toolbar-fields">
         <label class="toolbar-label" for="quest-title">Название квеста</label>
@@ -26,32 +54,6 @@
           placeholder="Короткое описание для ведущего и игроков"
         ></textarea>
 
-        <div class="toolbar-stats">
-          <span class="stat-chip">
-            <span class="stat-chip__label">Раундов</span>
-            <span class="stat-chip__value">{{ Array.isArray(quest.rounds) ? quest.rounds.length : 0 }}/5</span>
-          </span>
-          <span class="stat-chip">
-            <span class="stat-chip__label">Вопросов</span>
-            <span class="stat-chip__value">{{ questStats.totalQuestions }}</span>
-          </span>
-          <transition name="save-pill">
-            <span
-              v-if="store.saveState !== 'idle'"
-              class="save-pill"
-              :class="`save-pill--${store.saveState}`"
-              aria-live="polite"
-            >
-              <span class="save-pill__icon" aria-hidden="true">
-                <span v-if="store.saveState === 'saving'" class="save-pill__spinner"></span>
-                <svg v-else class="save-pill__check" viewBox="0 0 24 24">
-                  <path d="M5 12.5l4.5 4.5L19 7" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
-                </svg>
-              </span>
-              <span class="save-pill__text">{{ store.saveState === 'saving' ? 'Сохраняем…' : 'Сохранено' }}</span>
-            </span>
-          </transition>
-        </div>
         <button
           class="danger-btn toolbar-delete-btn"
           type="button"
@@ -482,8 +484,9 @@ function goBack() {
 }
 
 .toolbar-delete-btn {
-  justify-self: start;
-  margin-top: 0.2rem;
+  justify-self: center;
+  min-width: 240px;
+  margin-top: 0.5rem;
 }
 
 .toolbar-fields {
@@ -536,23 +539,32 @@ function goBack() {
   box-shadow: 0 0 0 3px rgb(var(--c-accent-sky) / 0.25);
 }
 
-.toolbar-stats {
-  display: flex;
+/* Капсула статистики над блоком названия — по центру, не на всю ширину */
+.stats-capsule {
+  align-self: center;
+  display: inline-flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.9rem;
   flex-wrap: wrap;
-  justify-content: flex-start;
-  margin-top: 0.4rem;
+  justify-content: center;
+  padding: 0.5rem 1.3rem;
+  border-radius: var(--radius-pill);
+  background: rgb(var(--c-bg) / 0.72);
+  border: 1px solid rgb(var(--c-accent-sky) / 0.2);
+  box-shadow: 0 14px 32px rgb(var(--c-sky-deep) / 0.3);
+  backdrop-filter: blur(10px);
+}
+.stats-capsule__divider {
+  width: 1px;
+  height: 1.1rem;
+  background: rgb(var(--c-accent-sky) / 0.25);
 }
 
 .stat-chip {
   display: inline-flex;
   align-items: baseline;
-  gap: 0.45rem;
-  background: rgb(var(--c-accent-sky) / 0.15);
+  gap: 0.4rem;
   color: rgb(var(--c-accent-soft));
-  border-radius: 999px;
-  padding: 0.45rem 1.15rem;
 }
 .stat-chip__label {
   font-size: 0.8rem;
@@ -768,9 +780,9 @@ function goBack() {
     font-size: 0.68rem;
   }
 
-  .stat-chip {
-    font-size: 0.7rem;
-    padding: 0.25rem 0.65rem;
+  .stats-capsule {
+    padding: 0.4rem 1rem;
+    gap: 0.7rem;
   }
 
   .danger-btn {
@@ -834,9 +846,8 @@ function goBack() {
     padding: 0.4rem 0.55rem;
   }
 
-  .stat-chip {
-    font-size: 0.65rem;
-    padding: 0.2rem 0.5rem;
+  .stat-chip__value {
+    font-size: 0.9rem;
   }
 
   .rounds-panel {
