@@ -5,15 +5,15 @@
         <div class="confirm-dialog" role="dialog" aria-modal="true" @click.stop>
           <header class="confirm-dialog__header">
             <h2>{{ title }}</h2>
-            <button type="button" class="confirm-dialog__close" aria-label="Закрыть" @click="emit('cancel')">✕</button>
+            <button type="button" class="confirm-dialog__close" :aria-label="t('common.close')" @click="emit('cancel')">✕</button>
           </header>
           <div class="confirm-dialog__body">
             <slot><p>{{ message }}</p></slot>
           </div>
           <div class="confirm-dialog__actions">
-            <BaseButton v-if="!hideCancel" variant="secondary" :disabled="busy" @click="emit('cancel')">{{ cancelLabel }}</BaseButton>
+            <BaseButton v-if="!hideCancel" variant="secondary" :disabled="busy" @click="emit('cancel')">{{ cancelLabel ?? t('common.cancel') }}</BaseButton>
             <BaseButton :variant="confirmVariant" :disabled="busy" @click="emit('confirm')">
-              {{ busy ? (busyLabel ?? confirmLabel) : confirmLabel }}
+              {{ busy ? (busyLabel ?? confirmText) : confirmText }}
             </BaseButton>
           </div>
         </div>
@@ -23,7 +23,11 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import BaseButton from './BaseButton.vue'
+
+const { t } = useI18n()
 
 interface Props {
   show: boolean
@@ -40,15 +44,17 @@ interface Props {
   hideCancel?: boolean
 }
 
-withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props>(), {
   message: '',
-  confirmLabel: 'Подтвердить',
-  cancelLabel: 'Отмена',
+  confirmLabel: undefined,
+  cancelLabel: undefined,
   busy: false,
   busyLabel: undefined,
   confirmVariant: 'danger',
   hideCancel: false
 })
+
+const confirmText = computed(() => props.confirmLabel ?? t('common.confirm'))
 
 const emit = defineEmits<{
   confirm: []

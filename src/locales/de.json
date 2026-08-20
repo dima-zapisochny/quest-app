@@ -7,7 +7,11 @@
     "cancel": "Abbrechen",
     "delete": "Löschen",
     "close": "Schließen",
-    "edit": "Bearbeiten"
+    "edit": "Bearbeiten",
+    "confirm": "Bestätigen",
+    "gameCode": "Spielcode",
+    "avatarPicker": "Avatar auswählen",
+    "refreshAvatar": "Avatar neu laden"
   },
   "landing": {
     "checkingAuth": "Autorisierung wird geprüft…",

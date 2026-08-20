@@ -7,7 +7,11 @@
     "cancel": "Cancel",
     "delete": "Delete",
     "close": "Close",
-    "edit": "Edit"
+    "edit": "Edit",
+    "confirm": "Confirm",
+    "gameCode": "Game code",
+    "avatarPicker": "Choose an avatar",
+    "refreshAvatar": "Refresh avatar"
   },
   "landing": {
     "checkingAuth": "Checking authorization…",

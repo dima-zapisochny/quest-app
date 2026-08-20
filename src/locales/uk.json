@@ -7,7 +7,11 @@
     "cancel": "Скасувати",
     "delete": "Видалити",
     "close": "Закрити",
-    "edit": "Редагувати"
+    "edit": "Редагувати",
+    "confirm": "Підтвердити",
+    "gameCode": "Код гри",
+    "avatarPicker": "Вибір аватара",
+    "refreshAvatar": "Оновити аватар"
   },
   "landing": {
     "checkingAuth": "Перевірка авторизації…",

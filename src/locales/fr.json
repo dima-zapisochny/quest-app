@@ -7,7 +7,11 @@
     "cancel": "Annuler",
     "delete": "Supprimer",
     "close": "Fermer",
-    "edit": "Modifier"
+    "edit": "Modifier",
+    "confirm": "Confirmer",
+    "gameCode": "Code de la partie",
+    "avatarPicker": "Choisir un avatar",
+    "refreshAvatar": "Changer d'avatar"
   },
   "landing": {
     "checkingAuth": "Vérification de l'autorisation…",
