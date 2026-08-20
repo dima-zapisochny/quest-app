@@ -52,16 +52,6 @@
           class="toolbar-textarea"
           placeholder="Короткое описание для ведущего и игроков"
         ></textarea>
-
-        <button
-          class="danger-btn toolbar-delete-btn"
-          type="button"
-          title="Удалить квест"
-          aria-label="Удалить квест"
-          @click="handleDeleteQuest"
-        >
-          Удалить квест
-        </button>
       </div>
     </header>
 
@@ -117,8 +107,7 @@
     :title="confirmModal.title"
     :message="confirmModal.message"
     :confirm-label="confirmModal.confirmLabel"
-    :confirm-variant="confirmModal.kind === 'info' ? 'secondary' : 'danger'"
-    :hide-cancel="confirmModal.kind === 'info'"
+    confirm-variant="danger"
     @confirm="confirmModalAction"
     @cancel="cancelConfirmModal"
   />
@@ -313,20 +302,19 @@ async function handleAddRound() {
   }
 }
 
-// Единая модалка подтверждения вместо нативного confirm()/alert() (#33)
+// Единая модалка подтверждения удаления раунда (#33)
 const confirmModal = ref<{
   visible: boolean
-  kind: 'round' | 'quest' | 'info'
   roundId: string | null
   title: string
   message: string
   confirmLabel: string
-}>({ visible: false, kind: 'info', roundId: null, title: '', message: '', confirmLabel: 'ОК' })
+}>({ visible: false, roundId: null, title: '', message: '', confirmLabel: 'Удалить' })
 
 function handleDeleteRound(roundId: string) {
   if (!quest.value) return
   confirmModal.value = {
-    visible: true, kind: 'round', roundId,
+    visible: true, roundId,
     title: 'Удалить раунд?', message: 'Раунд и все его категории будут удалены.',
     confirmLabel: 'Удалить'
   }
@@ -336,43 +324,19 @@ function cancelConfirmModal() {
   confirmModal.value = { ...confirmModal.value, visible: false }
 }
 
-async function confirmModalAction() {
-  const { kind, roundId } = confirmModal.value
-  if (kind === 'info') { cancelConfirmModal(); return }
+function confirmModalAction() {
+  const { roundId } = confirmModal.value
   cancelConfirmModal()
-  if (!quest.value) return
-  if (kind === 'round' && roundId) {
-    store.deleteRound(quest.value.id, roundId)
-    if (editingRoundId.value === roundId) {
-      editingRoundId.value = quest.value.rounds?.[0]?.id ?? null
-    }
-  } else if (kind === 'quest') {
-    try {
-      await store.deleteQuest(quest.value.id)
-      router.push('/host/setup')
-    } catch (err) {
-      confirmModal.value = {
-        visible: true, kind: 'info', roundId: null,
-        title: 'Не удалось удалить квест',
-        message: (err as Error)?.message ?? 'Попробуйте ещё раз.',
-        confirmLabel: 'Понятно'
-      }
-    }
+  if (!quest.value || !roundId) return
+  store.deleteRound(quest.value.id, roundId)
+  if (editingRoundId.value === roundId) {
+    editingRoundId.value = quest.value.rounds?.[0]?.id ?? null
   }
 }
 
 function handleDeleteCurrentRound() {
   if (!editingRoundId.value) return
   handleDeleteRound(editingRoundId.value)
-}
-
-function handleDeleteQuest() {
-  if (!quest.value) return
-  confirmModal.value = {
-    visible: true, kind: 'quest', roundId: null,
-    title: 'Удалить квест целиком?', message: 'Это действие нельзя отменить.',
-    confirmLabel: 'Удалить'
-  }
 }
 
 function goBack() {
@@ -463,13 +427,6 @@ function goBack() {
   backdrop-filter: blur(12px);
 }
 
-.toolbar-delete-btn {
-  justify-self: center;
-  min-width: 240px;
-  /* отступ от описания до кнопки = паддинг блока (минус gap грида) */
-  margin-top: calc(clamp(1rem, 3vw, 1.8rem) - 0.6rem);
-}
-
 .toolbar-fields {
   flex: 1 1 0;
   display: grid;
@@ -556,30 +513,6 @@ function goBack() {
   font-size: 0.95rem;
   font-weight: 700;
   letter-spacing: 0.02em;
-}
-
-/* Единый стиль опасной кнопки (Удалить квест / Удалить раунд) */
-.danger-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.6rem 1.4rem;
-  line-height: 1.2;
-  border-radius: var(--radius-pill);
-  border: 1px solid rgb(var(--c-danger) / 0.45);
-  background: rgb(var(--c-danger) / 0.12);
-  color: rgb(var(--c-danger-soft));
-  font-size: 0.85rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
-}
-
-.danger-btn:hover {
-  transform: translateY(-1px);
-  background: rgb(var(--c-danger) / 0.2);
-  box-shadow: 0 12px 26px rgb(var(--c-danger) / 0.22);
 }
 
 /* Отдельная капсула раундов — по центру, не на всю ширину (как статистика) */
@@ -780,11 +713,6 @@ function goBack() {
   .stats-capsule {
     padding: 0.4rem 1rem;
     gap: 0.7rem;
-  }
-
-  .danger-btn {
-    font-size: 0.8rem;
-    padding: 0.5rem 1.1rem;
   }
 
   .board-panel {
