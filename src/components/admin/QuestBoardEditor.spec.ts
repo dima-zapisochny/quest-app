@@ -112,18 +112,32 @@ describe('QuestBoardEditor', () => {
     expect(wrapper.find('.q-modal').exists()).toBe(true)
   })
 
-  it('emits deleteRound when the delete button is clicked', async () => {
+  it('asks for confirmation before deleting a category', async () => {
     const { wrapper } = mountWithStore()
-    await wrapper.find('.board-delete-round').trigger('click')
-    expect(wrapper.emitted('deleteRound')).toBeTruthy()
+    await wrapper.find('.board-col__del').trigger('click')
+    await wrapper.vm.$nextTick()
+    expect(wrapper.text()).toContain('Удалить категорию')
   })
 
-  it('shows the quick-board form for an empty round', () => {
+  it('shows the grid-size picker for an empty round', () => {
     const store = useQuizStore()
     const quest = store.getQuestById('quest-test')!
     quest.rounds![0].categories = []
     const { wrapper } = mountWithStore()
     expect(wrapper.find('.board-empty').exists()).toBe(true)
-    expect(wrapper.find('.quick-board__btn').exists()).toBe(true)
+    expect(wrapper.find('.gp').exists()).toBe(true)
+  })
+
+  it('builds the board immediately when a grid cell is picked', async () => {
+    const store = useQuizStore()
+    const id = 'quest-test'
+    const round = store.getQuestById(id)!.rounds![0]
+    round.categories = []
+    const { wrapper } = mountWithStore()
+    // c=2, r=3 → index (3-1)*5 + (2-1) = 11
+    await wrapper.findAll('.gp__cell')[11].trigger('click')
+    await wrapper.vm.$nextTick()
+    expect(round.categories.length).toBe(2)
+    expect(round.categories[0].questions.length).toBe(3)
   })
 })

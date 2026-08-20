@@ -57,15 +57,25 @@
 
     <div class="rounds-capsule">
       <div class="round-tabs">
-        <button
+        <div
           v-for="(round, index) in quest.rounds"
           :key="round.id"
           :class="['round-tab', { 'round-tab--active': editingRoundId === round.id }]"
-          type="button"
-          @click="editingRoundId = round.id"
         >
-          Раунд {{ index + 1 }}
-        </button>
+          <button type="button" class="round-tab__select" @click="editingRoundId = round.id">
+            Раунд {{ index + 1 }}
+          </button>
+          <transition name="round-del">
+            <button
+              v-if="editingRoundId === round.id"
+              type="button"
+              class="round-tab__del"
+              title="Удалить раунд"
+              aria-label="Удалить раунд"
+              @click="handleDeleteCurrentRound"
+            >✕</button>
+          </transition>
+        </div>
         <button
           v-if="roundsCount < 5"
           class="round-tab round-tab--add"
@@ -89,7 +99,6 @@
         v-if="editingRound"
         :quest-id="quest.id"
         :round="editingRound"
-        @delete-round="handleDeleteCurrentRound"
       />
     </section>
   </div>
@@ -463,11 +472,12 @@ function goBack() {
 .toolbar-textarea {
   font-weight: 500;
   resize: vertical;
+  min-height: 3.4rem;
 }
 
 .toolbar-input::placeholder,
 .toolbar-textarea::placeholder {
-  color: rgb(var(--c-text-soft) / 0.6);
+  color: rgb(var(--c-text-muted) / 0.45);
 }
 
 .toolbar-input:focus,
@@ -542,7 +552,7 @@ function goBack() {
 
 .round-tabs {
   display: flex;
-  gap: 0.35rem;
+  gap: 0.6rem;
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
@@ -550,9 +560,22 @@ function goBack() {
 
 .round-tab {
   min-width: 6.25rem;
-  padding: 0.55rem 1.3rem;
+  min-height: 2.6rem;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
   border-radius: var(--radius-pill);
   border: 1px solid transparent;
+  background: transparent;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+.round-tab__select {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 1.3rem;
+  border: none;
   background: transparent;
   color: rgb(var(--c-text-soft) / 0.75);
   font-size: 0.88rem;
@@ -560,41 +583,93 @@ function goBack() {
   letter-spacing: 0.02em;
   text-align: center;
   cursor: pointer;
-  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  transition: color 0.2s ease;
 }
-
 .round-tab:hover {
   background: rgb(var(--c-accent-sky) / 0.1);
+}
+.round-tab:hover .round-tab__select {
   color: rgb(var(--c-text));
 }
 
-.round-tab--active,
-.round-tab--active:hover {
+.round-tab--active {
   background: rgb(var(--c-accent-sky) / 0.16);
-  color: rgb(var(--c-accent-soft));
   border-color: rgb(var(--c-accent-sky) / 0.35);
+}
+.round-tab--active .round-tab__select {
+  color: rgb(var(--c-accent-soft));
+}
+
+/* Крестик удаления раунда — как у категорий: приглушён, краснеет при наведении */
+.round-tab__del {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  margin: auto 0.5rem auto 0;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: rgb(var(--c-accent-soft) / 0.55);
+  font-size: 0.8rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+.round-tab__del:hover {
+  color: rgb(var(--c-danger-soft));
+  background: rgb(var(--c-danger) / 0.15);
+}
+/* Плавное появление крестика при выборе раунда */
+.round-del-enter-active,
+.round-del-leave-active {
+  overflow: hidden;
+  transition: opacity 0.22s ease, transform 0.22s ease, width 0.22s ease, margin-right 0.22s ease;
+}
+.round-del-enter-from,
+.round-del-leave-to {
+  opacity: 0;
+  transform: scale(0.4);
+  width: 0;
+  margin-right: 0;
 }
 
 .round-tab--add {
+  padding: 0 1.3rem;
   border: 1px dashed rgb(var(--c-accent-sky) / 0.35);
   background: transparent;
   color: rgb(var(--c-text-soft) / 0.7);
   font-weight: 500;
   font-size: 1.1rem;
+  line-height: 1;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.35rem;
+  cursor: pointer;
 }
 .round-tab--add:hover {
   color: rgb(var(--c-accent-soft));
   border-color: rgb(var(--c-accent-sky) / 0.55);
   background: transparent;
 }
-
 .round-tab--add:disabled {
   opacity: 0.7;
   cursor: not-allowed;
+}
+
+/* Убираем стандартную (жёлтую) обводку фокуса, оставляем аккуратную для клавиатуры */
+.round-tab__select:focus,
+.round-tab__del:focus,
+.round-tab--add:focus {
+  outline: none;
+}
+.round-tab__select:focus-visible,
+.round-tab__del:focus-visible,
+.round-tab--add:focus-visible {
+  outline: 2px solid rgb(var(--c-accent-sky) / 0.6);
+  outline-offset: 2px;
+  border-radius: var(--radius-pill);
 }
 
 .panel-empty {

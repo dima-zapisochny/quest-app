@@ -53,6 +53,8 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<{
   'update:categories': [value: number]
   'update:questions': [value: number]
+  /** Клик по клетке — выбран окончательный размер (для «нажал → сразу создать»). */
+  select: [categories: number, questions: number]
 }>()
 
 const hover = ref<{ c: number; r: number } | null>(null)
@@ -88,6 +90,7 @@ const tilesWord = computed(() => {
 function apply(c: number, r: number) {
   emit('update:categories', c)
   emit('update:questions', r)
+  emit('select', c, r)
 }
 </script>
 
@@ -129,6 +132,13 @@ function apply(c: number, r: number) {
 }
 .gp__cell:hover {
   transform: translateY(-1px);
+}
+.gp__cell:focus {
+  outline: none;
+}
+.gp__cell:focus-visible {
+  outline: 2px solid rgb(var(--c-accent-sky) / 0.6);
+  outline-offset: 1px;
 }
 .gp__cell--active {
   border-color: rgb(var(--c-accent) / 0.6);

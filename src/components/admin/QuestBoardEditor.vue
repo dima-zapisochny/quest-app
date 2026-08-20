@@ -1,25 +1,15 @@
 <template>
   <section class="board-editor">
-    <!-- Пустой раунд: быстрая доска или первая категория -->
+    <!-- Пустой раунд: выбираешь размер в сетке — доска создаётся сразу -->
     <div v-if="categories.length === 0" class="board-empty">
-      <p>В раунде пока нет категорий. Создайте доску сразу или добавьте первую категорию.</p>
-      <div class="quick-board">
-        <NumberStepper v-model="presetCategories" :min="1" :max="5" label="Категории" block />
-        <span class="quick-board__x" aria-hidden="true">×</span>
-        <NumberStepper v-model="presetQuestions" :min="1" :max="5" label="Вопросы" block />
-        <button
-          type="button"
-          class="quick-board__btn"
-          :disabled="isBuildingBoard"
-          @click="createPresetBoard"
-        >
-          <span v-if="!isBuildingBoard">Создать доску {{ presetCategories * presetQuestions }} плиток</span>
-          <span v-else class="mini-loader"></span>
-        </button>
-      </div>
-      <button type="button" class="board-add-first" :disabled="isBusy" @click="addCategory">
-        + Добавить категорию
-      </button>
+      <GridSizePicker
+        v-model:categories="presetCategories"
+        v-model:questions="presetQuestions"
+        :max-categories="5"
+        :max-questions="5"
+        @select="onGridSelect"
+      />
+      <span v-if="isBuildingBoard" class="mini-loader" aria-label="Создание доски"></span>
     </div>
 
     <!-- Игровая доска раунда: категории-колонки + плитки-вопросы -->
@@ -89,12 +79,6 @@
       </div>
     </div>
 
-    <footer class="board-footer">
-      <button type="button" class="board-delete-round" @click="$emit('deleteRound')">
-        Удалить раунд
-      </button>
-    </footer>
-
     <!-- Редактирование вопроса поверх доски -->
     <teleport to="body">
       <transition name="q-modal">
@@ -146,7 +130,7 @@
 import { computed, ref, watch, nextTick } from 'vue'
 import { useQuizStore } from '@/store/quizStore'
 import AdminQuestionRow from './AdminQuestionRow.vue'
-import NumberStepper from '@/components/common/NumberStepper.vue'
+import GridSizePicker from '@/components/common/GridSizePicker.vue'
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
 import type { Round, Question } from '@/types'
 
@@ -156,10 +140,6 @@ interface Props {
 }
 
 const props = defineProps<Props>()
-
-defineEmits<{
-  deleteRound: []
-}>()
 
 const store = useQuizStore()
 
@@ -226,15 +206,19 @@ async function addQuestion(categoryId: string) {
   }
 }
 
-// --- Быстрая доска (для пустого раунда) ---
+// --- Быстрая доска (для пустого раунда): клик по сетке сразу создаёт доску ---
 const presetCategories = ref(5)
 const presetQuestions = ref(5)
 
-async function createPresetBoard() {
+function onGridSelect(cats: number, questions: number) {
+  createPresetBoard(cats, questions)
+}
+
+async function createPresetBoard(cats: number, questions: number) {
   if (isBuildingBoard.value || categories.value.length > 0) return
   isBuildingBoard.value = true
   try {
-    await store.buildBoard(props.questId, props.round.id, presetCategories.value, presetQuestions.value)
+    await store.buildBoard(props.questId, props.round.id, cats, questions)
   } finally {
     isBuildingBoard.value = false
   }
@@ -303,67 +287,17 @@ watch(() => props.round.id, closeModal)
   gap: clamp(1rem, 3vw, 1.8rem);
 }
 
-/* --- Пустой раунд --- */
+/* --- Пустой раунд: только сетка выбора размера --- */
 .board-empty {
   margin: 0;
   padding: 1.5rem 1.1rem;
   background: rgb(var(--c-bg) / 0.55);
   border: 1px dashed rgb(var(--c-accent-sky) / 0.25);
   border-radius: 18px;
-  text-align: center;
-  color: rgb(var(--c-text-soft) / 0.7);
-  font-size: 0.9rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 1rem;
-}
-.board-empty p {
-  margin: 0;
-}
-
-.quick-board {
-  display: flex;
-  align-items: flex-end;
-  gap: 0.9rem;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-.quick-board__x {
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: rgb(var(--c-text-soft) / 0.6);
-  padding-bottom: 0.5rem;
-}
-.quick-board__btn,
-.board-add-first {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  background: rgb(var(--c-accent) / 0.2);
-  border: 1px solid rgb(var(--c-accent) / 0.5);
-  color: rgb(var(--c-accent-soft));
-  border-radius: var(--radius-pill);
-  padding: 0.4rem 1rem;
-  font-size: 0.82rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s ease, transform 0.2s ease;
-}
-.quick-board__btn:hover:not(:disabled),
-.board-add-first:hover:not(:disabled) {
-  background: rgb(var(--c-accent) / 0.3);
-  transform: translateY(-1px);
-}
-.quick-board__btn:disabled,
-.board-add-first:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-.board-add-first {
-  background: rgb(var(--c-bg) / 0.6);
-  border-style: dashed;
-  border-color: rgb(var(--c-accent-sky) / 0.4);
 }
 
 /* --- Доска --- */
@@ -394,6 +328,7 @@ watch(() => props.round.id, closeModal)
 .board-col__title {
   width: 100%;
   box-sizing: border-box;
+  min-height: 2.5rem;
   /* справа место под крестик */
   padding: 0.55rem 2rem 0.55rem 0.9rem;
   border: 1px solid rgb(var(--c-blue) / 0.28);
@@ -485,7 +420,8 @@ watch(() => props.round.id, closeModal)
   background: rgb(var(--c-bg) / 0.4);
   color: rgb(var(--c-accent-soft));
   font-size: 1.5rem;
-  min-height: 44px;
+  font-weight: 400;
+  min-height: 58px;
 }
 .board-tile--add:hover {
   background: rgb(var(--c-accent-sky) / 0.12);
@@ -537,38 +473,10 @@ watch(() => props.round.id, closeModal)
 }
 .board-col-add__tile {
   min-height: 58px;
+  box-sizing: border-box;
   border-radius: 12px;
   border: 1px dashed rgb(var(--c-accent-sky) / 0.18);
   background: rgb(var(--c-bg) / 0.2);
-}
-
-/* --- Футер --- */
-.board-footer {
-  display: flex;
-  justify-content: center;
-  margin-top: 0;
-}
-.board-delete-round {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 240px;
-  padding: 0.6rem 1.4rem;
-  line-height: 1.2;
-  border-radius: var(--radius-pill);
-  border: 1px solid rgb(var(--c-danger) / 0.45);
-  background: rgb(var(--c-danger) / 0.12);
-  color: rgb(var(--c-danger-soft));
-  font-size: 0.85rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
-}
-.board-delete-round:hover {
-  transform: translateY(-1px);
-  background: rgb(var(--c-danger) / 0.2);
-  box-shadow: 0 12px 26px rgb(var(--c-danger) / 0.22);
 }
 
 .mini-loader {
@@ -589,85 +497,99 @@ watch(() => props.round.id, closeModal)
   position: fixed;
   inset: 0;
   z-index: 1000;
-  background: rgb(var(--c-bg-deep) / 0.72);
-  backdrop-filter: blur(6px);
+  background: rgb(var(--c-bg-deep) / 0.75);
+  backdrop-filter: blur(8px);
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
-  padding: clamp(1rem, 4vh, 3rem) 1rem;
+  padding: clamp(1rem, 4vh, 2.5rem) 1rem;
   overflow-y: auto;
 }
 .q-modal {
-  width: min(720px, 100%);
-  background: linear-gradient(140deg, rgb(var(--c-bg) / 0.96), rgba(8, 22, 43, 0.97));
+  width: min(880px, 100%);
+  margin: auto;
+  background: linear-gradient(140deg, rgb(var(--c-bg) / 0.98), rgba(8, 22, 43, 0.98));
   border: 1px solid rgb(var(--c-accent-sky) / 0.28);
-  border-radius: 22px;
-  box-shadow: 0 30px 70px rgb(var(--c-bg-deep) / 0.6);
+  border-radius: 24px;
+  box-shadow: 0 40px 90px rgb(var(--c-bg-deep) / 0.7);
   display: flex;
   flex-direction: column;
-  max-height: 100%;
+  max-height: min(92vh, 100%);
 }
 .q-modal__head {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  padding: 1rem 1.25rem;
+  padding: 1.25rem 1.6rem;
   border-bottom: 1px solid rgb(var(--c-accent-sky) / 0.15);
 }
 .q-modal__title {
-  font-size: 1rem;
+  font-size: 1.2rem;
   font-weight: 700;
   color: rgb(var(--c-text));
   letter-spacing: 0.02em;
 }
 .q-modal__close {
   flex-shrink: 0;
-  width: 2rem;
-  height: 2rem;
-  border-radius: 10px;
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 12px;
   border: 1px solid rgb(var(--c-accent-sky) / 0.25);
   background: rgb(var(--c-bg) / 0.5);
   color: rgb(var(--c-text-soft));
   cursor: pointer;
-  font-size: 0.85rem;
-  transition: background 0.2s ease;
+  font-size: 0.95rem;
+  transition: background 0.2s ease, color 0.2s ease;
 }
 .q-modal__close:hover {
-  background: rgb(var(--c-bg) / 0.8);
+  background: rgb(var(--c-danger) / 0.16);
+  color: rgb(var(--c-danger-soft));
 }
 .q-modal__body {
-  padding: 1.25rem;
+  padding: 1.6rem;
   overflow-y: auto;
 }
 .q-modal__foot {
   display: flex;
   justify-content: flex-end;
-  padding: 0.9rem 1.25rem;
+  padding: 1.1rem 1.6rem;
   border-top: 1px solid rgb(var(--c-accent-sky) / 0.15);
 }
+/* Спокойная кнопка «Готово» — без яркой подсветки */
 .q-modal__done {
-  padding: 0.6rem 1.6rem;
+  min-width: 140px;
+  padding: 0.65rem 1.8rem;
   border-radius: var(--radius-pill);
-  border: none;
-  background: linear-gradient(135deg, rgb(var(--c-accent)), rgb(var(--c-accent-sky)));
-  color: rgb(var(--c-bg));
+  border: 1px solid rgb(var(--c-accent) / 0.5);
+  background: rgb(var(--c-accent) / 0.18);
+  color: rgb(var(--c-accent-soft));
+  font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: background 0.2s ease, border-color 0.2s ease;
 }
 .q-modal__done:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 12px 24px rgb(var(--c-accent) / 0.3);
+  background: rgb(var(--c-accent) / 0.3);
+  border-color: rgb(var(--c-accent) / 0.7);
 }
 
 .q-modal-enter-active,
 .q-modal-leave-active {
-  transition: opacity 0.2s ease;
+  transition: opacity 0.22s ease;
+}
+.q-modal-enter-active .q-modal,
+.q-modal-leave-active .q-modal {
+  transition: transform 0.22s cubic-bezier(0.34, 1.4, 0.64, 1), opacity 0.22s ease;
 }
 .q-modal-enter-from,
 .q-modal-leave-to {
   opacity: 0;
+}
+.q-modal-enter-from .q-modal,
+.q-modal-leave-to .q-modal {
+  opacity: 0;
+  transform: translateY(12px) scale(0.96);
 }
 
 @media (max-width: 480px) {
@@ -675,7 +597,7 @@ watch(() => props.round.id, closeModal)
     flex-basis: clamp(140px, 60vw, 180px);
   }
   .q-modal__body {
-    padding: 0.85rem;
+    padding: 1rem;
   }
 }
 </style>
