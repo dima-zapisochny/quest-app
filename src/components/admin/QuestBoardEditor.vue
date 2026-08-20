@@ -129,6 +129,16 @@
         </div>
       </transition>
     </teleport>
+
+    <ConfirmDialog
+      :show="pendingDeleteCategoryId !== null"
+      title="Удалить категорию?"
+      message="Категория и все её вопросы будут удалены."
+      confirm-label="Удалить"
+      confirm-variant="danger"
+      @confirm="confirmDeleteCategory"
+      @cancel="cancelDeleteCategory"
+    />
   </section>
 </template>
 
@@ -137,6 +147,7 @@ import { computed, ref, watch, nextTick } from 'vue'
 import { useQuizStore } from '@/store/quizStore'
 import AdminQuestionRow from './AdminQuestionRow.vue'
 import NumberStepper from '@/components/common/NumberStepper.vue'
+import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
 import type { Round, Question } from '@/types'
 
 interface Props {
@@ -165,10 +176,24 @@ function onCategoryTitle(categoryId: string, event: Event) {
   store.updateCategory(props.questId, props.round.id, categoryId, { title: value })
 }
 
+// Удаление категории — через единую модалку подтверждения (нативный confirm
+// ненадёжен в некоторых браузерах и мог не срабатывать).
+const pendingDeleteCategoryId = ref<string | null>(null)
+
 function removeCategory(categoryId: string) {
-  if (!confirm('Удалить категорию вместе со всеми вопросами?')) return
+  pendingDeleteCategoryId.value = categoryId
+}
+
+function confirmDeleteCategory() {
+  const categoryId = pendingDeleteCategoryId.value
+  pendingDeleteCategoryId.value = null
+  if (!categoryId) return
   store.deleteCategory(props.questId, props.round.id, categoryId)
   if (editingCategoryId.value === categoryId) closeModal()
+}
+
+function cancelDeleteCategory() {
+  pendingDeleteCategoryId.value = null
 }
 
 // --- Добавление категорий / вопросов ---
@@ -508,8 +533,7 @@ watch(() => props.round.id, closeModal)
 .board-col-add__tiles {
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
-  margin-top: 0.6rem;
+  gap: 0.75rem;
 }
 .board-col-add__tile {
   min-height: 58px;
