@@ -180,5 +180,20 @@
     "noAudio": "No audio",
     "noCategories": "This round has no categories yet.",
     "loadingRound": "Loading round…"
+  },
+  "player": {
+    "rank": "Rank",
+    "points": "Points",
+    "answerTimer": "Answer timer",
+    "questionHidden": "Question hidden",
+    "loadingSession": "Loading session…",
+    "exitBody": "Are you sure you want to leave the game? You'll be removed from the participant list.",
+    "waitingQuestion": "Waiting for the host to open a question…",
+    "connecting": "Connecting…",
+    "yourTurn": "You're answering!",
+    "waitTurn": "Wait for your turn",
+    "answered": "Answer already given",
+    "buzz": "Answer",
+    "waitForQuestion": "Waiting for a question"
   }
 }

@@ -180,5 +180,20 @@
     "noAudio": "Sin audio",
     "noCategories": "Esta ronda aún no tiene categorías.",
     "loadingRound": "Cargando la ronda…"
+  },
+  "player": {
+    "rank": "Puesto",
+    "points": "Puntos",
+    "answerTimer": "Temporizador de respuesta",
+    "questionHidden": "Pregunta oculta",
+    "loadingSession": "Cargando la sesión…",
+    "exitBody": "¿Seguro que quieres salir del juego? Se te quitará de la lista de participantes.",
+    "waitingQuestion": "Esperando a que el anfitrión abra una pregunta…",
+    "connecting": "Conectando…",
+    "yourTurn": "¡Estás respondiendo!",
+    "waitTurn": "Espera tu turno",
+    "answered": "Respuesta ya dada",
+    "buzz": "Responder",
+    "waitForQuestion": "Esperando una pregunta"
   }
 }

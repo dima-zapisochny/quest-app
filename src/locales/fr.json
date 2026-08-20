@@ -180,5 +180,20 @@
     "noAudio": "Aucun audio",
     "noCategories": "Cette manche n'a pas encore de catégories.",
     "loadingRound": "Chargement de la manche…"
+  },
+  "player": {
+    "rank": "Rang",
+    "points": "Points",
+    "answerTimer": "Minuteur de réponse",
+    "questionHidden": "Question masquée",
+    "loadingSession": "Chargement de la session…",
+    "exitBody": "Voulez-vous vraiment quitter la partie ? Vous serez retiré de la liste des participants.",
+    "waitingQuestion": "En attente que l'animateur ouvre une question…",
+    "connecting": "Connexion…",
+    "yourTurn": "C'est à vous de répondre !",
+    "waitTurn": "Attendez votre tour",
+    "answered": "Réponse déjà donnée",
+    "buzz": "Répondre",
+    "waitForQuestion": "En attente d'une question"
   }
 }
