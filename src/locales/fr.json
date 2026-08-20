@@ -1,0 +1,19 @@
+{
+  "language": {
+    "label": "Langue"
+  },
+  "landing": {
+    "checkingAuth": "Vérification de l'autorisation…",
+    "subtitle": "Quiz en équipe avec une ambiance de show",
+    "namePlaceholder": "Entrez votre nom",
+    "createGame": "Créer une partie",
+    "createGameMobileHint": "Disponible uniquement sur ordinateur ou tablette",
+    "or": "ou",
+    "codePlaceholder": "CODE",
+    "join": "Rejoindre",
+    "errName": "Entrez un nom de participant",
+    "errAvatar": "Choisissez un avatar",
+    "errCode": "Entrez le code de la partie (4 caractères)",
+    "errNotFound": "Aucune session trouvée avec ce code"
+  }
+}

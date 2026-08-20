@@ -1,0 +1,19 @@
+{
+  "language": {
+    "label": "Sprache"
+  },
+  "landing": {
+    "checkingAuth": "Autorisierung wird geprüft…",
+    "subtitle": "Team-Quiz mit Show-Atmosphäre",
+    "namePlaceholder": "Namen eingeben",
+    "createGame": "Spiel erstellen",
+    "createGameMobileHint": "Nur auf Computer oder Tablet verfügbar",
+    "or": "oder",
+    "codePlaceholder": "CODE",
+    "join": "Beitreten",
+    "errName": "Teilnehmernamen eingeben",
+    "errAvatar": "Avatar auswählen",
+    "errCode": "Spielcode eingeben (4 Zeichen)",
+    "errNotFound": "Keine Sitzung mit diesem Code gefunden"
+  }
+}

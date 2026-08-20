@@ -1,0 +1,19 @@
+{
+  "language": {
+    "label": "Language"
+  },
+  "landing": {
+    "checkingAuth": "Checking authorization…",
+    "subtitle": "Team quizzes with a game-show vibe",
+    "namePlaceholder": "Enter your name",
+    "createGame": "Create game",
+    "createGameMobileHint": "Available only on a computer or tablet",
+    "or": "or",
+    "codePlaceholder": "CODE",
+    "join": "Join",
+    "errName": "Enter a participant name",
+    "errAvatar": "Choose an avatar",
+    "errCode": "Enter the game code (4 characters)",
+    "errNotFound": "No session found with this code"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "language": {
+    "label": "Idioma"
+  },
+  "landing": {
+    "checkingAuth": "Comprobando autorización…",
+    "subtitle": "Cuestionarios en equipo con ambiente de show",
+    "namePlaceholder": "Escribe tu nombre",
+    "createGame": "Crear juego",
+    "createGameMobileHint": "Disponible solo en ordenador o tableta",
+    "or": "o",
+    "codePlaceholder": "CÓDIGO",
+    "join": "Unirse",
+    "errName": "Introduce el nombre del participante",
+    "errAvatar": "Elige un avatar",
+    "errCode": "Introduce el código de juego (4 caracteres)",
+    "errNotFound": "No se encontró ninguna sesión con este código"
+  }
+}
