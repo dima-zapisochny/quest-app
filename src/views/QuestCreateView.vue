@@ -83,7 +83,6 @@
             <button type="submit" class="btn-primary" :disabled="isCreating">
               <span v-if="!isCreating">Далее</span>
               <span v-else>Создание…</span>
-              <span v-if="!isCreating" aria-hidden="true">→</span>
             </button>
           </div>
         </form>
