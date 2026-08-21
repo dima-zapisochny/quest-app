@@ -369,10 +369,17 @@ function removeMedia(target: 'question' | 'answer', mediaId: string) {
 
 .question-card-grid {
   display: grid;
-  grid-template-columns: minmax(110px, 140px) repeat(2, minmax(0, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.1rem 1.4rem;
   width: 100%;
   box-sizing: border-box;
+}
+/* Стоимость — отдельной компактной строкой сверху */
+.value-field {
+  grid-column: 1 / -1;
+}
+.value-field input {
+  max-width: 150px;
 }
 
 .field {
@@ -443,13 +450,14 @@ textarea:focus,
 
 .media-upload-buttons {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  flex-wrap: wrap;
   gap: 0.5rem;
 }
 
 .media-section .upload-chip {
-  width: 100%;
-  align-self: stretch;
+  flex: 1 1 0;
+  min-width: 120px;
 }
 
 .media-item {
@@ -548,24 +556,24 @@ textarea:focus,
 .upload-chip {
   display: inline-flex;
   align-items: center;
-  justify-content: flex-start;
-  gap: 0.5rem;
-  border: 1px dashed rgb(var(--c-accent-sky) / 0.35);
-  border-radius: 12px;
-  padding: 0.7rem 1rem;
+  justify-content: center;
+  gap: 0.45rem;
+  border: 1px solid rgb(var(--c-accent-sky) / 0.28);
+  border-radius: 10px;
+  padding: 0.55rem 0.9rem;
   cursor: pointer;
   color: rgb(var(--c-accent-soft));
   font-weight: 600;
-  font-size: 0.85rem;
-  min-width: 130px;
+  font-size: 0.82rem;
+  min-width: 120px;
   position: relative;
   overflow: hidden;
-  background: rgb(var(--c-accent-sky) / 0.05);
+  background: rgb(var(--c-accent-sky) / 0.08);
   transition: border-color 0.15s ease, background 0.15s ease;
 }
 .upload-chip:hover {
-  border-color: rgb(var(--c-accent-sky) / 0.65);
-  background: rgb(var(--c-accent-sky) / 0.12);
+  border-color: rgb(var(--c-accent-sky) / 0.6);
+  background: rgb(var(--c-accent-sky) / 0.15);
 }
 .upload-chip__ico {
   font-size: 1rem;
@@ -575,8 +583,14 @@ textarea:focus,
 .upload-chip input[type='file'] {
   position: absolute;
   inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
   opacity: 0;
   cursor: pointer;
+  font-size: 0;
 }
 
 .upload-chip--disabled {
