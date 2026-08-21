@@ -14,7 +14,11 @@
     <HowToPlayModal :show="showHowTo" @close="showHowTo = false" />
     <div class="landing-card">
       <div class="landing-brand">
-        <h1 class="brand-title" :class="{ 'brand-title--animated': animateTitle }">
+        <h1
+          class="brand-title"
+          :class="{ 'brand-title--animated': animateTitle }"
+          :style="{ '--letter-step': letterStep + 's' }"
+        >
           <span
             v-for="(word, wIndex) in titleWords"
             :key="wIndex"
@@ -97,7 +101,6 @@ const route = useRoute()
 const sessionStore = useGameSessionStore()
 
 const titleWords = computed(() => 'Quiz Quest'.split(' '))
-const titleLetters = computed(() => Array.from('Quiz Quest'))
 const animateTitle = ref(false)
 const subtitleVisible = ref(false)
 
@@ -301,36 +304,44 @@ async function handleJoinGame() {
   }
 }
 
-// Длительность анимации заголовка «Quiz Quest» (по-буквенная цепочка).
-// Мелодия растягивается ровно под неё, чтобы звук и анимация шли синхронно.
-const titleAnimDuration = computed(() => 0.15 * (titleLetters.value.length - 1) + 1.2)
+// Ноты интро в исходном темпе (без растягивания — иначе звучит «заторможенно»).
+const INTRO_PATTERN = [
+  { freq: 261.63, duration: 0.16 },
+  { freq: 392, duration: 0.16 },
+  { freq: 523.25, duration: 0.16 },
+  { freq: 349.23, duration: 0.18 },
+  { freq: 466.16, duration: 0.22 },
+  { freq: 293.66, duration: 0.18 },
+  { freq: 440, duration: 0.22 },
+  { freq: 659.25, duration: 0.28 },
+  { freq: 392, duration: 0.2 },
+  { freq: 523.25, duration: 0.4 }
+]
+// Натуральная длительность мелодии. Под неё подгоняем анимацию заголовка,
+// чтобы они шли синхронно, а звук сохранял свой темп.
+const MELODY_DURATION = INTRO_PATTERN.reduce((sum, n) => sum + n.duration, 0)
+const LETTER_ANIM = 1.2 // длительность анимации одной буквы (CSS titleChain)
+// Максимальный индекс буквы (--i = wIndex*10 + cIndex): последняя буква последнего слова.
+const maxLetterIndex = computed(() => {
+  const words = titleWords.value
+  const last = words[words.length - 1] ?? ''
+  return (words.length - 1) * 10 + Math.max(0, last.length - 1)
+})
+// Шаг задержки между буквами, чтобы вся цепочка уложилась ровно в MELODY_DURATION.
+const letterStep = computed(() =>
+  Math.max(0.01, (MELODY_DURATION - LETTER_ANIM) / Math.max(1, maxLetterIndex.value))
+)
 
 function schedulePattern(startTime: number) {
   if (!audioCtx || !gainNode) return startTime
-  const pattern = [
-    { freq: 261.63, duration: 0.16 },
-    { freq: 392, duration: 0.16 },
-    { freq: 523.25, duration: 0.16 },
-    { freq: 349.23, duration: 0.18 },
-    { freq: 466.16, duration: 0.22 },
-    { freq: 293.66, duration: 0.18 },
-    { freq: 440, duration: 0.22 },
-    { freq: 659.25, duration: 0.28 },
-    { freq: 392, duration: 0.2 },
-    { freq: 523.25, duration: 0.4 }
-  ]
-  // Масштабируем длительности нот так, чтобы сумма == длительности анимации заголовка
-  const rawTotal = pattern.reduce((sum, n) => sum + n.duration, 0)
-  const scale = titleAnimDuration.value / rawTotal
   let cursor = startTime
-  for (const note of pattern) {
-    const dur = note.duration * scale
+  for (const note of INTRO_PATTERN) {
     const osc = audioCtx.createOscillator()
     const env = audioCtx.createGain()
 
     env.gain.setValueAtTime(0, cursor)
     env.gain.linearRampToValueAtTime(0.9, cursor + 0.04)
-    env.gain.exponentialRampToValueAtTime(0.0001, cursor + dur)
+    env.gain.exponentialRampToValueAtTime(0.0001, cursor + note.duration)
 
     osc.type = 'triangle'
     osc.frequency.setValueAtTime(note.freq, cursor)
@@ -338,8 +349,8 @@ function schedulePattern(startTime: number) {
     osc.connect(env)
     env.connect(gainNode!)
     osc.start(cursor)
-    osc.stop(cursor + dur)
-    cursor += dur
+    osc.stop(cursor + note.duration)
+    cursor += note.duration
   }
   return cursor
 }
@@ -426,7 +437,7 @@ async function playIntro() {
     let cursor = start
     cursor = schedulePattern(cursor)
 
-    const animationDuration = titleAnimDuration.value
+    const animationDuration = MELODY_DURATION
     const totalDuration = Math.max(animationDuration, cursor - start)
 
     cleanupTimeout = window.setTimeout(() => {
@@ -695,7 +706,7 @@ watch(() => route.path, (newPath) => {
 
 .brand-title--animated .brand-letter {
   animation: titleChain 1.2s ease-out forwards;
-  animation-delay: calc(var(--i) * 0.15s);
+  animation-delay: calc(var(--i) * var(--letter-step, 0.15s));
   animation-iteration-count: 1;
   animation-fill-mode: forwards;
 }
