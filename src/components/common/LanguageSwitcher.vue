@@ -74,21 +74,20 @@ onBeforeUnmount(() => window.removeEventListener('click', onClickOutside))
   height: 2.7rem;
   padding: 0 1rem;
   border-radius: var(--radius-pill);
-  border: 1.5px solid transparent;
-  background:
-    linear-gradient(135deg, rgb(var(--c-surface) / 0.9), rgb(var(--c-bg) / 0.7)) padding-box,
-    linear-gradient(120deg, rgb(var(--c-accent-sky) / 0.9), rgb(var(--c-violet) / 0.7)) border-box;
+  border: 1px solid rgb(var(--c-accent-sky) / 0.2);
+  background: rgb(var(--c-surface) / 0.55);
   color: rgb(var(--c-text));
   font-size: 0.9rem;
   font-weight: 700;
   cursor: pointer;
   backdrop-filter: blur(14px);
-  box-shadow: 0 8px 24px rgb(var(--c-accent-sky) / 0.18);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 6px 18px rgb(var(--c-bg-deep) / 0.35);
+  transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 .lang__toggle:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 14px 34px rgb(var(--c-accent-sky) / 0.4);
+  border-color: rgb(var(--c-accent-sky) / 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgb(var(--c-bg-deep) / 0.45);
 }
 .lang__toggle:focus { outline: none; }
 .lang__toggle:focus-visible {
@@ -96,8 +95,20 @@ onBeforeUnmount(() => window.removeEventListener('click', onClickOutside))
   outline-offset: 2px;
 }
 .lang__globe {
-  font-size: 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  margin-left: -0.35rem;
+  border-radius: 50%;
+  font-size: 0.95rem;
   line-height: 1;
+  background: rgb(var(--c-accent-sky) / 0.16);
+  border: 1px solid rgb(var(--c-accent-sky) / 0.3);
+}
+.lang__toggle:hover .lang__globe {
+  background: rgb(var(--c-accent-sky) / 0.24);
 }
 .lang__chevron {
   font-size: 0.7rem;

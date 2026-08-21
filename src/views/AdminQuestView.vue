@@ -95,11 +95,14 @@
         {{ t('editor.noRounds') }}
       </p>
 
-      <QuestBoardEditor
-        v-if="editingRound"
-        :quest-id="quest.id"
-        :round="editingRound"
-      />
+      <transition name="round-swap" mode="out-in">
+        <QuestBoardEditor
+          v-if="editingRound"
+          :key="editingRound.id"
+          :quest-id="quest.id"
+          :round="editingRound"
+        />
+      </transition>
     </section>
   </div>
   <div v-else-if="showLoading" class="not-found admin-quest-loading">
@@ -560,6 +563,22 @@ function goBack() {
   justify-content: center;
 }
 
+/* Плавная смена доски при переключении раундов */
+.round-swap-enter-active {
+  transition: opacity 0.28s ease, transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.round-swap-leave-active {
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+.round-swap-enter-from {
+  opacity: 0;
+  transform: translateY(12px) scale(0.985);
+}
+.round-swap-leave-to {
+  opacity: 0;
+  transform: translateY(-8px) scale(0.99);
+}
+
 /* Каждый раунд — отдельная капсула фиксированной ширины (крестик не двигает соседей) */
 .round-tab {
   position: relative;
@@ -644,7 +663,8 @@ function goBack() {
 }
 
 .round-tab--add {
-  width: 3.2rem;
+  width: 4.8rem;
+  margin-left: 0.35rem;
   padding: 0;
   border: 1px dashed rgb(var(--c-accent-sky) / 0.35);
   background: transparent;

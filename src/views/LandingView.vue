@@ -585,23 +585,22 @@ watch(() => route.path, (newPath) => {
   align-items: center;
   gap: 0.5rem;
   height: 2.7rem;
-  padding: 0 1.15rem 0 0.5rem;
+  padding: 0 1.15rem 0 0.45rem;
   border-radius: var(--radius-pill);
-  border: 1.5px solid transparent;
-  background:
-    linear-gradient(135deg, rgb(var(--c-surface) / 0.9), rgb(var(--c-bg) / 0.7)) padding-box,
-    linear-gradient(120deg, rgb(var(--c-accent-sky) / 0.9), rgb(var(--c-violet) / 0.7)) border-box;
+  border: 1px solid rgb(var(--c-accent-sky) / 0.2);
+  background: rgb(var(--c-surface) / 0.55);
   color: rgb(var(--c-text));
   font-size: 0.9rem;
   font-weight: 700;
   cursor: pointer;
   backdrop-filter: blur(14px);
-  box-shadow: 0 8px 24px rgb(var(--c-accent-sky) / 0.18);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 6px 18px rgb(var(--c-bg-deep) / 0.35);
+  transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 .landing-howto:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 14px 34px rgb(var(--c-accent-sky) / 0.4);
+  border-color: rgb(var(--c-accent-sky) / 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgb(var(--c-bg-deep) / 0.45);
 }
 .landing-howto:focus { outline: none; }
 .landing-howto:focus-visible {
@@ -616,15 +615,13 @@ watch(() => route.path, (newPath) => {
   height: 1.9rem;
   border-radius: 50%;
   line-height: 1;
-  color: rgb(var(--c-white));
-  background: linear-gradient(135deg, rgb(var(--c-accent-sky)), rgb(var(--c-violet)));
-  box-shadow: 0 0 0 1px rgb(var(--c-accent-sky) / 0.35), 0 4px 12px rgb(var(--c-accent-sky) / 0.4);
-  animation: howto-btn-pulse 2.6s ease-in-out infinite;
+  color: rgb(var(--c-accent-soft));
+  background: rgb(var(--c-accent-sky) / 0.16);
+  border: 1px solid rgb(var(--c-accent-sky) / 0.3);
 }
 .landing-howto__icon svg { transform: translateX(0.5px); }
-@keyframes howto-btn-pulse {
-  0%, 100% { box-shadow: 0 0 0 1px rgb(var(--c-accent-sky) / 0.35), 0 4px 12px rgb(var(--c-accent-sky) / 0.4); }
-  50% { box-shadow: 0 0 0 1px rgb(var(--c-accent-sky) / 0.5), 0 6px 18px rgb(var(--c-accent-sky) / 0.6); }
+.landing-howto:hover .landing-howto__icon {
+  background: rgb(var(--c-accent-sky) / 0.24);
 }
 @media (max-width: 420px) {
   .landing-howto__label { display: none; }

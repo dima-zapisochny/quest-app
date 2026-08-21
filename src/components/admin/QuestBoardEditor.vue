@@ -209,8 +209,8 @@ async function addQuestion(categoryId: string) {
 }
 
 // --- Быстрая доска (для пустого раунда): клик по сетке сразу создаёт доску ---
-const presetCategories = ref(5)
-const presetQuestions = ref(5)
+const presetCategories = ref(1)
+const presetQuestions = ref(1)
 
 function onGridSelect(cats: number, questions: number) {
   createPresetBoard(cats, questions)
@@ -292,7 +292,7 @@ watch(() => props.round.id, closeModal)
 /* --- Пустой раунд: только сетка выбора размера --- */
 .board-empty {
   margin: 0;
-  padding: 1.5rem 1.1rem;
+  padding: 2.6rem 1.1rem;
   background: rgb(var(--c-bg) / 0.55);
   border: 1px dashed rgb(var(--c-accent-sky) / 0.25);
   border-radius: 18px;
