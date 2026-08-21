@@ -4,8 +4,14 @@
     <div v-if="scene === 'start'" class="scene">
       <div class="panel panel--start">
         <div class="panel__bar"><span class="dot dot--r"></span><span class="dot dot--y"></span><span class="dot dot--g"></span></div>
-        <div class="qcardline"><span class="qcardline__ava">🦊</span><span class="qcardline__bar"></span></div>
-        <div class="s-btn"><span>Create game</span><span class="cursor cursor--start" aria-hidden="true"></span></div>
+        <div class="startcard__label">Name</div>
+        <div class="startcard__name"><span class="startcard__fox">🦊</span><span class="startcard__bar"></span></div>
+        <button class="startcard__create"><span>Create game</span><span class="cursor cursor--start" aria-hidden="true"></span></button>
+        <div class="startcard__or"><span></span>or<span></span></div>
+        <div class="startcard__join">
+          <span class="startcard__code">CODE</span>
+          <span class="startcard__joinbtn">Join</span>
+        </div>
       </div>
       <div class="arrow">↓</div>
       <div class="codewrap">
@@ -176,18 +182,26 @@ const gridCells = Array.from({ length: 25 }, (_, i) => ({ k: i, c: i % 5, r: Mat
 .dot--r { background: rgb(var(--c-danger) / 0.7); }
 .dot--y { background: #d9a441; }
 .dot--g { background: rgb(var(--c-success) / 0.7); }
-.qcardline { display: flex; align-items: center; gap: 0.5rem; width: 180px; padding: 0.4rem 0.5rem; border-radius: 10px; background: rgb(var(--c-accent-sky) / 0.08); border: 1px solid rgb(var(--c-accent-sky) / 0.18); }
-.qcardline__ava { font-size: 1rem; }
-.qcardline__bar { flex: 1; height: 0.6rem; border-radius: 5px; background: rgb(var(--c-text-soft) / 0.3); }
-
-/* START */
-.s-btn {
-  position: relative; padding: 0.7rem 1.8rem; border-radius: var(--radius-pill);
-  background: linear-gradient(135deg, rgb(var(--c-accent)), rgb(var(--c-accent-sky)));
-  color: rgb(var(--c-bg)); font-weight: 700;
+/* START — мокап карточки лендинга */
+.panel--start { width: 240px; gap: 0.55rem; padding: 0.85rem; }
+.startcard__label { align-self: flex-start; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em; color: rgb(var(--c-text-muted) / 0.7); }
+.startcard__name { display: flex; align-items: center; gap: 0.5rem; width: 100%; padding: 0.45rem 0.55rem; border-radius: 10px; background: rgb(var(--c-bg) / 0.55); border: 1px solid rgb(var(--c-accent-sky) / 0.2); box-sizing: border-box; }
+.startcard__fox { font-size: 1rem; }
+.startcard__bar { flex: 1; height: 0.6rem; border-radius: 5px; background: rgb(var(--c-text-soft) / 0.3); }
+.startcard__create {
+  position: relative; width: 100%; padding: 0.65rem; border: none; border-radius: var(--radius-pill);
+  background: radial-gradient(circle at 25% 25%, rgba(253, 224, 71, 0.6), transparent 55%),
+    linear-gradient(135deg, rgb(var(--c-orange-500)), rgb(var(--c-gold)));
+  color: rgb(var(--c-bg-deep)); font-weight: 800; font-size: 0.9rem;
+  box-shadow: 0 8px 18px rgb(var(--c-orange-500) / 0.4);
   animation: press 2.8s ease-in-out infinite;
 }
-.cursor--start { right: 0.6rem; bottom: -0.4rem; animation: tap 2.8s ease-in-out infinite; }
+.cursor--start { right: 0.9rem; bottom: -0.3rem; animation: tap 2.8s ease-in-out infinite; }
+.startcard__or { display: flex; align-items: center; gap: 0.5rem; width: 100%; font-size: 0.7rem; color: rgb(var(--c-text-soft) / 0.55); }
+.startcard__or span { flex: 1; height: 1px; background: rgb(var(--c-text-soft) / 0.15); }
+.startcard__join { display: flex; gap: 0.4rem; width: 100%; }
+.startcard__code { flex: 1; padding: 0.4rem; border-radius: 10px; text-align: center; letter-spacing: 0.15em; font-size: 0.72rem; font-weight: 700; color: rgb(var(--c-text-soft) / 0.7); border: 1px solid rgb(var(--c-accent-sky) / 0.25); background: rgb(var(--c-bg) / 0.4); }
+.startcard__joinbtn { padding: 0.4rem 0.9rem; border-radius: 10px; font-size: 0.78rem; font-weight: 700; color: rgb(var(--c-bg-deep)); background: linear-gradient(135deg, rgb(244 114 182), rgb(var(--c-violet))); }
 .arrow { color: rgb(var(--c-accent-soft)); font-size: 1.5rem; animation: bob 2.8s ease-in-out infinite; }
 .codewrap { display: flex; flex-direction: column; align-items: center; gap: 0.35rem; }
 .codewrap__label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em; color: rgb(var(--c-text-muted) / 0.7); }

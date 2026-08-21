@@ -3,8 +3,6 @@
     <transition name="howto">
       <div v-if="show" class="howto-overlay" @click.self="close">
         <div class="howto" role="dialog" aria-modal="true" :aria-label="t('howto.title')">
-          <div class="howto__glow" aria-hidden="true"></div>
-
           <header class="howto__head">
             <div class="howto__title-wrap">
               <h2 class="howto__title">{{ t('howto.title') }}</h2>
@@ -181,17 +179,6 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   display: flex;
   flex-direction: column;
 }
-.howto__glow {
-  position: absolute;
-  top: -30%;
-  left: 50%;
-  width: 130%;
-  height: 320px;
-  transform: translateX(-50%);
-  background: radial-gradient(circle, rgb(var(--c-accent-sky) / 0.32), transparent 62%);
-  opacity: 0.55;
-  pointer-events: none;
-}
 
 .howto__head {
   position: relative;
@@ -202,7 +189,14 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   padding: 1.6rem 1.8rem 0.9rem;
 }
 .howto__title-wrap { display: flex; flex-direction: column; gap: 0.2rem; }
-.howto__title { margin: 0; font-size: 1.4rem; color: rgb(var(--c-text)); }
+.howto__title {
+  margin: 0;
+  font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  color: rgb(var(--c-text));
+}
 .howto__subtitle { margin: 0; font-size: 0.92rem; color: rgb(var(--c-text-soft) / 0.7); }
 .howto__close {
   flex-shrink: 0; width: 2.3rem; height: 2.3rem; border-radius: 12px;
@@ -239,9 +233,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   margin: 0.75rem 1.5rem 0;
   border-radius: 20px;
   border: 1px solid rgb(var(--c-accent-sky) / 0.14);
-  background:
-    radial-gradient(circle at 50% 30%, rgb(var(--c-accent-sky) / 0.08), transparent 60%),
-    rgb(var(--c-bg-deep) / 0.35);
+  background: rgb(var(--c-bg-deep) / 0.3);
   overflow: hidden;
   display: flex;
 }
@@ -258,7 +250,13 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em;
   color: rgb(var(--c-accent-soft) / 0.8); text-transform: uppercase;
 }
-.howto__step-title { margin: 0.25rem 0 0.3rem; font-size: 1.2rem; color: rgb(var(--c-text)); }
+.howto__step-title {
+  margin: 0.25rem 0 0.35rem;
+  font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: rgb(var(--c-text));
+}
 .howto__step-desc {
   margin: 0 auto; max-width: 46ch;
   font-size: 0.95rem; line-height: 1.5; color: rgb(var(--c-text-soft) / 0.85);
