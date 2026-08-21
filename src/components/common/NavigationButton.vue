@@ -6,6 +6,22 @@
     :disabled="disabled"
     @click="$emit('click')"
   >
+    <svg
+      v-if="variant === 'back'"
+      class="nav-button__arrow"
+      viewBox="0 0 24 24"
+      width="18"
+      height="18"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2.4"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M19 12H5" />
+      <path d="M12 19l-7-7 7-7" />
+    </svg>
     <span>{{ label }}</span>
   </button>
 </template>
@@ -112,9 +128,12 @@ const buttonClass = computed(() => {
   cursor: not-allowed;
 }
 
-.back-arrow {
-  font-weight: 900;
-  display: inline-block;
+.nav-button__arrow {
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+.nav-button--back:hover:not(:disabled) .nav-button__arrow {
+  transform: translateX(-3px);
 }
 
 @media (max-width: 768px) {
