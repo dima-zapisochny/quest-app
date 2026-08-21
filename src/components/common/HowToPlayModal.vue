@@ -281,29 +281,34 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   gap: 1rem; padding: 0.75rem 1.6rem 1.3rem;
 }
 .howto__arrow {
-  width: 2.6rem; height: 2.6rem; border-radius: 50%;
+  width: 2.7rem; height: 2.7rem; border-radius: 50%;
   border: 1px solid rgb(var(--c-accent-sky) / 0.3);
-  background: rgb(var(--c-bg) / 0.5); color: rgb(var(--c-text-soft));
-  font-size: 1.1rem; cursor: pointer;
-  transition: background 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
+  background: rgb(var(--c-accent-sky) / 0.08); color: rgb(var(--c-accent-soft));
+  font-size: 1.15rem; cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
 }
-.howto__arrow:hover:not(:disabled) { background: rgb(var(--c-accent-sky) / 0.14); transform: translateY(-1px); }
+.howto__arrow:hover:not(:disabled) {
+  background: rgb(var(--c-accent-sky) / 0.16);
+  border-color: rgb(var(--c-accent-sky) / 0.55);
+}
 .howto__arrow:disabled { opacity: 0.3; cursor: not-allowed; }
-.howto__dots { display: flex; gap: 0.5rem; }
+.howto__dots { display: flex; gap: 0.5rem; align-items: center; }
 .howto__dot {
-  width: 0.6rem; height: 0.6rem; border-radius: 50%; border: none; padding: 0;
+  width: 0.55rem; height: 0.55rem; border-radius: 50%; border: none; padding: 0;
   background: rgb(var(--c-text-soft) / 0.25); cursor: pointer;
-  transition: background 0.2s ease, transform 0.2s ease, width 0.2s ease;
+  transition: background 0.2s ease, width 0.2s ease;
 }
-.howto__dot--active { background: rgb(var(--c-accent-sky)); width: 1.4rem; border-radius: 4px; }
+.howto__dot--active { background: rgb(var(--c-accent-sky)); width: 1.5rem; border-radius: 4px; }
 .howto__next {
-  min-width: 130px; padding: 0.65rem 1.6rem;
-  border-radius: var(--radius-pill); border: none;
-  background: linear-gradient(135deg, rgb(var(--c-accent)), rgb(var(--c-accent-sky)));
-  color: rgb(var(--c-bg)); font-size: 0.95rem; font-weight: 700; cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  min-width: 130px; padding: 0.7rem 1.7rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgb(var(--c-accent) / 0.5);
+  background: rgb(var(--c-accent) / 0.18);
+  color: rgb(var(--c-accent-soft));
+  font-size: 0.95rem; font-weight: 600; cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
 }
-.howto__next:hover { transform: translateY(-2px); box-shadow: 0 12px 24px rgb(var(--c-accent) / 0.35); }
+.howto__next:hover { background: rgb(var(--c-accent) / 0.3); border-color: rgb(var(--c-accent) / 0.7); }
 
 @keyframes howto-float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-5px)} }
 
