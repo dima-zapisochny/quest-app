@@ -58,7 +58,17 @@
       </div>
       <div class="qstrip">
         <span class="qstrip__q">?</span>
-        <span class="qstrip__line"></span>
+        <div class="qstrip__body">
+          <span class="qstrip__line qstrip__line--1"></span>
+          <span class="qstrip__line qstrip__line--2"></span>
+        </div>
+        <div class="qtimer">
+          <svg class="qtimer__ring" viewBox="0 0 36 36">
+            <circle class="qtimer__track" cx="18" cy="18" r="15" />
+            <circle class="qtimer__arc" cx="18" cy="18" r="15" />
+          </svg>
+          <span class="qtimer__num">10</span>
+        </div>
       </div>
     </div>
 
@@ -128,17 +138,32 @@
     </div>
 
     <!-- ЗАДАЙТЕ ДОСКУ -->
-    <div v-else-if="scene === 'board'" class="scene">
-      <div class="gridhead">
-        <span v-for="c in 5" :key="c" class="gridhead__h" :style="{ '--i': c }"></span>
-      </div>
-      <div class="grid">
-        <span
-          v-for="cell in gridCells"
-          :key="cell.k"
-          class="grid__c"
-          :style="{ '--d': cell.c + cell.r }"
-        ></span>
+    <div v-else-if="scene === 'board'" class="scene scene--board">
+      <div class="boardstage">
+        <!-- Фаза 1: выбор размера сетки -->
+        <div class="sizepick">
+          <span
+            v-for="cell in gridCells"
+            :key="'p' + cell.k"
+            class="sizepick__c"
+            :style="{ '--n': cell.n }"
+          ></span>
+          <span class="cursor cursor--pick" aria-hidden="true"></span>
+        </div>
+        <!-- Фаза 2: готовая доска (как в «Играть») -->
+        <div class="boardscheme">
+          <div class="gridhead">
+            <span v-for="c in 5" :key="c" class="gridhead__h" :style="{ '--i': c }"></span>
+          </div>
+          <div class="grid">
+            <span
+              v-for="cell in gridCells"
+              :key="'b' + cell.k"
+              class="grid__c"
+              :style="{ '--d': cell.c + cell.r }"
+            >{{ (cell.r + 1) * 100 }}</span>
+          </div>
+        </div>
       </div>
       <div class="gridlabel">5 × 5 · 25</div>
     </div>
@@ -182,7 +207,7 @@
 
 <script setup lang="ts">
 defineProps<{ scene: string }>()
-const gridCells = Array.from({ length: 25 }, (_, i) => ({ k: i, c: i % 5, r: Math.floor(i / 5) }))
+const gridCells = Array.from({ length: 25 }, (_, i) => ({ k: i, c: i % 5, r: Math.floor(i / 5), n: Math.max(i % 5, Math.floor(i / 5)) }))
 </script>
 
 <style scoped>
@@ -244,9 +269,9 @@ const gridCells = Array.from({ length: 25 }, (_, i) => ({ k: i, c: i % 5, r: Mat
 
 /* JOIN */
 .phone {
-  width: 96px; height: 176px; border-radius: 22px;
+  width: 106px; height: 204px; border-radius: 24px;
   border: 2px solid rgb(var(--c-accent-sky) / 0.4); background: rgb(var(--c-bg) / 0.75);
-  display: flex; flex-direction: column; align-items: center; gap: 0.5rem; padding: 1.1rem 0.55rem 0.7rem;
+  display: flex; flex-direction: column; align-items: center; gap: 0.55rem; padding: 1.25rem 0.6rem 0.85rem;
   box-shadow: 0 14px 30px rgb(var(--c-bg-deep) / 0.5); position: relative;
 }
 .phone__notch { width: 32px; height: 5px; border-radius: 3px; background: rgb(var(--c-accent-sky) / 0.35); }
@@ -263,24 +288,33 @@ const gridCells = Array.from({ length: 25 }, (_, i) => ({ k: i, c: i % 5, r: Mat
 .player__name { font-size: 0.85rem; font-weight: 700; color: rgb(var(--c-text-soft) / 0.95); }
 
 /* OPEN */
-.board { border-radius: 14px; padding: 0.6rem; background: rgb(var(--c-bg-deep) / 0.4); border: 1px solid rgb(var(--c-accent-sky) / 0.15); }
-.board__heads { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 6px; }
-.head { height: 12px; border-radius: 4px; background: linear-gradient(135deg, rgb(var(--c-accent-sky) / 0.6), rgb(var(--c-blue) / 0.5)); }
+.board { border-radius: 16px; padding: 0.75rem; background: rgb(var(--c-bg-deep) / 0.4); border: 1px solid rgb(var(--c-accent-sky) / 0.15); }
+.board__heads { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; margin-bottom: 7px; }
+.head { height: 13px; border-radius: 4px; background: linear-gradient(135deg, rgb(var(--c-accent-sky) / 0.6), rgb(var(--c-blue) / 0.5)); }
 .head:nth-child(2) { background: linear-gradient(135deg, rgb(var(--c-violet) / 0.6), rgb(var(--c-indigo-500) / 0.5)); }
 .head:nth-child(3) { background: linear-gradient(135deg, rgb(var(--c-accent) / 0.6), rgb(var(--c-accent-sky) / 0.5)); }
 .head:nth-child(4) { background: linear-gradient(135deg, rgb(var(--c-blue) / 0.6), rgb(var(--c-violet) / 0.5)); }
-.board__grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.board__grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; }
 .tile {
-  position: relative; width: 54px; height: 36px; display: flex; align-items: center; justify-content: center;
-  border-radius: 8px; font-weight: 700; font-size: 0.85rem; color: rgb(var(--c-indigo-100));
+  position: relative; width: 62px; height: 42px; display: flex; align-items: center; justify-content: center;
+  border-radius: 9px; font-weight: 700; font-size: 0.95rem; color: rgb(var(--c-indigo-100));
   background: linear-gradient(135deg, rgb(var(--c-blue) / 0.32), rgb(var(--c-violet) / 0.28));
   border: 1px solid rgb(var(--c-indigo) / 0.45);
 }
 .tile--tap { z-index: 2; animation: tilepop 2.8s ease-in-out infinite; }
 .cursor--tile { right: -0.3rem; bottom: -0.3rem; animation: tap 2.8s ease-in-out infinite; }
-.qstrip { display: flex; align-items: center; gap: 0.6rem; padding: 0.5rem 0.9rem; border-radius: 12px; background: rgb(var(--c-accent-sky) / 0.12); border: 1px solid rgb(var(--c-accent-sky) / 0.35); width: 220px; opacity: 0; transform: translateY(6px); animation: revealstrip 2.8s ease-in-out infinite; }
-.qstrip__q { font-size: 1.2rem; font-weight: 800; color: rgb(var(--c-accent-soft)); }
-.qstrip__line { flex: 1; height: 0.7rem; border-radius: 5px; background: rgb(var(--c-text-soft) / 0.35); }
+.qstrip { display: flex; align-items: center; gap: 0.7rem; padding: 0.7rem 0.85rem; border-radius: 14px; background: rgb(var(--c-accent-sky) / 0.12); border: 1px solid rgb(var(--c-accent-sky) / 0.35); width: 250px; box-sizing: border-box; opacity: 0; transform: translateY(6px); animation: revealstrip 2.8s ease-in-out infinite; }
+.qstrip__q { flex-shrink: 0; width: 1.7rem; height: 1.7rem; border-radius: 9px; display: inline-flex; align-items: center; justify-content: center; font-size: 1.1rem; font-weight: 800; color: rgb(var(--c-accent-soft)); background: rgb(var(--c-accent-sky) / 0.16); }
+.qstrip__body { flex: 1; display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.qstrip__line { height: 0.55rem; border-radius: 5px; background: rgb(var(--c-text-soft) / 0.35); }
+.qstrip__line--1 { width: 100%; }
+.qstrip__line--2 { width: 62%; }
+.qtimer { position: relative; flex-shrink: 0; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; }
+.qtimer__ring { width: 34px; height: 34px; transform: rotate(-90deg); }
+.qtimer__track { fill: none; stroke: rgb(var(--c-accent-sky) / 0.2); stroke-width: 3; }
+.qtimer__arc { fill: none; stroke: rgb(var(--c-accent-soft)); stroke-width: 3; stroke-linecap: round; stroke-dasharray: 94.25; stroke-dashoffset: 0; animation: timerdrain 2.8s linear infinite; }
+.qtimer__num { position: absolute; font-size: 0.62rem; font-weight: 800; color: rgb(var(--c-text)); }
+@keyframes timerdrain { 0%{stroke-dashoffset:0;stroke:rgb(var(--c-success))} 65%{stroke:rgb(var(--c-accent-soft))} 100%{stroke-dashoffset:94.25;stroke:rgb(var(--c-danger-soft))} }
 
 /* BUZZ */
 .scene--buzz { align-items: center; gap: 2.6rem; }
@@ -362,11 +396,30 @@ const gridCells = Array.from({ length: 25 }, (_, i) => ({ k: i, c: i % 5, r: Mat
 }
 
 /* BOARD */
-.gridhead { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; width: 200px; }
-.gridhead__h { height: 11px; border-radius: 4px; background: linear-gradient(135deg, rgb(var(--c-accent-sky)), rgb(var(--c-accent))); opacity: 0.35; animation: hl 3s ease-in-out infinite; animation-delay: calc(var(--i) * 0.1s); }
-.grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; width: 200px; }
-.grid__c { aspect-ratio: 1; border-radius: 6px; background: rgb(var(--c-bg) / 0.5); border: 1px solid rgb(var(--c-accent-sky) / 0.25); animation: fillcell 3s ease-in-out infinite; animation-delay: calc(var(--d) * 0.12s); }
-.gridlabel { color: rgb(var(--c-accent-soft)); font-weight: 800; font-size: 1.05rem; }
+.scene--board { gap: 0.9rem; }
+.boardstage { position: relative; width: 186px; height: 203px; }
+/* Фаза 1 — выбор размера */
+.sizepick { position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-50%); height: 186px; display: grid; grid-template-columns: repeat(5, 1fr); grid-template-rows: repeat(5, 1fr); gap: 4px; animation: pickfade 4.6s ease-in-out infinite; }
+.sizepick__c { border-radius: 6px; background: rgb(var(--c-bg) / 0.5); border: 1px solid rgb(var(--c-accent-sky) / 0.2); animation: pickon 4.6s ease-in-out infinite; animation-delay: calc(var(--n) * 0.05s); }
+.cursor--pick { left: 0; top: 0; animation: cursorpick 4.6s ease-in-out infinite; }
+@keyframes pickfade { 0%,40%{opacity:1} 47%,100%{opacity:0} }
+@keyframes pickon { 0%,4%{background:rgb(var(--c-bg)/0.5);border-color:rgb(var(--c-accent-sky)/0.2)} 14%,40%{background:linear-gradient(135deg,rgb(var(--c-accent-sky)/0.75),rgb(var(--c-accent)/0.6));border-color:rgb(var(--c-accent)/0.7)} 47%,100%{background:rgb(var(--c-bg)/0.5);border-color:rgb(var(--c-accent-sky)/0.2)} }
+@keyframes cursorpick { 0%{transform:translate(8px,8px) scale(1);opacity:0} 6%{opacity:1} 10%{transform:translate(14px,14px) scale(1)} 34%{transform:translate(150px,150px) scale(1)} 39%{transform:translate(150px,150px) scale(0.8)} 43%{transform:translate(150px,150px) scale(1)} 47%{opacity:0} 100%{opacity:0} }
+/* Фаза 2 — схема доски */
+.boardscheme { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; animation: boardfade 4.6s ease-in-out infinite; }
+.gridhead { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; width: 186px; }
+.gridhead__h { height: 12px; border-radius: 4px; background: linear-gradient(135deg, rgb(var(--c-accent-sky) / 0.9), rgb(var(--c-blue) / 0.8)); opacity: 0.35; animation: headin 4.6s ease-in-out infinite; animation-delay: calc(var(--i) * 0.05s); }
+.gridhead__h:nth-child(2) { background: linear-gradient(135deg, rgb(var(--c-violet) / 0.9), rgb(var(--c-indigo-500) / 0.8)); }
+.gridhead__h:nth-child(3) { background: linear-gradient(135deg, rgb(var(--c-accent) / 0.9), rgb(var(--c-accent-sky) / 0.8)); }
+.gridhead__h:nth-child(4) { background: linear-gradient(135deg, rgb(var(--c-blue) / 0.9), rgb(var(--c-violet) / 0.8)); }
+.gridhead__h:nth-child(5) { background: linear-gradient(135deg, rgb(var(--c-accent-sky) / 0.9), rgb(var(--c-accent) / 0.8)); }
+.grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; width: 186px; }
+.grid__c { height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; font-weight: 800; color: rgb(var(--c-indigo-100)); background: rgb(var(--c-bg) / 0.5); border: 1px solid rgb(var(--c-accent-sky) / 0.25); opacity: 0; animation: tilein 4.6s ease-in-out infinite; animation-delay: calc(var(--d) * 0.045s + 0.1s); }
+.gridlabel { color: rgb(var(--c-accent-soft)); font-weight: 800; font-size: 1.05rem; opacity: 0; animation: labelin 4.6s ease-in-out infinite; }
+@keyframes boardfade { 0%,42%{opacity:0} 52%,92%{opacity:1} 100%{opacity:0} }
+@keyframes headin { 0%,48%{opacity:0.2} 60%,90%{opacity:1} 100%{opacity:0.2} }
+@keyframes tilein { 0%,50%{opacity:0;transform:scale(0.6);background:rgb(var(--c-bg)/0.5);border-color:rgb(var(--c-accent-sky)/0.25)} 62%,90%{opacity:1;transform:scale(1);background:linear-gradient(135deg,rgb(var(--c-blue)/0.32),rgb(var(--c-violet)/0.28));border-color:rgb(var(--c-indigo)/0.5)} 100%{opacity:0;transform:scale(0.9)} }
+@keyframes labelin { 0%,58%{opacity:0;transform:translateY(4px)} 70%,90%{opacity:1;transform:translateY(0)} 100%{opacity:0} }
 
 /* FILL */
 .qmodal { width: 250px; border-radius: 16px; background: rgb(var(--c-bg) / 0.7); border: 1px solid rgb(var(--c-accent-sky) / 0.25); box-shadow: 0 16px 34px rgb(var(--c-bg-deep) / 0.45); overflow: hidden; }
@@ -412,8 +465,6 @@ const gridCells = Array.from({ length: 25 }, (_, i) => ({ k: i, c: i % 5, r: Mat
 @keyframes sparkle { 0%,50%{opacity:0;transform:scale(0.4)} 60%{opacity:1;transform:scale(1.2)} 78%,100%{opacity:0;transform:scale(0.6)} }
 @keyframes glow { 0%,40%,100%{border-color:rgb(var(--c-accent-sky)/0.5);background:rgb(var(--c-accent-sky)/0.05)} 55%{border-color:rgb(var(--c-accent-sky)/0.85);background:rgb(var(--c-accent-sky)/0.13)} }
 @keyframes spinplus { 0%,40%,100%{transform:scale(1)} 55%{transform:scale(1.14)} }
-@keyframes hl { 0%,30%{opacity:0.35} 55%,92%{opacity:1} 100%{opacity:0.35} }
-@keyframes fillcell { 0%,25%{background:rgb(var(--c-bg)/0.5);border-color:rgb(var(--c-accent-sky)/0.25)} 55%,92%{background:linear-gradient(135deg,rgb(var(--c-accent-sky)/0.7),rgb(var(--c-accent)/0.6));border-color:rgb(var(--c-accent)/0.6)} 100%{background:rgb(var(--c-bg)/0.5)} }
 @keyframes typing { 0%,10%{width:0} 45%,92%{width:150px} 100%{width:150px} }
 @keyframes rot { to{transform:rotate(360deg)} }
 @keyframes hidespin { 0%,45%{opacity:1} 55%,100%{opacity:0} }
