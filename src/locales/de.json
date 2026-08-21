@@ -195,5 +195,30 @@
     "answered": "Antwort bereits gegeben",
     "buzz": "Antworten",
     "waitForQuestion": "Warte auf eine Frage"
+  },
+  "howto": {
+    "title": "So wird gespielt",
+    "subtitle": "Eine kurze Anleitung zum Spielen und Erstellen eines Quiz",
+    "tabPlay": "Spielen",
+    "tabCreate": "Quiz erstellen",
+    "gotIt": "Verstanden",
+    "play1Title": "Starte das Spiel",
+    "play1Text": "Wähle ein Quiz und tippe auf „Spiel erstellen“ – ein Spielcode erscheint.",
+    "play2Title": "Spieler treten bei",
+    "play2Text": "Teilnehmer geben den Code auf ihren Handys ein und treten dem Spiel bei.",
+    "play3Title": "Fragen öffnen",
+    "play3Text": "Klicke auf die Felder des Spielfelds – alle sehen die Frage.",
+    "play4Title": "Wer ist schneller",
+    "play4Text": "Die Spieler drücken den Knopf am Handy. Der Erste antwortet, die anderen warten.",
+    "play5Title": "Punkte zählen",
+    "play5Text": "Markiere „Richtig“ oder „Falsch“ – der Punktestand aktualisiert sich von selbst.",
+    "create1Title": "Neues Quiz",
+    "create1Text": "Tippe auf der Auswahlseite auf „Neues Quiz erstellen“.",
+    "create2Title": "Spielfeld festlegen",
+    "create2Text": "Gib einen Namen ein und wähle die Rastergröße: Kategorien × Fragen.",
+    "create3Title": "Fragen ausfüllen",
+    "create3Text": "Klicke auf die Felder und füge Frage, Antwort und optional ein Foto oder Audio hinzu.",
+    "create4Title": "Fertig!",
+    "create4Text": "Alles wird automatisch gespeichert – komm zurück und starte das Spiel."
   }
 }

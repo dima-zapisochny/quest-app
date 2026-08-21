@@ -6,7 +6,12 @@
     </div>
   </div>
   <div v-else-if="!shouldRedirect" class="landing">
+    <button type="button" class="landing-howto" @click="showHowTo = true">
+      <span class="landing-howto__icon" aria-hidden="true">🎮</span>
+      <span class="landing-howto__label">{{ t('howto.title') }}</span>
+    </button>
     <LanguageSwitcher class="landing-lang" />
+    <HowToPlayModal :show="showHowTo" @close="showHowTo = false" />
     <div class="landing-card">
       <div class="landing-brand">
         <h1 class="brand-title" :class="{ 'brand-title--animated': animateTitle }">
@@ -81,6 +86,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import AvatarPicker from '@/components/common/AvatarPicker.vue'
 import LanguageSwitcher from '@/components/common/LanguageSwitcher.vue'
+import HowToPlayModal from '@/components/common/HowToPlayModal.vue'
 import { useGameSessionStore } from '@/store/gameSessionStore'
 import { useIsMobileViewport } from '@/composables/useIsMobileViewport'
 
@@ -101,6 +107,7 @@ const joinCode = ref('')
 const errorMessage = ref('')
 const shouldRedirect = ref(false)
 const isCheckingAuth = ref(true)
+const showHowTo = ref(false)
 
 // Быстрая проверка localStorage перед рендерингом
 async function checkLocalStorageProfile() {
@@ -565,6 +572,44 @@ watch(() => route.path, (newPath) => {
   top: clamp(1rem, 3vw, 1.75rem);
   right: clamp(1rem, 3vw, 1.75rem);
   z-index: 20;
+}
+
+.landing-howto {
+  position: absolute;
+  top: clamp(1rem, 3vw, 1.75rem);
+  left: clamp(1rem, 3vw, 1.75rem);
+  z-index: 20;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem 0.5rem 0.7rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgb(var(--c-accent-sky) / 0.25);
+  background: rgb(var(--c-bg) / 0.6);
+  color: rgb(var(--c-text-soft));
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+}
+.landing-howto:hover {
+  border-color: rgb(var(--c-accent-sky) / 0.5);
+  background: rgb(var(--c-bg) / 0.8);
+  transform: translateY(-1px);
+}
+.landing-howto__icon {
+  font-size: 1.1rem;
+  line-height: 1;
+  animation: howto-btn-float 3s ease-in-out infinite;
+}
+@keyframes howto-btn-float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-2px) rotate(-6deg); }
+}
+@media (max-width: 420px) {
+  .landing-howto__label { display: none; }
+  .landing-howto { padding: 0.5rem 0.7rem; }
 }
 
 .landing-card {

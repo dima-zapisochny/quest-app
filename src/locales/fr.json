@@ -195,5 +195,30 @@
     "answered": "Réponse déjà donnée",
     "buzz": "Répondre",
     "waitForQuestion": "En attente d'une question"
+  },
+  "howto": {
+    "title": "Comment jouer",
+    "subtitle": "Un guide rapide pour jouer et créer un quiz",
+    "tabPlay": "Jouer",
+    "tabCreate": "Créer un quiz",
+    "gotIt": "Compris",
+    "play1Title": "Lancez la partie",
+    "play1Text": "Choisissez un quiz et appuyez sur « Créer une partie » — un code apparaît.",
+    "play2Title": "Les joueurs rejoignent",
+    "play2Text": "Les participants saisissent le code sur leur téléphone et rejoignent la partie.",
+    "play3Title": "Ouvrez les questions",
+    "play3Text": "Cliquez sur les cases du plateau — tout le monde voit la question.",
+    "play4Title": "Le plus rapide",
+    "play4Text": "Les joueurs appuient sur le bouton de leur téléphone. Le premier répond, les autres attendent.",
+    "play5Title": "Comptez les points",
+    "play5Text": "Indiquez « Correct » ou « Faux » — le score se met à jour tout seul.",
+    "create1Title": "Nouveau quiz",
+    "create1Text": "Sur la page de sélection, appuyez sur « Créer un nouveau quiz ».",
+    "create2Title": "Configurez le plateau",
+    "create2Text": "Saisissez un nom et choisissez la taille de la grille : catégories × questions.",
+    "create3Title": "Remplissez les questions",
+    "create3Text": "Cliquez sur les cases et ajoutez la question, la réponse et, si vous le souhaitez, une photo ou un audio.",
+    "create4Title": "Terminé !",
+    "create4Text": "Tout est enregistré automatiquement — revenez et lancez la partie."
   }
 }

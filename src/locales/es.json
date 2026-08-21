@@ -195,5 +195,30 @@
     "answered": "Respuesta ya dada",
     "buzz": "Responder",
     "waitForQuestion": "Esperando una pregunta"
+  },
+  "howto": {
+    "title": "Cómo jugar",
+    "subtitle": "Una guía rápida para jugar y crear un cuestionario",
+    "tabPlay": "Jugar",
+    "tabCreate": "Crear un cuestionario",
+    "gotIt": "Entendido",
+    "play1Title": "Inicia el juego",
+    "play1Text": "Elige un cuestionario y toca «Crear juego»: aparecerá un código de juego.",
+    "play2Title": "Los jugadores se unen",
+    "play2Text": "Los participantes introducen el código en sus móviles y se unen al juego.",
+    "play3Title": "Abre las preguntas",
+    "play3Text": "Haz clic en las casillas del tablero: todos ven la pregunta.",
+    "play4Title": "Quién es más rápido",
+    "play4Text": "Los jugadores pulsan el botón en su móvil. El primero responde, los demás esperan.",
+    "play5Title": "Lleva la puntuación",
+    "play5Text": "Marca «Correcto» o «Incorrecto»: la puntuación se actualiza sola.",
+    "create1Title": "Nuevo cuestionario",
+    "create1Text": "En la página de selección, toca «Crear un cuestionario nuevo».",
+    "create2Title": "Configura el tablero",
+    "create2Text": "Escribe un nombre y elige el tamaño de la cuadrícula: categorías × preguntas.",
+    "create3Title": "Rellena las preguntas",
+    "create3Text": "Haz clic en las casillas y añade la pregunta, la respuesta y, si quieres, una foto o audio.",
+    "create4Title": "¡Listo!",
+    "create4Text": "Todo se guarda automáticamente: vuelve y empieza la partida."
   }
 }
