@@ -207,16 +207,16 @@ const gridCells = Array.from({ length: 25 }, (_, i) => ({ k: i, c: i % 5, r: Mat
   display: flex; flex-direction: column; gap: 0.7rem; align-items: center;
 }
 /* START — мокап карточки лендинга (компактный) */
-.panel--start { width: 246px; gap: 0.55rem; padding: 0.85rem; }
+.panel--start { width: 246px; gap: 0.8rem; padding: 1.05rem; }
 .startcard__label { align-self: flex-start; font-size: 0.56rem; text-transform: uppercase; letter-spacing: 0.1em; color: rgb(var(--c-text-muted) / 0.7); }
 .startcard__idrow { display: flex; align-items: center; gap: 0.5rem; width: 100%; box-sizing: border-box; }
-.startcard__field { flex: 1; height: 1.65rem; border-radius: 9px; background: rgb(var(--c-bg) / 0.55); border: 1px solid rgb(var(--c-accent-sky) / 0.22); display: flex; align-items: center; gap: 1px; padding: 0 0.55rem; overflow: hidden; box-sizing: border-box; }
+.startcard__field { flex: 1; height: 1.9rem; border-radius: 10px; background: rgb(var(--c-bg) / 0.55); border: 1px solid rgb(var(--c-accent-sky) / 0.22); display: flex; align-items: center; gap: 1px; padding: 0 0.6rem; overflow: hidden; box-sizing: border-box; }
 .startcard__name { display: inline-block; max-width: 0; overflow: hidden; white-space: nowrap; font-size: 0.82rem; font-weight: 700; color: rgb(var(--c-text)); animation: typename 3.2s ease-in-out infinite; }
 .caret--name { flex-shrink: 0; height: 0.9rem; background: rgb(var(--c-accent-soft)); }
 @keyframes typename { 0%,4% { max-width: 0; } 40%,82% { max-width: 3.4ch; } 96%,100% { max-width: 0; } }
-.startcard__ava { flex-shrink: 0; width: 1.65rem; height: 1.65rem; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 1rem; background: rgb(var(--c-accent-sky) / 0.14); border: 1px solid rgb(var(--c-accent-sky) / 0.4); }
+.startcard__ava { flex-shrink: 0; width: 1.9rem; height: 1.9rem; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 1rem; background: rgb(var(--c-accent-sky) / 0.14); border: 1px solid rgb(var(--c-accent-sky) / 0.4); }
 .startcard__create {
-  position: relative; width: 100%; padding: 0.42rem; border: none; border-radius: var(--radius-pill);
+  position: relative; width: 100%; padding: 0.55rem; border: none; border-radius: var(--radius-pill);
   background: radial-gradient(circle at 25% 25%, rgba(253, 224, 71, 0.6), transparent 55%),
     linear-gradient(135deg, rgb(var(--c-orange-500)), rgb(var(--c-gold)));
   color: rgb(var(--c-bg-deep)); font-weight: 800; font-size: 0.85rem;
