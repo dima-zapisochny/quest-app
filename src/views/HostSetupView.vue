@@ -700,15 +700,15 @@ async function onImportQuestFile(event: Event) {
 }
 
 .quest-card__body {
-  padding: 0.65rem 0.35rem 0.3rem;
+  padding: 0.75rem 0.4rem 1.2rem;
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  gap: 0.4rem;
 }
 
 .quest-title {
   margin: 0;
-  font-size: 1.25rem;
+  font-size: 1.02rem;
   font-weight: 800;
   line-height: 1.25;
   white-space: nowrap;
@@ -875,7 +875,7 @@ async function onImportQuestFile(event: Event) {
   gap: 0.4rem;
   align-items: center;
   flex-wrap: wrap;
-  font-size: 0.95rem;
+  font-size: 0.8rem;
   color: rgb(var(--c-text-muted) / 0.85);
 }
 .quest-meta__dot {
