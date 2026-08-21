@@ -71,23 +71,24 @@ onBeforeUnmount(() => window.removeEventListener('click', onClickOutside))
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  height: 2.6rem;
-  padding: 0 0.95rem;
+  height: 2.7rem;
+  padding: 0 1rem;
   border-radius: var(--radius-pill);
-  border: 1px solid rgb(var(--c-accent-sky) / 0.28);
-  background: linear-gradient(135deg, rgb(var(--c-surface) / 0.75), rgb(var(--c-bg) / 0.55));
+  border: 1.5px solid transparent;
+  background:
+    linear-gradient(135deg, rgb(var(--c-surface) / 0.9), rgb(var(--c-bg) / 0.7)) padding-box,
+    linear-gradient(120deg, rgb(var(--c-accent-sky) / 0.9), rgb(var(--c-violet) / 0.7)) border-box;
   color: rgb(var(--c-text));
   font-size: 0.9rem;
   font-weight: 700;
   cursor: pointer;
   backdrop-filter: blur(14px);
-  box-shadow: 0 8px 22px rgb(var(--c-bg-deep) / 0.4), inset 0 1px 0 rgb(var(--c-white) / 0.05);
-  transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 8px 24px rgb(var(--c-accent-sky) / 0.18);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 .lang__toggle:hover {
-  border-color: rgb(var(--c-accent-sky) / 0.6);
-  transform: translateY(-1px);
-  box-shadow: 0 12px 28px rgb(var(--c-accent-sky) / 0.25), inset 0 1px 0 rgb(var(--c-white) / 0.06);
+  transform: translateY(-2px);
+  box-shadow: 0 14px 34px rgb(var(--c-accent-sky) / 0.4);
 }
 .lang__toggle:focus { outline: none; }
 .lang__toggle:focus-visible {

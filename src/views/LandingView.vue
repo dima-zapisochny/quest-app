@@ -7,7 +7,9 @@
   </div>
   <div v-else-if="!shouldRedirect" class="landing">
     <button type="button" class="landing-howto" @click="showHowTo = true">
-      <span class="landing-howto__icon" aria-hidden="true">🎮</span>
+      <span class="landing-howto__icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M8 5.14v13.72a1 1 0 0 0 1.54.84l10.29-6.86a1 1 0 0 0 0-1.68L9.54 4.3A1 1 0 0 0 8 5.14z"/></svg>
+      </span>
       <span class="landing-howto__label">{{ t('howto.title') }}</span>
     </button>
     <LanguageSwitcher class="landing-lang" />
@@ -581,38 +583,48 @@ watch(() => route.path, (newPath) => {
   z-index: 20;
   display: inline-flex;
   align-items: center;
-  gap: 0.55rem;
-  height: 2.6rem;
-  padding: 0 1.1rem 0 0.85rem;
+  gap: 0.5rem;
+  height: 2.7rem;
+  padding: 0 1.15rem 0 0.5rem;
   border-radius: var(--radius-pill);
-  border: 1px solid rgb(var(--c-accent-sky) / 0.28);
-  background: linear-gradient(135deg, rgb(var(--c-surface) / 0.75), rgb(var(--c-bg) / 0.55));
+  border: 1.5px solid transparent;
+  background:
+    linear-gradient(135deg, rgb(var(--c-surface) / 0.9), rgb(var(--c-bg) / 0.7)) padding-box,
+    linear-gradient(120deg, rgb(var(--c-accent-sky) / 0.9), rgb(var(--c-violet) / 0.7)) border-box;
   color: rgb(var(--c-text));
   font-size: 0.9rem;
   font-weight: 700;
   cursor: pointer;
   backdrop-filter: blur(14px);
-  box-shadow: 0 8px 22px rgb(var(--c-bg-deep) / 0.4), inset 0 1px 0 rgb(var(--c-white) / 0.05);
-  transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 8px 24px rgb(var(--c-accent-sky) / 0.18);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 .landing-howto:hover {
-  border-color: rgb(var(--c-accent-sky) / 0.6);
-  transform: translateY(-1px);
-  box-shadow: 0 12px 28px rgb(var(--c-accent-sky) / 0.25), inset 0 1px 0 rgb(var(--c-white) / 0.06);
+  transform: translateY(-2px);
+  box-shadow: 0 14px 34px rgb(var(--c-accent-sky) / 0.4);
 }
 .landing-howto:focus { outline: none; }
 .landing-howto:focus-visible {
   outline: 2px solid rgb(var(--c-accent-sky) / 0.6);
-  outline-offset: 2px;
+  outline-offset: 3px;
 }
 .landing-howto__icon {
-  font-size: 1.15rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: 50%;
   line-height: 1;
-  animation: howto-btn-float 3s ease-in-out infinite;
+  color: rgb(var(--c-white));
+  background: linear-gradient(135deg, rgb(var(--c-accent-sky)), rgb(var(--c-violet)));
+  box-shadow: 0 0 0 1px rgb(var(--c-accent-sky) / 0.35), 0 4px 12px rgb(var(--c-accent-sky) / 0.4);
+  animation: howto-btn-pulse 2.6s ease-in-out infinite;
 }
-@keyframes howto-btn-float {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  50% { transform: translateY(-2px) rotate(-6deg); }
+.landing-howto__icon svg { transform: translateX(0.5px); }
+@keyframes howto-btn-pulse {
+  0%, 100% { box-shadow: 0 0 0 1px rgb(var(--c-accent-sky) / 0.35), 0 4px 12px rgb(var(--c-accent-sky) / 0.4); }
+  50% { box-shadow: 0 0 0 1px rgb(var(--c-accent-sky) / 0.5), 0 6px 18px rgb(var(--c-accent-sky) / 0.6); }
 }
 @media (max-width: 420px) {
   .landing-howto__label { display: none; }
