@@ -354,6 +354,15 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 @media (max-width: 560px) {
   .howto { height: min(92vh, 100%); }
   .howto__stage { margin: 0.5rem 1rem 0; }
-  .howto__next { min-width: 100px; padding: 0.6rem 1.1rem; }
+  /* Компактная навигация, чтобы «Далее» не вылезал за край */
+  .howto__nav { padding: 0.7rem 0.9rem 1.1rem; gap: 0.5rem; }
+  .howto__prev { min-width: 84px; padding: 0.6rem 0.9rem; font-size: 0.9rem; }
+  .howto__next { min-width: 84px; padding: 0.6rem 0.9rem; font-size: 0.9rem; }
+  .howto__dots { gap: 0.35rem; }
+}
+@media (max-width: 380px) {
+  .howto__nav { padding: 0.7rem 0.7rem 1rem; }
+  .howto__prev,
+  .howto__next { min-width: 74px; padding: 0.55rem 0.75rem; font-size: 0.85rem; }
 }
 </style>
