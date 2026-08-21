@@ -67,13 +67,19 @@
       <div class="racer racer--win">
         <span class="racer__crown">👑</span>
         <span class="racer__ava">🦊</span>
+        <span class="racer__name">Alex</span>
+        <span class="racer__pts">300</span>
+        <span class="racer__badge">1st</span>
       </div>
       <div class="buzzer">
-        <span class="ring"></span><span class="ring ring--2"></span>
+        <span class="ring"></span><span class="ring ring--2"></span><span class="ring ring--3"></span>
         <span class="buzzer__bolt">⚡</span>
+        <span class="cursor cursor--buzz" aria-hidden="true"></span>
       </div>
-      <div class="racer">
+      <div class="racer racer--lose">
         <span class="racer__ava racer__ava--dim">🐼</span>
+        <span class="racer__name racer__name--dim">Max</span>
+        <span class="racer__pts racer__pts--dim">200</span>
       </div>
     </div>
 
@@ -110,14 +116,14 @@
       <div class="questlist">
         <div class="qcard qcard--saved">
           <span class="qcard__cover"><span class="qcard__emoji">🎬</span></span>
-          <span class="qcard__title"></span>
-          <span class="qcard__sub"></span>
+          <span class="qcard__title">Movie Night</span>
+          <span class="qcard__sub">12 questions · 3 rounds</span>
         </div>
         <div class="qcard qcard--new">
           <span class="qcard__plus">+</span>
           <span class="qcard__newlabel">New quest</span>
-          <span class="cursor cursor--new" aria-hidden="true"></span>
         </div>
+        <span class="cursor questcursor" aria-hidden="true"></span>
       </div>
     </div>
 
@@ -201,7 +207,7 @@ const gridCells = Array.from({ length: 25 }, (_, i) => ({ k: i, c: i % 5, r: Mat
   display: flex; flex-direction: column; gap: 0.7rem; align-items: center;
 }
 /* START — мокап карточки лендинга (компактный) */
-.panel--start { width: 246px; gap: 0.35rem; padding: 0.65rem; }
+.panel--start { width: 246px; gap: 0.55rem; padding: 0.85rem; }
 .startcard__label { align-self: flex-start; font-size: 0.56rem; text-transform: uppercase; letter-spacing: 0.1em; color: rgb(var(--c-text-muted) / 0.7); }
 .startcard__idrow { display: flex; align-items: center; gap: 0.5rem; width: 100%; box-sizing: border-box; }
 .startcard__field { flex: 1; height: 1.65rem; border-radius: 9px; background: rgb(var(--c-bg) / 0.55); border: 1px solid rgb(var(--c-accent-sky) / 0.22); display: flex; align-items: center; gap: 1px; padding: 0 0.55rem; overflow: hidden; box-sizing: border-box; }
@@ -277,21 +283,35 @@ const gridCells = Array.from({ length: 25 }, (_, i) => ({ k: i, c: i % 5, r: Mat
 .qstrip__line { flex: 1; height: 0.7rem; border-radius: 5px; background: rgb(var(--c-text-soft) / 0.35); }
 
 /* BUZZ */
-.scene--buzz { align-items: center; }
-.racer { display: flex; flex-direction: column; align-items: center; gap: 0.3rem; position: relative; }
+.scene--buzz { align-items: center; gap: 2.6rem; }
+.racer { display: flex; flex-direction: column; align-items: center; gap: 0.35rem; position: relative; }
 .racer__crown { font-size: 1.1rem; animation: bob 2.4s ease-in-out infinite; }
 .racer__ava { width: 2.6rem; height: 2.6rem; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 1.3rem; background: rgb(var(--c-bg) / 0.6); border: 2px solid rgb(var(--c-accent-sky) / 0.4); }
+.racer__name { font-size: 0.72rem; font-weight: 700; color: rgb(var(--c-text-soft) / 0.9); }
+.racer__name--dim { color: rgb(var(--c-text-muted) / 0.6); }
+.racer__pts { font-size: 0.82rem; font-weight: 800; color: rgb(var(--c-text)); }
+.racer--win .racer__pts { color: rgb(var(--c-success)); }
+.racer__pts--dim { color: rgb(var(--c-text-muted) / 0.6); }
 .racer--win .racer__ava { border-color: rgb(var(--c-success) / 0.7); box-shadow: 0 0 16px rgb(var(--c-success) / 0.5); animation: winpulse 2.4s ease-in-out infinite; }
-.racer__ava--dim { opacity: 0.45; }
+.racer--win .racer__name { color: rgb(var(--c-success)); }
+.racer__badge { position: absolute; top: 1.3rem; right: -0.9rem; padding: 0.05rem 0.4rem; border-radius: 999px; font-size: 0.6rem; font-weight: 800; color: rgb(var(--c-bg-deep)); background: rgb(var(--c-success)); opacity: 0; animation: badgein 2.4s ease-in-out infinite; }
+.racer--lose .racer__ava { border-color: rgb(var(--c-text-muted) / 0.3); }
+.racer__ava--dim { opacity: 0.5; }
 .buzzer {
-  position: relative; width: 96px; height: 96px; border-radius: 50%;
+  position: relative; width: 92px; height: 92px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  background: radial-gradient(circle at 40% 35%, rgb(var(--c-accent-sky)), rgb(var(--c-blue)));
-  box-shadow: 0 12px 30px rgb(var(--c-blue) / 0.5); animation: press 2.4s ease-in-out infinite;
+  background: radial-gradient(circle at 38% 32%, rgb(var(--c-violet) / 0.95), rgb(var(--c-indigo-500)));
+  box-shadow: inset 0 2px 6px rgb(var(--c-white) / 0.18), 0 10px 24px rgb(var(--c-indigo-500) / 0.4);
+  border: 1px solid rgb(var(--c-violet) / 0.5);
+  animation: press 2.4s ease-in-out infinite;
 }
-.buzzer__bolt { font-size: 2.1rem; }
-.ring { position: absolute; inset: 0; border-radius: 50%; border: 2px solid rgb(var(--c-accent-sky) / 0.6); animation: ripple 2.4s ease-out infinite; }
-.ring--2 { animation-delay: 0.5s; }
+.buzzer__bolt { font-size: 2rem; filter: drop-shadow(0 2px 4px rgb(var(--c-bg-deep) / 0.4)); animation: boltflash 2.4s ease-in-out infinite; }
+.ring { position: absolute; inset: 0; border-radius: 50%; border: 2px solid rgb(var(--c-violet) / 0.6); animation: ripple 2.4s ease-out infinite; }
+.ring--2 { animation-delay: 0.35s; }
+.ring--3 { animation-delay: 0.7s; }
+.cursor--buzz { right: 12%; bottom: 8%; animation: tap 2.4s ease-in-out infinite; }
+@keyframes badgein { 0%,50%{opacity:0;transform:scale(0.4)} 60%{opacity:1;transform:scale(1.15)} 70%,92%{opacity:1;transform:scale(1)} 100%{opacity:0} }
+@keyframes boltflash { 0%,40%{transform:scale(1)} 48%{transform:scale(1.2)} 56%,100%{transform:scale(1)} }
 
 /* SCORE */
 .marks { display: flex; gap: 0.7rem; }
@@ -315,16 +335,31 @@ const gridCells = Array.from({ length: 25 }, (_, i) => ({ k: i, c: i % 5, r: Mat
 @keyframes growbar { 0%,15%{transform:scaleX(0)} 45%,100%{transform:scaleX(1)} }
 
 /* NEW */
-.questlist { display: flex; align-items: stretch; gap: 0.8rem; }
+.questlist { position: relative; display: flex; align-items: stretch; gap: 0.8rem; }
 .qcard { width: 132px; height: 158px; border-radius: 16px; display: flex; flex-direction: column; box-sizing: border-box; }
-.qcard--saved { padding: 0.7rem; gap: 0.55rem; background: rgb(var(--c-surface) / 0.7); border: 1px solid rgb(var(--c-accent-sky) / 0.18); }
+.qcard--saved { padding: 0.7rem; gap: 0.4rem; background: rgb(var(--c-surface) / 0.7); border: 1px solid rgb(var(--c-accent-sky) / 0.18); animation: savedhi 4.4s ease-in-out infinite; }
 .qcard__cover { flex: 1; border-radius: 11px; display: flex; align-items: center; justify-content: center; font-size: 1.9rem; background: linear-gradient(135deg, rgb(var(--c-violet) / 0.35), rgb(var(--c-blue) / 0.35)); }
-.qcard__title { height: 0.6rem; width: 82%; border-radius: 4px; background: rgb(var(--c-text-soft) / 0.5); }
-.qcard__sub { height: 0.5rem; width: 55%; border-radius: 4px; background: rgb(var(--c-text-muted) / 0.4); }
-.qcard--new { position: relative; align-items: center; justify-content: center; gap: 0.6rem; border: 2px dashed rgb(var(--c-accent-sky) / 0.55); background: rgb(var(--c-accent-sky) / 0.06); animation: glow 2.6s ease-in-out infinite; }
-.qcard__plus { width: 2.9rem; height: 2.9rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.7rem; color: rgb(var(--c-accent-soft)); border: 1px dashed rgb(var(--c-accent-sky) / 0.6); background: rgb(var(--c-bg) / 0.5); animation: spinplus 2.6s ease-in-out infinite; }
+.qcard__title { font-size: 0.75rem; font-weight: 800; color: rgb(var(--c-text)); white-space: nowrap; overflow: hidden; opacity: 0; animation: qtextin 4.4s ease-in-out infinite; }
+.qcard__sub { font-size: 0.56rem; color: rgb(var(--c-text-muted) / 0.85); white-space: nowrap; overflow: hidden; opacity: 0; animation: qtextin 4.4s ease-in-out infinite 0.15s; }
+.qcard--new { position: relative; align-items: center; justify-content: center; gap: 0.6rem; border: 2px dashed rgb(var(--c-accent-sky) / 0.5); background: rgb(var(--c-accent-sky) / 0.06); animation: newhi 4.4s ease-in-out infinite; }
+.qcard__plus { width: 2.9rem; height: 2.9rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.7rem; color: rgb(var(--c-accent-soft)); border: 1px dashed rgb(var(--c-accent-sky) / 0.6); background: rgb(var(--c-bg) / 0.5); animation: spinplus 4.4s ease-in-out infinite; }
 .qcard__newlabel { color: rgb(var(--c-text-soft) / 0.9); font-weight: 700; font-size: 0.9rem; }
-.cursor--new { right: 22%; bottom: 20%; animation: tap 2.6s ease-in-out infinite; }
+.questcursor { left: 50%; top: 50%; animation: questcursor 4.4s ease-in-out infinite; }
+@keyframes qtextin { 0%,4%{opacity:0;transform:translateY(4px)} 14%,94%{opacity:1;transform:translateY(0)} 100%{opacity:0} }
+@keyframes savedhi { 0%,8%{transform:translateY(0);border-color:rgb(var(--c-accent-sky)/0.18);box-shadow:none} 22%,36%{transform:translateY(-4px);border-color:rgb(var(--c-accent-sky)/0.5);box-shadow:0 10px 22px rgb(var(--c-bg-deep)/0.4)} 48%,100%{transform:translateY(0);border-color:rgb(var(--c-accent-sky)/0.18);box-shadow:none} }
+@keyframes newhi { 0%,52%{border-color:rgb(var(--c-accent-sky)/0.5);box-shadow:none} 64%,80%{border-color:rgb(var(--c-accent-sky)/0.9);box-shadow:0 0 0 3px rgb(var(--c-accent-sky)/0.12),0 12px 26px rgb(var(--c-accent-sky)/0.22)} 92%,100%{border-color:rgb(var(--c-accent-sky)/0.5);box-shadow:none} }
+@keyframes questcursor {
+  0%{transform:translate(-46px,34px) scale(1);opacity:0}
+  7%{opacity:1}
+  20%{transform:translate(-74px,-4px) scale(1)}
+  28%{transform:translate(-74px,2px) scale(0.85)}
+  36%{transform:translate(-74px,-4px) scale(1)}
+  56%{transform:translate(74px,2px) scale(1)}
+  66%{transform:translate(74px,8px) scale(0.82)}
+  76%{transform:translate(74px,2px) scale(1)}
+  93%{transform:translate(74px,2px) scale(1);opacity:1}
+  100%{transform:translate(74px,2px) scale(1);opacity:0}
+}
 
 /* BOARD */
 .gridhead { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; width: 200px; }
