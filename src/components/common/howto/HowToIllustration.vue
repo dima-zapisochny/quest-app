@@ -78,18 +78,30 @@
     </div>
 
     <!-- СЧИТАЙТЕ ОЧКИ -->
-    <div v-else-if="scene === 'score'" class="scene">
+    <div v-else-if="scene === 'score'" class="scene scene--score">
       <div class="marks">
         <span class="mark mark--ok">✓</span>
         <span class="mark mark--no">✕</span>
       </div>
-      <div class="lbrow">
-        <span class="lbrow__ava">🦊</span>
-        <span class="lbrow__name"></span>
-        <span class="lbrow__score">100</span>
-        <span class="lbrow__plus">+100</span>
-        <span class="spark spark--1">✦</span>
-        <span class="spark spark--2">✦</span>
+      <div class="lboard">
+        <div
+          v-for="(p, i) in [
+            { medal: '🥇', ava: '🦊', name: 'Alex', score: 300, w: 100, lead: true },
+            { medal: '🥈', ava: '🐼', name: 'Max', score: 200, w: 66, lead: false },
+            { medal: '🥉', ava: '🐯', name: 'Nina', score: 100, w: 33, lead: false },
+          ]"
+          :key="p.name"
+          class="lbrow"
+          :class="{ 'lbrow--lead': p.lead }"
+          :style="{ '--i': i }"
+        >
+          <span class="lbrow__rank">{{ p.medal }}</span>
+          <span class="lbrow__ava">{{ p.ava }}</span>
+          <span class="lbrow__name">{{ p.name }}</span>
+          <span class="lbrow__bar"><span class="lbrow__fill" :style="{ width: p.w + '%' }"></span></span>
+          <span class="lbrow__score">{{ p.score }}</span>
+          <span v-if="p.lead" class="lbrow__plus">+100</span>
+        </div>
       </div>
     </div>
 
@@ -285,14 +297,21 @@ const gridCells = Array.from({ length: 25 }, (_, i) => ({ k: i, c: i % 5, r: Mat
 .mark { width: 2.8rem; height: 2.8rem; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; font-weight: 800; }
 .mark--ok { color: rgb(var(--c-success)); background: rgb(var(--c-success) / 0.16); border: 1px solid rgb(var(--c-success) / 0.5); animation: press 2.4s ease-in-out infinite; }
 .mark--no { color: rgb(var(--c-danger-soft)); background: rgb(var(--c-danger) / 0.12); border: 1px solid rgb(var(--c-danger) / 0.4); }
-.lbrow { position: relative; display: flex; align-items: center; gap: 0.7rem; padding: 0.6rem 0.9rem; border-radius: 14px; width: 250px; background: rgb(var(--c-bg) / 0.6); border: 1px solid rgb(var(--c-accent-sky) / 0.2); }
-.lbrow__ava { width: 2.1rem; height: 2.1rem; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 1.1rem; background: rgb(var(--c-accent-sky) / 0.16); border: 1px solid rgb(var(--c-accent-sky) / 0.4); }
-.lbrow__name { flex: 1; height: 0.7rem; border-radius: 5px; background: rgb(var(--c-text-soft) / 0.28); }
-.lbrow__score { font-size: 1.3rem; font-weight: 800; color: rgb(var(--c-text)); animation: bump 2.4s ease-in-out infinite; }
-.lbrow__plus { position: absolute; top: -0.4rem; right: 0.8rem; color: rgb(var(--c-success)); font-weight: 800; font-size: 0.85rem; opacity: 0; animation: floatup 2.4s ease-in-out infinite; }
-.spark { position: absolute; color: rgb(var(--c-success)); opacity: 0; font-size: 0.8rem; }
-.spark--1 { top: 0; right: 2rem; animation: sparkle 2.4s ease-in-out infinite; }
-.spark--2 { bottom: 0.2rem; right: 1.2rem; animation: sparkle 2.4s ease-in-out infinite 0.2s; }
+.scene--score { gap: 1rem; }
+.lboard { display: flex; flex-direction: column; gap: 0.45rem; }
+.lbrow { position: relative; display: flex; align-items: center; gap: 0.55rem; padding: 0.42rem 0.7rem; border-radius: 12px; width: 300px; box-sizing: border-box; background: rgb(var(--c-bg) / 0.55); border: 1px solid rgb(var(--c-accent-sky) / 0.16); opacity: 0; transform: translateY(8px); animation: rowin 3s ease-in-out infinite; animation-delay: calc(var(--i) * 0.3s); }
+.lbrow--lead { background: rgb(var(--c-gold) / 0.1); border-color: rgb(var(--c-gold) / 0.4); }
+.lbrow__rank { width: 1.3rem; flex-shrink: 0; text-align: center; font-size: 1rem; }
+.lbrow__ava { width: 1.75rem; height: 1.75rem; flex-shrink: 0; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.95rem; background: rgb(var(--c-accent-sky) / 0.16); border: 1px solid rgb(var(--c-accent-sky) / 0.4); }
+.lbrow__name { width: 3rem; flex-shrink: 0; font-size: 0.8rem; font-weight: 700; color: rgb(var(--c-text-soft) / 0.95); white-space: nowrap; overflow: hidden; }
+.lbrow__bar { flex: 1; height: 0.5rem; border-radius: 999px; background: rgb(var(--c-text-soft) / 0.14); overflow: hidden; }
+.lbrow__fill { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, rgb(var(--c-accent-sky)), rgb(var(--c-accent))); transform-origin: left; animation: growbar 3s ease-in-out infinite; animation-delay: calc(var(--i) * 0.3s + 0.2s); }
+.lbrow--lead .lbrow__fill { background: linear-gradient(90deg, rgb(var(--c-orange-500)), rgb(var(--c-gold))); }
+.lbrow__score { min-width: 2.1rem; flex-shrink: 0; text-align: right; font-size: 1rem; font-weight: 800; color: rgb(var(--c-text)); }
+.lbrow--lead .lbrow__score { animation: bump 2.4s ease-in-out infinite; }
+.lbrow__plus { position: absolute; top: -0.5rem; right: 0.7rem; color: rgb(var(--c-success)); font-weight: 800; font-size: 0.82rem; opacity: 0; animation: floatup 2.4s ease-in-out infinite; }
+@keyframes rowin { 0%{opacity:0;transform:translateY(8px)} 18%,94%{opacity:1;transform:translateY(0)} 100%{opacity:0} }
+@keyframes growbar { 0%,15%{transform:scaleX(0)} 45%,100%{transform:scaleX(1)} }
 
 /* NEW */
 .questlist { display: flex; align-items: stretch; gap: 0.8rem; }
