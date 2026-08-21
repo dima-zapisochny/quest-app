@@ -116,8 +116,8 @@ function apply(c: number, r: number) {
   gap: 4px;
 }
 .gp__cell {
-  width: clamp(42px, 7.5vw, 58px);
-  aspect-ratio: 1.42;
+  width: clamp(46px, 8.5vw, 66px);
+  aspect-ratio: 1.7;
   padding: 0;
   border: 1px solid rgb(var(--c-accent-sky) / 0.22);
   border-radius: 4px;

@@ -22,8 +22,12 @@
             class="field-input"
             type="text"
             :placeholder="t('create.namePlaceholder')"
+            :class="{ 'field-input--error': error }"
             required
           />
+          <transition name="err-slide">
+            <p v-if="error" class="field-error field-error--inline">{{ error }}</p>
+          </transition>
 
           <label class="field-label" for="create-description">{{ t('create.description') }}</label>
           <textarea
@@ -63,7 +67,6 @@
             </p>
           </div>
 
-          <p v-if="error" class="field-error">{{ error }}</p>
         </form>
       </BaseCard>
     </main>
@@ -274,6 +277,13 @@ async function submit() {
   background: linear-gradient(135deg, rgb(var(--c-accent-sky)), rgb(var(--c-accent)));
   color: rgb(var(--c-bg));
 }
+.seg__btn:focus {
+  outline: none;
+}
+.seg__btn:focus-visible {
+  outline: 2px solid rgb(var(--c-accent-sky) / 0.6);
+  outline-offset: 2px;
+}
 .grid-size__picker {
   display: flex;
   flex-direction: column;
@@ -290,6 +300,25 @@ async function submit() {
   text-align: center;
   font-size: 0.85rem;
   color: rgb(var(--c-accent-soft) / 0.85);
+}
+
+.field-input--error {
+  border-color: rgb(var(--c-danger) / 0.7);
+  box-shadow: 0 0 0 3px rgb(var(--c-danger) / 0.12);
+}
+.field-error--inline {
+  margin: 0.15rem 0 0.25rem;
+}
+.err-slide-enter-active {
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.err-slide-leave-active {
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.err-slide-enter-from,
+.err-slide-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
 }
 
 .field-error {

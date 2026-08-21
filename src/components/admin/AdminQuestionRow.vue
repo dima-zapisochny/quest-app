@@ -58,6 +58,7 @@
                 :disabled="uploadingQuestionType !== null || questionMediaAudio.length > 0"
                 @change="handleUpload('question', $event, 'image')"
               />
+              <span class="upload-chip__ico" aria-hidden="true">🖼️</span>
               <span>{{ uploadingQuestionType === 'image' ? t('editor.uploading') : t('editor.uploadImage', { n: questionMediaImages.length + 1 }) }}</span>
             </label>
             <label 
@@ -71,6 +72,7 @@
                 :disabled="uploadingQuestionType !== null || questionMediaImages.length > 0"
                 @change="handleUpload('question', $event, 'audio')"
               />
+              <span class="upload-chip__ico" aria-hidden="true">🎵</span>
               <span>{{ uploadingQuestionType === 'audio' ? t('editor.uploading') : t('editor.uploadAudio') }}</span>
             </label>
           </div>
@@ -110,6 +112,7 @@
                 :disabled="uploadingAnswerType !== null"
                 @change="handleUpload('answer', $event, 'image')"
               />
+              <span class="upload-chip__ico" aria-hidden="true">🖼️</span>
               <span>{{ uploadingAnswerType === 'image' ? t('editor.uploading') : t('editor.answerImage', { n: answerMediaImages.length + 1 }) }}</span>
             </label>
             <label
@@ -123,6 +126,7 @@
                 :disabled="uploadingAnswerType !== null"
                 @change="handleUpload('answer', $event, 'audio')"
               />
+              <span class="upload-chip__ico" aria-hidden="true">🎵</span>
               <span>{{ uploadingAnswerType === 'audio' ? t('editor.uploading') : t('editor.answerAudio') }}</span>
             </label>
           </div>
@@ -439,14 +443,13 @@ textarea:focus,
 
 .media-upload-buttons {
   display: flex;
-  flex-direction: row;
-  gap: 0.75rem;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 .media-section .upload-chip {
-  width: fit-content;
-  align-self: flex-start;
+  width: 100%;
+  align-self: stretch;
 }
 
 .media-item {
@@ -546,17 +549,27 @@ textarea:focus,
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 0.45rem;
   border: 1px dashed rgb(var(--c-text-muted) / 0.4);
   border-radius: 12px;
-  padding: 0.4rem 0.75rem;
+  padding: 0.6rem 0.85rem;
   cursor: pointer;
   color: rgb(var(--c-accent-soft));
   font-weight: 600;
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   min-width: 130px;
   position: relative;
   overflow: hidden;
   background: rgb(var(--c-bg) / 0.45);
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.upload-chip:hover {
+  border-color: rgb(var(--c-accent-sky) / 0.6);
+  background: rgb(var(--c-accent-sky) / 0.08);
+}
+.upload-chip__ico {
+  font-size: 1rem;
+  line-height: 1;
 }
 
 .upload-chip input[type='file'] {
