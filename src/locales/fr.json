@@ -219,6 +219,8 @@
     "create3Title": "Remplissez les questions",
     "create3Text": "Cliquez sur les cases et ajoutez la question, la réponse et, si vous le souhaitez, une photo ou un audio.",
     "create4Title": "Terminé !",
-    "create4Text": "Tout est enregistré automatiquement — revenez et lancez la partie."
+    "create4Text": "Tout est enregistré automatiquement — revenez et lancez la partie.",
+    "prev": "Précédent",
+    "next": "Suivant"
   }
 }

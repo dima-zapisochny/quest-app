@@ -219,6 +219,8 @@
     "create3Title": "Fragen ausfüllen",
     "create3Text": "Klicke auf die Felder und füge Frage, Antwort und optional ein Foto oder Audio hinzu.",
     "create4Title": "Fertig!",
-    "create4Text": "Alles wird automatisch gespeichert – komm zurück und starte das Spiel."
+    "create4Text": "Alles wird automatisch gespeichert – komm zurück und starte das Spiel.",
+    "prev": "Zurück",
+    "next": "Weiter"
   }
 }

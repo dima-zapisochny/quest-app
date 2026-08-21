@@ -23,7 +23,7 @@
               :class="{ 'howto__tab--active': tab === 'play' }"
               role="tab"
               :aria-selected="tab === 'play'"
-              @click="tab = 'play'"
+              @click="switchTab('play')"
             >🕹️ {{ t('howto.tabPlay') }}</button>
             <button
               type="button"
@@ -31,32 +31,55 @@
               :class="{ 'howto__tab--active': tab === 'create' }"
               role="tab"
               :aria-selected="tab === 'create'"
-              @click="tab = 'create'"
+              @click="switchTab('create')"
             >✏️ {{ t('howto.tabCreate') }}</button>
           </div>
 
-          <div class="howto__body">
-            <ol :key="tab" class="howto__steps">
-              <li
-                v-for="(step, i) in steps"
-                :key="step.icon"
-                class="howto-step"
-                :style="{ '--i': i, '--accent': step.accent }"
-              >
-                <span class="howto-step__icon" :class="{ 'howto-step__icon--pulse': step.pulse }" aria-hidden="true">
-                  {{ step.icon }}
-                </span>
-                <div class="howto-step__body">
-                  <span class="howto-step__num" aria-hidden="true">{{ i + 1 }}</span>
-                  <h3 class="howto-step__title">{{ t(step.title) }}</h3>
-                  <p class="howto-step__text">{{ t(step.text) }}</p>
-                </div>
-              </li>
-            </ol>
+          <!-- Верх: анимированный пример -->
+          <div class="howto__stage">
+            <transition :name="dir === 1 ? 'stage-next' : 'stage-prev'" mode="out-in">
+              <HowToIllustration :key="current.scene" :scene="current.scene" class="howto__illu" />
+            </transition>
           </div>
 
-          <footer class="howto__foot">
-            <button type="button" class="howto__done" @click="close">{{ t('howto.gotIt') }}</button>
+          <!-- Низ: текст и описание -->
+          <div class="howto__content">
+            <transition :name="dir === 1 ? 'text-next' : 'text-prev'" mode="out-in">
+              <div :key="current.scene" class="howto__text">
+                <span class="howto__step-num">{{ step + 1 }} / {{ steps.length }}</span>
+                <h3 class="howto__step-title">{{ t(current.title) }}</h3>
+                <p class="howto__step-desc">{{ t(current.text) }}</p>
+              </div>
+            </transition>
+          </div>
+
+          <!-- Пошаговый переключатель -->
+          <footer class="howto__nav">
+            <button
+              type="button"
+              class="howto__arrow"
+              :disabled="step === 0"
+              :aria-label="t('howto.prev')"
+              @click="prev"
+            >←</button>
+
+            <div class="howto__dots" role="tablist">
+              <button
+                v-for="(s, i) in steps"
+                :key="s.scene"
+                type="button"
+                class="howto__dot"
+                :class="{ 'howto__dot--active': i === step }"
+                :aria-label="`${i + 1}`"
+                @click="goTo(i)"
+              ></button>
+            </div>
+
+            <button
+              type="button"
+              class="howto__next"
+              @click="next"
+            >{{ isLast ? t('howto.gotIt') : t('howto.next') }}</button>
           </footer>
         </div>
       </div>
@@ -65,44 +88,75 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch, onMounted, onBeforeUnmount } from 'vue'
 import { useI18n } from 'vue-i18n'
+import HowToIllustration from './howto/HowToIllustration.vue'
 
 const { t } = useI18n()
 
-defineProps<{ show: boolean }>()
+const props = defineProps<{ show: boolean }>()
 const emit = defineEmits<{ close: [] }>()
 
-const tab = ref<'play' | 'create'>('play')
-
-interface Step {
-  icon: string
-  title: string
-  text: string
-  accent: string
-  pulse?: boolean
-}
+interface Step { scene: string; title: string; text: string }
 
 const playSteps: Step[] = [
-  { icon: '🕹️', title: 'howto.play1Title', text: 'howto.play1Text', accent: 'var(--c-accent-sky)' },
-  { icon: '📱', title: 'howto.play2Title', text: 'howto.play2Text', accent: 'var(--c-violet)' },
-  { icon: '🎯', title: 'howto.play3Title', text: 'howto.play3Text', accent: 'var(--c-accent)' },
-  { icon: '⚡', title: 'howto.play4Title', text: 'howto.play4Text', accent: 'var(--c-blue)', pulse: true },
-  { icon: '🏆', title: 'howto.play5Title', text: 'howto.play5Text', accent: 'var(--c-success)' }
+  { scene: 'start', title: 'howto.play1Title', text: 'howto.play1Text' },
+  { scene: 'join', title: 'howto.play2Title', text: 'howto.play2Text' },
+  { scene: 'open', title: 'howto.play3Title', text: 'howto.play3Text' },
+  { scene: 'buzz', title: 'howto.play4Title', text: 'howto.play4Text' },
+  { scene: 'score', title: 'howto.play5Title', text: 'howto.play5Text' }
+]
+const createSteps: Step[] = [
+  { scene: 'new', title: 'howto.create1Title', text: 'howto.create1Text' },
+  { scene: 'board', title: 'howto.create2Title', text: 'howto.create2Text' },
+  { scene: 'fill', title: 'howto.create3Title', text: 'howto.create3Text' },
+  { scene: 'done', title: 'howto.create4Title', text: 'howto.create4Text' }
 ]
 
-const createSteps: Step[] = [
-  { icon: '➕', title: 'howto.create1Title', text: 'howto.create1Text', accent: 'var(--c-accent-sky)' },
-  { icon: '📐', title: 'howto.create2Title', text: 'howto.create2Text', accent: 'var(--c-violet)' },
-  { icon: '✏️', title: 'howto.create3Title', text: 'howto.create3Text', accent: 'var(--c-accent)' },
-  { icon: '✅', title: 'howto.create4Title', text: 'howto.create4Text', accent: 'var(--c-success)' }
-]
+const tab = ref<'play' | 'create'>('play')
+const step = ref(0)
+const dir = ref<1 | -1>(1)
 
 const steps = computed(() => (tab.value === 'play' ? playSteps : createSteps))
+const current = computed(() => steps.value[step.value])
+const isLast = computed(() => step.value === steps.value.length - 1)
 
+function switchTab(value: 'play' | 'create') {
+  if (tab.value === value) return
+  dir.value = 1
+  tab.value = value
+  step.value = 0
+}
+function prev() {
+  if (step.value > 0) { dir.value = -1; step.value-- }
+}
+function next() {
+  if (isLast.value) { close(); return }
+  dir.value = 1
+  step.value++
+}
+function goTo(i: number) {
+  dir.value = i > step.value ? 1 : -1
+  step.value = i
+}
 function close() {
   emit('close')
 }
+
+function onKey(e: KeyboardEvent) {
+  if (!props.show) return
+  if (e.key === 'Escape') close()
+  else if (e.key === 'ArrowRight') next()
+  else if (e.key === 'ArrowLeft') prev()
+}
+
+// Сброс при каждом открытии
+watch(() => props.show, open => {
+  if (open) { tab.value = 'play'; step.value = 0; dir.value = 1 }
+})
+
+onMounted(() => window.addEventListener('keydown', onKey))
+onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 </script>
 
 <style scoped>
@@ -113,34 +167,33 @@ function close() {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: clamp(1rem, 4vh, 2.5rem) 1rem;
+  padding: clamp(0.75rem, 3vh, 2rem) 1rem;
   overflow-y: auto;
-  background: rgb(var(--c-bg-deep) / 0.78);
-  backdrop-filter: blur(8px);
+  background: rgb(var(--c-bg-deep) / 0.8);
+  backdrop-filter: blur(10px);
 }
-
 .howto {
   position: relative;
-  width: min(680px, 100%);
+  width: min(920px, 96vw);
+  height: min(88vh, 760px);
   margin: auto;
   overflow: hidden;
-  border-radius: 26px;
+  border-radius: 28px;
   border: 1px solid rgb(var(--c-accent-sky) / 0.28);
   background: linear-gradient(150deg, rgb(var(--c-bg) / 0.98), rgba(8, 22, 43, 0.98));
-  box-shadow: 0 40px 90px rgb(var(--c-bg-deep) / 0.7);
+  box-shadow: 0 45px 100px rgb(var(--c-bg-deep) / 0.7);
   display: flex;
   flex-direction: column;
-  max-height: min(90vh, 100%);
 }
 .howto__glow {
   position: absolute;
-  top: -35%;
+  top: -30%;
   left: 50%;
-  width: 120%;
-  height: 240px;
+  width: 130%;
+  height: 320px;
   transform: translateX(-50%);
-  background: radial-gradient(circle, rgb(var(--c-accent-sky) / 0.35), transparent 62%);
-  opacity: 0.5;
+  background: radial-gradient(circle, rgb(var(--c-accent-sky) / 0.32), transparent 62%);
+  opacity: 0.55;
   pointer-events: none;
 }
 
@@ -150,70 +203,37 @@ function close() {
   align-items: flex-start;
   justify-content: space-between;
   gap: 1rem;
-  padding: 1.4rem 1.6rem 1rem;
+  padding: 1.4rem 1.7rem 0.5rem;
 }
-.howto__title-wrap {
-  display: flex;
-  align-items: center;
-  gap: 0.9rem;
-}
+.howto__title-wrap { display: flex; align-items: center; gap: 0.9rem; }
 .howto__badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 3rem;
-  height: 3rem;
-  border-radius: 16px;
-  font-size: 1.6rem;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 3.1rem; height: 3.1rem; border-radius: 16px; font-size: 1.7rem;
   background: linear-gradient(135deg, rgb(var(--c-accent-sky) / 0.25), rgb(var(--c-violet) / 0.25));
   border: 1px solid rgb(var(--c-accent-sky) / 0.3);
   animation: howto-float 3s ease-in-out infinite;
 }
-.howto__title {
-  margin: 0;
-  font-size: 1.3rem;
-  color: rgb(var(--c-text));
-}
-.howto__subtitle {
-  margin: 0.15rem 0 0;
-  font-size: 0.88rem;
-  color: rgb(var(--c-text-soft) / 0.7);
-}
+.howto__title { margin: 0; font-size: 1.35rem; color: rgb(var(--c-text)); }
+.howto__subtitle { margin: 0.15rem 0 0; font-size: 0.9rem; color: rgb(var(--c-text-soft) / 0.7); }
 .howto__close {
-  flex-shrink: 0;
-  width: 2.2rem;
-  height: 2.2rem;
-  border-radius: 12px;
+  flex-shrink: 0; width: 2.3rem; height: 2.3rem; border-radius: 12px;
   border: 1px solid rgb(var(--c-accent-sky) / 0.25);
-  background: rgb(var(--c-bg) / 0.5);
-  color: rgb(var(--c-text-soft));
-  cursor: pointer;
-  transition: background 0.2s ease, color 0.2s ease;
+  background: rgb(var(--c-bg) / 0.5); color: rgb(var(--c-text-soft));
+  cursor: pointer; transition: background 0.2s ease, color 0.2s ease;
 }
-.howto__close:hover {
-  background: rgb(var(--c-danger) / 0.16);
-  color: rgb(var(--c-danger-soft));
-}
+.howto__close:hover { background: rgb(var(--c-danger) / 0.16); color: rgb(var(--c-danger-soft)); }
 
 .howto__tabs {
-  display: inline-flex;
-  gap: 0.35rem;
-  align-self: center;
-  margin: 0.25rem auto 0.5rem;
-  padding: 0.35rem;
+  display: inline-flex; gap: 0.35rem; align-self: center;
+  margin: 0.25rem auto 0; padding: 0.35rem;
   border-radius: var(--radius-pill);
   border: 1px solid rgb(var(--c-accent-sky) / 0.2);
   background: rgb(var(--c-bg) / 0.5);
 }
 .howto__tab {
-  border: none;
-  background: transparent;
-  color: rgb(var(--c-text-soft) / 0.8);
-  padding: 0.5rem 1.2rem;
-  border-radius: var(--radius-pill);
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
+  border: none; background: transparent; color: rgb(var(--c-text-soft) / 0.8);
+  padding: 0.5rem 1.3rem; border-radius: var(--radius-pill);
+  font-size: 0.92rem; font-weight: 600; cursor: pointer;
   transition: background 0.2s ease, color 0.2s ease;
 }
 .howto__tab--active {
@@ -221,132 +241,95 @@ function close() {
   color: rgb(var(--c-bg));
 }
 
-.howto__body {
-  padding: 0.5rem 1.6rem 0.75rem;
-  overflow-y: auto;
-}
-.howto__steps {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.85rem;
-}
-.howto-step {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 0.9rem 1rem;
-  border-radius: 16px;
-  border: 1px solid rgb(var(--accent) / 0.28);
-  background: rgb(var(--accent) / 0.08);
-  opacity: 0;
-  transform: translateY(10px);
-  animation: howto-in 0.4s cubic-bezier(0.34, 1.4, 0.64, 1) forwards;
-  animation-delay: calc(var(--i) * 70ms);
-}
-.howto-step__icon {
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.9rem;
-  height: 2.9rem;
-  border-radius: 14px;
-  font-size: 1.5rem;
-  background: rgb(var(--accent) / 0.18);
-  border: 1px solid rgb(var(--accent) / 0.4);
-}
-.howto-step__icon--pulse {
-  animation: howto-pulse 1.4s ease-in-out infinite;
-}
-.howto-step__body {
+/* Сцена с анимацией — верхняя, большая */
+.howto__stage {
   position: relative;
-  min-width: 0;
+  flex: 1 1 auto;
+  min-height: 0;
+  margin: 0.75rem 1.5rem 0;
+  border-radius: 20px;
+  border: 1px solid rgb(var(--c-accent-sky) / 0.14);
+  background:
+    radial-gradient(circle at 50% 30%, rgb(var(--c-accent-sky) / 0.08), transparent 60%),
+    rgb(var(--c-bg-deep) / 0.35);
+  overflow: hidden;
+  display: flex;
 }
-.howto-step__num {
-  position: absolute;
-  top: -0.2rem;
-  right: 0;
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: rgb(var(--accent) / 0.85);
+.howto__illu { padding: 1rem; }
+
+/* Текст снизу */
+.howto__content {
+  flex-shrink: 0;
+  padding: 1rem 1.6rem 0.5rem;
+  text-align: center;
+  min-height: 92px;
 }
-.howto-step__title {
-  margin: 0 0 0.15rem;
-  font-size: 1rem;
-  color: rgb(var(--c-text));
+.howto__step-num {
+  font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em;
+  color: rgb(var(--c-accent-soft) / 0.8); text-transform: uppercase;
 }
-.howto-step__text {
-  margin: 0;
-  font-size: 0.86rem;
-  line-height: 1.4;
-  color: rgb(var(--c-text-soft) / 0.85);
+.howto__step-title { margin: 0.25rem 0 0.3rem; font-size: 1.2rem; color: rgb(var(--c-text)); }
+.howto__step-desc {
+  margin: 0 auto; max-width: 46ch;
+  font-size: 0.95rem; line-height: 1.5; color: rgb(var(--c-text-soft) / 0.85);
 }
 
-.howto__foot {
-  display: flex;
-  justify-content: center;
-  padding: 0.9rem 1.6rem 1.4rem;
+/* Навигация */
+.howto__nav {
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 1rem; padding: 0.75rem 1.6rem 1.3rem;
 }
-.howto__done {
-  min-width: 180px;
-  padding: 0.75rem 2rem;
-  border-radius: var(--radius-pill);
-  border: none;
+.howto__arrow {
+  width: 2.6rem; height: 2.6rem; border-radius: 50%;
+  border: 1px solid rgb(var(--c-accent-sky) / 0.3);
+  background: rgb(var(--c-bg) / 0.5); color: rgb(var(--c-text-soft));
+  font-size: 1.1rem; cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
+}
+.howto__arrow:hover:not(:disabled) { background: rgb(var(--c-accent-sky) / 0.14); transform: translateY(-1px); }
+.howto__arrow:disabled { opacity: 0.3; cursor: not-allowed; }
+.howto__dots { display: flex; gap: 0.5rem; }
+.howto__dot {
+  width: 0.6rem; height: 0.6rem; border-radius: 50%; border: none; padding: 0;
+  background: rgb(var(--c-text-soft) / 0.25); cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease, width 0.2s ease;
+}
+.howto__dot--active { background: rgb(var(--c-accent-sky)); width: 1.4rem; border-radius: 4px; }
+.howto__next {
+  min-width: 130px; padding: 0.65rem 1.6rem;
+  border-radius: var(--radius-pill); border: none;
   background: linear-gradient(135deg, rgb(var(--c-accent)), rgb(var(--c-accent-sky)));
-  color: rgb(var(--c-bg));
-  font-size: 0.98rem;
-  font-weight: 700;
-  cursor: pointer;
+  color: rgb(var(--c-bg)); font-size: 0.95rem; font-weight: 700; cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
-.howto__done:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 14px 28px rgb(var(--c-accent) / 0.35);
-}
+.howto__next:hover { transform: translateY(-2px); box-shadow: 0 12px 24px rgb(var(--c-accent) / 0.35); }
 
-@keyframes howto-in {
-  to { opacity: 1; transform: translateY(0); }
+@keyframes howto-float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-5px)} }
+
+/* Переходы между шагами */
+.stage-next-enter-active, .stage-next-leave-active,
+.stage-prev-enter-active, .stage-prev-leave-active,
+.text-next-enter-active, .text-next-leave-active,
+.text-prev-enter-active, .text-prev-leave-active {
+  transition: opacity 0.25s ease, transform 0.25s ease;
 }
-@keyframes howto-float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-5px); }
-}
-@keyframes howto-pulse {
-  0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgb(var(--accent) / 0.5); }
-  50% { transform: scale(1.08); box-shadow: 0 0 0 8px rgb(var(--accent) / 0); }
-}
+.stage-next-enter-from, .text-next-enter-from { opacity: 0; transform: translateX(40px); }
+.stage-next-leave-to, .text-next-leave-to { opacity: 0; transform: translateX(-40px); }
+.stage-prev-enter-from, .text-prev-enter-from { opacity: 0; transform: translateX(-40px); }
+.stage-prev-leave-to, .text-prev-leave-to { opacity: 0; transform: translateX(40px); }
 
 /* Появление модалки */
-.howto-enter-active,
-.howto-leave-active {
-  transition: opacity 0.25s ease;
-}
-.howto-enter-active .howto,
-.howto-leave-active .howto {
+.howto-enter-active, .howto-leave-active { transition: opacity 0.25s ease; }
+.howto-enter-active .howto, .howto-leave-active .howto {
   transition: transform 0.25s cubic-bezier(0.34, 1.4, 0.64, 1), opacity 0.25s ease;
 }
-.howto-enter-from,
-.howto-leave-to {
-  opacity: 0;
-}
-.howto-enter-from .howto,
-.howto-leave-to .howto {
-  opacity: 0;
-  transform: translateY(16px) scale(0.95);
-}
+.howto-enter-from, .howto-leave-to { opacity: 0; }
+.howto-enter-from .howto, .howto-leave-to .howto { opacity: 0; transform: translateY(16px) scale(0.96); }
 
-@media (max-width: 480px) {
-  .howto-step {
-    gap: 0.75rem;
-    padding: 0.75rem;
-  }
-  .howto-step__icon {
-    width: 2.4rem;
-    height: 2.4rem;
-    font-size: 1.25rem;
-  }
+@media (max-width: 560px) {
+  .howto { height: min(92vh, 100%); }
+  .howto__stage { margin: 0.5rem 1rem 0; }
+  .howto__next { min-width: 100px; padding: 0.6rem 1.1rem; }
 }
 </style>

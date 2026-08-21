@@ -219,6 +219,8 @@
     "create3Title": "Fill in questions",
     "create3Text": "Click tiles and add the question, answer and, if you like, a photo or audio.",
     "create4Title": "Done!",
-    "create4Text": "Everything saves automatically — come back and start the game."
+    "create4Text": "Everything saves automatically — come back and start the game.",
+    "prev": "Back",
+    "next": "Next"
   }
 }

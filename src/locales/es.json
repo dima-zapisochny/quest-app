@@ -219,6 +219,8 @@
     "create3Title": "Rellena las preguntas",
     "create3Text": "Haz clic en las casillas y añade la pregunta, la respuesta y, si quieres, una foto o audio.",
     "create4Title": "¡Listo!",
-    "create4Text": "Todo se guarda automáticamente: vuelve y empieza la partida."
+    "create4Text": "Todo se guarda automáticamente: vuelve y empieza la partida.",
+    "prev": "Atrás",
+    "next": "Siguiente"
   }
 }
