@@ -140,15 +140,20 @@
     <!-- ЗАДАЙТЕ ДОСКУ -->
     <div v-else-if="scene === 'board'" class="scene scene--board">
       <div class="boardstage">
-        <!-- Фаза 1: выбор размера сетки -->
+        <!-- Фаза 1: выбор размера сетки (та же геометрия, что и доска) -->
         <div class="sizepick">
-          <span
-            v-for="cell in gridCells"
-            :key="'p' + cell.k"
-            class="sizepick__c"
-            :style="{ '--n': cell.n }"
-          ></span>
-          <span class="cursor cursor--pick" aria-hidden="true"></span>
+          <div class="sizepick__heads">
+            <span v-for="c in 5" :key="'sh' + c" class="sizepick__h"></span>
+          </div>
+          <div class="sizepick__grid">
+            <span
+              v-for="cell in gridCells"
+              :key="'p' + cell.k"
+              class="sizepick__c"
+              :style="{ '--n': cell.n }"
+            ></span>
+            <span class="cursor cursor--pick" aria-hidden="true"></span>
+          </div>
         </div>
         <!-- Фаза 2: готовая доска (как в «Играть») -->
         <div class="boardscheme">
@@ -398,13 +403,16 @@ const gridCells = Array.from({ length: 25 }, (_, i) => ({ k: i, c: i % 5, r: Mat
 /* BOARD */
 .scene--board { gap: 0.9rem; }
 .boardstage { position: relative; width: 186px; height: 203px; }
-/* Фаза 1 — выбор размера */
-.sizepick { position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-50%); height: 186px; display: grid; grid-template-columns: repeat(5, 1fr); grid-template-rows: repeat(5, 1fr); gap: 4px; animation: pickfade 4.6s ease-in-out infinite; }
-.sizepick__c { border-radius: 6px; background: rgb(var(--c-bg) / 0.5); border: 1px solid rgb(var(--c-accent-sky) / 0.2); animation: pickon 4.6s ease-in-out infinite; animation-delay: calc(var(--n) * 0.05s); }
+/* Фаза 1 — выбор размера (та же геометрия: категории сверху + сетка) */
+.sizepick { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; animation: pickfade 4.6s ease-in-out infinite; }
+.sizepick__heads { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; width: 186px; }
+.sizepick__h { height: 12px; border-radius: 4px; background: rgb(var(--c-accent-sky) / 0.16); }
+.sizepick__grid { position: relative; display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; width: 186px; }
+.sizepick__c { height: 24px; border-radius: 6px; background: rgb(var(--c-bg) / 0.5); border: 1px solid rgb(var(--c-accent-sky) / 0.2); animation: pickon 4.6s ease-in-out infinite; animation-delay: calc(var(--n) * 0.05s); }
 .cursor--pick { left: 0; top: 0; animation: cursorpick 4.6s ease-in-out infinite; }
 @keyframes pickfade { 0%,40%{opacity:1} 47%,100%{opacity:0} }
 @keyframes pickon { 0%,4%{background:rgb(var(--c-bg)/0.5);border-color:rgb(var(--c-accent-sky)/0.2)} 14%,40%{background:linear-gradient(135deg,rgb(var(--c-accent-sky)/0.75),rgb(var(--c-accent)/0.6));border-color:rgb(var(--c-accent)/0.7)} 47%,100%{background:rgb(var(--c-bg)/0.5);border-color:rgb(var(--c-accent-sky)/0.2)} }
-@keyframes cursorpick { 0%{transform:translate(8px,8px) scale(1);opacity:0} 6%{opacity:1} 10%{transform:translate(14px,14px) scale(1)} 34%{transform:translate(150px,150px) scale(1)} 39%{transform:translate(150px,150px) scale(0.8)} 43%{transform:translate(150px,150px) scale(1)} 47%{opacity:0} 100%{opacity:0} }
+@keyframes cursorpick { 0%{transform:translate(8px,6px) scale(1);opacity:0} 6%{opacity:1} 10%{transform:translate(15px,10px) scale(1)} 34%{transform:translate(150px,120px) scale(1)} 39%{transform:translate(150px,120px) scale(0.78)} 43%{transform:translate(150px,120px) scale(1)} 47%{opacity:0} 100%{opacity:0} }
 /* Фаза 2 — схема доски */
 .boardscheme { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; animation: boardfade 4.6s ease-in-out infinite; }
 .gridhead { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; width: 186px; }
