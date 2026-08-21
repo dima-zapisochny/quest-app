@@ -7,10 +7,8 @@
   </div>
   <div v-else-if="!shouldRedirect" class="landing">
     <button type="button" class="landing-howto" @click="showHowTo = true">
-      <span class="landing-howto__icon" aria-hidden="true">
-        <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M8 5.14v13.72a1 1 0 0 0 1.54.84l10.29-6.86a1 1 0 0 0 0-1.68L9.54 4.3A1 1 0 0 0 8 5.14z"/></svg>
-      </span>
-      <span class="landing-howto__label">{{ t('howto.title') }}</span>
+      <span class="landing-howto__icon" aria-hidden="true">?</span>
+      <span class="landing-howto__label">{{ t('howto.title') }}?</span>
     </button>
     <LanguageSwitcher class="landing-lang" />
     <HowToPlayModal :show="showHowTo" @close="showHowTo = false" />
@@ -584,13 +582,13 @@ watch(() => route.path, (newPath) => {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  height: 2.7rem;
-  padding: 0 1.15rem 0 0.45rem;
+  height: 3rem;
+  padding: 0 1.35rem 0 0.5rem;
   border-radius: var(--radius-pill);
   border: 1px solid rgb(var(--c-accent-sky) / 0.2);
   background: rgb(var(--c-surface) / 0.55);
   color: rgb(var(--c-text));
-  font-size: 0.9rem;
+  font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
   backdrop-filter: blur(14px);
@@ -611,15 +609,16 @@ watch(() => route.path, (newPath) => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1.9rem;
-  height: 1.9rem;
+  width: 2.1rem;
+  height: 2.1rem;
   border-radius: 50%;
   line-height: 1;
+  font-size: 1.15rem;
+  font-weight: 800;
   color: rgb(var(--c-accent-soft));
   background: rgb(var(--c-accent-sky) / 0.16);
   border: 1px solid rgb(var(--c-accent-sky) / 0.3);
 }
-.landing-howto__icon svg { transform: translateX(0.5px); }
 .landing-howto:hover .landing-howto__icon {
   background: rgb(var(--c-accent-sky) / 0.24);
 }
