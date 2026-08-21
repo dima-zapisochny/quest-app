@@ -205,10 +205,8 @@ const answerMediaImages = computed(() => answerMediaList.value.filter(m => m.typ
 const answerMediaAudio = computed(() => answerMediaList.value.filter(m => m.type === 'audio'))
 
 function handleDelete() {
-  if (confirm(t('editor.confirmDeleteQuestion'))) {
-    store.deleteQuestion(props.questId, props.roundId, props.categoryId, props.question.id)
-    emit('deleted')
-  }
+  store.deleteQuestion(props.questId, props.roundId, props.categoryId, props.question.id)
+  emit('deleted')
 }
 
 defineExpose({ handleDelete })

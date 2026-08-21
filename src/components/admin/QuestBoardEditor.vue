@@ -108,10 +108,10 @@
               />
             </div>
             <footer class="q-modal__foot">
-              <button type="button" class="q-modal__delete" @click="questionRowRef?.handleDelete()">
-                {{ t('editor.deleteQuestion') }}
+              <button type="button" class="q-modal__delete" @click="pendingDeleteQuestion = true">
+                {{ t('common.delete') }}
               </button>
-              <button type="button" class="q-modal__done" @click="closeModal">{{ t('editor.done') }}</button>
+              <button type="button" class="q-modal__done" @click="closeModal">{{ t('editor.save') }}</button>
             </footer>
           </div>
         </div>
@@ -126,6 +126,16 @@
       confirm-variant="danger"
       @confirm="confirmDeleteCategory"
       @cancel="cancelDeleteCategory"
+    />
+
+    <ConfirmDialog
+      :show="pendingDeleteQuestion"
+      :title="t('editor.confirmDeleteQuestion')"
+      :message="t('editor.deleteQuestionBody')"
+      :confirm-label="t('common.delete')"
+      confirm-variant="danger"
+      @confirm="confirmDeleteQuestion"
+      @cancel="pendingDeleteQuestion = false"
     />
   </section>
 </template>
@@ -234,6 +244,12 @@ async function createPresetBoard(cats: number, questions: number) {
 const editingCategoryId = ref<string | null>(null)
 const editingQuestionId = ref<string | null>(null)
 const questionRowRef = ref<InstanceType<typeof AdminQuestionRow> | null>(null)
+const pendingDeleteQuestion = ref(false)
+
+function confirmDeleteQuestion() {
+  pendingDeleteQuestion.value = false
+  questionRowRef.value?.handleDelete()
+}
 
 const editingCategory = computed(() => {
   if (!editingCategoryId.value) return null
@@ -568,12 +584,12 @@ watch(() => props.round.id, closeModal)
   border-top: 1px solid rgb(var(--c-accent-sky) / 0.15);
 }
 .q-modal__delete {
-  padding: 0.6rem 1.3rem;
+  padding: 0.65rem 1.8rem;
   border-radius: var(--radius-pill);
   border: 1px solid rgb(var(--c-danger) / 0.4);
   background: rgb(var(--c-danger) / 0.1);
   color: rgb(var(--c-danger-soft));
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
   transition: background 0.2s ease, border-color 0.2s ease;
