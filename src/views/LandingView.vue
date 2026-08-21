@@ -581,7 +581,7 @@ watch(() => route.path, (newPath) => {
   z-index: 20;
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 1rem;
   height: 3rem;
   padding: 0 1.35rem 0 0.5rem;
   border-radius: var(--radius-pill);
