@@ -589,8 +589,8 @@ function goBack() {
   align-items: center;
   justify-content: center;
   border-radius: var(--radius-pill);
-  border: 1px solid rgb(var(--c-accent-sky) / 0.12);
-  background: rgb(var(--c-bg-deep) / 0.5);
+  border: 1px solid rgb(var(--c-accent-sky) / 0.16);
+  background: rgb(var(--c-surface) / 0.5);
   transition: background 0.2s ease, border-color 0.2s ease;
 }
 .round-tab__select {
@@ -598,7 +598,8 @@ function goBack() {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.75rem 1.4rem;
+  /* симметричные отступы: место под крестик зарезервировано всегда — текст не съезжает */
+  padding: 0.75rem 1.9rem;
   border: none;
   background: transparent;
   color: rgb(var(--c-text-soft) / 0.75);
@@ -623,8 +624,6 @@ function goBack() {
 }
 .round-tab--active .round-tab__select {
   color: rgb(var(--c-accent-soft));
-  /* больше расстояние до крестика: сдвигаем текст влево */
-  padding-right: 2.1rem;
 }
 
 /* Крестик удаления раунда — абсолютно у правого края, не влияет на ширину капсулы */
