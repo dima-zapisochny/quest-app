@@ -708,7 +708,7 @@ async function onImportQuestFile(event: Event) {
 
 .quest-title {
   margin: 0;
-  font-size: 1.02rem;
+  font-size: 1.25rem;
   font-weight: 800;
   line-height: 1.25;
   white-space: nowrap;
@@ -875,7 +875,7 @@ async function onImportQuestFile(event: Event) {
   gap: 0.4rem;
   align-items: center;
   flex-wrap: wrap;
-  font-size: 0.8rem;
+  font-size: 0.95rem;
   color: rgb(var(--c-text-muted) / 0.85);
 }
 .quest-meta__dot {
