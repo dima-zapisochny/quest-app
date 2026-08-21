@@ -3,10 +3,9 @@
     <!-- ЗАПУСК ИГРЫ -->
     <div v-if="scene === 'start'" class="scene scene--start">
       <div class="panel panel--start">
-        <div class="panel__bar"><span class="dot dot--r"></span><span class="dot dot--y"></span><span class="dot dot--g"></span></div>
         <div class="startcard__label">Name</div>
         <div class="startcard__idrow">
-          <span class="startcard__field"></span>
+          <span class="startcard__field"><span class="startcard__name">Alex</span><span class="caret caret--name" aria-hidden="true"></span></span>
           <span class="startcard__ava">🦊</span>
         </div>
         <button class="startcard__create"><span>Create game</span><span class="cursor cursor--start" aria-hidden="true"></span></button>
@@ -96,13 +95,17 @@
 
     <!-- НОВЫЙ КВЕСТ -->
     <div v-else-if="scene === 'new'" class="scene">
-      <div class="newcard">
-        <div class="newcard__ghost">
-          <span v-for="g in 9" :key="g"></span>
+      <div class="questlist">
+        <div class="qcard qcard--saved">
+          <span class="qcard__cover"><span class="qcard__emoji">🎬</span></span>
+          <span class="qcard__title"></span>
+          <span class="qcard__sub"></span>
         </div>
-        <span class="newcard__plus">+</span>
-        <span class="newcard__label">New quest</span>
-        <span class="cursor cursor--new" aria-hidden="true"></span>
+        <div class="qcard qcard--new">
+          <span class="qcard__plus">+</span>
+          <span class="qcard__newlabel">New quest</span>
+          <span class="cursor cursor--new" aria-hidden="true"></span>
+        </div>
       </div>
     </div>
 
@@ -131,13 +134,16 @@
         </div>
         <div class="qmodal__field">
           <span class="qmodal__tag">Q</span>
-          <span class="type type--q"></span>
+          <span class="qmodal__input"><span class="type type--q"></span><span class="caret caret--q" aria-hidden="true"></span></span>
         </div>
         <div class="qmodal__field">
           <span class="qmodal__tag qmodal__tag--a">A</span>
-          <span class="type type--a"></span>
+          <span class="qmodal__input"><span class="type type--a"></span></span>
         </div>
-        <div class="qmodal__media"><span>🖼️</span><span>🎵</span></div>
+        <div class="qmodal__media">
+          <span class="mediachip"><span>🖼️</span>Image</span>
+          <span class="mediachip"><span>🎵</span>Audio</span>
+        </div>
       </div>
     </div>
 
@@ -181,17 +187,15 @@ const gridCells = Array.from({ length: 25 }, (_, i) => ({ k: i, c: i % 5, r: Mat
   box-shadow: 0 14px 30px rgb(var(--c-bg-deep) / 0.4);
   display: flex; flex-direction: column; gap: 0.7rem; align-items: center;
 }
-.panel__bar { display: flex; gap: 0.35rem; align-self: flex-start; }
-.dot { width: 0.5rem; height: 0.5rem; border-radius: 50%; }
-.dot--r { background: rgb(var(--c-danger) / 0.7); }
-.dot--y { background: #d9a441; }
-.dot--g { background: rgb(var(--c-success) / 0.7); }
 /* START — мокап карточки лендинга (компактный) */
 .panel--start { width: 230px; gap: 0.4rem; padding: 0.7rem; }
 .startcard__label { align-self: flex-start; font-size: 0.56rem; text-transform: uppercase; letter-spacing: 0.1em; color: rgb(var(--c-text-muted) / 0.7); }
 .startcard__idrow { display: flex; align-items: center; gap: 0.5rem; width: 100%; box-sizing: border-box; }
-.startcard__field { flex: 1; height: 1.9rem; border-radius: 10px; background: rgb(var(--c-bg) / 0.55); border: 1px solid rgb(var(--c-accent-sky) / 0.22); }
-.startcard__ava { flex-shrink: 0; width: 1.9rem; height: 1.9rem; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 1rem; background: rgb(var(--c-accent-sky) / 0.14); border: 1px solid rgb(var(--c-accent-sky) / 0.4); }
+.startcard__field { flex: 1; height: 1.65rem; border-radius: 9px; background: rgb(var(--c-bg) / 0.55); border: 1px solid rgb(var(--c-accent-sky) / 0.22); display: flex; align-items: center; gap: 1px; padding: 0 0.55rem; overflow: hidden; box-sizing: border-box; }
+.startcard__name { display: inline-block; max-width: 0; overflow: hidden; white-space: nowrap; font-size: 0.82rem; font-weight: 700; color: rgb(var(--c-text)); animation: typename 3.2s ease-in-out infinite; }
+.caret--name { flex-shrink: 0; height: 0.9rem; background: rgb(var(--c-accent-soft)); }
+@keyframes typename { 0%,4% { max-width: 0; } 40%,82% { max-width: 3.4ch; } 96%,100% { max-width: 0; } }
+.startcard__ava { flex-shrink: 0; width: 1.65rem; height: 1.65rem; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 1rem; background: rgb(var(--c-accent-sky) / 0.14); border: 1px solid rgb(var(--c-accent-sky) / 0.4); }
 .startcard__create {
   position: relative; width: 100%; padding: 0.55rem; border: none; border-radius: var(--radius-pill);
   background: radial-gradient(circle at 25% 25%, rgba(253, 224, 71, 0.6), transparent 55%),
@@ -291,12 +295,16 @@ const gridCells = Array.from({ length: 25 }, (_, i) => ({ k: i, c: i % 5, r: Mat
 .spark--2 { bottom: 0.2rem; right: 1.2rem; animation: sparkle 2.4s ease-in-out infinite 0.2s; }
 
 /* NEW */
-.newcard { position: relative; width: 230px; height: 140px; border-radius: 18px; border: 2px dashed rgb(var(--c-accent-sky) / 0.5); background: rgb(var(--c-accent-sky) / 0.05); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.5rem; overflow: hidden; animation: glow 2.6s ease-in-out infinite; }
-.newcard__ghost { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr); gap: 6px; padding: 12px; opacity: 0.12; }
-.newcard__ghost span { border-radius: 6px; background: rgb(var(--c-accent-sky)); }
-.newcard__plus { position: relative; width: 3rem; height: 3rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.7rem; color: rgb(var(--c-accent-soft)); border: 1px dashed rgb(var(--c-accent-sky) / 0.6); background: rgb(var(--c-bg) / 0.5); animation: spinplus 2.6s ease-in-out infinite; }
-.newcard__label { position: relative; color: rgb(var(--c-text-soft) / 0.85); font-weight: 600; }
-.cursor--new { right: 38%; bottom: 22%; animation: tap 2.6s ease-in-out infinite; }
+.questlist { display: flex; align-items: stretch; gap: 0.8rem; }
+.qcard { width: 132px; height: 158px; border-radius: 16px; display: flex; flex-direction: column; box-sizing: border-box; }
+.qcard--saved { padding: 0.7rem; gap: 0.55rem; background: rgb(var(--c-surface) / 0.7); border: 1px solid rgb(var(--c-accent-sky) / 0.18); }
+.qcard__cover { flex: 1; border-radius: 11px; display: flex; align-items: center; justify-content: center; font-size: 1.9rem; background: linear-gradient(135deg, rgb(var(--c-violet) / 0.35), rgb(var(--c-blue) / 0.35)); }
+.qcard__title { height: 0.6rem; width: 82%; border-radius: 4px; background: rgb(var(--c-text-soft) / 0.5); }
+.qcard__sub { height: 0.5rem; width: 55%; border-radius: 4px; background: rgb(var(--c-text-muted) / 0.4); }
+.qcard--new { position: relative; align-items: center; justify-content: center; gap: 0.6rem; border: 2px dashed rgb(var(--c-accent-sky) / 0.55); background: rgb(var(--c-accent-sky) / 0.06); animation: glow 2.6s ease-in-out infinite; }
+.qcard__plus { width: 2.9rem; height: 2.9rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.7rem; color: rgb(var(--c-accent-soft)); border: 1px dashed rgb(var(--c-accent-sky) / 0.6); background: rgb(var(--c-bg) / 0.5); animation: spinplus 2.6s ease-in-out infinite; }
+.qcard__newlabel { color: rgb(var(--c-text-soft) / 0.9); font-weight: 700; font-size: 0.9rem; }
+.cursor--new { right: 22%; bottom: 20%; animation: tap 2.6s ease-in-out infinite; }
 
 /* BOARD */
 .gridhead { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; width: 200px; }
@@ -310,13 +318,17 @@ const gridCells = Array.from({ length: 25 }, (_, i) => ({ k: i, c: i % 5, r: Mat
 .qmodal__head { display: flex; align-items: center; justify-content: space-between; padding: 0.6rem 0.8rem; border-bottom: 1px solid rgb(var(--c-accent-sky) / 0.15); }
 .qmodal__title { font-weight: 700; color: rgb(var(--c-text)); font-size: 0.85rem; }
 .qmodal__x { color: rgb(var(--c-text-soft) / 0.5); font-size: 0.75rem; }
-.qmodal__field { display: flex; align-items: center; gap: 0.6rem; padding: 0.55rem 0.8rem; }
+.qmodal__field { display: flex; align-items: center; gap: 0.55rem; padding: 0.5rem 0.8rem; }
 .qmodal__tag { width: 1.5rem; height: 1.5rem; border-radius: 8px; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.8rem; color: rgb(var(--c-accent-soft)); background: rgb(var(--c-accent-sky) / 0.16); }
 .qmodal__tag--a { color: rgb(var(--c-success)); background: rgb(var(--c-success) / 0.16); }
-.type { height: 0.75rem; border-radius: 5px; background: rgb(var(--c-text-soft) / 0.55); width: 0; }
+.qmodal__input { flex: 1; height: 1.6rem; display: flex; align-items: center; gap: 2px; padding: 0 0.55rem; border-radius: 8px; background: rgb(var(--c-bg) / 0.5); border: 1px solid rgb(var(--c-accent-sky) / 0.2); overflow: hidden; }
+.type { height: 0.6rem; border-radius: 4px; background: rgb(var(--c-text-soft) / 0.55); width: 0; }
 .type--q { animation: typing 3s ease-in-out infinite; }
 .type--a { animation: typing 3s ease-in-out infinite 1.1s; background: rgb(var(--c-success) / 0.6); }
-.qmodal__media { display: flex; gap: 0.5rem; padding: 0.4rem 0.8rem 0.7rem; font-size: 1rem; opacity: 0.7; }
+.caret--q { flex-shrink: 0; height: 0.85rem; background: rgb(var(--c-accent-soft)); }
+.mediachip { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.25rem 0.6rem; border-radius: 999px; font-size: 0.72rem; font-weight: 600; color: rgb(var(--c-text-soft) / 0.85); background: rgb(var(--c-accent-sky) / 0.1); border: 1px solid rgb(var(--c-accent-sky) / 0.22); }
+.mediachip span { font-size: 0.85rem; }
+.qmodal__media { display: flex; gap: 0.5rem; padding: 0.35rem 0.8rem 0.75rem; }
 
 /* DONE */
 .save { position: relative; width: 76px; height: 76px; }
@@ -344,7 +356,7 @@ const gridCells = Array.from({ length: 25 }, (_, i) => ({ k: i, c: i % 5, r: Mat
 @keyframes floatup { 0%,45%{opacity:0;transform:translateY(0.4rem)} 55%{opacity:1} 85%{opacity:0;transform:translateY(-1.3rem)} 100%{opacity:0} }
 @keyframes sparkle { 0%,50%{opacity:0;transform:scale(0.4)} 60%{opacity:1;transform:scale(1.2)} 78%,100%{opacity:0;transform:scale(0.6)} }
 @keyframes glow { 0%,40%,100%{border-color:rgb(var(--c-accent-sky)/0.5);background:rgb(var(--c-accent-sky)/0.05)} 55%{border-color:rgb(var(--c-accent-sky)/0.85);background:rgb(var(--c-accent-sky)/0.13)} }
-@keyframes spinplus { 0%,40%,100%{transform:rotate(0)} 55%{transform:rotate(90deg)} }
+@keyframes spinplus { 0%,40%,100%{transform:scale(1)} 55%{transform:scale(1.14)} }
 @keyframes hl { 0%,30%{opacity:0.35} 55%,92%{opacity:1} 100%{opacity:0.35} }
 @keyframes fillcell { 0%,25%{background:rgb(var(--c-bg)/0.5);border-color:rgb(var(--c-accent-sky)/0.25)} 55%,92%{background:linear-gradient(135deg,rgb(var(--c-accent-sky)/0.7),rgb(var(--c-accent)/0.6));border-color:rgb(var(--c-accent)/0.6)} 100%{background:rgb(var(--c-bg)/0.5)} }
 @keyframes typing { 0%,10%{width:0} 45%,92%{width:150px} 100%{width:150px} }

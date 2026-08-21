@@ -300,6 +300,21 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 }
 .howto__next:hover { background: rgb(var(--c-accent) / 0.3); border-color: rgb(var(--c-accent) / 0.7); }
 
+/* Убираем жёлтую обводку фокуса, аккуратный ring только для клавиатуры */
+.howto__tab:focus,
+.howto__next:focus,
+.howto__prev:focus,
+.howto__close:focus,
+.howto__dot:focus { outline: none; }
+.howto__tab:focus-visible,
+.howto__next:focus-visible,
+.howto__prev:focus-visible,
+.howto__close:focus-visible,
+.howto__dot:focus-visible {
+  outline: 2px solid rgb(var(--c-accent-sky) / 0.6);
+  outline-offset: 2px;
+}
+
 
 /* Переходы между шагами */
 .stage-next-enter-active, .stage-next-leave-active,
