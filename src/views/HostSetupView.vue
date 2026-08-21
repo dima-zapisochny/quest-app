@@ -38,7 +38,7 @@
                   class="quest-action-button"
                   @click="goToQuestEditor(quest.id)"
                   :aria-label="t('host.editQuestAria')"
-                  :data-tooltip="t('common.edit')"
+                  :title="t('common.edit')"
                 >
                   <svg viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zm17.71-10.04a1.003 1.003 0 0 0 0-1.42l-2.5-2.5a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1-1z"></path>
@@ -49,7 +49,7 @@
                   class="quest-action-button"
                   @click="exportQuest(quest.id)"
                   :aria-label="t('host.exportQuestAria')"
-                  :data-tooltip="t('host.exportTooltip')"
+                  :title="t('host.exportTooltip')"
                 >
                   <svg viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
@@ -60,7 +60,7 @@
                   class="quest-action-button quest-action-button--danger"
                   @click="deleteQuest(quest.id)"
                   :aria-label="t('host.deleteQuestAria')"
-                  :data-tooltip="t('common.delete')"
+                  :title="t('common.delete')"
                 >
                   <svg viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12zm12-15h-3.5l-1-1h-3l-1 1H6v2h12V4z"></path>
@@ -639,7 +639,7 @@ async function onImportQuestFile(event: Event) {
   flex: 1 1 auto;
   min-height: 0;
   align-content: start;
-  align-items: start;
+  align-items: stretch;
 }
 
 .quests-grid::-webkit-scrollbar {
@@ -664,7 +664,7 @@ async function onImportQuestFile(event: Event) {
   z-index: 0;
   background: rgb(var(--c-surface) / 0.7);
   border-radius: 1.2rem;
-  padding: 0.85rem;
+  padding: 1rem;
   border: 1px solid rgb(var(--c-accent-sky) / 0.18);
   color: rgb(var(--c-text));
   display: flex;
@@ -738,86 +738,50 @@ async function onImportQuestFile(event: Event) {
   top: 0.5rem;
   right: 0.5rem;
   display: inline-flex;
-  gap: 0.35rem;
+  gap: 0.1rem;
   z-index: 2;
+  padding: 0.2rem;
+  border-radius: 999px;
+  background: rgb(var(--c-bg-deep) / 0.55);
+  border: 1px solid rgb(var(--c-white) / 0.08);
+  backdrop-filter: blur(8px);
 }
 
 .quest-action-button {
-  position: relative;
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
-  backdrop-filter: blur(6px);
-  border: 1px solid rgb(var(--c-text-muted) / 0.45);
-  background: rgb(var(--c-bg-deep) / 0.75);
-  color: rgb(var(--c-text-soft) / 0.95);
+  border: none;
+  background: transparent;
+  color: rgb(var(--c-text-soft) / 0.9);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+  transition: background 0.18s ease, color 0.18s ease;
 }
 
 .quest-action-button svg {
   width: 15px;
   height: 15px;
   fill: currentColor;
-  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), color 0.25s ease;
-}
-
-.quest-action-button::after {
-  content: attr(data-tooltip);
-  position: absolute;
-  bottom: calc(100% + 0.4rem);
-  left: 50%;
-  transform: translate(-50%, 6px);
-  background: rgb(var(--c-bg) / 0.92);
-  color: rgb(var(--c-text-soft));
-  padding: 0.25rem 0.6rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  letter-spacing: 0.05em;
-  white-space: nowrap;
-  box-shadow: 0 12px 20px rgb(var(--c-bg) / 0.35);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
 .quest-action-button:hover,
 .quest-action-button:focus-visible {
-  transform: translateY(-2px);
-  border-color: rgb(var(--c-accent) / 0.65);
-  background: rgb(var(--c-sky-500) / 0.18);
-  box-shadow: 0 12px 24px rgb(var(--c-accent) / 0.25);
-}
-
-.quest-action-button:hover svg,
-.quest-action-button:focus-visible svg {
-  transform: rotate(-6deg) scale(1.08);
-}
-
-.quest-action-button:hover::after,
-.quest-action-button:focus-visible::after {
-  opacity: 1;
-  transform: translate(-50%, 0);
+  outline: none;
+  background: rgb(var(--c-white) / 0.14);
+  color: rgb(var(--c-text));
 }
 
 .quest-action-button--danger {
-  border-color: rgb(var(--c-danger-light) / 0.35);
-  color: rgb(var(--c-danger-soft));
+  color: rgb(var(--c-danger-soft) / 0.85);
 }
 
 .quest-action-button--danger:hover,
 .quest-action-button--danger:focus-visible {
-  border-color: rgb(var(--c-danger-light) / 0.7);
-  background: rgb(var(--c-danger-light) / 0.18);
-  box-shadow: 0 12px 24px rgb(var(--c-danger-light) / 0.25);
-}
-
-.quest-action-button--danger:hover svg,
-.quest-action-button--danger:focus-visible svg {
-  transform: rotate(6deg) scale(1.08);
+  background: rgb(var(--c-danger) / 0.3);
+  color: rgb(var(--c-danger-soft));
 }
 
 /* «Новый квест» / «Импорт» — та же структура (обложка + подпись), что и у квеста */
