@@ -7,11 +7,8 @@
 
           <header class="howto__head">
             <div class="howto__title-wrap">
-              <span class="howto__badge" aria-hidden="true">🎮</span>
-              <div>
-                <h2 class="howto__title">{{ t('howto.title') }}</h2>
-                <p class="howto__subtitle">{{ t('howto.subtitle') }}</p>
-              </div>
+              <h2 class="howto__title">{{ t('howto.title') }}</h2>
+              <p class="howto__subtitle">{{ t('howto.subtitle') }}</p>
             </div>
             <button type="button" class="howto__close" :aria-label="t('common.close')" @click="close">✕</button>
           </header>
@@ -24,7 +21,7 @@
               role="tab"
               :aria-selected="tab === 'play'"
               @click="switchTab('play')"
-            >🕹️ {{ t('howto.tabPlay') }}</button>
+            >{{ t('howto.tabPlay') }}</button>
             <button
               type="button"
               class="howto__tab"
@@ -32,7 +29,7 @@
               role="tab"
               :aria-selected="tab === 'create'"
               @click="switchTab('create')"
-            >✏️ {{ t('howto.tabCreate') }}</button>
+            >{{ t('howto.tabCreate') }}</button>
           </div>
 
           <!-- Верх: анимированный пример -->
@@ -57,11 +54,10 @@
           <footer class="howto__nav">
             <button
               type="button"
-              class="howto__arrow"
+              class="howto__prev"
               :disabled="step === 0"
-              :aria-label="t('howto.prev')"
               @click="prev"
-            >←</button>
+            >{{ t('howto.prev') }}</button>
 
             <div class="howto__dots" role="tablist">
               <button
@@ -203,18 +199,11 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   align-items: flex-start;
   justify-content: space-between;
   gap: 1rem;
-  padding: 1.4rem 1.7rem 0.5rem;
+  padding: 1.6rem 1.8rem 0.9rem;
 }
-.howto__title-wrap { display: flex; align-items: center; gap: 0.9rem; }
-.howto__badge {
-  display: inline-flex; align-items: center; justify-content: center;
-  width: 3.1rem; height: 3.1rem; border-radius: 16px; font-size: 1.7rem;
-  background: linear-gradient(135deg, rgb(var(--c-accent-sky) / 0.25), rgb(var(--c-violet) / 0.25));
-  border: 1px solid rgb(var(--c-accent-sky) / 0.3);
-  animation: howto-float 3s ease-in-out infinite;
-}
-.howto__title { margin: 0; font-size: 1.35rem; color: rgb(var(--c-text)); }
-.howto__subtitle { margin: 0.15rem 0 0; font-size: 0.9rem; color: rgb(var(--c-text-soft) / 0.7); }
+.howto__title-wrap { display: flex; flex-direction: column; gap: 0.2rem; }
+.howto__title { margin: 0; font-size: 1.4rem; color: rgb(var(--c-text)); }
+.howto__subtitle { margin: 0; font-size: 0.92rem; color: rgb(var(--c-text-soft) / 0.7); }
 .howto__close {
   flex-shrink: 0; width: 2.3rem; height: 2.3rem; border-radius: 12px;
   border: 1px solid rgb(var(--c-accent-sky) / 0.25);
@@ -224,21 +213,22 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 .howto__close:hover { background: rgb(var(--c-danger) / 0.16); color: rgb(var(--c-danger-soft)); }
 
 .howto__tabs {
-  display: inline-flex; gap: 0.35rem; align-self: center;
-  margin: 0.25rem auto 0; padding: 0.35rem;
+  display: inline-flex; gap: 0.4rem; align-self: center;
+  margin: 0.9rem auto 0.35rem; padding: 0.4rem;
   border-radius: var(--radius-pill);
   border: 1px solid rgb(var(--c-accent-sky) / 0.2);
-  background: rgb(var(--c-bg) / 0.5);
+  background: rgb(var(--c-bg) / 0.55);
 }
 .howto__tab {
-  border: none; background: transparent; color: rgb(var(--c-text-soft) / 0.8);
-  padding: 0.5rem 1.3rem; border-radius: var(--radius-pill);
-  font-size: 0.92rem; font-weight: 600; cursor: pointer;
+  border: none; background: transparent; color: rgb(var(--c-text-soft) / 0.75);
+  padding: 0.6rem 1.9rem; border-radius: var(--radius-pill);
+  font-size: 0.95rem; font-weight: 600; cursor: pointer;
   transition: background 0.2s ease, color 0.2s ease;
 }
+.howto__tab:hover:not(.howto__tab--active) { color: rgb(var(--c-text)); }
 .howto__tab--active {
-  background: linear-gradient(135deg, rgb(var(--c-accent-sky)), rgb(var(--c-accent)));
-  color: rgb(var(--c-bg));
+  background: rgb(var(--c-accent-sky) / 0.18);
+  color: rgb(var(--c-accent-soft));
 }
 
 /* Сцена с анимацией — верхняя, большая */
@@ -280,18 +270,20 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   display: flex; align-items: center; justify-content: space-between;
   gap: 1rem; padding: 0.75rem 1.6rem 1.3rem;
 }
-.howto__arrow {
-  width: 2.7rem; height: 2.7rem; border-radius: 50%;
+.howto__prev {
+  min-width: 110px; padding: 0.7rem 1.5rem;
+  border-radius: var(--radius-pill);
   border: 1px solid rgb(var(--c-accent-sky) / 0.3);
-  background: rgb(var(--c-accent-sky) / 0.08); color: rgb(var(--c-accent-soft));
-  font-size: 1.15rem; cursor: pointer;
+  background: rgb(var(--c-accent-sky) / 0.08);
+  color: rgb(var(--c-accent-soft));
+  font-size: 0.95rem; font-weight: 600; cursor: pointer;
   transition: background 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
 }
-.howto__arrow:hover:not(:disabled) {
+.howto__prev:hover:not(:disabled) {
   background: rgb(var(--c-accent-sky) / 0.16);
   border-color: rgb(var(--c-accent-sky) / 0.55);
 }
-.howto__arrow:disabled { opacity: 0.3; cursor: not-allowed; }
+.howto__prev:disabled { opacity: 0.3; cursor: not-allowed; }
 .howto__dots { display: flex; gap: 0.5rem; align-items: center; }
 .howto__dot {
   width: 0.55rem; height: 0.55rem; border-radius: 50%; border: none; padding: 0;
@@ -310,7 +302,6 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 }
 .howto__next:hover { background: rgb(var(--c-accent) / 0.3); border-color: rgb(var(--c-accent) / 0.7); }
 
-@keyframes howto-float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-5px)} }
 
 /* Переходы между шагами */
 .stage-next-enter-active, .stage-next-leave-active,
