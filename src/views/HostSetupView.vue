@@ -808,12 +808,12 @@ async function onImportQuestFile(event: Event) {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2.5rem;
+  font-size: 1.9rem;
   line-height: 1;
 }
 .new-quest-circle svg {
-  width: 2.1rem;
-  height: 2.1rem;
+  width: 1.6rem;
+  height: 1.6rem;
 }
 
 .quest-card__body--cta {
