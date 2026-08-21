@@ -659,7 +659,7 @@ watch(() => route.path, (newPath) => {
   background: rgb(var(--c-accent-sky) / 0.24);
 }
 @media (max-width: 420px) {
-  .landing-howto { padding: 0 0.9rem 0 0.4rem; font-size: 0.92rem; }
+  .landing-howto { padding: 0 0.9rem 0 0.4rem; font-size: 0.92rem; gap: 0.6rem; }
   .landing-howto__icon { width: 1.75rem; height: 1.75rem; font-size: 1.05rem; }
 }
 
