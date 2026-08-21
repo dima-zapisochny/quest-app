@@ -23,13 +23,6 @@
       </header>
 
       <section class="quest-selection">
-        <div class="section-header">
-          <div class="section-title">
-            <h2>{{ t('host.chooseQuest') }}</h2>
-          </div>
-          <p class="section-subtitle">{{ t('host.chooseQuestHint') }}</p>
-        </div>
-
         <div class="quests-grid">
           <article
             v-for="(quest, qi) in quests"
@@ -685,7 +678,7 @@ async function onImportQuestFile(event: Event) {
 
 .quest-card__cover {
   position: relative;
-  aspect-ratio: 1.6;
+  aspect-ratio: 1.05;
   border-radius: 0.8rem;
   overflow: hidden;
   display: flex;
@@ -819,7 +812,7 @@ async function onImportQuestFile(event: Event) {
 
 .quest-card--new,
 .quest-card--import {
-  min-height: 200px;
+  min-height: 275px;
   border: 2px dashed rgb(var(--c-accent-sky) / 0.45);
   background: rgb(var(--c-accent-sky) / 0.05);
   align-items: center;
