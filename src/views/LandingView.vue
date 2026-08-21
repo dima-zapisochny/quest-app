@@ -946,10 +946,16 @@ watch(() => route.path, (newPath) => {
   min-width: 0;
   max-width: 100%;
   width: 100%;
+  transition: box-shadow 0.35s ease;
 }
 
 .join-input::placeholder {
   color: rgb(var(--c-text) / 0.55);
+}
+
+.join-input:focus {
+  outline: none;
+  box-shadow: inset 0 0 0 2px rgb(var(--c-blue-400) / 0.7), 0 18px 36px rgb(var(--c-accent-sky) / 0.35);
 }
 
 .error-message {
