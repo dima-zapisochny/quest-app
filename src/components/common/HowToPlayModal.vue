@@ -53,7 +53,7 @@
             <button
               type="button"
               class="howto__prev"
-              :disabled="step === 0"
+              :class="{ 'howto__prev--hidden': isFirstStep }"
               @click="prev"
             >{{ t('howto.prev') }}</button>
 
@@ -116,6 +116,8 @@ const current = computed(() => steps.value[step.value])
 const isLast = computed(() => step.value === steps.value.length - 1)
 // Самый последний шаг всего гида — последний шаг вкладки «Создать квест»
 const isFinal = computed(() => tab.value === 'create' && isLast.value)
+// Самый первый шаг всего гида — кнопку «Назад» здесь не показываем
+const isFirstStep = computed(() => tab.value === 'play' && step.value === 0)
 
 function switchTab(value: 'play' | 'create') {
   if (tab.value === value) return
@@ -207,7 +209,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 .howto__title {
   margin: 0;
   font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
-  font-size: 1.5rem;
+  font-size: 1.85rem;
   font-weight: 800;
   letter-spacing: 0.01em;
   color: rgb(var(--c-text));
@@ -297,6 +299,8 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   border-color: rgb(var(--c-accent-sky) / 0.55);
 }
 .howto__prev:disabled { opacity: 0.3; cursor: not-allowed; }
+/* На самом первом шаге кнопку не показываем, но место сохраняем (точки по центру) */
+.howto__prev--hidden { visibility: hidden; pointer-events: none; }
 .howto__dots { display: flex; gap: 0.5rem; align-items: center; }
 .howto__dot {
   width: 0.55rem; height: 0.55rem; border-radius: 50%; border: none; padding: 0;
@@ -354,6 +358,15 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 @media (max-width: 560px) {
   .howto { height: min(92vh, 100%); }
   .howto__stage { margin: 0.5rem 1rem 0; }
-  .howto__next { min-width: 100px; padding: 0.6rem 1.1rem; }
+  /* Компактная навигация, чтобы «Далее» не вылезал за край */
+  .howto__nav { padding: 0.7rem 0.9rem 1.1rem; gap: 0.5rem; }
+  .howto__prev { min-width: 84px; padding: 0.6rem 0.9rem; font-size: 0.9rem; }
+  .howto__next { min-width: 84px; padding: 0.6rem 0.9rem; font-size: 0.9rem; }
+  .howto__dots { gap: 0.35rem; }
+}
+@media (max-width: 380px) {
+  .howto__nav { padding: 0.7rem 0.7rem 1rem; }
+  .howto__prev,
+  .howto__next { min-width: 74px; padding: 0.55rem 0.75rem; font-size: 0.85rem; }
 }
 </style>

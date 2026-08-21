@@ -7,16 +7,18 @@
   </div>
   <div v-else-if="!shouldRedirect" class="landing">
     <button type="button" class="landing-howto" @click="showHowTo = true">
-      <span class="landing-howto__icon" aria-hidden="true">
-        <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M8 5.14v13.72a1 1 0 0 0 1.54.84l10.29-6.86a1 1 0 0 0 0-1.68L9.54 4.3A1 1 0 0 0 8 5.14z"/></svg>
-      </span>
-      <span class="landing-howto__label">{{ t('howto.title') }}</span>
+      <span class="landing-howto__icon" aria-hidden="true">?</span>
+      <span class="landing-howto__label">{{ t('howto.title') }}?</span>
     </button>
     <LanguageSwitcher class="landing-lang" />
     <HowToPlayModal :show="showHowTo" @close="showHowTo = false" />
     <div class="landing-card">
       <div class="landing-brand">
-        <h1 class="brand-title" :class="{ 'brand-title--animated': animateTitle }">
+        <h1
+          class="brand-title"
+          :class="{ 'brand-title--animated': animateTitle }"
+          :style="{ '--letter-step': letterStep + 's' }"
+        >
           <span
             v-for="(word, wIndex) in titleWords"
             :key="wIndex"
@@ -99,7 +101,6 @@ const route = useRoute()
 const sessionStore = useGameSessionStore()
 
 const titleWords = computed(() => 'Quiz Quest'.split(' '))
-const titleLetters = computed(() => Array.from('Quiz Quest'))
 const animateTitle = ref(false)
 const subtitleVisible = ref(false)
 
@@ -303,22 +304,38 @@ async function handleJoinGame() {
   }
 }
 
+// Ноты интро в исходном темпе (без растягивания — иначе звучит «заторможенно»).
+const INTRO_PATTERN = [
+  { freq: 261.63, duration: 0.16 },
+  { freq: 392, duration: 0.16 },
+  { freq: 523.25, duration: 0.16 },
+  { freq: 349.23, duration: 0.18 },
+  { freq: 466.16, duration: 0.22 },
+  { freq: 293.66, duration: 0.18 },
+  { freq: 440, duration: 0.22 },
+  { freq: 659.25, duration: 0.28 },
+  { freq: 392, duration: 0.2 },
+  { freq: 523.25, duration: 0.4 }
+]
+// Натуральная длительность мелодии. Под неё подгоняем анимацию заголовка,
+// чтобы они шли синхронно, а звук сохранял свой темп.
+const MELODY_DURATION = INTRO_PATTERN.reduce((sum, n) => sum + n.duration, 0)
+const LETTER_ANIM = 1.2 // длительность анимации одной буквы (CSS titleChain)
+// Максимальный индекс буквы (--i = wIndex*10 + cIndex): последняя буква последнего слова.
+const maxLetterIndex = computed(() => {
+  const words = titleWords.value
+  const last = words[words.length - 1] ?? ''
+  return (words.length - 1) * 10 + Math.max(0, last.length - 1)
+})
+// Шаг задержки между буквами, чтобы вся цепочка уложилась ровно в MELODY_DURATION.
+const letterStep = computed(() =>
+  Math.max(0.01, (MELODY_DURATION - LETTER_ANIM) / Math.max(1, maxLetterIndex.value))
+)
+
 function schedulePattern(startTime: number) {
   if (!audioCtx || !gainNode) return startTime
-  const pattern = [
-    { freq: 261.63, duration: 0.16 },
-    { freq: 392, duration: 0.16 },
-    { freq: 523.25, duration: 0.16 },
-    { freq: 349.23, duration: 0.18 },
-    { freq: 466.16, duration: 0.22 },
-    { freq: 293.66, duration: 0.18 },
-    { freq: 440, duration: 0.22 },
-    { freq: 659.25, duration: 0.28 },
-    { freq: 392, duration: 0.2 },
-    { freq: 523.25, duration: 0.4 }
-  ]
   let cursor = startTime
-  for (const note of pattern) {
+  for (const note of INTRO_PATTERN) {
     const osc = audioCtx.createOscillator()
     const env = audioCtx.createGain()
 
@@ -328,7 +345,7 @@ function schedulePattern(startTime: number) {
 
     osc.type = 'triangle'
     osc.frequency.setValueAtTime(note.freq, cursor)
-    osc.detune.setValueAtTime(osc.frequency.value * 0.03, cursor)
+    osc.detune.setValueAtTime(note.freq * 0.03, cursor)
     osc.connect(env)
     env.connect(gainNode!)
     osc.start(cursor)
@@ -340,19 +357,8 @@ function schedulePattern(startTime: number) {
 
 async function playIntro() {
   if (hasPlayedIntro) return
-  
-  try {
-    hasPlayedIntro = true
-    animateTitle.value = true
-    subtitleVisible.value = false
-    isThemePlaying.value = true
-    
-    // Очищаем fallback таймаут, так как музыка запустилась
-    if (fallbackTimeout) {
-      window.clearTimeout(fallbackTimeout)
-      fallbackTimeout = null
-    }
 
+  try {
     // Пересоздаем audioCtx, если его нет или он закрыт
     if (!audioCtx || audioCtx.state === 'closed') {
       if (audioCtx && audioCtx.state === 'closed') {
@@ -365,10 +371,10 @@ async function playIntro() {
       }
       audioCtx = new AudioContext()
     }
-    
+
     // Пытаемся возобновить контекст, если он приостановлен
     // Это необходимо для политики автоплея браузеров
-    if (audioCtx && audioCtx.state === 'suspended') {
+    if (audioCtx.state === 'suspended') {
       try {
         await audioCtx.resume()
       } catch (error) {
@@ -383,13 +389,37 @@ async function playIntro() {
           // Игнорируем ошибки
         }
         audioCtx = new AudioContext()
-        // Пробуем возобновить новый контекст
         if (audioCtx.state === 'suspended') {
-          await audioCtx.resume()
+          try {
+            await audioCtx.resume()
+          } catch (e) {
+            // Игнорируем ошибки
+          }
         }
       }
     }
-    
+
+    // Браузер всё ещё блокирует звук (нет пользовательского жеста).
+    // НЕ планируем ноты на приостановленном контексте — иначе при resume
+    // они сыграют вразнобой. Выходим, не помечая интро сыгранным:
+    // setupMusic повторит playIntro после первого взаимодействия.
+    if (audioCtx.state !== 'running') {
+      return
+    }
+
+    // Контекст реально играет — фиксируем, запускаем анимацию заголовка
+    // и планируем мелодию (стартуют одновременно и одинаковой длительности)
+    hasPlayedIntro = true
+    animateTitle.value = true
+    subtitleVisible.value = false
+    isThemePlaying.value = true
+
+    // Музыка запустилась — fallback больше не нужен
+    if (fallbackTimeout) {
+      window.clearTimeout(fallbackTimeout)
+      fallbackTimeout = null
+    }
+
     // Пересоздаем gainNode для нового контекста
     if (gainNode) {
       try {
@@ -407,7 +437,7 @@ async function playIntro() {
     let cursor = start
     cursor = schedulePattern(cursor)
 
-    const animationDuration = 0.15 * (titleLetters.value.length - 1) + 1.2
+    const animationDuration = MELODY_DURATION
     const totalDuration = Math.max(animationDuration, cursor - start)
 
     cleanupTimeout = window.setTimeout(() => {
@@ -422,7 +452,7 @@ async function playIntro() {
     console.warn('Ошибка при запуске музыки:', error)
     hasPlayedIntro = false
     isThemePlaying.value = false
-    
+
     // Пробуем запустить снова через небольшую задержку
     setTimeout(() => {
       if (!shouldRedirect.value) {
@@ -460,15 +490,19 @@ function stopIntro() {
 function setupMusic() {
   if (shouldRedirect.value) return
 
+  // Если браузер заблокировал автоплей и пользователь не взаимодействует —
+  // хотя бы показываем подзаголовок (заголовок и так виден). Анимация заголовка
+  // остаётся связанной со звуком: она сработает вместе с мелодией по жесту.
   fallbackTimeout = window.setTimeout(() => {
     if (!subtitleVisible.value && !shouldRedirect.value) {
       subtitleVisible.value = true
-      animateTitle.value = true
     }
     fallbackTimeout = null
   }, 3000)
 
-  // Одразу запускаємо анімацію та музику разом (браузер може призупинити AudioContext — тоді звук піде після першого кліку)
+  // Пробуем запустить анимацию+музыку сразу (при переходе на главную из приложения
+  // есть user activation — сыграет на входе; на «холодном» открытии браузер
+  // разрешит звук только после первого жеста — тогда всё стартует вместе).
   playIntro()
 
   const interactionHandler = async () => {
@@ -583,14 +617,14 @@ watch(() => route.path, (newPath) => {
   z-index: 20;
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  height: 2.7rem;
-  padding: 0 1.15rem 0 0.45rem;
+  gap: 1rem;
+  height: 3rem;
+  padding: 0 1.35rem 0 0.5rem;
   border-radius: var(--radius-pill);
   border: 1px solid rgb(var(--c-accent-sky) / 0.2);
   background: rgb(var(--c-surface) / 0.55);
   color: rgb(var(--c-text));
-  font-size: 0.9rem;
+  font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
   backdrop-filter: blur(14px);
@@ -611,21 +645,22 @@ watch(() => route.path, (newPath) => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1.9rem;
-  height: 1.9rem;
+  width: 2.1rem;
+  height: 2.1rem;
   border-radius: 50%;
   line-height: 1;
+  font-size: 1.15rem;
+  font-weight: 800;
   color: rgb(var(--c-accent-soft));
   background: rgb(var(--c-accent-sky) / 0.16);
   border: 1px solid rgb(var(--c-accent-sky) / 0.3);
 }
-.landing-howto__icon svg { transform: translateX(0.5px); }
 .landing-howto:hover .landing-howto__icon {
   background: rgb(var(--c-accent-sky) / 0.24);
 }
 @media (max-width: 420px) {
-  .landing-howto__label { display: none; }
-  .landing-howto { padding: 0.5rem 0.7rem; }
+  .landing-howto { padding: 0 0.9rem 0 0.4rem; font-size: 0.92rem; gap: 0.6rem; }
+  .landing-howto__icon { width: 1.75rem; height: 1.75rem; font-size: 1.05rem; }
 }
 
 .landing-card {
@@ -671,7 +706,7 @@ watch(() => route.path, (newPath) => {
 
 .brand-title--animated .brand-letter {
   animation: titleChain 1.2s ease-out forwards;
-  animation-delay: calc(var(--i) * 0.15s);
+  animation-delay: calc(var(--i) * var(--letter-step, 0.15s));
   animation-iteration-count: 1;
   animation-fill-mode: forwards;
 }

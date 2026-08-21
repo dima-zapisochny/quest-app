@@ -8,7 +8,7 @@
       :aria-expanded="open"
       @click="open = !open"
     >
-      <span class="lang__globe" aria-hidden="true">🌐</span>
+      <span class="lang__flag" aria-hidden="true">{{ flags[current] }}</span>
       <span class="lang__current">{{ currentName }}</span>
       <span class="lang__chevron" :class="{ 'lang__chevron--open': open }" aria-hidden="true">▾</span>
     </button>
@@ -24,7 +24,10 @@
           :aria-selected="loc === current"
           @click="choose(loc)"
         >
-          <span>{{ names[loc] }}</span>
+          <span class="lang__opt">
+            <span class="lang__flag" aria-hidden="true">{{ flags[loc] }}</span>
+            <span>{{ names[loc] }}</span>
+          </span>
           <span v-if="loc === current" class="lang__check" aria-hidden="true">✓</span>
         </li>
       </ul>
@@ -41,6 +44,14 @@ const { t, locale } = useI18n()
 
 const locales = SUPPORTED_LOCALES
 const names = LOCALE_NAMES
+const flags: Record<AppLocale, string> = {
+  ru: '🇷🇺',
+  en: '🇬🇧',
+  uk: '🇺🇦',
+  es: '🇪🇸',
+  fr: '🇫🇷',
+  de: '🇩🇪'
+}
 const open = ref(false)
 const rootRef = ref<HTMLElement | null>(null)
 
@@ -71,13 +82,13 @@ onBeforeUnmount(() => window.removeEventListener('click', onClickOutside))
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  height: 2.7rem;
-  padding: 0 1rem;
+  height: 3rem;
+  padding: 0 1.15rem;
   border-radius: var(--radius-pill);
   border: 1px solid rgb(var(--c-accent-sky) / 0.2);
   background: rgb(var(--c-surface) / 0.55);
   color: rgb(var(--c-text));
-  font-size: 0.9rem;
+  font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
   backdrop-filter: blur(14px);
@@ -94,21 +105,14 @@ onBeforeUnmount(() => window.removeEventListener('click', onClickOutside))
   outline: 2px solid rgb(var(--c-accent-sky) / 0.6);
   outline-offset: 2px;
 }
-.lang__globe {
+.lang__flag {
+  font-size: 1.2rem;
+  line-height: 1;
+}
+.lang__opt {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  width: 1.9rem;
-  height: 1.9rem;
-  margin-left: -0.35rem;
-  border-radius: 50%;
-  font-size: 0.95rem;
-  line-height: 1;
-  background: rgb(var(--c-accent-sky) / 0.16);
-  border: 1px solid rgb(var(--c-accent-sky) / 0.3);
-}
-.lang__toggle:hover .lang__globe {
-  background: rgb(var(--c-accent-sky) / 0.24);
+  gap: 0.6rem;
 }
 .lang__chevron {
   font-size: 0.7rem;
@@ -165,5 +169,12 @@ onBeforeUnmount(() => window.removeEventListener('click', onClickOutside))
 .lang-menu-leave-to {
   opacity: 0;
   transform: translateY(-6px);
+}
+
+/* На узких экранах — компактно: только флаг (без названия языка) */
+@media (max-width: 420px) {
+  .lang__current { display: none; }
+  .lang__toggle { min-width: 5rem; padding: 0 1.3rem; gap: 0.55rem; justify-content: center; }
+  .lang__flag { font-size: 1.35rem; }
 }
 </style>

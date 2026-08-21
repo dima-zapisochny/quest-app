@@ -479,8 +479,28 @@ const gridCells = Array.from({ length: 25 }, (_, i) => ({ k: i, c: i % 5, r: Mat
 @keyframes hidespin { 0%,45%{opacity:1} 55%,100%{opacity:0} }
 @keyframes showcheck { 0%,50%{opacity:0;transform:scale(0.5)} 62%,92%{opacity:1;transform:scale(1)} 100%{opacity:0} }
 
-@media (max-width: 560px) {
-  .scene--row { flex-direction: column; gap: 1.2rem; }
-  .scene--buzz { flex-direction: row; gap: 1rem; }
+/* Респонсив: масштабируем сцену целиком под размер экрана,
+   чтобы иллюстрация не вылезала за пределы stage и не обрезалась. */
+@media (max-width: 820px) {
+  .illu > .scene { transform: scale(1.1); }
+}
+@media (max-width: 600px) {
+  .illu > .scene { transform: scale(1.02); }
+  .scene--row { gap: 1.6rem; }
+  .scene--buzz { gap: 1.8rem; }
+}
+@media (max-width: 430px) {
+  .illu > .scene { transform: scale(0.92); }
+  .scene--row { gap: 1.3rem; }
+  .scene--buzz { gap: 1.4rem; }
+  .scene--score { gap: 1.2rem; }
+}
+@media (max-width: 370px) {
+  .illu > .scene { transform: scale(0.82); }
+  .scene--row { gap: 1rem; }
+  .scene--buzz { gap: 1.1rem; }
+}
+@media (max-width: 330px) {
+  .illu > .scene { transform: scale(0.72); }
 }
 </style>
