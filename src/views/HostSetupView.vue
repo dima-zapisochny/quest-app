@@ -100,7 +100,11 @@
               :disabled="importingQuest"
               @change="onImportQuestFile"
             />
-            <div class="new-quest-circle import-icon">📂</div>
+            <div class="new-quest-circle import-icon">
+              <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M12 15V3"/><path d="m7 8 5-5 5 5"/><path d="M20 15v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-4"/>
+              </svg>
+            </div>
             <span>{{ importingQuest ? t('host.importing') : t('host.importQuest') }}</span>
           </article>
         </div>
@@ -407,10 +411,10 @@ async function onImportQuestFile(event: Event) {
   height: 100dvh;
   overflow: hidden;
   background: linear-gradient(135deg, rgb(var(--c-bg)) 0%, rgb(var(--c-surface)) 100%);
-  padding: 0 clamp(1rem, 4vw, 3rem) 0;
+  padding: 0 clamp(1rem, 4vw, 3rem);
   display: flex;
   flex-direction: column;
-  gap: 3rem;
+  gap: 1.5rem;
   box-sizing: border-box;
 }
 
@@ -523,10 +527,11 @@ async function onImportQuestFile(event: Event) {
 
 
 .host-header {
-  background: rgb(var(--c-bg) / 0.78);
+  background: linear-gradient(135deg, rgb(var(--c-surface) / 0.6), rgb(var(--c-bg) / 0.55));
+  border: 1px solid rgb(var(--c-accent-sky) / 0.14);
   border-radius: 1.25rem;
-  padding: 2rem;
-  box-shadow: 0 25px 60px rgb(var(--c-sky-deep) / 0.45);
+  padding: 1.35rem 1.75rem;
+  box-shadow: 0 12px 30px rgb(var(--c-bg-deep) / 0.35);
   color: rgb(var(--c-text));
   display: flex;
   align-items: center;
@@ -568,9 +573,6 @@ async function onImportQuestFile(event: Event) {
 }
 
 .quest-selection {
-  padding-right: 0.5rem;
-  margin-right: -0.5rem;
-  padding-bottom: 1rem;
   min-height: 0;
   /* Занимает всё свободное место между шапкой и кнопкой «Начать игру»,
      список внутри скроллится — без наложения на кнопку. */
@@ -578,6 +580,11 @@ async function onImportQuestFile(event: Event) {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  background: rgb(var(--c-bg) / 0.32);
+  border: 1px solid rgb(var(--c-accent-sky) / 0.12);
+  border-radius: 1.25rem;
+  padding: 1.35rem 1.35rem 0.85rem;
+  box-sizing: border-box;
 }
 
 .quest-selection::-webkit-scrollbar {
@@ -597,9 +604,9 @@ async function onImportQuestFile(event: Event) {
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
-  margin-top: 0.5rem;
+  margin-top: 0;
   margin-bottom: 1rem;
-  padding: 0 28px;
+  padding: 0 0.25rem;
   flex-shrink: 0;
 }
 
@@ -845,11 +852,14 @@ async function onImportQuestFile(event: Event) {
 
 .quest-card--new span,
 .quest-card--import span {
-  font-size: 0.82rem;
+  font-size: 0.95rem;
   font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  letter-spacing: 0.01em;
   padding: 0 0.75rem;
+}
+.new-quest-circle svg {
+  width: 1.7rem;
+  height: 1.7rem;
 }
 .quest-import-input {
   position: absolute;
