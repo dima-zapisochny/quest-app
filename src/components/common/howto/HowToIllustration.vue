@@ -1,11 +1,14 @@
 <template>
   <div class="illu">
     <!-- ЗАПУСК ИГРЫ -->
-    <div v-if="scene === 'start'" class="scene">
+    <div v-if="scene === 'start'" class="scene scene--start">
       <div class="panel panel--start">
         <div class="panel__bar"><span class="dot dot--r"></span><span class="dot dot--y"></span><span class="dot dot--g"></span></div>
         <div class="startcard__label">Name</div>
-        <div class="startcard__name"><span class="startcard__fox">🦊</span><span class="startcard__bar"></span></div>
+        <div class="startcard__idrow">
+          <span class="startcard__field"></span>
+          <span class="startcard__ava">🦊</span>
+        </div>
         <button class="startcard__create"><span>Create game</span><span class="cursor cursor--start" aria-hidden="true"></span></button>
         <div class="startcard__or"><span></span>or<span></span></div>
         <div class="startcard__join">
@@ -162,6 +165,7 @@ const gridCells = Array.from({ length: 25 }, (_, i) => ({ k: i, c: i % 5, r: Mat
 .illu { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
 .scene { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.1rem; width: 100%; }
 .scene--row { flex-direction: row; gap: 2.2rem; }
+.scene--start { gap: 0.6rem; }
 
 .cursor {
   position: absolute; width: 1.05rem; height: 1.05rem; border-radius: 50% 50% 50% 2px;
@@ -182,33 +186,33 @@ const gridCells = Array.from({ length: 25 }, (_, i) => ({ k: i, c: i % 5, r: Mat
 .dot--r { background: rgb(var(--c-danger) / 0.7); }
 .dot--y { background: #d9a441; }
 .dot--g { background: rgb(var(--c-success) / 0.7); }
-/* START — мокап карточки лендинга */
-.panel--start { width: 240px; gap: 0.55rem; padding: 0.85rem; }
-.startcard__label { align-self: flex-start; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em; color: rgb(var(--c-text-muted) / 0.7); }
-.startcard__name { display: flex; align-items: center; gap: 0.5rem; width: 100%; padding: 0.45rem 0.55rem; border-radius: 10px; background: rgb(var(--c-bg) / 0.55); border: 1px solid rgb(var(--c-accent-sky) / 0.2); box-sizing: border-box; }
-.startcard__fox { font-size: 1rem; }
-.startcard__bar { flex: 1; height: 0.6rem; border-radius: 5px; background: rgb(var(--c-text-soft) / 0.3); }
+/* START — мокап карточки лендинга (компактный) */
+.panel--start { width: 230px; gap: 0.4rem; padding: 0.7rem; }
+.startcard__label { align-self: flex-start; font-size: 0.56rem; text-transform: uppercase; letter-spacing: 0.1em; color: rgb(var(--c-text-muted) / 0.7); }
+.startcard__idrow { display: flex; align-items: center; gap: 0.5rem; width: 100%; box-sizing: border-box; }
+.startcard__field { flex: 1; height: 1.9rem; border-radius: 10px; background: rgb(var(--c-bg) / 0.55); border: 1px solid rgb(var(--c-accent-sky) / 0.22); }
+.startcard__ava { flex-shrink: 0; width: 1.9rem; height: 1.9rem; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 1rem; background: rgb(var(--c-accent-sky) / 0.14); border: 1px solid rgb(var(--c-accent-sky) / 0.4); }
 .startcard__create {
-  position: relative; width: 100%; padding: 0.65rem; border: none; border-radius: var(--radius-pill);
+  position: relative; width: 100%; padding: 0.55rem; border: none; border-radius: var(--radius-pill);
   background: radial-gradient(circle at 25% 25%, rgba(253, 224, 71, 0.6), transparent 55%),
     linear-gradient(135deg, rgb(var(--c-orange-500)), rgb(var(--c-gold)));
-  color: rgb(var(--c-bg-deep)); font-weight: 800; font-size: 0.9rem;
-  box-shadow: 0 8px 18px rgb(var(--c-orange-500) / 0.4);
+  color: rgb(var(--c-bg-deep)); font-weight: 800; font-size: 0.85rem;
+  box-shadow: 0 6px 14px rgb(var(--c-orange-500) / 0.4);
   animation: press 2.8s ease-in-out infinite;
 }
-.cursor--start { right: 0.9rem; bottom: -0.3rem; animation: tap 2.8s ease-in-out infinite; }
-.startcard__or { display: flex; align-items: center; gap: 0.5rem; width: 100%; font-size: 0.7rem; color: rgb(var(--c-text-soft) / 0.55); }
+.cursor--start { right: 0.9rem; bottom: -0.25rem; animation: tap 2.8s ease-in-out infinite; }
+.startcard__or { display: flex; align-items: center; gap: 0.5rem; width: 100%; font-size: 0.66rem; color: rgb(var(--c-text-soft) / 0.55); }
 .startcard__or span { flex: 1; height: 1px; background: rgb(var(--c-text-soft) / 0.15); }
 .startcard__join { display: flex; gap: 0.4rem; width: 100%; }
-.startcard__code { flex: 1; padding: 0.4rem; border-radius: 10px; text-align: center; letter-spacing: 0.15em; font-size: 0.72rem; font-weight: 700; color: rgb(var(--c-text-soft) / 0.7); border: 1px solid rgb(var(--c-accent-sky) / 0.25); background: rgb(var(--c-bg) / 0.4); }
-.startcard__joinbtn { padding: 0.4rem 0.9rem; border-radius: 10px; font-size: 0.78rem; font-weight: 700; color: rgb(var(--c-bg-deep)); background: linear-gradient(135deg, rgb(244 114 182), rgb(var(--c-violet))); }
-.arrow { color: rgb(var(--c-accent-soft)); font-size: 1.5rem; animation: bob 2.8s ease-in-out infinite; }
-.codewrap { display: flex; flex-direction: column; align-items: center; gap: 0.35rem; }
-.codewrap__label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em; color: rgb(var(--c-text-muted) / 0.7); }
-.code { display: flex; gap: 0.45rem; }
+.startcard__code { flex: 1; padding: 0.35rem; border-radius: 10px; text-align: center; letter-spacing: 0.15em; font-size: 0.68rem; font-weight: 700; color: rgb(var(--c-text-soft) / 0.7); border: 1px solid rgb(var(--c-accent-sky) / 0.25); background: rgb(var(--c-bg) / 0.4); }
+.startcard__joinbtn { padding: 0.35rem 0.85rem; border-radius: 10px; font-size: 0.74rem; font-weight: 700; color: rgb(var(--c-bg-deep)); background: linear-gradient(135deg, rgb(244 114 182), rgb(var(--c-violet))); }
+.arrow { color: rgb(var(--c-accent-soft)); font-size: 1.15rem; animation: bob 2.8s ease-in-out infinite; }
+.codewrap { display: flex; flex-direction: column; align-items: center; gap: 0.3rem; }
+.codewrap__label { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em; color: rgb(var(--c-text-muted) / 0.7); }
+.code { display: flex; gap: 0.4rem; }
 .code__ch {
-  width: 2.4rem; height: 3rem; display: flex; align-items: center; justify-content: center;
-  border-radius: 10px; font-size: 1.5rem; font-weight: 800; color: rgb(var(--c-accent-soft));
+  width: 2rem; height: 2.4rem; display: flex; align-items: center; justify-content: center;
+  border-radius: 9px; font-size: 1.25rem; font-weight: 800; color: rgb(var(--c-accent-soft));
   background: rgb(var(--c-accent-sky) / 0.14); border: 1px solid rgb(var(--c-accent-sky) / 0.4);
   box-shadow: inset 0 1px 2px rgb(var(--c-white) / 0.08);
   opacity: 0; transform: translateY(8px) scale(0.7);

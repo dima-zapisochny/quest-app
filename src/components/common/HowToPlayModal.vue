@@ -237,7 +237,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   overflow: hidden;
   display: flex;
 }
-.howto__illu { padding: 1rem; }
+.howto__illu { padding: 0.6rem; }
 
 /* Текст снизу */
 .howto__content {
