@@ -301,6 +301,10 @@ async function handleJoinGame() {
   }
 }
 
+// Длительность анимации заголовка «Quiz Quest» (по-буквенная цепочка).
+// Мелодия растягивается ровно под неё, чтобы звук и анимация шли синхронно.
+const titleAnimDuration = computed(() => 0.15 * (titleLetters.value.length - 1) + 1.2)
+
 function schedulePattern(startTime: number) {
   if (!audioCtx || !gainNode) return startTime
   const pattern = [
@@ -315,23 +319,27 @@ function schedulePattern(startTime: number) {
     { freq: 392, duration: 0.2 },
     { freq: 523.25, duration: 0.4 }
   ]
+  // Масштабируем длительности нот так, чтобы сумма == длительности анимации заголовка
+  const rawTotal = pattern.reduce((sum, n) => sum + n.duration, 0)
+  const scale = titleAnimDuration.value / rawTotal
   let cursor = startTime
   for (const note of pattern) {
+    const dur = note.duration * scale
     const osc = audioCtx.createOscillator()
     const env = audioCtx.createGain()
 
     env.gain.setValueAtTime(0, cursor)
     env.gain.linearRampToValueAtTime(0.9, cursor + 0.04)
-    env.gain.exponentialRampToValueAtTime(0.0001, cursor + note.duration)
+    env.gain.exponentialRampToValueAtTime(0.0001, cursor + dur)
 
     osc.type = 'triangle'
     osc.frequency.setValueAtTime(note.freq, cursor)
-    osc.detune.setValueAtTime(osc.frequency.value * 0.03, cursor)
+    osc.detune.setValueAtTime(note.freq * 0.03, cursor)
     osc.connect(env)
     env.connect(gainNode!)
     osc.start(cursor)
-    osc.stop(cursor + note.duration)
-    cursor += note.duration
+    osc.stop(cursor + dur)
+    cursor += dur
   }
   return cursor
 }
@@ -340,9 +348,6 @@ async function playIntro() {
   if (hasPlayedIntro) return
 
   try {
-    // Анимация заголовка стартует сразу, независимо от политики автоплея
-    animateTitle.value = true
-
     // Пересоздаем audioCtx, если его нет или он закрыт
     if (!audioCtx || audioCtx.state === 'closed') {
       if (audioCtx && audioCtx.state === 'closed') {
@@ -391,8 +396,10 @@ async function playIntro() {
       return
     }
 
-    // Контекст реально играет — фиксируем и планируем мелодию
+    // Контекст реально играет — фиксируем, запускаем анимацию заголовка
+    // и планируем мелодию (стартуют одновременно и одинаковой длительности)
     hasPlayedIntro = true
+    animateTitle.value = true
     subtitleVisible.value = false
     isThemePlaying.value = true
 
@@ -419,7 +426,7 @@ async function playIntro() {
     let cursor = start
     cursor = schedulePattern(cursor)
 
-    const animationDuration = 0.15 * (titleLetters.value.length - 1) + 1.2
+    const animationDuration = titleAnimDuration.value
     const totalDuration = Math.max(animationDuration, cursor - start)
 
     cleanupTimeout = window.setTimeout(() => {
@@ -472,15 +479,19 @@ function stopIntro() {
 function setupMusic() {
   if (shouldRedirect.value) return
 
+  // Если браузер заблокировал автоплей и пользователь не взаимодействует —
+  // хотя бы показываем подзаголовок (заголовок и так виден). Анимация заголовка
+  // остаётся связанной со звуком: она сработает вместе с мелодией по жесту.
   fallbackTimeout = window.setTimeout(() => {
     if (!subtitleVisible.value && !shouldRedirect.value) {
       subtitleVisible.value = true
-      animateTitle.value = true
     }
     fallbackTimeout = null
   }, 3000)
 
-  // Одразу запускаємо анімацію та музику разом (браузер може призупинити AudioContext — тоді звук піде після першого кліку)
+  // Пробуем запустить анимацию+музыку сразу (при переходе на главную из приложения
+  // есть user activation — сыграет на входе; на «холодном» открытии браузер
+  // разрешит звук только после первого жеста — тогда всё стартует вместе).
   playIntro()
 
   const interactionHandler = async () => {
