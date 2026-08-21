@@ -548,24 +548,24 @@ textarea:focus,
 .upload-chip {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: 0.45rem;
-  border: 1px dashed rgb(var(--c-text-muted) / 0.4);
+  justify-content: flex-start;
+  gap: 0.5rem;
+  border: 1px dashed rgb(var(--c-accent-sky) / 0.35);
   border-radius: 12px;
-  padding: 0.6rem 0.85rem;
+  padding: 0.7rem 1rem;
   cursor: pointer;
   color: rgb(var(--c-accent-soft));
   font-weight: 600;
-  font-size: 0.82rem;
+  font-size: 0.85rem;
   min-width: 130px;
   position: relative;
   overflow: hidden;
-  background: rgb(var(--c-bg) / 0.45);
+  background: rgb(var(--c-accent-sky) / 0.05);
   transition: border-color 0.15s ease, background 0.15s ease;
 }
 .upload-chip:hover {
-  border-color: rgb(var(--c-accent-sky) / 0.6);
-  background: rgb(var(--c-accent-sky) / 0.08);
+  border-color: rgb(var(--c-accent-sky) / 0.65);
+  background: rgb(var(--c-accent-sky) / 0.12);
 }
 .upload-chip__ico {
   font-size: 1rem;

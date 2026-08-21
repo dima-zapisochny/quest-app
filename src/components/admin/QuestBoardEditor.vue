@@ -516,7 +516,7 @@ watch(() => props.round.id, closeModal)
   box-shadow: 0 40px 90px rgb(var(--c-bg-deep) / 0.7);
   display: flex;
   flex-direction: column;
-  min-height: min(600px, 86vh);
+  min-height: min(440px, 78vh);
   max-height: min(92vh, 100%);
 }
 .q-modal__head {
