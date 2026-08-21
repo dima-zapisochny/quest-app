@@ -252,7 +252,7 @@ const gridCells = Array.from({ length: 25 }, (_, i) => ({ k: i, c: i % 5, r: Mat
 .phone__notch { width: 32px; height: 5px; border-radius: 3px; background: rgb(var(--c-accent-sky) / 0.35); }
 .phone__title { font-size: 0.72rem; color: rgb(var(--c-text-soft) / 0.8); margin-top: 0.2rem; font-weight: 600; }
 .phone__field { display: flex; align-items: center; gap: 2px; border-bottom: 2px solid rgb(var(--c-accent-sky) / 0.5); padding-bottom: 0.25rem; margin-top: 0.5rem; }
-.phone__code { font-size: 0.95rem; font-weight: 800; letter-spacing: 0.16em; color: rgb(var(--c-text)); overflow: hidden; white-space: nowrap; animation: typecode 3s steps(4) infinite; }
+.phone__code { font-size: 0.82rem; font-weight: 800; letter-spacing: 0.14em; color: rgb(var(--c-text)); white-space: nowrap; }
 .caret { width: 2px; height: 1.1rem; background: rgb(var(--c-accent-sky)); animation: blink 0.8s step-end infinite; }
 .phone__btn { margin-top: auto; padding: 0.35rem 1.1rem; border-radius: var(--radius-pill); background: linear-gradient(135deg, rgb(var(--c-violet)), rgb(var(--c-accent-sky))); color: rgb(var(--c-bg)); font-size: 0.78rem; font-weight: 700; animation: press 3s ease-in-out infinite; }
 .players { display: flex; flex-direction: column; gap: 0.5rem; }
