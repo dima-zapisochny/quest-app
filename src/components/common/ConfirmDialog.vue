@@ -5,15 +5,15 @@
         <div class="confirm-dialog" role="dialog" aria-modal="true" @click.stop>
           <header class="confirm-dialog__header">
             <h2>{{ title }}</h2>
-            <button type="button" class="confirm-dialog__close" aria-label="Закрыть" @click="emit('cancel')">✕</button>
+            <button type="button" class="confirm-dialog__close" :aria-label="t('common.close')" @click="emit('cancel')">✕</button>
           </header>
           <div class="confirm-dialog__body">
             <slot><p>{{ message }}</p></slot>
           </div>
           <div class="confirm-dialog__actions">
-            <BaseButton v-if="!hideCancel" variant="secondary" :disabled="busy" @click="emit('cancel')">{{ cancelLabel }}</BaseButton>
+            <BaseButton v-if="!hideCancel" variant="secondary" :disabled="busy" @click="emit('cancel')">{{ cancelLabel ?? t('common.cancel') }}</BaseButton>
             <BaseButton :variant="confirmVariant" :disabled="busy" @click="emit('confirm')">
-              {{ busy ? (busyLabel ?? confirmLabel) : confirmLabel }}
+              {{ busy ? (busyLabel ?? confirmText) : confirmText }}
             </BaseButton>
           </div>
         </div>
@@ -23,7 +23,11 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import BaseButton from './BaseButton.vue'
+
+const { t } = useI18n()
 
 interface Props {
   show: boolean
@@ -40,15 +44,17 @@ interface Props {
   hideCancel?: boolean
 }
 
-withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props>(), {
   message: '',
-  confirmLabel: 'Подтвердить',
-  cancelLabel: 'Отмена',
+  confirmLabel: undefined,
+  cancelLabel: undefined,
   busy: false,
   busyLabel: undefined,
   confirmVariant: 'danger',
   hideCancel: false
 })
+
+const confirmText = computed(() => props.confirmLabel ?? t('common.confirm'))
 
 const emit = defineEmits<{
   confirm: []
@@ -94,18 +100,18 @@ const emit = defineEmits<{
   font-size: 1.25rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: rgb(var(--c-accent));
+  color: rgb(var(--c-text));
 }
 
 .confirm-dialog__close {
-  background: rgb(var(--c-teal) / 0.15);
-  border: 1px solid rgb(var(--c-accent) / 0.45);
-  color: rgb(var(--c-accent-soft));
+  background: rgb(var(--c-bg) / 0.5);
+  border: 1px solid rgb(var(--c-accent-sky) / 0.25);
+  color: rgb(var(--c-text-soft));
   border-radius: 50%;
   width: 34px;
   height: 34px;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: background 0.2s ease, color 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -114,8 +120,22 @@ const emit = defineEmits<{
 }
 
 .confirm-dialog__close:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgb(var(--c-accent) / 0.3);
+  background: rgb(var(--c-danger) / 0.16);
+  color: rgb(var(--c-danger-soft));
+}
+
+/* Кнопка подтверждения-danger — приглушённая, как в остальном приложении */
+.confirm-dialog__actions :deep(.base-button--danger) {
+  background: rgb(var(--c-danger) / 0.16);
+  border: 1px solid rgb(var(--c-danger) / 0.5);
+  color: rgb(var(--c-danger-soft));
+  box-shadow: none;
+}
+.confirm-dialog__actions :deep(.base-button--danger:hover:not(:disabled)) {
+  background: rgb(var(--c-danger) / 0.26);
+  border-color: rgb(var(--c-danger) / 0.7);
+  box-shadow: none;
+  transform: none;
 }
 
 .confirm-dialog__body {

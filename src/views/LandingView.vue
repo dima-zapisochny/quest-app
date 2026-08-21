@@ -2,10 +2,18 @@
   <div v-if="isCheckingAuth" class="landing landing--loading">
     <div class="loading-state">
       <div class="loader"></div>
-      <p>Проверка авторизации…</p>
+      <p>{{ t('landing.checkingAuth') }}</p>
     </div>
   </div>
   <div v-else-if="!shouldRedirect" class="landing">
+    <button type="button" class="landing-howto" @click="showHowTo = true">
+      <span class="landing-howto__icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M8 5.14v13.72a1 1 0 0 0 1.54.84l10.29-6.86a1 1 0 0 0 0-1.68L9.54 4.3A1 1 0 0 0 8 5.14z"/></svg>
+      </span>
+      <span class="landing-howto__label">{{ t('howto.title') }}</span>
+    </button>
+    <LanguageSwitcher class="landing-lang" />
+    <HowToPlayModal :show="showHowTo" @close="showHowTo = false" />
     <div class="landing-card">
       <div class="landing-brand">
         <h1 class="brand-title" :class="{ 'brand-title--animated': animateTitle }">
@@ -26,7 +34,7 @@
           </span>
         </h1>
         <p class="brand-subtitle" :class="{ 'brand-subtitle--visible': subtitleVisible }">
-          Командные викторины<br class="brand-subtitle-break"> с атмосферой шоу
+          {{ t('landing.subtitle') }}
         </p>
       </div>
 
@@ -34,7 +42,7 @@
         <input
           v-model="playerName"
           type="text"
-          placeholder="Введите имя"
+          :placeholder="t('landing.namePlaceholder')"
           autocomplete="off"
         />
         <AvatarPicker v-model="selectedAvatar" />
@@ -45,26 +53,26 @@
           class="primary"
           type="button"
           :disabled="isMobileViewport"
-          :title="isMobileViewport ? 'Доступно только с компьютера или планшета' : undefined"
+          :title="isMobileViewport ? t('landing.createGameMobileHint') : undefined"
           @click="handleCreateGame"
         >
           <span class="btn-glow"></span>
-          <span class="btn-text">Создать игру</span>
+          <span class="btn-text">{{ t('landing.createGame') }}</span>
         </button>
 
-        <div class="divider">или</div>
+        <div class="divider">{{ t('landing.or') }}</div>
 
         <div class="join-block">
           <input
             v-model="joinCode"
             type="text"
             maxlength="4"
-            placeholder="КОД"
+            :placeholder="t('landing.codePlaceholder')"
             class="join-input"
           />
           <button class="secondary" type="button" @click="handleJoinGame">
             <span class="btn-glow"></span>
-            <span class="btn-text">Присоединиться</span>
+            <span class="btn-text">{{ t('landing.join') }}</span>
           </button>
         </div>
       </div>
@@ -77,10 +85,14 @@
 <script setup lang="ts">
 import { ref, watch, computed, onBeforeUnmount, onMounted, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import AvatarPicker from '@/components/common/AvatarPicker.vue'
+import LanguageSwitcher from '@/components/common/LanguageSwitcher.vue'
+import HowToPlayModal from '@/components/common/HowToPlayModal.vue'
 import { useGameSessionStore } from '@/store/gameSessionStore'
 import { useIsMobileViewport } from '@/composables/useIsMobileViewport'
 
+const { t } = useI18n()
 const router = useRouter()
 const { isMobileViewport } = useIsMobileViewport()
 const route = useRoute()
@@ -97,6 +109,7 @@ const joinCode = ref('')
 const errorMessage = ref('')
 const shouldRedirect = ref(false)
 const isCheckingAuth = ref(true)
+const showHowTo = ref(false)
 
 // Быстрая проверка localStorage перед рендерингом
 async function checkLocalStorageProfile() {
@@ -253,11 +266,11 @@ watch(joinCode, value => {
 async function ensureProfile(): Promise<boolean> {
   errorMessage.value = ''
   if (!playerName.value.trim()) {
-    errorMessage.value = 'Введите имя участника'
+    errorMessage.value = t('landing.errName')
     return false
   }
   if (!selectedAvatar.value) {
-    errorMessage.value = 'Выберите аватар'
+    errorMessage.value = t('landing.errAvatar')
     return false
   }
   // Ждем сохранения профиля перед перенаправлением
@@ -273,13 +286,13 @@ async function handleCreateGame() {
 async function handleJoinGame() {
   if (!(await ensureProfile())) return
   if (!joinCode.value || joinCode.value.length < 4) {
-    errorMessage.value = 'Введите код игры (4 символа)'
+    errorMessage.value = t('landing.errCode')
     return
   }
   try {
     const result = await sessionStore.joinSessionByCode(joinCode.value)
     if (!result || !result.session) {
-      errorMessage.value = 'Сессия с таким кодом не найдена'
+      errorMessage.value = t('landing.errNotFound')
       return
     }
     const { session } = result
@@ -543,6 +556,7 @@ watch(() => route.path, (newPath) => {
 
 <style scoped>
 .landing {
+  position: relative;
   min-height: 100dvh;
   height: 100dvh;
   max-height: 100dvh;
@@ -553,6 +567,65 @@ watch(() => route.path, (newPath) => {
   background: linear-gradient(135deg, rgb(var(--c-bg)) 0%, rgb(var(--c-surface)) 100%);
   color: rgb(var(--c-bg));
   overflow: hidden;
+}
+
+.landing-lang {
+  position: absolute;
+  top: clamp(1rem, 3vw, 1.75rem);
+  right: clamp(1rem, 3vw, 1.75rem);
+  z-index: 20;
+}
+
+.landing-howto {
+  position: absolute;
+  top: clamp(1rem, 3vw, 1.75rem);
+  left: clamp(1rem, 3vw, 1.75rem);
+  z-index: 20;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  height: 2.7rem;
+  padding: 0 1.15rem 0 0.45rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgb(var(--c-accent-sky) / 0.2);
+  background: rgb(var(--c-surface) / 0.55);
+  color: rgb(var(--c-text));
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  backdrop-filter: blur(14px);
+  box-shadow: 0 6px 18px rgb(var(--c-bg-deep) / 0.35);
+  transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+.landing-howto:hover {
+  border-color: rgb(var(--c-accent-sky) / 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgb(var(--c-bg-deep) / 0.45);
+}
+.landing-howto:focus { outline: none; }
+.landing-howto:focus-visible {
+  outline: 2px solid rgb(var(--c-accent-sky) / 0.6);
+  outline-offset: 3px;
+}
+.landing-howto__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: 50%;
+  line-height: 1;
+  color: rgb(var(--c-accent-soft));
+  background: rgb(var(--c-accent-sky) / 0.16);
+  border: 1px solid rgb(var(--c-accent-sky) / 0.3);
+}
+.landing-howto__icon svg { transform: translateX(0.5px); }
+.landing-howto:hover .landing-howto__icon {
+  background: rgb(var(--c-accent-sky) / 0.24);
+}
+@media (max-width: 420px) {
+  .landing-howto__label { display: none; }
+  .landing-howto { padding: 0.5rem 0.7rem; }
 }
 
 .landing-card {
@@ -584,7 +657,7 @@ watch(() => route.path, (newPath) => {
 .landing-brand p {
   margin: 0.5rem 0 0;
   color: rgb(var(--c-text-soft) / 0.9);
-  font-family: 'Kalam', 'Nunito', cursive;
+  font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: clamp(1.1rem, 2.2vw, 1.35rem);
 }
 
@@ -645,7 +718,7 @@ watch(() => route.path, (newPath) => {
 .brand-subtitle {
   margin: 0.85rem 0 0;
   color: rgb(var(--c-text-soft) / 0.9);
-  font-family: 'Kalam', 'Nunito', cursive;
+  font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: clamp(0.95rem, 2vw, 1.2rem);
   font-weight: 500;
   opacity: 0;
@@ -734,7 +807,7 @@ watch(() => route.path, (newPath) => {
 
 .actions .divider {
   text-align: center;
-  font-family: 'Kalam', 'Nunito', cursive;
+  font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
   color: rgb(var(--c-text-soft) / 0.85);
   letter-spacing: 0.12em;
 }
@@ -889,10 +962,16 @@ watch(() => route.path, (newPath) => {
   min-width: 0;
   max-width: 100%;
   width: 100%;
+  transition: box-shadow 0.35s ease;
 }
 
 .join-input::placeholder {
   color: rgb(var(--c-text) / 0.55);
+}
+
+.join-input:focus {
+  outline: none;
+  box-shadow: inset 0 0 0 2px rgb(var(--c-blue-400) / 0.7), 0 18px 36px rgb(var(--c-accent-sky) / 0.35);
 }
 
 .error-message {

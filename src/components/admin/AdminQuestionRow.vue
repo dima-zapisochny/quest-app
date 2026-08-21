@@ -2,7 +2,7 @@
   <div class="question-card">
     <div class="question-card-grid">
       <div class="field value-field">
-        <label class="field-label" :for="`question-value-${question.id}`">Стоимость</label>
+        <label class="field-label" :for="`question-value-${question.id}`">{{ t('editor.cost') }}</label>
         <input
           :id="`question-value-${question.id}`"
           type="number"
@@ -12,12 +12,12 @@
         />
       </div>
       <div class="field text-field">
-        <label class="field-label" :for="`question-text-${question.id}`">Текст вопроса</label>
+        <label class="field-label" :for="`question-text-${question.id}`">{{ t('editor.questionTextLabel') }}</label>
         <textarea
           :id="`question-text-${question.id}`"
           v-model="questionText"
           rows="3"
-          placeholder="Текст вопроса"
+          :placeholder="t('editor.questionTextPlaceholder')"
         ></textarea>
         <div class="media-section">
           <div v-for="(media, index) in questionMediaList" :key="media.id" class="media-item">
@@ -27,11 +27,11 @@
                 type="button"
                 class="media-remove"
                 @click="removeMedia('question', media.id)"
-                title="Удалить медиа"
-                aria-label="Удалить медиа вопроса"
+                :title="t('editor.deleteMedia')"
+                :aria-label="t('editor.deleteQuestionMediaAria')"
               >✕</button>
               <template v-if="media.type === 'image'">
-                <label :for="`question-delay-${media.id}`" class="delay-label">Время появления (сек, макс. 29):</label>
+                <label :for="`question-delay-${media.id}`" class="delay-label">{{ t('editor.mediaDelay') }}</label>
                 <input
                   :id="`question-delay-${media.id}`"
                   type="number"
@@ -58,7 +58,8 @@
                 :disabled="uploadingQuestionType !== null || questionMediaAudio.length > 0"
                 @change="handleUpload('question', $event, 'image')"
               />
-              <span>{{ uploadingQuestionType === 'image' ? 'Загрузка…' : `Загрузить изображение (${questionMediaImages.length + 1}/3)` }}</span>
+              <span class="upload-chip__ico" aria-hidden="true">🖼️</span>
+              <span>{{ uploadingQuestionType === 'image' ? t('editor.uploading') : t('editor.uploadImage', { n: questionMediaImages.length + 1 }) }}</span>
             </label>
             <label 
               v-if="!questionMediaAudio.length" 
@@ -71,18 +72,19 @@
                 :disabled="uploadingQuestionType !== null || questionMediaImages.length > 0"
                 @change="handleUpload('question', $event, 'audio')"
               />
-              <span>{{ uploadingQuestionType === 'audio' ? 'Загрузка…' : 'Загрузить аудио' }}</span>
+              <span class="upload-chip__ico" aria-hidden="true">🎵</span>
+              <span>{{ uploadingQuestionType === 'audio' ? t('editor.uploading') : t('editor.uploadAudio') }}</span>
             </label>
           </div>
         </div>
       </div>
       <div class="field text-field">
-        <label class="field-label" :for="`answer-text-${question.id}`">Ответ</label>
+        <label class="field-label" :for="`answer-text-${question.id}`">{{ t('editor.answerLabel') }}</label>
         <textarea
           :id="`answer-text-${question.id}`"
           v-model="answerText"
           rows="3"
-          placeholder="Текст ответа (Enter — следующий вопрос, Shift+Enter — новая строка)"
+          :placeholder="t('editor.answerPlaceholder')"
           @keydown.enter.exact.prevent="emit('addNext')"
         ></textarea>
         <div class="media-section">
@@ -93,8 +95,8 @@
                 type="button"
                 class="media-remove"
                 @click="removeMedia('answer', media.id)"
-                title="Удалить медиа"
-                aria-label="Удалить медиа ответа"
+                :title="t('editor.deleteMedia')"
+                :aria-label="t('editor.deleteAnswerMediaAria')"
               >✕</button>
             </div>
           </div>
@@ -110,7 +112,8 @@
                 :disabled="uploadingAnswerType !== null"
                 @change="handleUpload('answer', $event, 'image')"
               />
-              <span>{{ uploadingAnswerType === 'image' ? 'Загрузка…' : `Изображение (${answerMediaImages.length + 1}/3)` }}</span>
+              <span class="upload-chip__ico" aria-hidden="true">🖼️</span>
+              <span>{{ uploadingAnswerType === 'image' ? t('editor.uploading') : t('editor.answerImage', { n: answerMediaImages.length + 1 }) }}</span>
             </label>
             <label
               v-if="!answerMediaAudio.length"
@@ -123,28 +126,19 @@
                 :disabled="uploadingAnswerType !== null"
                 @change="handleUpload('answer', $event, 'audio')"
               />
-              <span>{{ uploadingAnswerType === 'audio' ? 'Загрузка…' : 'Музыка / аудио' }}</span>
+              <span class="upload-chip__ico" aria-hidden="true">🎵</span>
+              <span>{{ uploadingAnswerType === 'audio' ? t('editor.uploading') : t('editor.answerAudio') }}</span>
             </label>
           </div>
         </div>
       </div>
-    </div>
-    <div class="question-card-footer">
-      <button
-        class="delete-question"
-        @click="handleDelete"
-        type="button"
-        title="Удалить вопрос"
-        aria-label="Удалить вопрос"
-      >
-        Удалить
-      </button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useQuizStore } from '@/store/quizStore'
 import type { Question } from '@/types'
 
@@ -162,6 +156,7 @@ const emit = defineEmits<{
 }>()
 
 const props = defineProps<Props>()
+const { t } = useI18n()
 const store = useQuizStore()
 
 /** Тип медиа, який зараз завантажується для питання (null = нічого не завантажується) */
@@ -210,11 +205,11 @@ const answerMediaImages = computed(() => answerMediaList.value.filter(m => m.typ
 const answerMediaAudio = computed(() => answerMediaList.value.filter(m => m.type === 'audio'))
 
 function handleDelete() {
-  if (confirm('Удалить вопрос?')) {
-    store.deleteQuestion(props.questId, props.roundId, props.categoryId, props.question.id)
-    emit('deleted')
-  }
+  store.deleteQuestion(props.questId, props.roundId, props.categoryId, props.question.id)
+  emit('deleted')
 }
+
+defineExpose({ handleDelete })
 
 function handleUpload(target: 'question' | 'answer', event: Event, mediaType?: 'image' | 'audio') {
   const input = event.target as HTMLInputElement
@@ -229,24 +224,24 @@ function handleUpload(target: 'question' | 'answer', event: Event, mediaType?: '
     // Если пытаемся загрузить изображение, но уже есть аудио
     if (mediaType === 'image' && questionMediaAudio.value.length > 0) {
       input.value = ''
-      alert('Для вопроса можно загрузить либо изображения, либо аудио, но не оба типа одновременно')
+      alert(t('editor.mediaConflict'))
       return
     }
     // Если пытаемся загрузить аудио, но уже есть изображения
     if (mediaType === 'audio' && questionMediaImages.value.length > 0) {
       input.value = ''
-      alert('Для вопроса можно загрузить либо изображения, либо аудио, но не оба типа одновременно')
+      alert(t('editor.mediaConflict'))
       return
     }
     
     if (mediaType === 'image' && questionMediaImages.value.length >= 3) {
       input.value = ''
-      alert('Можно добавить максимум 3 изображения')
+      alert(t('editor.maxImages'))
       return
     }
     if (mediaType === 'audio' && questionMediaAudio.value.length >= 1) {
       input.value = ''
-      alert('Можно добавить только одно аудио')
+      alert(t('editor.maxAudio'))
       return
     }
   }
@@ -256,23 +251,23 @@ function handleUpload(target: 'question' | 'answer', event: Event, mediaType?: '
     // Не допускаем одновременно изображения и аудио
     if (mediaType === 'image' && answerMediaAudio.value.length > 0) {
       input.value = ''
-      alert('Для ответа можно загрузить либо изображения, либо аудио, но не оба типа одновременно')
+      alert(t('editor.mediaConflict'))
       return
     }
     if (mediaType === 'audio' && answerMediaImages.value.length > 0) {
       input.value = ''
-      alert('Для ответа можно загрузить либо изображения, либо аудио, но не оба типа одновременно')
+      alert(t('editor.mediaConflict'))
       return
     }
 
     if (mediaType === 'image' && answerMediaImages.value.length >= 3) {
       input.value = ''
-      alert('Можно добавить максимум 3 изображения в ответ')
+      alert(t('editor.maxImages'))
       return
     }
     if (mediaType === 'audio' && answerMediaAudio.value.length >= 1) {
       input.value = ''
-      alert('Можно добавить только одно аудио в ответ')
+      alert(t('editor.maxAudio'))
       return
     }
   }
@@ -309,7 +304,7 @@ function handleUpload(target: 'question' | 'answer', event: Event, mediaType?: '
 
   Promise.resolve(promise).catch(error => {
     console.error('Upload media error', error)
-    alert('Не удалось загрузить медиа. Попробуйте другой файл.')
+    alert(t('editor.uploadFailed'))
   }).finally(clearLoading)
 
   input.value = ''
@@ -363,10 +358,17 @@ function removeMedia(target: 'question' | 'answer', mediaId: string) {
 
 .question-card-grid {
   display: grid;
-  grid-template-columns: minmax(110px, 140px) repeat(2, minmax(0, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.1rem 1.4rem;
   width: 100%;
   box-sizing: border-box;
+}
+/* Стоимость — отдельной компактной строкой сверху */
+.value-field {
+  grid-column: 1 / -1;
+}
+.value-field input {
+  max-width: 150px;
 }
 
 .field {
@@ -411,7 +413,7 @@ textarea {
   font-size: 0.9rem;
   line-height: 1.45;
   resize: vertical;
-  min-height: 96px;
+  min-height: 150px;
   background: rgb(var(--c-bg) / 0.5);
   color: rgb(var(--c-text));
 }
@@ -438,13 +440,13 @@ textarea:focus,
 .media-upload-buttons {
   display: flex;
   flex-direction: row;
-  gap: 0.75rem;
   flex-wrap: wrap;
+  gap: 0.5rem;
 }
 
 .media-section .upload-chip {
-  width: fit-content;
-  align-self: flex-start;
+  flex: 1 1 0;
+  min-width: 120px;
 }
 
 .media-item {
@@ -544,24 +546,40 @@ textarea:focus,
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px dashed rgb(var(--c-text-muted) / 0.4);
-  border-radius: 12px;
-  padding: 0.4rem 0.75rem;
+  gap: 0.45rem;
+  border: 1px solid rgb(var(--c-accent-sky) / 0.28);
+  border-radius: 10px;
+  padding: 0.55rem 0.9rem;
   cursor: pointer;
   color: rgb(var(--c-accent-soft));
   font-weight: 600;
-  font-size: 0.8rem;
-  min-width: 130px;
+  font-size: 0.82rem;
+  min-width: 120px;
   position: relative;
   overflow: hidden;
-  background: rgb(var(--c-bg) / 0.45);
+  background: rgb(var(--c-accent-sky) / 0.08);
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.upload-chip:hover {
+  border-color: rgb(var(--c-accent-sky) / 0.6);
+  background: rgb(var(--c-accent-sky) / 0.15);
+}
+.upload-chip__ico {
+  font-size: 1rem;
+  line-height: 1;
 }
 
 .upload-chip input[type='file'] {
   position: absolute;
   inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
   opacity: 0;
   cursor: pointer;
+  font-size: 0;
 }
 
 .upload-chip--disabled {

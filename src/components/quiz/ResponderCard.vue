@@ -4,18 +4,21 @@
       <div class="responder-avatar">{{ avatarEmoji(responder.avatar) }}</div>
       <div class="responder-details">
         <div class="responder-name">{{ responder.name }}</div>
-        <div class="responder-label">Отвечает</div>
+        <div class="responder-label">{{ t('game.answering') }}</div>
       </div>
     </div>
     <div v-else class="responder-empty">
-      <span>Ожидание ответа</span>
+      <span>{{ t('game.waiting') }}</span>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import type { Player } from '@/types'
 import { avatarEmoji } from '@/utils/avatar'
+
+const { t } = useI18n()
 
 defineProps<{
   responder: Player | null

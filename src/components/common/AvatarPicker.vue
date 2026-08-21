@@ -1,8 +1,8 @@
 <template>
-  <div class="avatar-picker" role="group" aria-label="Выбор аватара">
+  <div class="avatar-picker" role="group" :aria-label="t('common.avatarPicker')">
     <div class="avatar-preview">
       <span class="avatar-emoji">{{ currentAvatar.emoji }}</span>
-      <button class="avatar-refresh" type="button" @click="randomize" aria-label="Обновить аватар">
+      <button class="avatar-refresh" type="button" @click="randomize" :aria-label="t('common.refreshAvatar')">
         ↻
       </button>
     </div>
@@ -11,7 +11,10 @@
 
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { AVATARS as avatars } from '@/utils/avatar'
+
+const { t } = useI18n()
 
 const props = defineProps<{
   modelValue: string | null

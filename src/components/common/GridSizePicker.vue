@@ -18,7 +18,7 @@
         type="button"
         class="gp__cell"
         :class="{ 'gp__cell--active': cell.c <= selCols && cell.r <= selRows }"
-        :aria-label="`${cell.c} категорий на ${cell.r} вопросов`"
+        :aria-label="`${cell.c} × ${cell.r}`"
         @mouseenter="hover = { c: cell.c, r: cell.r }"
         @focus="hover = { c: cell.c, r: cell.r }"
         @click="apply(cell.c, cell.r)"
@@ -27,7 +27,7 @@
 
     <p class="gp__label">
       <b>{{ selCols }} × {{ selRows }}</b>
-      <span class="gp__label-soft">· {{ selCols * selRows }} {{ tilesWord }}</span>
+      <span class="gp__label-soft">· {{ tilesLabel }}</span>
       <span v-if="suffix" class="gp__label-soft">· {{ suffix }}</span>
     </p>
   </div>
@@ -35,6 +35,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { usePlural } from '@/i18n/plural'
 
 interface Props {
   categories: number
@@ -78,14 +79,8 @@ const cells = computed(() => {
   return list
 })
 
-const tilesWord = computed(() => {
-  const n = selCols.value * selRows.value
-  const mod10 = n % 10
-  const mod100 = n % 100
-  if (mod10 === 1 && mod100 !== 11) return 'плитка'
-  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return 'плитки'
-  return 'плиток'
-})
+const { count } = usePlural()
+const tilesLabel = computed(() => count(selCols.value * selRows.value, 'plural.tiles'))
 
 function apply(c: number, r: number) {
   emit('update:categories', c)
@@ -121,8 +116,8 @@ function apply(c: number, r: number) {
   gap: 4px;
 }
 .gp__cell {
-  width: clamp(34px, 6vw, 48px);
-  aspect-ratio: 1;
+  width: clamp(46px, 8.5vw, 66px);
+  aspect-ratio: 1.7;
   padding: 0;
   border: 1px solid rgb(var(--c-accent-sky) / 0.22);
   border-radius: 4px;

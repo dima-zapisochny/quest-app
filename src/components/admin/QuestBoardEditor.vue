@@ -9,7 +9,7 @@
         :max-questions="5"
         @select="onGridSelect"
       />
-      <span v-if="isBuildingBoard" class="mini-loader" aria-label="Создание доски"></span>
+      <span v-if="isBuildingBoard" class="mini-loader" :aria-label="t('editor.buildingBoard')"></span>
     </div>
 
     <!-- Игровая доска раунда: категории-колонки + плитки-вопросы -->
@@ -24,15 +24,15 @@
             <input
               :value="category.title"
               class="board-col__title"
-              :placeholder="`Категория ${ci + 1}`"
-              aria-label="Название категории"
+              :placeholder="t('editor.category', { n: ci + 1 })"
+              :aria-label="t('editor.categoryNameAria')"
               @input="onCategoryTitle(category.id, $event)"
             />
             <button
               type="button"
               class="board-col__del"
-              title="Удалить категорию"
-              aria-label="Удалить категорию"
+              :title="t('editor.deleteCategory')"
+              :aria-label="t('editor.deleteCategory')"
               @click="removeCategory(category.id)"
             >✕</button>
           </div>
@@ -43,7 +43,7 @@
               :key="question.id"
               type="button"
               :class="['board-tile', { 'board-tile--filled': isFilled(question) }]"
-              :title="isFilled(question) ? 'Вопрос заполнен' : 'Вопрос ещё не заполнен'"
+              :title="isFilled(question) ? t('editor.questionFilled') : t('editor.questionEmpty')"
               @click="openQuestion(category.id, question.id)"
             >
               <span class="board-tile__value">{{ question.value }}</span>
@@ -54,7 +54,7 @@
               type="button"
               class="board-tile board-tile--add"
               :disabled="addingCategoryId === category.id || isBusy"
-              aria-label="Добавить вопрос"
+              :aria-label="t('editor.addQuestion')"
               @click="addQuestion(category.id)"
             >+</button>
           </div>
@@ -65,8 +65,8 @@
           type="button"
           class="board-col board-col--add"
           :disabled="isBusy"
-          title="Добавить категорию"
-          aria-label="Добавить категорию"
+          :title="t('editor.addCategory')"
+          :aria-label="t('editor.addCategory')"
           @click="addCategory"
         >
           <span class="board-col-add__head">
@@ -86,17 +86,18 @@
           <div class="q-modal" role="dialog" aria-modal="true">
             <header class="q-modal__head">
               <span class="q-modal__title">
-                {{ editingCategoryTitle }} · {{ editingQuestion.value }} баллов
+                {{ editingCategoryTitle }} · {{ t('editor.points', { value: editingQuestion.value }) }}
               </span>
               <button
                 type="button"
                 class="q-modal__close"
-                aria-label="Закрыть"
+                :aria-label="t('common.close')"
                 @click="closeModal"
               >✕</button>
             </header>
             <div class="q-modal__body">
               <AdminQuestionRow
+                ref="questionRowRef"
                 :key="editingQuestion.id"
                 :quest-id="questId"
                 :round-id="round.id"
@@ -107,7 +108,10 @@
               />
             </div>
             <footer class="q-modal__foot">
-              <button type="button" class="q-modal__done" @click="closeModal">Готово</button>
+              <button type="button" class="q-modal__delete" @click="pendingDeleteQuestion = true">
+                {{ t('common.delete') }}
+              </button>
+              <button type="button" class="q-modal__done" @click="closeModal">{{ t('editor.save') }}</button>
             </footer>
           </div>
         </div>
@@ -116,18 +120,29 @@
 
     <ConfirmDialog
       :show="pendingDeleteCategoryId !== null"
-      title="Удалить категорию?"
-      message="Категория и все её вопросы будут удалены."
-      confirm-label="Удалить"
+      :title="t('editor.deleteCategoryTitle')"
+      :message="t('editor.deleteCategoryBody')"
+      :confirm-label="t('common.delete')"
       confirm-variant="danger"
       @confirm="confirmDeleteCategory"
       @cancel="cancelDeleteCategory"
+    />
+
+    <ConfirmDialog
+      :show="pendingDeleteQuestion"
+      :title="t('editor.confirmDeleteQuestion')"
+      :message="t('editor.deleteQuestionBody')"
+      :confirm-label="t('common.delete')"
+      confirm-variant="danger"
+      @confirm="confirmDeleteQuestion"
+      @cancel="pendingDeleteQuestion = false"
     />
   </section>
 </template>
 
 <script setup lang="ts">
 import { computed, ref, watch, nextTick } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useQuizStore } from '@/store/quizStore'
 import AdminQuestionRow from './AdminQuestionRow.vue'
 import GridSizePicker from '@/components/common/GridSizePicker.vue'
@@ -141,6 +156,7 @@ interface Props {
 
 const props = defineProps<Props>()
 
+const { t } = useI18n()
 const store = useQuizStore()
 
 const categories = computed(() => props.round.categories ?? [])
@@ -207,8 +223,8 @@ async function addQuestion(categoryId: string) {
 }
 
 // --- Быстрая доска (для пустого раунда): клик по сетке сразу создаёт доску ---
-const presetCategories = ref(5)
-const presetQuestions = ref(5)
+const presetCategories = ref(1)
+const presetQuestions = ref(1)
 
 function onGridSelect(cats: number, questions: number) {
   createPresetBoard(cats, questions)
@@ -227,6 +243,13 @@ async function createPresetBoard(cats: number, questions: number) {
 // --- Модалка редактирования вопроса ---
 const editingCategoryId = ref<string | null>(null)
 const editingQuestionId = ref<string | null>(null)
+const questionRowRef = ref<InstanceType<typeof AdminQuestionRow> | null>(null)
+const pendingDeleteQuestion = ref(false)
+
+function confirmDeleteQuestion() {
+  pendingDeleteQuestion.value = false
+  questionRowRef.value?.handleDelete()
+}
 
 const editingCategory = computed(() => {
   if (!editingCategoryId.value) return null
@@ -290,9 +313,9 @@ watch(() => props.round.id, closeModal)
 /* --- Пустой раунд: только сетка выбора размера --- */
 .board-empty {
   margin: 0;
-  padding: 1.5rem 1.1rem;
-  background: rgb(var(--c-bg) / 0.55);
-  border: 1px dashed rgb(var(--c-accent-sky) / 0.25);
+  padding: 2.6rem 1.1rem;
+  background: rgb(var(--c-bg) / 0.4);
+  border: 1px solid rgb(var(--c-accent-sky) / 0.14);
   border-radius: 18px;
   display: flex;
   flex-direction: column;
@@ -506,7 +529,7 @@ watch(() => props.round.id, closeModal)
   overflow-y: auto;
 }
 .q-modal {
-  width: min(880px, 100%);
+  width: min(980px, 100%);
   margin: auto;
   background: linear-gradient(140deg, rgb(var(--c-bg) / 0.98), rgba(8, 22, 43, 0.98));
   border: 1px solid rgb(var(--c-accent-sky) / 0.28);
@@ -514,6 +537,7 @@ watch(() => props.round.id, closeModal)
   box-shadow: 0 40px 90px rgb(var(--c-bg-deep) / 0.7);
   display: flex;
   flex-direction: column;
+  min-height: min(560px, 82vh);
   max-height: min(92vh, 100%);
 }
 .q-modal__head {
@@ -549,12 +573,30 @@ watch(() => props.round.id, closeModal)
 .q-modal__body {
   padding: 1.6rem;
   overflow-y: auto;
+  flex: 1;
 }
 .q-modal__foot {
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
   padding: 1.1rem 1.6rem;
   border-top: 1px solid rgb(var(--c-accent-sky) / 0.15);
+}
+.q-modal__delete {
+  padding: 0.65rem 1.8rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgb(var(--c-danger) / 0.4);
+  background: rgb(var(--c-danger) / 0.1);
+  color: rgb(var(--c-danger-soft));
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+.q-modal__delete:hover {
+  background: rgb(var(--c-danger) / 0.2);
+  border-color: rgb(var(--c-danger) / 0.65);
 }
 /* Спокойная кнопка «Готово» — без яркой подсветки */
 .q-modal__done {

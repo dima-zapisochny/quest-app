@@ -6,7 +6,6 @@
     :disabled="disabled"
     @click="$emit('click')"
   >
-    <span v-if="variant === 'back'" class="back-arrow">←</span>
     <span>{{ label }}</span>
   </button>
 </template>
@@ -58,6 +57,9 @@ const buttonClass = computed(() => {
   background: rgb(var(--c-teal) / 0.12);
   border: 1px solid rgb(var(--c-accent) / 0.4);
   color: rgb(var(--c-text));
+  min-width: 9rem;
+  padding-left: 2rem;
+  padding-right: 2rem;
 }
 
 .nav-button--back:hover:not(:disabled) {

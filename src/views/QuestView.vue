@@ -3,13 +3,13 @@
   <div v-if="isLoadingQuest && (!quest || !quest.rounds?.length)" class="quest-loading-wrapper">
     <div class="loading-state">
       <div class="loader"></div>
-      <p>Загрузка квеста…</p>
+      <p>{{ t('game.loadingQuest') }}</p>
     </div>
   </div>
   <div v-else-if="quest" class="quest-view">
     <AppHeader
       button-variant="back"
-      button-label="Назад"
+      :button-label="t('common.back')"
       :show-session-code="!!session && !isMobileViewport"
       :session-code="session?.code"
       :user-name="userProfile?.name"
@@ -20,8 +20,8 @@
     <section v-if="isMobileViewport" class="desktop-only-stub" aria-live="polite">
       <div class="desktop-only-stub__content">
         <div class="desktop-only-stub__icon" aria-hidden="true">🖥️</div>
-        <h2 class="desktop-only-stub__title">Игровое поле доступно только с десктопных устройств</h2>
-        <p class="desktop-only-stub__text">Откройте эту страницу на компьютере или планшете, чтобы вести игру. Участники могут подключаться с телефона по коду игры.</p>
+        <h2 class="desktop-only-stub__title">{{ t('game.desktopOnlyTitle') }}</h2>
+        <p class="desktop-only-stub__text">{{ t('game.desktopOnlyText') }}</p>
       </div>
     </section>
 
@@ -49,13 +49,13 @@
 
     <!-- Показувати, коли в квесті взагалі немає раундів (не під час завантаження) -->
     <section v-if="!isMobileViewport && !isLoadingQuest && quest && (!quest.rounds || !quest.rounds.length)" class="empty-round">
-      <p>Для этого квеста ещё не создано ни одного раунда.</p>
-      <router-link to="/host/setup" class="empty-round__link">Перейти к управлению квестами</router-link>
+      <p>{{ t('game.noRounds') }}</p>
+      <router-link to="/host/setup" class="empty-round__link">{{ t('game.manageQuests') }}</router-link>
     </section>
   </div>
   <div v-else class="not-found">
-    <p>Квест не найден.</p>
-    <BackLink to="/host/setup">Вернуться к списку квестов</BackLink>
+    <p>{{ t('game.questNotFound') }}</p>
+    <BackLink to="/host/setup">{{ t('editor.backToList') }}</BackLink>
   </div>
 
   <!-- Полноэкранный лоадер при выходе из игры -->
@@ -63,7 +63,7 @@
     <div v-if="isExiting" class="quest-loading-wrapper" style="z-index: 10000;">
       <div class="loading-state">
         <div class="loader"></div>
-        <p>Выход из игры...</p>
+        <p>{{ t('game.exiting') }}</p>
       </div>
     </div>
   </teleport>
@@ -71,10 +71,10 @@
   <!-- Модальное окно подтверждения выхода из игры -->
   <ConfirmDialog
     :show="showExitConfirm"
-    title="Выход из игры"
-    message="Вы уверены, что хотите выйти из игры? Все данные игры будут утеряны."
-    confirm-label="Выйти"
-    busy-label="Выход..."
+    :title="t('game.exitTitle')"
+    :message="t('game.exitBody')"
+    :confirm-label="t('game.exitConfirm')"
+    :busy-label="t('game.exitBusy')"
     :busy="isExiting"
     @confirm="confirmExit"
     @cancel="cancelExit"
@@ -83,9 +83,9 @@
   <!-- Модальное окно подтверждения сброса прогресса -->
   <ConfirmDialog
     :show="showResetConfirm"
-    title="Сбросить прогресс"
-    message="Вы уверены, что хотите сбросить весь прогресс квеста? Это действие нельзя отменить."
-    confirm-label="Сбросить"
+    :title="t('game.resetTitle')"
+    :message="t('game.resetBody')"
+    :confirm-label="t('game.resetConfirm')"
     @confirm="confirmReset"
     @cancel="cancelReset"
   />
@@ -94,6 +94,7 @@
 <script setup lang="ts">
 import { computed, watch, onMounted, onBeforeUnmount, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useQuizStore } from '@/store/quizStore'
 import { useGameSessionStore } from '@/store/gameSessionStore'
 import QuizBoard from '@/components/quiz/QuizBoard.vue'
@@ -114,6 +115,7 @@ interface Props {
 }
 
 const props = defineProps<Props>()
+const { t } = useI18n()
 const router = useRouter()
 const route = useRoute()
 const quizStore = useQuizStore()

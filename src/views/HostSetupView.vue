@@ -2,7 +2,7 @@
   <div class="host-setup">
     <AppHeader
       button-variant="back"
-      button-label="Назад"
+      :button-label="t('common.back')"
       :user-name="userProfile?.name"
       :user-avatar="userProfile?.avatar"
       @button-click="goBack"
@@ -11,41 +11,34 @@
     <div v-if="loading" class="host-loading-wrapper">
       <div class="loading-state">
         <div class="loader"></div>
-        <p>Подготавливаем квесты…</p>
+        <p>{{ t('host.preparing') }}</p>
       </div>
     </div>
     <template v-else>
       <header class="host-header">
         <div class="host-title">
-          <h1>Создание игры</h1>
-          <p>Выберите квест, который будете вести.</p>
+          <h1>{{ t('host.title') }}</h1>
+          <p>{{ t('host.subtitle') }}</p>
         </div>
       </header>
 
       <section class="quest-selection">
-        <div class="section-header">
-          <div class="section-title">
-            <h2>Выберите квест</h2>
-          </div>
-          <p class="section-subtitle">Каждый квест — отдельное приключение. Попробуйте разные темы!</p>
-        </div>
-
         <div class="quests-grid">
           <article
-            v-for="quest in quests"
+            v-for="(quest, qi) in quests"
             :key="quest.id"
             :class="['quest-card', { active: selectedQuestId === quest.id } ]"
             @click="handleCardClick($event, quest.id)"
           >
-            <div class="quest-topline">
-              <h2 class="quest-title">{{ quest.title }}</h2>
+            <div class="quest-card__cover" :style="{ '--hue': qi }">
+              <span class="quest-card__mono">{{ (quest.title || '?').trim().charAt(0).toUpperCase() }}</span>
               <div class="quest-actions" @click.stop @mousedown.stop>
                 <button
                   type="button"
                   class="quest-action-button"
                   @click="goToQuestEditor(quest.id)"
-                  aria-label="Редактировать квест"
-                  data-tooltip="Редактировать"
+                  :aria-label="t('host.editQuestAria')"
+                  :title="t('common.edit')"
                 >
                   <svg viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zm17.71-10.04a1.003 1.003 0 0 0 0-1.42l-2.5-2.5a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1-1z"></path>
@@ -55,8 +48,8 @@
                   type="button"
                   class="quest-action-button"
                   @click="exportQuest(quest.id)"
-                  aria-label="Скачать квест в JSON"
-                  data-tooltip="Экспорт в JSON"
+                  :aria-label="t('host.exportQuestAria')"
+                  :title="t('host.exportTooltip')"
                 >
                   <svg viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
@@ -66,8 +59,8 @@
                   type="button"
                   class="quest-action-button quest-action-button--danger"
                   @click="deleteQuest(quest.id)"
-                  aria-label="Удалить квест"
-                  data-tooltip="Удалить"
+                  :aria-label="t('host.deleteQuestAria')"
+                  :title="t('common.delete')"
                 >
                   <svg viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12zm12-15h-3.5l-1-1h-3l-1 1H6v2h12V4z"></path>
@@ -75,20 +68,27 @@
                 </button>
               </div>
             </div>
-            <p class="quest-description">{{ quest.description || '' }}</p>
-            <div class="quest-meta">
-              <span>Раундов: {{ quest.roundsCount ?? (quest.rounds?.length ?? 0) }}</span>
-              <span>Вопросов: {{ questQuestions(quest) }}</span>
-              <span v-if="questQuestions(quest) === 0" class="quest-empty-badge">
-                <i aria-hidden="true">⚠</i> Нет вопросов
-              </span>
+            <div class="quest-card__body">
+              <h2 class="quest-title">{{ quest.title }}</h2>
+              <div class="quest-meta">
+                <span>{{ t('host.rounds', { count: quest.roundsCount ?? (quest.rounds?.length ?? 0) }) }}</span>
+                <span class="quest-meta__dot">·</span>
+                <span>{{ t('host.questions', { count: questQuestions(quest) }) }}</span>
+                <span v-if="questQuestions(quest) === 0" class="quest-empty-badge">
+                  <i aria-hidden="true">⚠</i> {{ t('host.noQuestions') }}
+                </span>
+              </div>
             </div>
           </article>
-          <article class="quest-card quest-card--new" @click="createNewQuest">
-            <div class="new-quest-circle">+</div>
-            <span>Создать новый квест</span>
+          <article class="quest-card quest-card--cta" @click="createNewQuest">
+            <div class="quest-card__cover quest-card__cover--dashed">
+              <span class="new-quest-circle">+</span>
+            </div>
+            <div class="quest-card__body quest-card__body--cta">
+              <span class="quest-card__ctalabel">{{ t('host.createNewQuest') }}</span>
+            </div>
           </article>
-          <article class="quest-card quest-card--import" @click.stop="triggerImportQuest">
+          <article class="quest-card quest-card--cta quest-card--import" @click.stop="triggerImportQuest">
             <input
               ref="importQuestInputRef"
               type="file"
@@ -97,8 +97,16 @@
               :disabled="importingQuest"
               @change="onImportQuestFile"
             />
-            <div class="new-quest-circle import-icon">📂</div>
-            <span>{{ importingQuest ? 'Импорт…' : 'Импортировать квест из файла' }}</span>
+            <div class="quest-card__cover quest-card__cover--dashed">
+              <span class="new-quest-circle import-icon">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M12 15V3"/><path d="m7 8 5-5 5 5"/><path d="M20 15v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-4"/>
+                </svg>
+              </span>
+            </div>
+            <div class="quest-card__body quest-card__body--cta">
+              <span class="quest-card__ctalabel">{{ importingQuest ? t('host.importing') : t('host.importQuest') }}</span>
+            </div>
           </article>
         </div>
       </section>
@@ -109,9 +117,9 @@
           :disabled="!selectedQuestId || isMobileViewport || selectedQuestEmpty"
           :title="startDisabledReason"
           @click="handleStart"
-        >Начать игру</button>
+        >{{ t('host.startGame') }}</button>
         <p v-if="selectedQuestId && selectedQuestEmpty" class="start-hint">
-          Добавьте хотя бы один вопрос, чтобы начать игру.
+          {{ t('host.startHint') }}
         </p>
         <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
       </section>
@@ -120,15 +128,15 @@
       <div v-if="confirmDeleteModal.visible" class="quest-modal-backdrop" @click="cancelDeleteQuest">
         <div class="quest-modal quest-modal--confirm" role="dialog" aria-modal="true" @click.stop>
           <header class="quest-modal__header">
-            <h2>Удалить квест?</h2>
-            <button type="button" class="quest-modal__close" @click="cancelDeleteQuest" aria-label="Закрыть">✕</button>
+            <h2>{{ t('host.deleteConfirmTitle') }}</h2>
+            <button type="button" class="quest-modal__close" @click="cancelDeleteQuest" :aria-label="t('common.close')">✕</button>
           </header>
           <div class="quest-modal__body">
-            <p>Вы действительно хотите удалить квест «{{ confirmDeleteModal.questTitle }}»? Это действие нельзя отменить.</p>
+            <p>{{ t('host.deleteConfirmBody', { title: confirmDeleteModal.questTitle }) }}</p>
           </div>
           <div class="quest-modal__actions">
-            <button type="button" class="secondary" @click="cancelDeleteQuest">Отмена</button>
-            <button type="button" class="danger" @click="confirmDeleteQuest">Удалить</button>
+            <button type="button" class="secondary" @click="cancelDeleteQuest">{{ t('common.cancel') }}</button>
+            <button type="button" class="danger" @click="confirmDeleteQuest">{{ t('common.delete') }}</button>
           </div>
         </div>
       </div>
@@ -139,11 +147,13 @@
 <script setup lang="ts">
 import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useQuizStore } from '@/store/quizStore'
 import { useGameSessionStore } from '@/store/gameSessionStore'
 import AppHeader from '@/components/common/AppHeader.vue'
 import { useIsMobileViewport } from '@/composables/useIsMobileViewport'
 
+const { t } = useI18n()
 const importingQuest = ref(false)
 const importQuestInputRef = ref<HTMLInputElement | null>(null)
 
@@ -227,8 +237,8 @@ const selectedQuestEmpty = computed(() => {
 })
 
 const startDisabledReason = computed(() => {
-  if (isMobileViewport.value) return 'Доступно только с компьютера или планшета'
-  if (selectedQuestId.value && selectedQuestEmpty.value) return 'Добавьте хотя бы один вопрос'
+  if (isMobileViewport.value) return t('host.reasonMobile')
+  if (selectedQuestId.value && selectedQuestEmpty.value) return t('host.reasonNoQuestions')
   return undefined
 })
 
@@ -252,7 +262,7 @@ function selectQuest(questId: string) {
 async function handleStart() {
   errorMessage.value = ''
   if (!selectedQuestId.value) {
-    errorMessage.value = 'Выберите квест для старта игры'
+    errorMessage.value = t('host.errSelectQuest')
     return
   }
   try {
@@ -263,12 +273,12 @@ async function handleStart() {
       quest = (await quizStore.loadQuestFull(selectedQuestId.value)) ?? quest
     }
     if (!quest || !Array.isArray(quest.rounds) || !quest.rounds.length) {
-      errorMessage.value = 'Добавьте хотя бы один раунд в квест'
+      errorMessage.value = t('host.errNoRounds')
       return
     }
     const firstRound = quest.rounds.find(round => Array.isArray(round.categories)) ?? quest.rounds[0]
     if (!firstRound) {
-      errorMessage.value = 'В раунде отсутствуют категории'
+      errorMessage.value = t('host.errNoCategories')
       return
     }
 
@@ -278,7 +288,7 @@ async function handleStart() {
       0
     )
     if (totalQuestions === 0) {
-      errorMessage.value = 'Добавьте хотя бы один вопрос в квест'
+      errorMessage.value = t('host.errNoQuestions')
       return
     }
 
@@ -296,7 +306,7 @@ async function handleStart() {
       }
     })
   } catch (error: any) {
-    errorMessage.value = error?.message ?? 'Не удалось создать игру'
+    errorMessage.value = error?.message ?? t('host.errCreateGame')
   }
 }
 
@@ -356,7 +366,7 @@ async function confirmDeleteQuest() {
     confirmDeleteModal.value = { visible: false, questId: null, questTitle: '' }
     errorMessage.value = ''
   } catch (err) {
-    errorMessage.value = (err as Error)?.message ?? 'Не удалось удалить квест'
+    errorMessage.value = (err as Error)?.message ?? t('host.errDeleteQuest')
   }
 }
 
@@ -383,13 +393,13 @@ async function onImportQuestFile(event: Event) {
     const text = await file.text()
     const data = JSON.parse(text)
     if (!data || typeof data.title !== 'string' || !Array.isArray(data.rounds)) {
-      errorMessage.value = 'Неверный формат файла: нужен JSON квеста с полями title и rounds'
+      errorMessage.value = t('host.errImportFormat')
       return
     }
     const questId = await quizStore.importQuest(data)
     selectedQuestId.value = questId
   } catch (err: any) {
-    errorMessage.value = err?.message ?? 'Не удалось импортировать квест'
+    errorMessage.value = err?.message ?? t('host.errImportQuest')
   } finally {
     importingQuest.value = false
   }
@@ -402,10 +412,10 @@ async function onImportQuestFile(event: Event) {
   height: 100dvh;
   overflow: hidden;
   background: linear-gradient(135deg, rgb(var(--c-bg)) 0%, rgb(var(--c-surface)) 100%);
-  padding: 0 clamp(1rem, 4vw, 3rem) 0;
+  padding: 0 clamp(1rem, 4vw, 3rem);
   display: flex;
   flex-direction: column;
-  gap: 3rem;
+  gap: 1.5rem;
   box-sizing: border-box;
 }
 
@@ -518,10 +528,11 @@ async function onImportQuestFile(event: Event) {
 
 
 .host-header {
-  background: rgb(var(--c-bg) / 0.78);
+  background: linear-gradient(135deg, rgb(var(--c-surface) / 0.6), rgb(var(--c-bg) / 0.55));
+  border: 1px solid rgb(var(--c-accent-sky) / 0.14);
   border-radius: 1.25rem;
-  padding: 2rem;
-  box-shadow: 0 25px 60px rgb(var(--c-sky-deep) / 0.45);
+  padding: 1.35rem 1.75rem;
+  box-shadow: 0 12px 30px rgb(var(--c-bg-deep) / 0.35);
   color: rgb(var(--c-text));
   display: flex;
   align-items: center;
@@ -563,9 +574,6 @@ async function onImportQuestFile(event: Event) {
 }
 
 .quest-selection {
-  padding-right: 0.5rem;
-  margin-right: -0.5rem;
-  padding-bottom: 1rem;
   min-height: 0;
   /* Занимает всё свободное место между шапкой и кнопкой «Начать игру»,
      список внутри скроллится — без наложения на кнопку. */
@@ -573,6 +581,7 @@ async function onImportQuestFile(event: Event) {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  padding: 0.25rem 0 0;
 }
 
 .quest-selection::-webkit-scrollbar {
@@ -592,9 +601,9 @@ async function onImportQuestFile(event: Event) {
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
-  margin-top: 0.5rem;
+  margin-top: 0;
   margin-bottom: 1rem;
-  padding: 0 28px;
+  padding: 0 0.25rem;
   flex-shrink: 0;
 }
 
@@ -620,8 +629,8 @@ async function onImportQuestFile(event: Event) {
 
 .quests-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(540px, 100%), 1fr));
-  gap: 1.6rem;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 1.25rem;
   padding-top: 0.2rem;
   overflow-y: auto;
   padding-right: 0.75rem;
@@ -629,6 +638,8 @@ async function onImportQuestFile(event: Event) {
   scrollbar-color: rgb(var(--c-text-muted) / 0.6) transparent;
   flex: 1 1 auto;
   min-height: 0;
+  align-content: start;
+  align-items: stretch;
 }
 
 .quests-grid::-webkit-scrollbar {
@@ -651,183 +662,170 @@ async function onImportQuestFile(event: Event) {
 .quest-card {
   position: relative;
   z-index: 0;
-  background: rgb(var(--c-bg) / 0.78);
-  border-radius: 1.25rem;
-  padding: 2rem;
-  border: 1px solid rgb(var(--c-text-muted) / 0.28);
+  background: rgb(var(--c-surface) / 0.7);
+  border-radius: 1.2rem;
+  padding: 1rem;
+  border: 1px solid rgb(var(--c-accent-sky) / 0.18);
   color: rgb(var(--c-text));
   display: flex;
   flex-direction: column;
-  gap: 0.95rem;
   cursor: pointer;
   overflow: hidden;
-  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
-  height: 120px;
-  min-height: 120px;
-  max-height: 120px;
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
 }
 
 .quest-card:hover,
 .quest-card.active {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgb(var(--c-text-muted) / 0.1);
-  border-color: rgb(var(--c-text-muted) / 0.5);
+  transform: translateY(-3px);
+  box-shadow: 0 16px 34px rgb(var(--c-bg-deep) / 0.5);
+  border-color: rgb(var(--c-accent-sky) / 0.45);
 }
 
-.quest-topline {
+.quest-card__cover {
+  position: relative;
+  aspect-ratio: 1.05;
+  border-radius: 0.8rem;
+  overflow: hidden;
   display: flex;
-  align-items: flex-start;
-  gap: 0.6rem;
-  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgb(var(--c-violet) / 0.5), rgb(var(--c-blue) / 0.45));
+}
+.quest-card:nth-child(3n + 2):not(.quest-card--cta) .quest-card__cover {
+  background: linear-gradient(135deg, rgb(var(--c-accent-sky) / 0.5), rgb(var(--c-indigo-500) / 0.5));
+}
+.quest-card:nth-child(3n):not(.quest-card--cta) .quest-card__cover {
+  background: linear-gradient(135deg, rgb(var(--c-accent) / 0.4), rgb(var(--c-violet) / 0.5));
+}
+/* Обложки CTA-карточек — пунктирный плейсхолдер, не градиент */
+.quest-card--cta .quest-card__cover {
+  background: rgb(var(--c-accent-sky) / 0.05);
+}
+.quest-card__cover::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 30% 22%, rgb(var(--c-white) / 0.18), transparent 55%);
+  pointer-events: none;
+}
+.quest-card__mono {
+  position: relative;
+  font-family: 'Press Start 2P', 'Nunito', monospace;
+  font-size: 1.9rem;
+  color: rgb(var(--c-white) / 0.95);
+  text-shadow: 0 3px 12px rgb(var(--c-bg-deep) / 0.55);
+}
+
+.quest-card__body {
+  padding: 1.1rem 0.5rem 1.3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
 }
 
 .quest-title {
   margin: 0;
-  flex: 1;
-  font-size: 1.15rem;
-  font-weight: 700;
-  line-height: 1.35;
-  word-break: break-word;
-  display: -webkit-box;
-  line-clamp: 2;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+  font-size: 1.02rem;
+  font-weight: 800;
+  line-height: 1.25;
+  white-space: nowrap;
   overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .quest-actions {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
   display: inline-flex;
-  gap: 0.45rem;
-  position: relative;
+  gap: 0.1rem;
   z-index: 2;
+  padding: 0.2rem;
+  border-radius: 999px;
+  background: rgb(var(--c-bg-deep) / 0.55);
+  border: 1px solid rgb(var(--c-white) / 0.08);
+  backdrop-filter: blur(8px);
 }
 
 .quest-action-button {
-  position: relative;
-  width: 36px;
-  height: 36px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
-  border: 1px solid rgb(var(--c-text-muted) / 0.45);
-  background: rgb(var(--c-bg-deep) / 0.75);
-  color: rgb(var(--c-text-soft) / 0.95);
+  border: none;
+  background: transparent;
+  color: rgb(var(--c-text-soft) / 0.9);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+  transition: background 0.18s ease, color 0.18s ease;
 }
 
 .quest-action-button svg {
-  width: 18px;
-  height: 18px;
+  width: 15px;
+  height: 15px;
   fill: currentColor;
-  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), color 0.25s ease;
-}
-
-.quest-action-button::after {
-  content: attr(data-tooltip);
-  position: absolute;
-  bottom: calc(100% + 0.4rem);
-  left: 50%;
-  transform: translate(-50%, 6px);
-  background: rgb(var(--c-bg) / 0.92);
-  color: rgb(var(--c-text-soft));
-  padding: 0.25rem 0.6rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  letter-spacing: 0.05em;
-  white-space: nowrap;
-  box-shadow: 0 12px 20px rgb(var(--c-bg) / 0.35);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
 .quest-action-button:hover,
 .quest-action-button:focus-visible {
-  transform: translateY(-2px);
-  border-color: rgb(var(--c-accent) / 0.65);
-  background: rgb(var(--c-sky-500) / 0.18);
-  box-shadow: 0 12px 24px rgb(var(--c-accent) / 0.25);
-}
-
-.quest-action-button:hover svg,
-.quest-action-button:focus-visible svg {
-  transform: rotate(-6deg) scale(1.08);
-}
-
-.quest-action-button:hover::after,
-.quest-action-button:focus-visible::after {
-  opacity: 1;
-  transform: translate(-50%, 0);
+  outline: none;
+  background: rgb(var(--c-white) / 0.14);
+  color: rgb(var(--c-text));
 }
 
 .quest-action-button--danger {
-  border-color: rgb(var(--c-danger-light) / 0.35);
-  color: rgb(var(--c-danger-soft));
+  color: rgb(var(--c-danger-soft) / 0.85);
 }
 
 .quest-action-button--danger:hover,
 .quest-action-button--danger:focus-visible {
-  border-color: rgb(var(--c-danger-light) / 0.7);
-  background: rgb(var(--c-danger-light) / 0.18);
-  box-shadow: 0 12px 24px rgb(var(--c-danger-light) / 0.25);
+  background: rgb(var(--c-danger) / 0.3);
+  color: rgb(var(--c-danger-soft));
 }
 
-.quest-action-button--danger:hover svg,
-.quest-action-button--danger:focus-visible svg {
-  transform: rotate(6deg) scale(1.08);
+/* «Новый квест» / «Импорт» — та же структура (обложка + подпись), что и у квеста */
+.quest-card__cover--dashed {
+  background: rgb(var(--c-accent-sky) / 0.05);
+  border: 1.5px dashed rgb(var(--c-accent-sky) / 0.4);
+  transition: border-color 0.2s ease, background 0.2s ease;
 }
-
-.quest-card--new {
-  border: 1px dashed rgb(var(--c-blue) / 0.5);
-  background: rgb(var(--c-bg) / 0.6);
-  align-items: center;
-  justify-content: center;
-  gap: 0.55rem;
-  text-align: center;
-  color: rgb(var(--c-text-soft) / 0.9);
+.quest-card__cover--dashed::after {
+  content: none;
 }
-
-.quest-card--new:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgb(var(--c-text-muted) / 0.1);
-  border-color: rgb(var(--c-text-muted) / 0.5);
+.quest-card--cta:hover .quest-card__cover--dashed {
+  border-color: rgb(var(--c-accent-sky) / 0.7);
+  background: rgb(var(--c-accent-sky) / 0.1);
 }
 
 .new-quest-circle {
-  width: 78px;
-  height: 78px;
+  width: 4.3rem;
+  height: 4.3rem;
   border-radius: 50%;
-  border: 2px dashed rgb(var(--c-blue) / 0.5);
+  border: 1px dashed rgb(var(--c-accent-sky) / 0.6);
+  background: rgb(var(--c-bg) / 0.5);
+  color: rgb(var(--c-accent-soft));
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2.4rem;
+  font-size: 1.9rem;
+  line-height: 1;
+}
+.new-quest-circle svg {
+  width: 1.6rem;
+  height: 1.6rem;
 }
 
-.quest-card--new span,
-.quest-card--import span {
-  font-size: 0.92rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-
-.quest-card--import {
-  border: 1px dashed rgb(var(--c-blue) / 0.5);
-  background: rgb(var(--c-bg) / 0.6);
+.quest-card__body--cta {
   align-items: center;
   justify-content: center;
-  gap: 0.55rem;
-  text-align: center;
-  color: rgb(var(--c-text-soft) / 0.9);
-  position: relative;
+  flex: 1;
 }
-.quest-card--import:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgb(var(--c-text-muted) / 0.1);
-  border-color: rgb(var(--c-text-muted) / 0.5);
+.quest-card__ctalabel {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: rgb(var(--c-text-soft) / 0.92);
+  text-align: center;
 }
 .quest-import-input {
   position: absolute;
@@ -843,62 +841,16 @@ async function onImportQuestFile(event: Event) {
   pointer-events: none;
 }
 
-.quest-card::before {
-  content: '';
-  position: absolute;
-  top: -30%;
-  right: -30%;
-  width: 60%;
-  height: 60%;
-  background: radial-gradient(circle, rgb(var(--c-purple) / 0.4), transparent 60%);
-  transform: rotate(20deg);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  pointer-events: none;
-  z-index: -1;
-}
-
-.quest-card::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at 20% 25%, rgb(var(--c-accent) / 0.3), transparent 70%);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  pointer-events: none;
-  z-index: -1;
-}
-
-.quest-card:hover::before,
-.quest-card:hover::after,
-.quest-card.active::after {
-  opacity: 1;
-}
-
-.quest-description {
-  margin: 0;
-  color: rgb(var(--c-slate-600));
-  font-size: 0.9rem;
-  line-height: 1.4;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
-  max-height: calc(0.9rem * 1.4 * 2);
-  flex-shrink: 0;
-}
-
 .quest-meta {
   display: flex;
-  gap: 0.6rem;
+  gap: 0.4rem;
   align-items: center;
   flex-wrap: wrap;
-  font-size: 0.85rem;
-  color: rgb(var(--c-text-soft) / 0.8);
-  flex-shrink: 0;
-  margin-top: auto;
+  font-size: 0.8rem;
+  color: rgb(var(--c-text-muted) / 0.85);
+}
+.quest-meta__dot {
+  opacity: 0.5;
 }
 
 .quest-empty-badge {
@@ -1175,12 +1127,7 @@ async function onImportQuestFile(event: Event) {
 
   /* Уменьшаем карточки квестов для мобильных */
   .quest-card {
-    padding: 1.25rem;
-    height: 80px;
-    min-height: 80px;
-    max-height: 80px;
-    gap: 0.6rem;
-    border-radius: 0.75rem;
+    border-radius: 0.9rem;
   }
 
   .quest-title {
@@ -1267,12 +1214,7 @@ async function onImportQuestFile(event: Event) {
   }
 
   .quest-card {
-    padding: 1rem;
-    height: 72px;
-    min-height: 72px;
-    max-height: 72px;
-    gap: 0.4rem;
-    border-radius: 0.65rem;
+    border-radius: 0.8rem;
   }
 
   .quest-title {
@@ -1345,11 +1287,7 @@ async function onImportQuestFile(event: Event) {
   }
 
   .quest-card {
-    padding: 0.75rem;
-    height: 65px;
-    min-height: 65px;
-    max-height: 65px;
-    gap: 0.35rem;
+    border-radius: 0.75rem;
   }
 
   .quest-title {
@@ -1405,10 +1343,7 @@ async function onImportQuestFile(event: Event) {
   }
 
   .quest-card {
-    padding: 0.6rem;
-    height: 58px;
-    min-height: 58px;
-    max-height: 58px;
+    border-radius: 0.7rem;
   }
 
   .quest-title {
@@ -1449,13 +1384,9 @@ async function onImportQuestFile(event: Event) {
   }
 
   .quests-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     padding-right: 0;
     margin-top: 1.2rem;
-  }
-
-  .quest-card {
-    padding: 1.6rem;
   }
 
   .quest-card--new {

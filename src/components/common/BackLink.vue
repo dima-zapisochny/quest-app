@@ -1,6 +1,5 @@
 <template>
   <router-link :to="to" class="back-link">
-    <span class="back-link__arrow" aria-hidden="true">←</span>
     <slot />
   </router-link>
 </template>

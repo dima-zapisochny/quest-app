@@ -1,16 +1,16 @@
 <template>
   <header class="app-header">
     <div class="app-header-left">
-      <NavigationButton 
-        :variant="buttonVariant" 
-        :label="buttonLabel" 
+      <NavigationButton
+        :variant="buttonVariant"
+        :label="buttonLabel ?? t('common.back')"
         :disabled="buttonDisabled"
-        @click="$emit('button-click')" 
+        @click="$emit('button-click')"
       />
     </div>
     <div class="app-header-right">
       <div v-if="showSessionCode && sessionCode" class="session-chip">
-        Код игры: <strong>{{ sessionCode }}</strong>
+        {{ t('common.gameCode') }}: <strong>{{ sessionCode }}</strong>
       </div>
       <UserPill v-if="userName || userAvatar" :name="userName" :avatar="userAvatar" />
     </div>
@@ -18,8 +18,11 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import NavigationButton from './NavigationButton.vue'
 import UserPill from './UserPill.vue'
+
+const { t } = useI18n()
 
 interface Props {
   buttonVariant?: 'back' | 'exit'
@@ -33,7 +36,7 @@ interface Props {
 
 withDefaults(defineProps<Props>(), {
   buttonVariant: 'back',
-  buttonLabel: 'Назад',
+  buttonLabel: undefined,
   buttonDisabled: false,
   showSessionCode: false,
   sessionCode: null,

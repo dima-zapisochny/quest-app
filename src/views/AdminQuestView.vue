@@ -2,7 +2,7 @@
   <div v-if="quest" class="admin-quest-view">
     <AppHeader
       button-variant="back"
-      button-label="Назад"
+      :button-label="t('common.back')"
       :user-name="userProfile?.name"
       :user-avatar="userProfile?.avatar"
       @button-click="goBack"
@@ -10,12 +10,12 @@
 
     <div class="stats-capsule">
       <span class="stat-chip">
-        <span class="stat-chip__label">Раундов</span>
+        <span class="stat-chip__label">{{ t('editor.roundsLabel') }}</span>
         <span class="stat-chip__value">{{ Array.isArray(quest.rounds) ? quest.rounds.length : 0 }}/5</span>
       </span>
       <span class="stats-capsule__divider" aria-hidden="true"></span>
       <span class="stat-chip">
-        <span class="stat-chip__label">Вопросов</span>
+        <span class="stat-chip__label">{{ t('editor.questionsLabel') }}</span>
         <span class="stat-chip__value">{{ questStats.totalQuestions }}</span>
       </span>
       <transition name="save-pill">
@@ -23,8 +23,8 @@
           v-if="store.saveState !== 'idle'"
           class="save-icon"
           :class="`save-icon--${store.saveState}`"
-          :title="store.saveState === 'saving' ? 'Сохраняем…' : 'Сохранено'"
-          :aria-label="store.saveState === 'saving' ? 'Сохраняем' : 'Сохранено'"
+          :title="store.saveState === 'saving' ? t('editor.saving') : t('editor.saved')"
+          :aria-label="store.saveState === 'saving' ? t('editor.saving') : t('editor.saved')"
           aria-live="polite"
         >
           <span v-if="store.saveState === 'saving'" class="save-icon__spinner" aria-hidden="true"></span>
@@ -37,20 +37,20 @@
 
     <header class="quest-toolbar">
       <div class="toolbar-fields">
-        <label class="toolbar-label" for="quest-title">Название квеста</label>
+        <label class="toolbar-label" for="quest-title">{{ t('editor.questTitleLabel') }}</label>
         <input
           id="quest-title"
           v-model="questTitle"
           class="toolbar-input"
-          placeholder="Название квеста"
+          :placeholder="t('editor.questTitlePlaceholder')"
         />
-        <label class="toolbar-label" for="quest-description">Описание</label>
+        <label class="toolbar-label" for="quest-description">{{ t('editor.questDescLabel') }}</label>
         <textarea
           id="quest-description"
           v-model="questDescription"
           rows="2"
           class="toolbar-textarea"
-          placeholder="Короткое описание для ведущего и игроков"
+          :placeholder="t('editor.questDescPlaceholder')"
         ></textarea>
       </div>
     </header>
@@ -63,15 +63,15 @@
           :class="['round-tab', { 'round-tab--active': editingRoundId === round.id }]"
         >
           <button type="button" class="round-tab__select" @click="editingRoundId = round.id">
-            Раунд {{ index + 1 }}
+            {{ t('editor.round', { n: index + 1 }) }}
           </button>
           <transition name="round-del">
             <button
               v-if="editingRoundId === round.id"
               type="button"
               class="round-tab__del"
-              title="Удалить раунд"
-              aria-label="Удалить раунд"
+              :title="t('editor.deleteRound')"
+              :aria-label="t('editor.deleteRound')"
               @click="handleDeleteCurrentRound"
             >✕</button>
           </transition>
@@ -81,7 +81,7 @@
           class="round-tab round-tab--add"
           type="button"
           :disabled="isAddingRound"
-          aria-label="Добавить раунд"
+          :aria-label="t('editor.addRound')"
           @click="handleAddRound"
         >
           <span v-if="!isAddingRound">+</span>
@@ -92,23 +92,26 @@
 
     <section class="board-panel">
       <p v-if="roundsCount === 0" class="panel-empty">
-        Пока нет раундов. Создайте первый, чтобы добавить категории и вопросы.
+        {{ t('editor.noRounds') }}
       </p>
 
-      <QuestBoardEditor
-        v-if="editingRound"
-        :quest-id="quest.id"
-        :round="editingRound"
-      />
+      <transition name="round-swap" mode="out-in">
+        <QuestBoardEditor
+          v-if="editingRound"
+          :key="editingRound.id"
+          :quest-id="quest.id"
+          :round="editingRound"
+        />
+      </transition>
     </section>
   </div>
   <div v-else-if="showLoading" class="not-found admin-quest-loading">
     <div class="loader"></div>
-    <p>Загрузка квеста…</p>
+    <p>{{ t('editor.loadingQuest') }}</p>
   </div>
   <div v-else class="not-found">
-    <h1>Квест не найден</h1>
-    <BackLink to="/host/setup">Вернуться к списку квестов</BackLink>
+    <h1>{{ t('editor.notFound') }}</h1>
+    <BackLink to="/host/setup">{{ t('editor.backToList') }}</BackLink>
   </div>
 
   <ConfirmDialog
@@ -125,6 +128,7 @@
 <script setup lang="ts">
 import { computed, ref, watch, watchEffect, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useQuizStore } from '@/store/quizStore'
 import { useGameSessionStore } from '@/store/gameSessionStore'
 import QuestBoardEditor from '@/components/admin/QuestBoardEditor.vue'
@@ -137,6 +141,7 @@ interface Props {
 }
 
 const props = defineProps<Props>()
+const { t } = useI18n()
 const router = useRouter()
 const store = useQuizStore()
 const sessionStore = useGameSessionStore()
@@ -318,14 +323,14 @@ const confirmModal = ref<{
   title: string
   message: string
   confirmLabel: string
-}>({ visible: false, roundId: null, title: '', message: '', confirmLabel: 'Удалить' })
+}>({ visible: false, roundId: null, title: '', message: '', confirmLabel: '' })
 
 function handleDeleteRound(roundId: string) {
   if (!quest.value) return
   confirmModal.value = {
     visible: true, roundId,
-    title: 'Удалить раунд?', message: 'Раунд и все его категории будут удалены.',
-    confirmLabel: 'Удалить'
+    title: t('editor.deleteRoundTitle'), message: t('editor.deleteRoundBody'),
+    confirmLabel: t('common.delete')
   }
 }
 
@@ -552,33 +557,53 @@ function goBack() {
 
 .round-tabs {
   display: flex;
-  gap: 0.6rem;
+  gap: 0.55rem;
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
 }
 
+/* Плавная смена доски при переключении раундов */
+.round-swap-enter-active {
+  transition: opacity 0.28s ease, transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.round-swap-leave-active {
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+.round-swap-enter-from {
+  opacity: 0;
+  transform: translateY(12px) scale(0.985);
+}
+.round-swap-leave-to {
+  opacity: 0;
+  transform: translateY(-8px) scale(0.99);
+}
+
+/* Каждый раунд — отдельная капсула фиксированной ширины (крестик не двигает соседей) */
 .round-tab {
-  min-width: 6.25rem;
-  min-height: 2.6rem;
+  position: relative;
+  width: 8rem;
+  min-height: 3rem;
   box-sizing: border-box;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   border-radius: var(--radius-pill);
-  border: 1px solid transparent;
-  background: transparent;
+  border: 1px solid rgb(var(--c-accent-sky) / 0.16);
+  background: rgb(var(--c-surface) / 0.5);
   transition: background 0.2s ease, border-color 0.2s ease;
 }
 .round-tab__select {
-  flex: 1;
+  width: 100%;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0 1.3rem;
+  /* симметричные отступы: место под крестик зарезервировано всегда — текст не съезжает */
+  padding: 0.75rem 1.9rem;
   border: none;
   background: transparent;
   color: rgb(var(--c-text-soft) / 0.75);
-  font-size: 0.88rem;
+  font-size: 0.9rem;
   font-weight: 600;
   letter-spacing: 0.02em;
   text-align: center;
@@ -586,7 +611,8 @@ function goBack() {
   transition: color 0.2s ease;
 }
 .round-tab:hover {
-  background: rgb(var(--c-accent-sky) / 0.1);
+  background: rgb(var(--c-accent-sky) / 0.12);
+  border-color: rgb(var(--c-accent-sky) / 0.3);
 }
 .round-tab:hover .round-tab__select {
   color: rgb(var(--c-text));
@@ -594,20 +620,23 @@ function goBack() {
 
 .round-tab--active {
   background: rgb(var(--c-accent-sky) / 0.16);
-  border-color: rgb(var(--c-accent-sky) / 0.35);
+  border-color: rgb(var(--c-accent-sky) / 0.4);
 }
 .round-tab--active .round-tab__select {
   color: rgb(var(--c-accent-soft));
 }
 
-/* Крестик удаления раунда — как у категорий: приглушён, краснеет при наведении */
+/* Крестик удаления раунда — абсолютно у правого края, не влияет на ширину капсулы */
 .round-tab__del {
+  position: absolute;
+  right: 0.45rem;
+  top: 50%;
+  transform: translateY(-50%);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 1.5rem;
   height: 1.5rem;
-  margin: auto 0.5rem auto 0;
   border: none;
   border-radius: 8px;
   background: transparent;
@@ -621,22 +650,21 @@ function goBack() {
   color: rgb(var(--c-danger-soft));
   background: rgb(var(--c-danger) / 0.15);
 }
-/* Плавное появление крестика при выборе раунда */
+/* Плавное появление крестика — только opacity/scale, без рефлоу */
 .round-del-enter-active,
 .round-del-leave-active {
-  overflow: hidden;
-  transition: opacity 0.22s ease, transform 0.22s ease, width 0.22s ease, margin-right 0.22s ease;
+  transition: opacity 0.2s ease, transform 0.2s ease;
 }
 .round-del-enter-from,
 .round-del-leave-to {
   opacity: 0;
-  transform: scale(0.4);
-  width: 0;
-  margin-right: 0;
+  transform: translateY(-50%) scale(0.4);
 }
 
 .round-tab--add {
-  padding: 0 1.3rem;
+  width: 4.8rem;
+  margin-left: 0.35rem;
+  padding: 0;
   border: 1px dashed rgb(var(--c-accent-sky) / 0.35);
   background: transparent;
   color: rgb(var(--c-text-soft) / 0.7);
@@ -651,7 +679,7 @@ function goBack() {
 .round-tab--add:hover {
   color: rgb(var(--c-accent-soft));
   border-color: rgb(var(--c-accent-sky) / 0.55);
-  background: transparent;
+  background: rgb(var(--c-accent-sky) / 0.08);
 }
 .round-tab--add:disabled {
   opacity: 0.7;

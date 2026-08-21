@@ -2,59 +2,46 @@
   <div class="quest-create">
     <AppHeader
       button-variant="back"
-      button-label="Назад"
+      :button-label="t('common.back')"
       :user-name="userProfile?.name"
       :user-avatar="userProfile?.avatar"
       @button-click="goBack"
     />
 
     <main class="quest-create__main">
-      <h1 class="quest-create__title">Новый квест</h1>
-      <p class="quest-create__subtitle">Задайте название и размер доски — дальше заполните вопросы.</p>
+      <h1 class="quest-create__title">{{ t('create.title') }}</h1>
+      <p class="quest-create__subtitle">{{ t('create.subtitle') }}</p>
 
       <BaseCard class="quest-create__card">
         <form class="quest-create__form" @submit.prevent="submit">
-          <label class="field-label" for="create-title">Название</label>
+          <label class="field-label" for="create-title">{{ t('create.name') }}</label>
           <input
             id="create-title"
             ref="titleInput"
             v-model="title"
             class="field-input"
             type="text"
-            placeholder="Например: Своя игра про кино"
+            :placeholder="t('create.namePlaceholder')"
+            :class="{ 'field-input--error': error }"
             required
           />
+          <transition name="err-slide">
+            <p v-if="error" class="field-error field-error--inline">{{ error }}</p>
+          </transition>
 
-          <label class="field-label" for="create-description">Описание (необязательно)</label>
+          <label class="field-label" for="create-description">{{ t('create.description') }}</label>
           <textarea
             id="create-description"
             v-model="description"
             class="field-input field-textarea"
             rows="2"
-            placeholder="Коротко о квесте"
+            :placeholder="t('create.descriptionPlaceholder')"
           ></textarea>
 
-          <span class="field-label">С чего начать</span>
-          <div class="mode-switch" role="radiogroup" aria-label="С чего начать">
-            <button
-              type="button"
-              :class="['mode-switch__chip', { 'mode-switch__chip--active': mode === 'grid' }]"
-              role="radio"
-              :aria-checked="mode === 'grid'"
-              @click="mode = 'grid'"
-            >Готовая сетка</button>
-            <button
-              type="button"
-              :class="['mode-switch__chip', { 'mode-switch__chip--active': mode === 'empty' }]"
-              role="radio"
-              :aria-checked="mode === 'empty'"
-              @click="mode = 'empty'"
-            >Пустой квест</button>
-          </div>
-
-          <div v-if="mode === 'grid'" class="grid-size">
+          <span class="field-label">{{ t('create.boardSize') }}</span>
+          <div class="grid-size">
             <div class="grid-size__rounds">
-              <div class="seg" role="group" aria-label="Количество раундов">
+              <div class="seg" role="group" :aria-label="t('create.roundsAria')">
                 <button
                   v-for="n in 5"
                   :key="n"
@@ -65,26 +52,19 @@
                 >{{ n }}</button>
               </div>
             </div>
-            <div class="grid-size__picker">
+            <div class="grid-size__picker" :class="{ 'grid-size__picker--busy': isCreating }">
               <GridSizePicker
                 v-model:categories="categories"
                 v-model:questions="questions"
                 :max-categories="5"
                 :max-questions="5"
-                :suffix="`${rounds} ${roundsWord}`"
+                :suffix="roundsSuffix"
+                @select="onGridSelect"
               />
             </div>
+            <p v-if="isCreating" class="grid-size__hint">{{ t('create.creating') }}</p>
           </div>
 
-          <p v-if="error" class="field-error">{{ error }}</p>
-
-          <div class="quest-create__actions">
-            <button type="button" class="btn-secondary" @click="goBack">Отмена</button>
-            <button type="submit" class="btn-primary" :disabled="isCreating">
-              <span v-if="!isCreating">Далее</span>
-              <span v-else>Создание…</span>
-            </button>
-          </div>
         </form>
       </BaseCard>
     </main>
@@ -94,12 +74,16 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useQuizStore } from '@/store/quizStore'
 import { useGameSessionStore } from '@/store/gameSessionStore'
+import { usePlural } from '@/i18n/plural'
 import AppHeader from '@/components/common/AppHeader.vue'
 import BaseCard from '@/components/common/BaseCard.vue'
 import GridSizePicker from '@/components/common/GridSizePicker.vue'
 
+const { t } = useI18n()
+const { count } = usePlural()
 const router = useRouter()
 const quizStore = useQuizStore()
 const sessionStore = useGameSessionStore()
@@ -108,22 +92,14 @@ const userProfile = computed(() => sessionStore.userProfile)
 
 const title = ref('')
 const description = ref('')
-const mode = ref<'grid' | 'empty'>('grid')
 const rounds = ref(1)
-const categories = ref(5)
-const questions = ref(5)
+const categories = ref(1)
+const questions = ref(1)
 const error = ref('')
 const isCreating = ref(false)
 const titleInput = ref<HTMLInputElement | null>(null)
 
-const roundsWord = computed(() => {
-  const n = rounds.value
-  const mod10 = n % 10
-  const mod100 = n % 100
-  if (mod10 === 1 && mod100 !== 11) return 'раунд'
-  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return 'раунда'
-  return 'раундов'
-})
+const roundsSuffix = computed(() => count(rounds.value, 'plural.rounds'))
 
 onMounted(() => {
   nextTick(() => titleInput.value?.focus())
@@ -133,23 +109,36 @@ function goBack() {
   router.push({ name: 'host-setup' })
 }
 
+/** Клик по сетке — если название заполнено, сразу создаём квест и идём в редактор. */
+function onGridSelect(c: number, r: number) {
+  categories.value = c
+  questions.value = r
+  submit()
+}
+
 async function submit() {
   error.value = ''
   const name = title.value.trim()
   if (!name) {
-    error.value = 'Введите название квеста'
+    error.value = t('create.errName')
+    titleInput.value?.focus()
+    titleInput.value?.scrollIntoView({ behavior: 'smooth', block: 'center' })
     return
   }
   if (isCreating.value) return
   isCreating.value = true
   try {
     const desc = description.value.trim()
-    const questId = mode.value === 'grid'
-      ? await quizStore.createQuestWithBoard(name, desc, categories.value, questions.value, rounds.value)
-      : await quizStore.createQuest(name, desc)
+    const questId = await quizStore.createQuestWithBoard(
+      name,
+      desc,
+      categories.value,
+      questions.value,
+      rounds.value
+    )
     router.replace({ name: 'admin-quest', params: { questId } })
   } catch (e: any) {
-    error.value = e?.message ?? 'Не удалось создать квест'
+    error.value = e?.message ?? t('create.errCreate')
   } finally {
     isCreating.value = false
   }
@@ -286,11 +275,48 @@ async function submit() {
   background: linear-gradient(135deg, rgb(var(--c-accent-sky)), rgb(var(--c-accent)));
   color: rgb(var(--c-bg));
 }
+.seg__btn:focus {
+  outline: none;
+}
+.seg__btn:focus-visible {
+  outline: 2px solid rgb(var(--c-accent-sky) / 0.6);
+  outline-offset: 2px;
+}
 .grid-size__picker {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0.75rem;
+  transition: opacity 0.2s ease;
+}
+.grid-size__picker--busy {
+  opacity: 0.6;
+  pointer-events: none;
+}
+.grid-size__hint {
+  margin: 0.4rem 0 0;
+  text-align: center;
+  font-size: 0.85rem;
+  color: rgb(var(--c-accent-soft) / 0.85);
+}
+
+.field-input--error {
+  border-color: rgb(var(--c-danger) / 0.7);
+  box-shadow: 0 0 0 3px rgb(var(--c-danger) / 0.12);
+}
+.field-error--inline {
+  margin: 0.15rem 0 0.25rem;
+}
+.err-slide-enter-active {
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.err-slide-leave-active {
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.err-slide-enter-from,
+.err-slide-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
 }
 
 .field-error {

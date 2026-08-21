@@ -4,7 +4,7 @@
       class="host-button host-button-success"
       type="button"
       :disabled="!canResolve"
-      aria-label="Правильно"
+      :aria-label="t('game.correct')"
       @click="emit('resolve', true)"
     >
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -15,7 +15,7 @@
       v-if="!showAnswer"
       type="button"
       class="host-button host-button-pause"
-      :aria-label="isTimerPaused ? 'Продолжить' : 'Пауза'"
+      :aria-label="isTimerPaused ? t('game.resume') : t('game.pause')"
       @click="emit('toggle-pause')"
     >
       <svg v-if="!isTimerPaused" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -30,7 +30,7 @@
       class="host-button host-button-danger"
       type="button"
       :disabled="!canResolve"
-      aria-label="Неправильно"
+      :aria-label="t('game.wrong')"
       @click="emit('resolve', false)"
     >
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -42,6 +42,9 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 defineProps<{
   canResolve: boolean
   showAnswer: boolean

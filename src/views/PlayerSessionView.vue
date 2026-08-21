@@ -2,7 +2,7 @@
   <div v-if="session && quest" class="player-view">
     <AppHeader
       button-variant="exit"
-      :button-label="isExiting ? 'Выход...' : 'Выйти'"
+      :button-label="isExiting ? t('game.exitBusy') : t('game.exitConfirm')"
       :button-disabled="isExiting"
       :user-name="player?.name"
       :user-avatar="player?.avatar"
@@ -14,10 +14,10 @@
         <div class="stats-item">
           <div class="stats-row">
             <div class="stats-col">
-              <span class="stats-label">Место</span>
+              <span class="stats-label">{{ t('player.rank') }}</span>
               <span class="stats-value">{{ playerRank }}</span>
             </div>
-            <div class="stats-timer" :class="{ 'stats-timer--inactive': !shouldShowResponderTimer }" aria-label="Таймер ответа">
+            <div class="stats-timer" :class="{ 'stats-timer--inactive': !shouldShowResponderTimer }" :aria-label="t('player.answerTimer')">
               <TimerCircle
                 :duration-sec="10"
                 :auto-start="shouldShowResponderTimer"
@@ -27,7 +27,7 @@
               />
             </div>
             <div class="stats-col">
-              <span class="stats-label">Очки</span>
+              <span class="stats-label">{{ t('player.points') }}</span>
               <span class="stats-value">{{ player.score ?? 0 }}</span>
             </div>
           </div>
@@ -36,14 +36,14 @@
 
       <section class="question-panel">
         <p v-if="!activeQuestion" class="question-placeholder">
-          Ожидаем, когда ведущий<br /> откроет вопрос…
+          {{ t('player.waitingQuestion') }}
         </p>
         <div v-else class="question-content">
           <template v-if="activeQuestion.showAnswer">
             <h2 class="answer-only" v-html="currentQuestion?.answer ?? '—'"></h2>
           </template>
           <template v-else>
-            <h2 v-html="currentQuestion?.question ?? 'Вопрос скрыт'"></h2>
+            <h2 v-html="currentQuestion?.question ?? t('player.questionHidden')"></h2>
           </template>
         </div>
       </section>
@@ -62,7 +62,7 @@
     </main>
   </div>
   <div v-else class="player-loading">
-    <p>Загрузка сессии…</p>
+    <p>{{ t('player.loadingSession') }}</p>
   </div>
 
   <!-- Полноэкранный лоадер при выходе из игры -->
@@ -70,7 +70,7 @@
     <div v-if="isExiting" class="quest-loading-wrapper">
       <div class="loading-state">
         <div class="loader"></div>
-        <p>Выход из игры...</p>
+        <p>{{ t('game.exiting') }}</p>
       </div>
     </div>
   </teleport>
@@ -78,10 +78,10 @@
   <!-- Модальное окно подтверждения выхода -->
   <ConfirmDialog
     :show="showExitConfirm"
-    title="Выход из игры"
-    message="Вы уверены, что хотите выйти из игры? Вы будете удалены из списка участников."
-    confirm-label="Выйти"
-    busy-label="Выход..."
+    :title="t('game.exitTitle')"
+    :message="t('player.exitBody')"
+    :confirm-label="t('game.exitConfirm')"
+    :busy-label="t('game.exitBusy')"
     :busy="isExiting"
     @confirm="confirmExit"
     @cancel="cancelExit"
@@ -91,12 +91,15 @@
 <script setup lang="ts">
 import { computed, onMounted, onBeforeUnmount, ref, watch, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import TimerCircle from '@/components/quiz/TimerCircle.vue'
 import { useGameSessionStore } from '@/store/gameSessionStore'
 import { useQuizStore } from '@/store/quizStore'
 import AppHeader from '@/components/common/AppHeader.vue'
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
 import { usePresenceHeartbeat } from '@/composables/usePresenceHeartbeat'
+
+const { t } = useI18n()
 
 const route = useRoute()
 const router = useRouter()
@@ -140,16 +143,16 @@ const canBuzz = computed(() => {
 })
 
 const buzzerLabel = computed(() => {
-  if (!player.value) return 'Подключаемся…'
+  if (!player.value) return t('player.connecting')
   switch (player.value.status) {
     case 'buzzed':
-      return 'Вы отвечаете!'
+      return t('player.yourTurn')
     case 'queued':
-      return 'Ожидайте своей очереди'
+      return t('player.waitTurn')
     case 'locked':
-      return 'Ответ уже дан'
+      return t('player.answered')
     default:
-      return activeQuestion.value ? 'Відповісти' : 'Ждем вопрос'
+      return activeQuestion.value ? t('player.buzz') : t('player.waitForQuestion')
   }
 })
 

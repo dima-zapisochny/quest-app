@@ -3,7 +3,7 @@
     <div v-if="isOpen && question" class="modal-overlay" @click.self="handleClose">
       <div class="modal-content">
         <header class="modal-header">
-          <button class="modal-close" @click="handleClose" aria-label="Закрыть">✕</button>
+          <button class="modal-close" @click="handleClose" :aria-label="t('common.close')">✕</button>
         </header>
 
         <section v-if="!showAnswer" class="question-pane">
@@ -32,7 +32,7 @@
               v-if="hasAudio && visibleImages.length === 0"
               :tracks="questionMediaAudio"
               :playing-id="playingAudioId"
-              aria-label="Проиграть аудио"
+              :aria-label="t('game.playAudio')"
               @toggle="toggleAudio"
               @ended="handleAudioEnded"
               @register="setAudioRef"
@@ -75,7 +75,7 @@
                 v-if="answerMediaAudio.length && answerMediaImages.length === 0"
                 :tracks="answerMediaAudio"
                 :playing-id="playingAudioId"
-                aria-label="Проиграть аудио ответа"
+                :aria-label="t('game.playAnswerAudio')"
                 @toggle="toggleAudio"
                 @ended="handleAudioEnded"
                 @register="setAudioRef"
@@ -90,6 +90,7 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { ref, watch, nextTick, computed } from 'vue'
 import TimerCircle from './TimerCircle.vue'
 import QuestionMediaPreview from './QuestionMediaPreview.vue'
@@ -102,6 +103,8 @@ import type { Question, Player } from '@/types'
 import { safeMediaUrl, isPlayableAudioMedia } from '@/utils/mediaUrl'
 import { useAudioPlayer } from '@/composables/useAudioPlayer'
 import { useElapsedTime } from '@/composables/useElapsedTime'
+
+const { t } = useI18n()
 
 interface Props {
   isOpen: boolean
