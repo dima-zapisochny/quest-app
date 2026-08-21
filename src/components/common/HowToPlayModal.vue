@@ -169,7 +169,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 .howto {
   position: relative;
   width: min(920px, 96vw);
-  height: min(88vh, 760px);
+  height: min(90vh, 820px);
   margin: auto;
   overflow: hidden;
   border-radius: 28px;
