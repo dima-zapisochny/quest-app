@@ -338,18 +338,10 @@ function schedulePattern(startTime: number) {
 
 async function playIntro() {
   if (hasPlayedIntro) return
-  
+
   try {
-    hasPlayedIntro = true
+    // Анимация заголовка стартует сразу, независимо от политики автоплея
     animateTitle.value = true
-    subtitleVisible.value = false
-    isThemePlaying.value = true
-    
-    // Очищаем fallback таймаут, так как музыка запустилась
-    if (fallbackTimeout) {
-      window.clearTimeout(fallbackTimeout)
-      fallbackTimeout = null
-    }
 
     // Пересоздаем audioCtx, если его нет или он закрыт
     if (!audioCtx || audioCtx.state === 'closed') {
@@ -363,10 +355,10 @@ async function playIntro() {
       }
       audioCtx = new AudioContext()
     }
-    
+
     // Пытаемся возобновить контекст, если он приостановлен
     // Это необходимо для политики автоплея браузеров
-    if (audioCtx && audioCtx.state === 'suspended') {
+    if (audioCtx.state === 'suspended') {
       try {
         await audioCtx.resume()
       } catch (error) {
@@ -381,13 +373,35 @@ async function playIntro() {
           // Игнорируем ошибки
         }
         audioCtx = new AudioContext()
-        // Пробуем возобновить новый контекст
         if (audioCtx.state === 'suspended') {
-          await audioCtx.resume()
+          try {
+            await audioCtx.resume()
+          } catch (e) {
+            // Игнорируем ошибки
+          }
         }
       }
     }
-    
+
+    // Браузер всё ещё блокирует звук (нет пользовательского жеста).
+    // НЕ планируем ноты на приостановленном контексте — иначе при resume
+    // они сыграют вразнобой. Выходим, не помечая интро сыгранным:
+    // setupMusic повторит playIntro после первого взаимодействия.
+    if (audioCtx.state !== 'running') {
+      return
+    }
+
+    // Контекст реально играет — фиксируем и планируем мелодию
+    hasPlayedIntro = true
+    subtitleVisible.value = false
+    isThemePlaying.value = true
+
+    // Музыка запустилась — fallback больше не нужен
+    if (fallbackTimeout) {
+      window.clearTimeout(fallbackTimeout)
+      fallbackTimeout = null
+    }
+
     // Пересоздаем gainNode для нового контекста
     if (gainNode) {
       try {
@@ -420,7 +434,7 @@ async function playIntro() {
     console.warn('Ошибка при запуске музыки:', error)
     hasPlayedIntro = false
     isThemePlaying.value = false
-    
+
     // Пробуем запустить снова через небольшую задержку
     setTimeout(() => {
       if (!shouldRedirect.value) {
