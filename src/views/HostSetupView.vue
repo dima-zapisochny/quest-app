@@ -666,7 +666,7 @@ async function onImportQuestFile(event: Event) {
   z-index: 0;
   background: rgb(var(--c-surface) / 0.7);
   border-radius: 1.1rem;
-  padding: 0;
+  padding: 0.65rem;
   border: 1px solid rgb(var(--c-accent-sky) / 0.18);
   color: rgb(var(--c-text));
   display: flex;
@@ -686,6 +686,8 @@ async function onImportQuestFile(event: Event) {
 .quest-card__cover {
   position: relative;
   aspect-ratio: 1.6;
+  border-radius: 0.8rem;
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -705,7 +707,7 @@ async function onImportQuestFile(event: Event) {
 }
 
 .quest-card__body {
-  padding: 0.8rem 1rem 1rem;
+  padding: 0.65rem 0.35rem 0.3rem;
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
