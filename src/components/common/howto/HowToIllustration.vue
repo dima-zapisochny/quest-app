@@ -181,6 +181,7 @@ const gridCells = Array.from({ length: 25 }, (_, i) => ({ k: i, c: i % 5, r: Mat
 
 <style scoped>
 .illu { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+.illu > .scene { transform: scale(1.15); }
 .scene { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.1rem; width: 100%; }
 .scene--row { flex-direction: row; gap: 2.2rem; }
 .scene--start { gap: 0.6rem; }
