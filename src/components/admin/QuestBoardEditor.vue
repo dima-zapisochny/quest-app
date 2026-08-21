@@ -97,6 +97,7 @@
             </header>
             <div class="q-modal__body">
               <AdminQuestionRow
+                ref="questionRowRef"
                 :key="editingQuestion.id"
                 :quest-id="questId"
                 :round-id="round.id"
@@ -107,6 +108,9 @@
               />
             </div>
             <footer class="q-modal__foot">
+              <button type="button" class="q-modal__delete" @click="questionRowRef?.handleDelete()">
+                {{ t('editor.deleteQuestion') }}
+              </button>
               <button type="button" class="q-modal__done" @click="closeModal">{{ t('editor.done') }}</button>
             </footer>
           </div>
@@ -229,6 +233,7 @@ async function createPresetBoard(cats: number, questions: number) {
 // --- Модалка редактирования вопроса ---
 const editingCategoryId = ref<string | null>(null)
 const editingQuestionId = ref<string | null>(null)
+const questionRowRef = ref<InstanceType<typeof AdminQuestionRow> | null>(null)
 
 const editingCategory = computed(() => {
   if (!editingCategoryId.value) return null
@@ -508,7 +513,7 @@ watch(() => props.round.id, closeModal)
   overflow-y: auto;
 }
 .q-modal {
-  width: min(880px, 100%);
+  width: min(980px, 100%);
   margin: auto;
   background: linear-gradient(140deg, rgb(var(--c-bg) / 0.98), rgba(8, 22, 43, 0.98));
   border: 1px solid rgb(var(--c-accent-sky) / 0.28);
@@ -516,7 +521,7 @@ watch(() => props.round.id, closeModal)
   box-shadow: 0 40px 90px rgb(var(--c-bg-deep) / 0.7);
   display: flex;
   flex-direction: column;
-  min-height: min(440px, 78vh);
+  min-height: min(560px, 82vh);
   max-height: min(92vh, 100%);
 }
 .q-modal__head {
@@ -556,9 +561,26 @@ watch(() => props.round.id, closeModal)
 }
 .q-modal__foot {
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
   padding: 1.1rem 1.6rem;
   border-top: 1px solid rgb(var(--c-accent-sky) / 0.15);
+}
+.q-modal__delete {
+  padding: 0.6rem 1.3rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgb(var(--c-danger) / 0.4);
+  background: rgb(var(--c-danger) / 0.1);
+  color: rgb(var(--c-danger-soft));
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+.q-modal__delete:hover {
+  background: rgb(var(--c-danger) / 0.2);
+  border-color: rgb(var(--c-danger) / 0.65);
 }
 /* Спокойная кнопка «Готово» — без яркой подсветки */
 .q-modal__done {

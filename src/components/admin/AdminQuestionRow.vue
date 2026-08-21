@@ -133,17 +133,6 @@
         </div>
       </div>
     </div>
-    <div class="question-card-footer">
-      <button
-        class="delete-question"
-        @click="handleDelete"
-        type="button"
-        :title="t('editor.deleteQuestion')"
-        :aria-label="t('editor.deleteQuestion')"
-      >
-        {{ t('common.delete') }}
-      </button>
-    </div>
   </div>
 </template>
 
@@ -221,6 +210,8 @@ function handleDelete() {
     emit('deleted')
   }
 }
+
+defineExpose({ handleDelete })
 
 function handleUpload(target: 'question' | 'answer', event: Event, mediaType?: 'image' | 'audio') {
   const input = event.target as HTMLInputElement
@@ -424,7 +415,7 @@ textarea {
   font-size: 0.9rem;
   line-height: 1.45;
   resize: vertical;
-  min-height: 96px;
+  min-height: 150px;
   background: rgb(var(--c-bg) / 0.5);
   color: rgb(var(--c-text));
 }
