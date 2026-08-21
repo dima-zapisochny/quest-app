@@ -80,11 +80,15 @@
               </div>
             </div>
           </article>
-          <article class="quest-card quest-card--new" @click="createNewQuest">
-            <div class="new-quest-circle">+</div>
-            <span>{{ t('host.createNewQuest') }}</span>
+          <article class="quest-card quest-card--cta" @click="createNewQuest">
+            <div class="quest-card__cover quest-card__cover--dashed">
+              <span class="new-quest-circle">+</span>
+            </div>
+            <div class="quest-card__body quest-card__body--cta">
+              <span class="quest-card__ctalabel">{{ t('host.createNewQuest') }}</span>
+            </div>
           </article>
-          <article class="quest-card quest-card--import" @click.stop="triggerImportQuest">
+          <article class="quest-card quest-card--cta quest-card--import" @click.stop="triggerImportQuest">
             <input
               ref="importQuestInputRef"
               type="file"
@@ -93,12 +97,16 @@
               :disabled="importingQuest"
               @change="onImportQuestFile"
             />
-            <div class="new-quest-circle import-icon">
-              <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M12 15V3"/><path d="m7 8 5-5 5 5"/><path d="M20 15v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-4"/>
-              </svg>
+            <div class="quest-card__cover quest-card__cover--dashed">
+              <span class="new-quest-circle import-icon">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M12 15V3"/><path d="m7 8 5-5 5 5"/><path d="M20 15v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-4"/>
+                </svg>
+              </span>
             </div>
-            <span>{{ importingQuest ? t('host.importing') : t('host.importQuest') }}</span>
+            <div class="quest-card__body quest-card__body--cta">
+              <span class="quest-card__ctalabel">{{ importingQuest ? t('host.importing') : t('host.importQuest') }}</span>
+            </div>
           </article>
         </div>
       </section>
@@ -573,11 +581,7 @@ async function onImportQuestFile(event: Event) {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background: rgb(var(--c-bg) / 0.32);
-  border: 1px solid rgb(var(--c-accent-sky) / 0.12);
-  border-radius: 1.25rem;
-  padding: 1.35rem 1.35rem 0.85rem;
-  box-sizing: border-box;
+  padding: 0.25rem 0 0;
 }
 
 .quest-selection::-webkit-scrollbar {
@@ -635,6 +639,7 @@ async function onImportQuestFile(event: Event) {
   flex: 1 1 auto;
   min-height: 0;
   align-content: start;
+  align-items: start;
 }
 
 .quests-grid::-webkit-scrollbar {
@@ -686,17 +691,29 @@ async function onImportQuestFile(event: Event) {
   justify-content: center;
   background: linear-gradient(135deg, rgb(var(--c-violet) / 0.5), rgb(var(--c-blue) / 0.45));
 }
-.quest-card:nth-child(3n + 2) .quest-card__cover {
+.quest-card:nth-child(3n + 2):not(.quest-card--cta) .quest-card__cover {
   background: linear-gradient(135deg, rgb(var(--c-accent-sky) / 0.5), rgb(var(--c-indigo-500) / 0.5));
 }
-.quest-card:nth-child(3n) .quest-card__cover {
+.quest-card:nth-child(3n):not(.quest-card--cta) .quest-card__cover {
   background: linear-gradient(135deg, rgb(var(--c-accent) / 0.4), rgb(var(--c-violet) / 0.5));
 }
+/* Обложки CTA-карточек — пунктирный плейсхолдер, не градиент */
+.quest-card--cta .quest-card__cover {
+  background: rgb(var(--c-accent-sky) / 0.05);
+}
+.quest-card__cover::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 30% 22%, rgb(var(--c-white) / 0.18), transparent 55%);
+  pointer-events: none;
+}
 .quest-card__mono {
+  position: relative;
   font-family: 'Press Start 2P', 'Nunito', monospace;
-  font-size: 1.7rem;
-  color: rgb(var(--c-white) / 0.92);
-  text-shadow: 0 2px 10px rgb(var(--c-bg-deep) / 0.5);
+  font-size: 1.9rem;
+  color: rgb(var(--c-white) / 0.95);
+  text-shadow: 0 3px 12px rgb(var(--c-bg-deep) / 0.55);
 }
 
 .quest-card__body {
@@ -803,30 +820,23 @@ async function onImportQuestFile(event: Event) {
   transform: rotate(6deg) scale(1.08);
 }
 
-.quest-card--new,
-.quest-card--import {
-  min-height: 275px;
-  border: 2px dashed rgb(var(--c-accent-sky) / 0.45);
+/* «Новый квест» / «Импорт» — та же структура (обложка + подпись), что и у квеста */
+.quest-card__cover--dashed {
   background: rgb(var(--c-accent-sky) / 0.05);
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-  text-align: center;
-  color: rgb(var(--c-text-soft) / 0.9);
-  position: relative;
+  border: 1.5px dashed rgb(var(--c-accent-sky) / 0.4);
+  transition: border-color 0.2s ease, background 0.2s ease;
 }
-
-.quest-card--new:hover,
-.quest-card--import:hover {
-  transform: translateY(-3px);
+.quest-card__cover--dashed::after {
+  content: none;
+}
+.quest-card--cta:hover .quest-card__cover--dashed {
   border-color: rgb(var(--c-accent-sky) / 0.7);
   background: rgb(var(--c-accent-sky) / 0.1);
-  box-shadow: 0 16px 34px rgb(var(--c-bg-deep) / 0.4);
 }
 
 .new-quest-circle {
-  width: 3.4rem;
-  height: 3.4rem;
+  width: 3.2rem;
+  height: 3.2rem;
   border-radius: 50%;
   border: 1px dashed rgb(var(--c-accent-sky) / 0.6);
   background: rgb(var(--c-bg) / 0.5);
@@ -837,17 +847,21 @@ async function onImportQuestFile(event: Event) {
   font-size: 1.9rem;
   line-height: 1;
 }
+.new-quest-circle svg {
+  width: 1.6rem;
+  height: 1.6rem;
+}
 
-.quest-card--new span,
-.quest-card--import span {
+.quest-card__body--cta {
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+}
+.quest-card__ctalabel {
   font-size: 0.95rem;
   font-weight: 700;
-  letter-spacing: 0.01em;
-  padding: 0 0.75rem;
-}
-.new-quest-circle svg {
-  width: 1.7rem;
-  height: 1.7rem;
+  color: rgb(var(--c-text-soft) / 0.92);
+  text-align: center;
 }
 .quest-import-input {
   position: absolute;
