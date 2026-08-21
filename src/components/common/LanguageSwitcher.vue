@@ -174,7 +174,7 @@ onBeforeUnmount(() => window.removeEventListener('click', onClickOutside))
 /* На узких экранах — компактно: только флаг (без названия языка) */
 @media (max-width: 420px) {
   .lang__current { display: none; }
-  .lang__toggle { padding: 0 0.7rem; gap: 0.3rem; }
-  .lang__flag { font-size: 1.3rem; }
+  .lang__toggle { min-width: 5rem; padding: 0 1.3rem; gap: 0.55rem; justify-content: center; }
+  .lang__flag { font-size: 1.35rem; }
 }
 </style>
