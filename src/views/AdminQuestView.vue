@@ -591,19 +591,21 @@ function goBack() {
   transition: color 0.2s ease;
 }
 .round-tab:hover {
-  background: rgb(var(--c-violet) / 0.12);
-  border-color: rgb(var(--c-violet) / 0.3);
+  background: rgb(var(--c-accent-sky) / 0.12);
+  border-color: rgb(var(--c-accent-sky) / 0.3);
 }
 .round-tab:hover .round-tab__select {
   color: rgb(var(--c-text));
 }
 
 .round-tab--active {
-  background: rgb(var(--c-violet) / 0.22);
-  border-color: rgb(var(--c-violet) / 0.55);
+  background: rgb(var(--c-accent-sky) / 0.16);
+  border-color: rgb(var(--c-accent-sky) / 0.4);
 }
 .round-tab--active .round-tab__select {
-  color: rgb(var(--c-indigo-100));
+  color: rgb(var(--c-accent-soft));
+  /* больше расстояние до крестика: сдвигаем текст влево */
+  padding-right: 2.1rem;
 }
 
 /* Крестик удаления раунда — абсолютно у правого края, не влияет на ширину капсулы */
@@ -620,7 +622,7 @@ function goBack() {
   border: none;
   border-radius: 8px;
   background: transparent;
-  color: rgb(var(--c-indigo-100) / 0.6);
+  color: rgb(var(--c-accent-soft) / 0.55);
   font-size: 0.8rem;
   line-height: 1;
   cursor: pointer;
@@ -656,9 +658,9 @@ function goBack() {
   cursor: pointer;
 }
 .round-tab--add:hover {
-  color: rgb(var(--c-violet));
-  border-color: rgb(var(--c-violet) / 0.5);
-  background: rgb(var(--c-violet) / 0.08);
+  color: rgb(var(--c-accent-soft));
+  border-color: rgb(var(--c-accent-sky) / 0.55);
+  background: rgb(var(--c-accent-sky) / 0.08);
 }
 .round-tab--add:disabled {
   opacity: 0.7;

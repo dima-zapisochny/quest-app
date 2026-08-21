@@ -130,7 +130,7 @@
           <span class="qcard__sub">12 questions · 3 rounds</span>
         </div>
         <div class="qcard qcard--new">
-          <span class="qcard__plus">+</span>
+          <span class="qcard__plus" aria-hidden="true"></span>
           <span class="qcard__newlabel">New quest</span>
         </div>
         <span class="cursor questcursor" aria-hidden="true"></span>
@@ -258,7 +258,7 @@ const gridCells = Array.from({ length: 25 }, (_, i) => ({ k: i, c: i % 5, r: Mat
 .startcard__or span { flex: 1; height: 1px; background: rgb(var(--c-text-soft) / 0.15); }
 .startcard__join { display: flex; gap: 0.4rem; width: 100%; }
 .startcard__code { flex: 1; padding: 0.35rem; border-radius: 10px; text-align: center; letter-spacing: 0.15em; font-size: 0.68rem; font-weight: 700; color: rgb(var(--c-text-soft) / 0.7); border: 1px solid rgb(var(--c-accent-sky) / 0.25); background: rgb(var(--c-bg) / 0.4); }
-.startcard__joinbtn { padding: 0.35rem 0.85rem; border-radius: 10px; font-size: 0.74rem; font-weight: 700; color: rgb(var(--c-bg-deep)); background: linear-gradient(135deg, rgb(244 114 182), rgb(var(--c-violet))); }
+.startcard__joinbtn { padding: 0.35rem 0.85rem; border-radius: 10px; font-size: 0.74rem; font-weight: 700; color: rgb(var(--c-bg-deep)); background: linear-gradient(135deg, #ec4899, rgb(var(--c-indigo-500))); }
 .arrow { color: rgb(var(--c-accent-soft)); font-size: 1.15rem; animation: bob 2.8s ease-in-out infinite; }
 .codewrap { display: flex; flex-direction: column; align-items: center; gap: 0.3rem; }
 .codewrap__label { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em; color: rgb(var(--c-text-muted) / 0.7); }
@@ -284,7 +284,7 @@ const gridCells = Array.from({ length: 25 }, (_, i) => ({ k: i, c: i % 5, r: Mat
 .phone__field { display: flex; align-items: center; gap: 2px; border-bottom: 2px solid rgb(var(--c-accent-sky) / 0.5); padding-bottom: 0.25rem; margin-top: 0.5rem; }
 .phone__code { font-size: 0.82rem; font-weight: 800; letter-spacing: 0.14em; color: rgb(var(--c-text)); white-space: nowrap; }
 .caret { width: 2px; height: 1.1rem; background: rgb(var(--c-accent-sky)); animation: blink 0.8s step-end infinite; }
-.phone__btn { margin-top: auto; padding: 0.35rem 1.1rem; border-radius: var(--radius-pill); background: linear-gradient(135deg, rgb(var(--c-violet)), rgb(var(--c-accent-sky))); color: rgb(var(--c-bg)); font-size: 0.78rem; font-weight: 700; animation: press 3s ease-in-out infinite; }
+.phone__btn { margin-top: auto; padding: 0.35rem 1.1rem; border-radius: var(--radius-pill); background: radial-gradient(circle at 20% 25%, rgba(244, 114, 182, 0.6), transparent 55%), linear-gradient(135deg, #ec4899, rgb(var(--c-indigo-500))); color: rgb(var(--c-bg)); font-size: 0.78rem; font-weight: 700; animation: press 3s ease-in-out infinite; }
 .players { display: flex; flex-direction: column; gap: 0.5rem; }
 .players__head { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: rgb(var(--c-text-muted) / 0.7); display: flex; align-items: center; gap: 0.4rem; }
 .players__count { display: inline-flex; align-items: center; justify-content: center; min-width: 1.1rem; height: 1.1rem; padding: 0 0.3rem; border-radius: 999px; background: rgb(var(--c-accent-sky) / 0.2); color: rgb(var(--c-accent-soft)); font-size: 0.66rem; }
@@ -357,7 +357,7 @@ const gridCells = Array.from({ length: 25 }, (_, i) => ({ k: i, c: i % 5, r: Mat
 .mark { width: 2.8rem; height: 2.8rem; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; font-weight: 800; }
 .mark--ok { color: rgb(var(--c-success)); background: rgb(var(--c-success) / 0.16); border: 1px solid rgb(var(--c-success) / 0.5); animation: press 2.4s ease-in-out infinite; }
 .mark--no { color: rgb(var(--c-danger-soft)); background: rgb(var(--c-danger) / 0.12); border: 1px solid rgb(var(--c-danger) / 0.4); }
-.scene--score { gap: 1rem; }
+.scene--score { gap: 1.6rem; }
 .lboard { display: flex; flex-direction: column; gap: 0.45rem; }
 .lbrow { position: relative; display: flex; align-items: center; gap: 0.55rem; padding: 0.42rem 0.7rem; border-radius: 12px; width: 300px; box-sizing: border-box; background: rgb(var(--c-bg) / 0.55); border: 1px solid rgb(var(--c-accent-sky) / 0.16); opacity: 0; transform: translateY(8px); animation: rowin 3s ease-in-out infinite; animation-delay: calc(var(--i) * 0.3s); }
 .lbrow--lead { background: rgb(var(--c-gold) / 0.1); border-color: rgb(var(--c-gold) / 0.4); }
@@ -381,7 +381,8 @@ const gridCells = Array.from({ length: 25 }, (_, i) => ({ k: i, c: i % 5, r: Mat
 .qcard__title { font-size: 0.75rem; font-weight: 800; color: rgb(var(--c-text)); white-space: nowrap; overflow: hidden; opacity: 0; animation: qtextin 4.4s ease-in-out infinite; }
 .qcard__sub { font-size: 0.56rem; color: rgb(var(--c-text-muted) / 0.85); white-space: nowrap; overflow: hidden; opacity: 0; animation: qtextin 4.4s ease-in-out infinite 0.15s; }
 .qcard--new { position: relative; align-items: center; justify-content: center; gap: 0.6rem; border: 2px dashed rgb(var(--c-accent-sky) / 0.5); background: rgb(var(--c-accent-sky) / 0.06); animation: newhi 4.4s ease-in-out infinite; }
-.qcard__plus { width: 2.9rem; height: 2.9rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.7rem; color: rgb(var(--c-accent-soft)); border: 1px dashed rgb(var(--c-accent-sky) / 0.6); background: rgb(var(--c-bg) / 0.5); animation: spinplus 4.4s ease-in-out infinite; }
+.qcard__plus { width: 2.9rem; height: 2.9rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.7rem; line-height: 1; font-weight: 400; color: rgb(var(--c-accent-soft)); border: 1px dashed rgb(var(--c-accent-sky) / 0.6); background: rgb(var(--c-bg) / 0.5); animation: spinplus 4.4s ease-in-out infinite; }
+.qcard__plus::before { content: '+'; display: block; margin-top: -0.08em; }
 .qcard__newlabel { color: rgb(var(--c-text-soft) / 0.9); font-weight: 700; font-size: 0.9rem; }
 .questcursor { left: 50%; top: 50%; animation: questcursor 4.4s ease-in-out infinite; }
 @keyframes qtextin { 0%,4%{opacity:0;transform:translateY(4px)} 14%,94%{opacity:1;transform:translateY(0)} 100%{opacity:0} }

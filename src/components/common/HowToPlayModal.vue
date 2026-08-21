@@ -73,7 +73,7 @@
               type="button"
               class="howto__next"
               @click="next"
-            >{{ isLast ? t('howto.gotIt') : t('howto.next') }}</button>
+            >{{ isFinal ? t('howto.gotIt') : t('howto.next') }}</button>
           </footer>
         </div>
       </div>
@@ -114,6 +114,8 @@ const dir = ref<1 | -1>(1)
 const steps = computed(() => (tab.value === 'play' ? playSteps : createSteps))
 const current = computed(() => steps.value[step.value])
 const isLast = computed(() => step.value === steps.value.length - 1)
+// Самый последний шаг всего гида — последний шаг вкладки «Создать квест»
+const isFinal = computed(() => tab.value === 'create' && isLast.value)
 
 function switchTab(value: 'play' | 'create') {
   if (tab.value === value) return
@@ -122,10 +124,23 @@ function switchTab(value: 'play' | 'create') {
   step.value = 0
 }
 function prev() {
-  if (step.value > 0) { dir.value = -1; step.value-- }
+  if (step.value > 0) { dir.value = -1; step.value--; return }
+  // с начала «Создать квест» — назад в конец «Играть»
+  if (tab.value === 'create') {
+    dir.value = -1
+    tab.value = 'play'
+    step.value = playSteps.length - 1
+  }
 }
 function next() {
-  if (isLast.value) { close(); return }
+  if (isFinal.value) { close(); return }
+  // конец вкладки «Играть» → переходим в «Создать квест»
+  if (isLast.value && tab.value === 'play') {
+    dir.value = 1
+    tab.value = 'create'
+    step.value = 0
+    return
+  }
   dir.value = 1
   step.value++
 }

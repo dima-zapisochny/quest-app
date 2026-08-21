@@ -62,9 +62,7 @@
                 @select="onGridSelect"
               />
             </div>
-            <p class="grid-size__hint">
-              {{ isCreating ? t('create.creating') : t('create.tapGrid') }}
-            </p>
+            <p v-if="isCreating" class="grid-size__hint">{{ t('create.creating') }}</p>
           </div>
 
         </form>
@@ -95,8 +93,8 @@ const userProfile = computed(() => sessionStore.userProfile)
 const title = ref('')
 const description = ref('')
 const rounds = ref(1)
-const categories = ref(5)
-const questions = ref(5)
+const categories = ref(1)
+const questions = ref(1)
 const error = ref('')
 const isCreating = ref(false)
 const titleInput = ref<HTMLInputElement | null>(null)
