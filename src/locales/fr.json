@@ -66,11 +66,13 @@
     "description": "Description (facultatif)",
     "descriptionPlaceholder": "Une courte note sur le quiz",
     "startFrom": "Par où commencer",
+    "boardSize": "Taille du tableau",
     "grid": "Grille prête",
     "empty": "Quiz vide",
     "roundsAria": "Nombre de manches",
     "next": "Suivant",
     "creating": "Création…",
+    "tapGrid": "Touchez la grille pour continuer",
     "errName": "Entrez un nom de quiz",
     "errCreate": "Impossible de créer le quiz"
   },

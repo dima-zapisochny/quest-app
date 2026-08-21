@@ -554,33 +554,36 @@ function goBack() {
 
 .round-tabs {
   display: flex;
-  gap: 0.6rem;
+  gap: 0.55rem;
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
 }
 
+/* Каждый раунд — отдельная капсула фиксированной ширины (крестик не двигает соседей) */
 .round-tab {
-  min-width: 6.25rem;
-  min-height: 2.6rem;
+  position: relative;
+  width: 8rem;
+  min-height: 3rem;
   box-sizing: border-box;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   border-radius: var(--radius-pill);
-  border: 1px solid transparent;
-  background: transparent;
+  border: 1px solid rgb(var(--c-accent-sky) / 0.12);
+  background: rgb(var(--c-bg-deep) / 0.5);
   transition: background 0.2s ease, border-color 0.2s ease;
 }
 .round-tab__select {
-  flex: 1;
+  width: 100%;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0 1.3rem;
+  padding: 0.75rem 1.4rem;
   border: none;
   background: transparent;
   color: rgb(var(--c-text-soft) / 0.75);
-  font-size: 0.88rem;
+  font-size: 0.9rem;
   font-weight: 600;
   letter-spacing: 0.02em;
   text-align: center;
@@ -588,32 +591,36 @@ function goBack() {
   transition: color 0.2s ease;
 }
 .round-tab:hover {
-  background: rgb(var(--c-accent-sky) / 0.1);
+  background: rgb(var(--c-violet) / 0.12);
+  border-color: rgb(var(--c-violet) / 0.3);
 }
 .round-tab:hover .round-tab__select {
   color: rgb(var(--c-text));
 }
 
 .round-tab--active {
-  background: rgb(var(--c-accent-sky) / 0.16);
-  border-color: rgb(var(--c-accent-sky) / 0.35);
+  background: rgb(var(--c-violet) / 0.22);
+  border-color: rgb(var(--c-violet) / 0.55);
 }
 .round-tab--active .round-tab__select {
-  color: rgb(var(--c-accent-soft));
+  color: rgb(var(--c-indigo-100));
 }
 
-/* Крестик удаления раунда — как у категорий: приглушён, краснеет при наведении */
+/* Крестик удаления раунда — абсолютно у правого края, не влияет на ширину капсулы */
 .round-tab__del {
+  position: absolute;
+  right: 0.45rem;
+  top: 50%;
+  transform: translateY(-50%);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 1.5rem;
   height: 1.5rem;
-  margin: auto 0.5rem auto 0;
   border: none;
   border-radius: 8px;
   background: transparent;
-  color: rgb(var(--c-accent-soft) / 0.55);
+  color: rgb(var(--c-indigo-100) / 0.6);
   font-size: 0.8rem;
   line-height: 1;
   cursor: pointer;
@@ -623,22 +630,20 @@ function goBack() {
   color: rgb(var(--c-danger-soft));
   background: rgb(var(--c-danger) / 0.15);
 }
-/* Плавное появление крестика при выборе раунда */
+/* Плавное появление крестика — только opacity/scale, без рефлоу */
 .round-del-enter-active,
 .round-del-leave-active {
-  overflow: hidden;
-  transition: opacity 0.22s ease, transform 0.22s ease, width 0.22s ease, margin-right 0.22s ease;
+  transition: opacity 0.2s ease, transform 0.2s ease;
 }
 .round-del-enter-from,
 .round-del-leave-to {
   opacity: 0;
-  transform: scale(0.4);
-  width: 0;
-  margin-right: 0;
+  transform: translateY(-50%) scale(0.4);
 }
 
 .round-tab--add {
-  padding: 0 1.3rem;
+  width: 3.2rem;
+  padding: 0;
   border: 1px dashed rgb(var(--c-accent-sky) / 0.35);
   background: transparent;
   color: rgb(var(--c-text-soft) / 0.7);
@@ -651,9 +656,9 @@ function goBack() {
   cursor: pointer;
 }
 .round-tab--add:hover {
-  color: rgb(var(--c-accent-soft));
-  border-color: rgb(var(--c-accent-sky) / 0.55);
-  background: transparent;
+  color: rgb(var(--c-violet));
+  border-color: rgb(var(--c-violet) / 0.5);
+  background: rgb(var(--c-violet) / 0.08);
 }
 .round-tab--add:disabled {
   opacity: 0.7;

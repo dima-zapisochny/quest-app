@@ -66,11 +66,13 @@
     "description": "Beschreibung (optional)",
     "descriptionPlaceholder": "Eine kurze Notiz zum Quiz",
     "startFrom": "Womit anfangen",
+    "boardSize": "Spielfeldgröße",
     "grid": "Fertiges Raster",
     "empty": "Leeres Quiz",
     "roundsAria": "Anzahl der Runden",
     "next": "Weiter",
     "creating": "Wird erstellt…",
+    "tapGrid": "Tippe auf das Raster, um fortzufahren",
     "errName": "Gib einen Quiznamen ein",
     "errCreate": "Quiz konnte nicht erstellt werden"
   },

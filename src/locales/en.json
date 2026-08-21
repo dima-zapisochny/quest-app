@@ -66,11 +66,13 @@
     "description": "Description (optional)",
     "descriptionPlaceholder": "A short note about the quest",
     "startFrom": "Where to start",
+    "boardSize": "Board size",
     "grid": "Ready-made grid",
     "empty": "Empty quest",
     "roundsAria": "Number of rounds",
     "next": "Next",
     "creating": "Creating…",
+    "tapGrid": "Tap the grid to continue",
     "errName": "Enter a quest name",
     "errCreate": "Failed to create the quest"
   },

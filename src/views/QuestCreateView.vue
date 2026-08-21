@@ -34,25 +34,8 @@
             :placeholder="t('create.descriptionPlaceholder')"
           ></textarea>
 
-          <span class="field-label">{{ t('create.startFrom') }}</span>
-          <div class="mode-switch" role="radiogroup" :aria-label="t('create.startFrom')">
-            <button
-              type="button"
-              :class="['mode-switch__chip', { 'mode-switch__chip--active': mode === 'grid' }]"
-              role="radio"
-              :aria-checked="mode === 'grid'"
-              @click="mode = 'grid'"
-            >{{ t('create.grid') }}</button>
-            <button
-              type="button"
-              :class="['mode-switch__chip', { 'mode-switch__chip--active': mode === 'empty' }]"
-              role="radio"
-              :aria-checked="mode === 'empty'"
-              @click="mode = 'empty'"
-            >{{ t('create.empty') }}</button>
-          </div>
-
-          <div v-if="mode === 'grid'" class="grid-size">
+          <span class="field-label">{{ t('create.boardSize') }}</span>
+          <div class="grid-size">
             <div class="grid-size__rounds">
               <div class="seg" role="group" :aria-label="t('create.roundsAria')">
                 <button
@@ -65,26 +48,22 @@
                 >{{ n }}</button>
               </div>
             </div>
-            <div class="grid-size__picker">
+            <div class="grid-size__picker" :class="{ 'grid-size__picker--busy': isCreating }">
               <GridSizePicker
                 v-model:categories="categories"
                 v-model:questions="questions"
                 :max-categories="5"
                 :max-questions="5"
                 :suffix="roundsSuffix"
+                @select="onGridSelect"
               />
             </div>
+            <p class="grid-size__hint">
+              {{ isCreating ? t('create.creating') : t('create.tapGrid') }}
+            </p>
           </div>
 
           <p v-if="error" class="field-error">{{ error }}</p>
-
-          <div class="quest-create__actions">
-            <button type="button" class="btn-secondary" @click="goBack">{{ t('common.cancel') }}</button>
-            <button type="submit" class="btn-primary" :disabled="isCreating">
-              <span v-if="!isCreating">{{ t('create.next') }}</span>
-              <span v-else>{{ t('create.creating') }}</span>
-            </button>
-          </div>
         </form>
       </BaseCard>
     </main>
@@ -112,7 +91,6 @@ const userProfile = computed(() => sessionStore.userProfile)
 
 const title = ref('')
 const description = ref('')
-const mode = ref<'grid' | 'empty'>('grid')
 const rounds = ref(1)
 const categories = ref(5)
 const questions = ref(5)
@@ -130,20 +108,33 @@ function goBack() {
   router.push({ name: 'host-setup' })
 }
 
+/** Клик по сетке — если название заполнено, сразу создаём квест и идём в редактор. */
+function onGridSelect(c: number, r: number) {
+  categories.value = c
+  questions.value = r
+  submit()
+}
+
 async function submit() {
   error.value = ''
   const name = title.value.trim()
   if (!name) {
     error.value = t('create.errName')
+    titleInput.value?.focus()
+    titleInput.value?.scrollIntoView({ behavior: 'smooth', block: 'center' })
     return
   }
   if (isCreating.value) return
   isCreating.value = true
   try {
     const desc = description.value.trim()
-    const questId = mode.value === 'grid'
-      ? await quizStore.createQuestWithBoard(name, desc, categories.value, questions.value, rounds.value)
-      : await quizStore.createQuest(name, desc)
+    const questId = await quizStore.createQuestWithBoard(
+      name,
+      desc,
+      categories.value,
+      questions.value,
+      rounds.value
+    )
     router.replace({ name: 'admin-quest', params: { questId } })
   } catch (e: any) {
     error.value = e?.message ?? t('create.errCreate')
@@ -288,6 +279,17 @@ async function submit() {
   flex-direction: column;
   align-items: center;
   gap: 0.75rem;
+  transition: opacity 0.2s ease;
+}
+.grid-size__picker--busy {
+  opacity: 0.6;
+  pointer-events: none;
+}
+.grid-size__hint {
+  margin: 0.4rem 0 0;
+  text-align: center;
+  font-size: 0.85rem;
+  color: rgb(var(--c-accent-soft) / 0.85);
 }
 
 .field-error {
