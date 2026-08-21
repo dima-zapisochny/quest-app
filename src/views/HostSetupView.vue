@@ -799,8 +799,8 @@ async function onImportQuestFile(event: Event) {
 }
 
 .new-quest-circle {
-  width: 3.2rem;
-  height: 3.2rem;
+  width: 4.3rem;
+  height: 4.3rem;
   border-radius: 50%;
   border: 1px dashed rgb(var(--c-accent-sky) / 0.6);
   background: rgb(var(--c-bg) / 0.5);
@@ -808,12 +808,12 @@ async function onImportQuestFile(event: Event) {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.9rem;
+  font-size: 2.5rem;
   line-height: 1;
 }
 .new-quest-circle svg {
-  width: 1.6rem;
-  height: 1.6rem;
+  width: 2.1rem;
+  height: 2.1rem;
 }
 
 .quest-card__body--cta {
@@ -822,7 +822,7 @@ async function onImportQuestFile(event: Event) {
   flex: 1;
 }
 .quest-card__ctalabel {
-  font-size: 0.95rem;
+  font-size: 1.2rem;
   font-weight: 700;
   color: rgb(var(--c-text-soft) / 0.92);
   text-align: center;
