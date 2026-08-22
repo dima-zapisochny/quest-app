@@ -470,7 +470,7 @@ async function onImportQuestFile(event: Event) {
 .host-hero__title {
   margin: 0;
   font-family: 'Press Start 2P', cursive;
-  font-size: clamp(1rem, 2.8vw, 1.55rem);
+  font-size: clamp(1.25rem, 3.8vw, 2.1rem);
   line-height: 1.55;
   letter-spacing: 0.06em;
   color: rgb(var(--c-text));
@@ -959,7 +959,7 @@ async function onImportQuestFile(event: Event) {
 /* ── Responsive ── */
 @media (max-width: 768px) {
   .host-hero__title {
-    font-size: clamp(0.85rem, 4vw, 1.1rem);
+    font-size: clamp(0.95rem, 4.5vw, 1.35rem);
   }
 
   .host-dock__inner {
