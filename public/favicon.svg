@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Quiz Quest">
+  <rect width="32" height="32" fill="#050a18"/>
+  <!-- QQ in Press Start 2P-like pixels: two eyes on brand navy. 2px stroke for 16x16 tabs. -->
+  <g fill="#ffffff">
+    <g transform="translate(2 9)">
+      <rect x="2" y="0" width="8" height="2"/>
+      <rect x="2" y="10" width="8" height="2"/>
+      <rect x="0" y="2" width="2" height="8"/>
+      <rect x="10" y="2" width="2" height="8"/>
+      <rect x="10" y="10" width="2" height="2"/>
+      <rect x="12" y="12" width="2" height="2"/>
+    </g>
+    <g transform="translate(17 9)">
+      <rect x="2" y="0" width="8" height="2"/>
+      <rect x="2" y="10" width="8" height="2"/>
+      <rect x="0" y="2" width="2" height="8"/>
+      <rect x="10" y="2" width="2" height="8"/>
+      <rect x="10" y="10" width="2" height="2"/>
+      <rect x="12" y="12" width="2" height="2"/>
+    </g>
+  </g>
+</svg>
