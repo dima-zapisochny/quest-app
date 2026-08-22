@@ -179,7 +179,9 @@
             </ul>
             <p v-else class="stats-empty">{{ tUk('stats.empty') }}</p>
           </section>
+        </div>
 
+        <div class="stats-grids stats-grids--geo">
           <section class="stats-panel">
             <header class="stats-panel__head">
               <h2>{{ tUk('stats.topCountries') }}</h2>
@@ -204,10 +206,7 @@
             <ul v-if="topRegions.length" class="stats-rank stats-rank--geo">
               <li v-for="row in topRegions" :key="`${row.country_code}-${row.region}`">
                 <span class="stats-rank__flag" aria-hidden="true">{{ countryFlag(row.country_code) }}</span>
-                <span class="stats-rank__name">
-                  <span class="stats-rank__region">{{ row.region }}</span>
-                  <span class="stats-rank__country-soft">{{ countryLabel(row.country_code) }}</span>
-                </span>
+                <span class="stats-rank__name" :title="countryLabel(row.country_code)">{{ row.region }}</span>
                 <span class="stats-rank__bar-wrap">
                   <span class="stats-rank__bar stats-rank__bar--geo" :style="{ width: regionBarWidth(row.views) }" />
                 </span>
@@ -516,7 +515,7 @@ onBeforeUnmount(() => {
 .stats-dashboard {
   display: flex;
   flex-direction: column;
-  gap: 1.1rem;
+  gap: 0.85rem;
   width: 100%;
 }
 
@@ -683,27 +682,27 @@ onBeforeUnmount(() => {
 .stats-kpis {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.85rem;
+  gap: 0.7rem;
 }
 
 .stats-kpi {
-  padding: 0.95rem 1.05rem;
-  border-radius: 1rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: 0.9rem;
   background: rgb(var(--c-surface) / 0.5);
   border: 1px solid rgb(var(--c-accent-sky) / 0.16);
-  box-shadow: 0 10px 28px rgb(var(--c-bg-deep) / 0.22);
+  box-shadow: 0 8px 22px rgb(var(--c-bg-deep) / 0.2);
 }
 
 .stats-kpi__label {
-  margin: 0 0 0.35rem;
-  font-size: 0.86rem;
+  margin: 0 0 0.25rem;
+  font-size: 0.82rem;
   font-weight: 700;
   color: rgb(var(--c-text-muted));
 }
 
 .stats-kpi__value {
   margin: 0;
-  font-size: clamp(1.35rem, 2.4vw, 1.85rem);
+  font-size: clamp(1.25rem, 2.2vw, 1.7rem);
   font-weight: 800;
   color: rgb(var(--c-accent-soft));
   letter-spacing: -0.02em;
@@ -711,22 +710,25 @@ onBeforeUnmount(() => {
 
 .stats-panel {
   margin: 0;
-  padding: 1rem 1.15rem 1.1rem;
-  border-radius: 1.05rem;
+  padding: 0.75rem 0.9rem 0.8rem;
+  border-radius: 0.9rem;
   background: rgb(var(--c-surface) / 0.42);
   border: 1px solid rgb(var(--c-accent-sky) / 0.14);
-  box-shadow: 0 12px 32px rgb(var(--c-bg-deep) / 0.2);
-  height: fit-content;
+  box-shadow: 0 10px 28px rgb(var(--c-bg-deep) / 0.18);
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  box-sizing: border-box;
 }
 
 .stats-panel__head h2 {
-  margin: 0 0 0.75rem;
-  font-size: 1.05rem;
+  margin: 0 0 0.55rem;
+  font-size: 0.98rem;
   font-weight: 800;
 }
 
 .stats-panel--chart {
-  padding-bottom: 0.85rem;
+  padding-bottom: 0.7rem;
 }
 
 .stats-chart {
@@ -737,7 +739,7 @@ onBeforeUnmount(() => {
   display: block;
   width: 100%;
   height: auto;
-  max-height: 14rem;
+  max-height: 13rem;
 }
 
 .stats-chart__grid {
@@ -761,8 +763,13 @@ onBeforeUnmount(() => {
 .stats-grids {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.9rem;
-  align-items: start;
+  gap: 0.75rem;
+  align-items: stretch;
+}
+
+.stats-grids--geo {
+  /* однакова висота пари країни/регіони */
+  grid-auto-rows: 1fr;
 }
 
 .stats-rank {
@@ -771,52 +778,39 @@ onBeforeUnmount(() => {
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.55rem;
+  gap: 0.4rem;
+  flex: 1;
 }
 
 .stats-rank li {
   display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(3.5rem, 1fr) auto;
-  gap: 0.55rem;
+  grid-template-columns: minmax(0, 1.35fr) minmax(3rem, 1fr) auto;
+  gap: 0.45rem;
   align-items: center;
+  min-height: 1.35rem;
 }
 
 .stats-rank--geo li {
-  grid-template-columns: auto minmax(0, 1.35fr) minmax(3.5rem, 1fr) auto;
+  grid-template-columns: auto minmax(0, 1.4fr) minmax(3rem, 1fr) auto;
 }
 
 .stats-rank__flag {
-  font-size: 1.05rem;
+  font-size: 1rem;
   line-height: 1;
+  width: 1.25rem;
+  text-align: center;
 }
 
 .stats-rank__name {
-  font-size: 0.88rem;
+  font-size: 0.86rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  display: flex;
-  flex-direction: column;
-  gap: 0.1rem;
   min-width: 0;
 }
 
-.stats-rank__region {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.stats-rank__country-soft {
-  font-size: 0.75rem;
-  color: rgb(var(--c-text-muted));
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
 .stats-rank__bar-wrap {
-  height: 0.42rem;
+  height: 0.38rem;
   border-radius: 999px;
   background: rgb(var(--c-bg-deep) / 0.65);
   overflow: hidden;
@@ -839,17 +833,19 @@ onBeforeUnmount(() => {
 
 .stats-rank__num {
   font-weight: 800;
-  font-size: 0.86rem;
+  font-size: 0.84rem;
   color: rgb(var(--c-accent-soft));
-  min-width: 2.2rem;
+  min-width: 2rem;
   text-align: right;
+  font-variant-numeric: tabular-nums;
 }
 
 .stats-empty {
   margin: 0;
   color: rgb(var(--c-text-muted));
-  font-size: 0.9rem;
-  line-height: 1.45;
+  font-size: 0.84rem;
+  line-height: 1.35;
+  flex: 1;
 }
 
 @media (max-width: 900px) {
