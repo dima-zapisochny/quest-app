@@ -151,23 +151,15 @@
       </footer>
     </main>
 
-    <teleport to="body">
-      <div v-if="confirmDeleteModal.visible" class="quest-modal-backdrop" @click="cancelDeleteQuest">
-        <div class="quest-modal quest-modal--confirm" role="dialog" aria-modal="true" @click.stop>
-          <header class="quest-modal__header">
-            <h2>{{ t('host.deleteConfirmTitle') }}</h2>
-            <button type="button" class="quest-modal__close" @click="cancelDeleteQuest" :aria-label="t('common.close')">✕</button>
-          </header>
-          <div class="quest-modal__body">
-            <p>{{ t('host.deleteConfirmBody', { title: confirmDeleteModal.questTitle }) }}</p>
-          </div>
-          <div class="quest-modal__actions">
-            <button type="button" class="secondary" @click="cancelDeleteQuest">{{ t('common.cancel') }}</button>
-            <button type="button" class="danger" @click="confirmDeleteQuest">{{ t('common.delete') }}</button>
-          </div>
-        </div>
-      </div>
-    </teleport>
+    <ConfirmDialog
+      :show="confirmDeleteModal.visible"
+      :title="t('host.deleteConfirmTitle')"
+      :message="t('host.deleteConfirmBody', { title: confirmDeleteModal.questTitle })"
+      :confirm-label="t('common.delete')"
+      confirm-variant="danger"
+      @confirm="confirmDeleteQuest"
+      @cancel="cancelDeleteQuest"
+    />
   </div>
 </template>
 
@@ -178,6 +170,7 @@ import { useI18n } from 'vue-i18n'
 import { useQuizStore } from '@/store/quizStore'
 import { useGameSessionStore } from '@/store/gameSessionStore'
 import AppHeader from '@/components/common/AppHeader.vue'
+import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
 import { useIsMobileViewport } from '@/composables/useIsMobileViewport'
 import { seedTestQuests } from '@/utils/seedTestQuests'
 import { displayQuestTitle, questDisplayEmoji } from '@/utils/questCardTheme'
@@ -382,7 +375,7 @@ function deleteQuest(questId: string) {
   confirmDeleteModal.value = {
     visible: true,
     questId,
-    questTitle: quest.title || 'Без названия'
+    questTitle: displayQuestTitle(quest.title) || quest.title || '—'
   }
 }
 
@@ -961,91 +954,6 @@ async function onImportQuestFile(event: Event) {
   font-size: 1rem;
   font-weight: 600;
   margin: 0;
-}
-
-/* ── Modal ── */
-.quest-modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgb(var(--c-bg) / 0.65);
-  backdrop-filter: blur(12px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1.5rem;
-  z-index: 2000;
-}
-
-.quest-modal {
-  width: min(480px, 100%);
-  box-sizing: border-box;
-  border-radius: 20px;
-  background: rgb(var(--c-bg) / 0.95);
-  border: 1px solid rgb(var(--c-accent-sky) / 0.28);
-  box-shadow: 0 30px 60px rgb(var(--c-sky-deep) / 0.45);
-  color: rgb(var(--c-text));
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-  padding: 1.6rem;
-}
-
-.quest-modal--confirm {
-  max-width: 500px;
-  padding: 1.9rem;
-}
-
-.quest-modal__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
-.quest-modal__header h2 {
-  margin: 0;
-  font-size: 1.25rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.quest-modal__close {
-  background: rgb(var(--c-teal) / 0.15);
-  border: 1px solid rgb(var(--c-accent) / 0.45);
-  color: rgb(var(--c-accent-soft));
-  border-radius: 50%;
-  width: 34px;
-  height: 34px;
-  cursor: pointer;
-}
-
-.quest-modal__actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.75rem;
-}
-
-.quest-modal__actions .secondary,
-.quest-modal__actions .primary,
-.quest-modal__actions .danger {
-  min-width: 140px;
-  border-radius: 999px;
-  padding: 0.65rem 1.25rem;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.quest-modal__actions .secondary {
-  background: rgb(var(--c-teal) / 0.15);
-  border: 1px solid rgb(var(--c-accent) / 0.45);
-  color: rgb(var(--c-accent-soft));
-}
-
-.quest-modal__actions .primary,
-.quest-modal__actions .danger {
-  background: linear-gradient(135deg, rgb(var(--c-accent)), rgb(var(--c-accent-sky)));
-  border: 1px solid transparent;
-  color: rgb(var(--c-bg));
 }
 
 /* ── Responsive ── */
