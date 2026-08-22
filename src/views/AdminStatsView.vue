@@ -62,16 +62,16 @@
             <p class="stats-kpi__value">{{ formatNum(data?.views_7d) }}</p>
           </article>
           <article class="stats-kpi">
+            <p class="stats-kpi__label">{{ tUk('stats.kpiViewsTotal') }}</p>
+            <p class="stats-kpi__value">{{ formatNum(data?.total_views) }}</p>
+          </article>
+          <article class="stats-kpi">
             <p class="stats-kpi__label">{{ tUk('stats.kpiUnique7d') }}</p>
             <p class="stats-kpi__value">{{ formatNum(data?.unique_visitors_7d) }}</p>
           </article>
           <article class="stats-kpi">
             <p class="stats-kpi__label">{{ tUk('stats.kpiUniqueTotal') }}</p>
             <p class="stats-kpi__value">{{ formatNum(data?.unique_visitors_total) }}</p>
-          </article>
-          <article class="stats-kpi">
-            <p class="stats-kpi__label">{{ tUk('stats.kpiViewsTotal') }}</p>
-            <p class="stats-kpi__value">{{ formatNum(data?.total_views) }}</p>
           </article>
         </section>
 
@@ -82,10 +82,6 @@
           <div class="stats-chart" role="img" :aria-label="tUk('stats.chartTitle')">
             <svg :viewBox="`0 0 ${chartW} ${chartH}`" class="stats-chart__svg" preserveAspectRatio="xMidYMid meet">
               <defs>
-                <linearGradient id="statsBarGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stop-color="#38bdf8" />
-                  <stop offset="100%" stop-color="#22d3ee" />
-                </linearGradient>
                 <linearGradient id="statsAreaGrad" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.35" />
                   <stop offset="100%" stop-color="#38bdf8" stop-opacity="0" />
@@ -105,35 +101,26 @@
                 v-if="linePoints"
                 :points="linePoints"
                 fill="none"
-                stroke="#bae6fd"
+                stroke="#38bdf8"
                 stroke-width="2.5"
                 stroke-linejoin="round"
                 stroke-linecap="round"
               />
-              <g v-for="bar in bars" :key="bar.day">
-                <rect
-                  :x="bar.x"
-                  :y="bar.y"
-                  :width="bar.w"
-                  :height="bar.h"
-                  rx="6"
-                  fill="url(#statsBarGrad)"
-                  opacity="0.92"
-                />
-                <text :x="bar.x + bar.w / 2" :y="chartH - 10" class="stats-chart__label">
-                  {{ bar.label }}
+              <g v-for="pt in chartPoints" :key="pt.day">
+                <text :x="pt.x" :y="chartH - 10" class="stats-chart__label">
+                  {{ pt.label }}
                 </text>
                 <text
-                  v-if="bar.views > 0"
-                  :x="bar.x + bar.w / 2"
-                  :y="bar.y - 6"
+                  v-if="pt.views > 0"
+                  :x="pt.x"
+                  :y="pt.lineY - 8"
                   class="stats-chart__value"
                 >
-                  {{ bar.views }}
+                  {{ pt.views }}
                 </text>
                 <circle
-                  :cx="bar.x + bar.w / 2"
-                  :cy="bar.lineY"
+                  :cx="pt.x"
+                  :cy="pt.lineY"
                   r="3.5"
                   fill="#f8fafc"
                   stroke="#38bdf8"
@@ -320,23 +307,17 @@ const weekSeries = computed(() => {
 
 const maxViews = computed(() => Math.max(1, ...weekSeries.value.map(d => d.views)))
 
-const bars = computed(() => {
+const chartPoints = computed(() => {
   const n = weekSeries.value.length
   const inner = chartW - padL - padR
-  const gap = 14
-  const w = (inner - gap * (n - 1)) / n
   const plotH = chartH - padT - padB
+  const step = n > 1 ? inner / (n - 1) : 0
   return weekSeries.value.map((d, i) => {
-    const h = (d.views / maxViews.value) * plotH
-    const x = padL + i * (w + gap)
-    const y = padT + (plotH - h)
+    const x = n > 1 ? padL + i * step : padL + inner / 2
     const lineY = padT + (plotH - (d.views / maxViews.value) * plotH)
     return {
       ...d,
       x,
-      y,
-      w,
-      h: Math.max(h, d.views > 0 ? 4 : 0),
       lineY,
       label: d.day.slice(5).replace('-', '/')
     }
@@ -344,16 +325,16 @@ const bars = computed(() => {
 })
 
 const linePoints = computed(() =>
-  bars.value.map(b => `${b.x + b.w / 2},${b.lineY}`).join(' ')
+  chartPoints.value.map(p => `${p.x},${p.lineY}`).join(' ')
 )
 
 const areaPoints = computed(() => {
-  if (!bars.value.length) return ''
-  const top = bars.value.map(b => `${b.x + b.w / 2},${b.lineY}`).join(' ')
-  const last = bars.value[bars.value.length - 1]
-  const first = bars.value[0]
+  if (!chartPoints.value.length) return ''
+  const top = chartPoints.value.map(p => `${p.x},${p.lineY}`).join(' ')
+  const last = chartPoints.value[chartPoints.value.length - 1]
+  const first = chartPoints.value[0]
   const baseY = chartH - padB
-  return `${first.x + first.w / 2},${baseY} ${top} ${last.x + last.w / 2},${baseY}`
+  return `${first.x},${baseY} ${top} ${last.x},${baseY}`
 })
 
 const gridLines = computed(() => {
