@@ -181,11 +181,13 @@ const {
 
 const canBuzz = computed(() => {
   if (!player.value || !activeQuestion.value) return false
-  if (activeQuestion.value.showAnswer) return false // таймер вичерпано або відповідь вже показано
-  if (activeQuestion.value.timerPaused) return false // ведучий поставив на паузу — кнопка «Відповісти» неактивна
+  if (activeQuestion.value.showAnswer) return false
+  // Пауза ведучого (немає відповідача) — не buzz; під час чужої відповіді інші можуть в чергу
+  if (activeQuestion.value.timerPaused && !activeQuestion.value.currentResponderId) return false
   if (player.value.status === 'locked') return false
   if (player.value.status === 'buzzed') return false
-  if (activeQuestion.value.currentResponderId && activeQuestion.value.currentResponderId !== player.value.id) return false
+  if (player.value.status === 'queued') return false
+  if (activeQuestion.value.buzzedOrder?.includes(player.value.id)) return false
   return true
 })
 

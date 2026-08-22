@@ -6,7 +6,8 @@ import {
   applyBuzzFallback,
   applyWrongAnswer,
   applyTimeoutResponderFallback,
-  mergeSessionQuestSnapshot
+  mergeSessionQuestSnapshot,
+  reopenQuestionForRebuzz
 } from './gameFlow'
 import type { GameSession, Quest, Player } from '@/types'
 
@@ -177,5 +178,33 @@ describe('applyTimeoutResponderFallback', () => {
     expect(aq.responderStartedAt).toBeNull()
     expect(aq.timerPaused).toBe(false)
     expect(aq.buzzedOrder).toEqual([])
+  })
+})
+
+describe('reopenQuestionForRebuzz', () => {
+  it('очищает buzzedOrder и timerPaused после таймаута без текущего отвечающего', () => {
+    const s = makeSession([
+      player('p1', { status: 'locked' }),
+      player('p2', { status: 'queued' })
+    ])
+    s.activeQuestion!.currentResponderId = null
+    s.activeQuestion!.buzzedOrder = ['p1', 'p2']
+    s.activeQuestion!.timerPaused = true
+    s.activeQuestion!.responderStartedAt = 123
+
+    expect(reopenQuestionForRebuzz(s)).toBe(true)
+    expect(s.activeQuestion!.buzzedOrder).toEqual([])
+    expect(s.activeQuestion!.timerPaused).toBe(false)
+    expect(s.activeQuestion!.responderStartedAt).toBeNull()
+    expect(s.players.find(p => p.id === 'p2')!.status).toBe('idle')
+    expect(s.players.find(p => p.id === 'p1')!.status).toBe('locked')
+  })
+
+  it('не трогает сессию, если уже есть отвечающий', () => {
+    const s = makeSession([player('p1', { status: 'buzzed' })])
+    s.activeQuestion!.currentResponderId = 'p1'
+    s.activeQuestion!.buzzedOrder = ['p1']
+    expect(reopenQuestionForRebuzz(s)).toBe(false)
+    expect(s.activeQuestion!.buzzedOrder).toEqual(['p1'])
   })
 })

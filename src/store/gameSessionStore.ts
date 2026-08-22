@@ -16,7 +16,8 @@ import {
   applyBuzzFallback,
   applyWrongAnswer,
   applyTimeoutResponderFallback,
-  mergeSessionQuestSnapshot
+  mergeSessionQuestSnapshot,
+  reopenQuestionForRebuzz
 } from '@/services/gameFlow'
 import {
   getSessionsByHost,
@@ -682,7 +683,14 @@ export const useGameSessionStore = defineStore('game-session', () => {
     // Приоритет: атомарный таймаут через RPC (#12) — идемпотентно, не зависит от порядка запросов.
     const viaRpc = await timeoutResponderRpc(sessionId, failedPlayerId)
     if (viaRpc) {
+      // Старий timeout_responder без 013 лишає buzzedOrder / інколи timerPaused —
+      // try_buzz тоді тихо відхиляє всіх, хто вже тиснув. Дописуємо reopen + persist.
       updateSessionInArray(viaRpc)
+      const local = getSessionById(sessionId)
+      if (local && reopenQuestionForRebuzz(local)) {
+        local.updatedAt = now()
+        await persistSession(local)
+      }
       return
     }
 
