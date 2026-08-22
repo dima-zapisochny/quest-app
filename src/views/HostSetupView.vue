@@ -79,7 +79,7 @@
             </div>
             <div class="quest-card__body">
               <h2 class="quest-title">{{ displayQuestTitle(quest.title) }}</h2>
-              <p v-if="quest.description?.trim()" class="quest-desc">{{ quest.description }}</p>
+              <p class="quest-desc">{{ quest.description?.trim() || '' }}</p>
               <div class="quest-meta">
                 <span>{{ t('host.rounds', { count: quest.roundsCount ?? (quest.rounds?.length ?? 0) }) }}</span>
                 <span class="quest-meta__sep">·</span>
@@ -760,20 +760,38 @@ async function onImportQuestFile(event: Event) {
 }
 
 .quest-card__body {
-  /* Однакова висота всіх карток: місце під title (2) + desc (2) + meta */
-  flex: 1 1 auto;
-  min-height: 7.35rem;
-  padding: 0.85rem 0.25rem 0.35rem;
+  /* Фіксована підложка: title 2 рядки + desc 2 + meta, без дірки між ними */
+  --q-title-size: 1rem;
+  --q-title-lh: 1.25;
+  --q-desc-size: 0.72rem;
+  --q-desc-lh: 1.4;
+  --q-gap: 0.4rem;
+  --q-meta-h: 1.15rem;
+  --q-pad-top: 0.85rem;
+  --q-pad-bottom: 0.35rem;
+
+  flex: 0 0 auto;
+  box-sizing: border-box;
+  padding: var(--q-pad-top) 0.25rem var(--q-pad-bottom);
   display: flex;
   flex-direction: column;
-  gap: 0.55rem;
+  gap: var(--q-gap);
+  height: calc(
+    var(--q-pad-top) + var(--q-pad-bottom)
+    + (var(--q-title-size) * var(--q-title-lh) * 2)
+    + (var(--q-desc-size) * var(--q-desc-lh) * 2)
+    + var(--q-meta-h)
+    + (var(--q-gap) * 2)
+  );
 }
 
 .quest-title {
   margin: 0;
-  font-size: 1rem;
+  flex: 0 0 auto;
+  height: calc(var(--q-title-size) * var(--q-title-lh) * 2);
+  font-size: var(--q-title-size);
   font-weight: 800;
-  line-height: 1.25;
+  line-height: var(--q-title-lh);
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -782,9 +800,10 @@ async function onImportQuestFile(event: Event) {
 
 .quest-desc {
   margin: 0;
-  font-size: 0.72rem;
-  line-height: 1.4;
-  min-height: calc(0.72rem * 1.4 * 2);
+  flex: 0 0 auto;
+  height: calc(var(--q-desc-size) * var(--q-desc-lh) * 2);
+  font-size: var(--q-desc-size);
+  line-height: var(--q-desc-lh);
   color: rgb(var(--c-text-muted) / 0.88);
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -916,7 +935,8 @@ async function onImportQuestFile(event: Event) {
   align-items: center;
   flex-wrap: wrap;
   gap: 0.35rem;
-  margin-top: auto;
+  flex: 0 0 auto;
+  min-height: 1.15rem;
   font-size: 0.75rem;
   color: rgb(var(--c-text-muted) / 0.9);
 }
@@ -1223,12 +1243,10 @@ async function onImportQuestFile(event: Event) {
   }
 
   .quest-card__body {
-    padding: 0.65rem 0.15rem 0.2rem;
-    gap: 0.4rem;
-  }
-
-  .quest-title {
-    font-size: 0.85rem;
+    --q-title-size: 0.85rem;
+    --q-pad-top: 0.65rem;
+    --q-pad-bottom: 0.2rem;
+    padding-inline: 0.15rem;
   }
 
   .host-dock {
