@@ -204,10 +204,7 @@
             <ul v-if="topRegions.length" class="stats-rank stats-rank--geo">
               <li v-for="row in topRegions" :key="`${row.country_code}-${row.region}`">
                 <span class="stats-rank__flag" aria-hidden="true">{{ countryFlag(row.country_code) }}</span>
-                <span class="stats-rank__name">
-                  <span class="stats-rank__region">{{ row.region }}</span>
-                  <span class="stats-rank__country-soft">{{ countryLabel(row.country_code) }}</span>
-                </span>
+                <span class="stats-rank__name" :title="countryLabel(row.country_code)">{{ row.region }}</span>
                 <span class="stats-rank__bar-wrap">
                   <span class="stats-rank__bar stats-rank__bar--geo" :style="{ width: regionBarWidth(row.views) }" />
                 </span>
@@ -795,24 +792,7 @@ onBeforeUnmount(() => {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  display: flex;
-  flex-direction: column;
-  gap: 0.1rem;
   min-width: 0;
-}
-
-.stats-rank__region {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.stats-rank__country-soft {
-  font-size: 0.75rem;
-  color: rgb(var(--c-text-muted));
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .stats-rank__bar-wrap {
