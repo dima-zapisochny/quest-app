@@ -473,12 +473,12 @@ async function onImportQuestFile(event: Event) {
 
 .host-hero__title {
   margin: 0;
-  font-family: 'Plus Jakarta Sans', 'Nunito', sans-serif;
-  font-size: clamp(1.65rem, 4vw, 2.15rem);
-  font-weight: 800;
-  line-height: 1.15;
-  letter-spacing: -0.03em;
+  font-family: 'Press Start 2P', cursive;
+  font-size: clamp(1rem, 2.8vw, 1.55rem);
+  line-height: 1.55;
+  letter-spacing: 0.06em;
   color: rgb(var(--c-text));
+  text-shadow: 0 0 28px rgb(var(--c-accent-sky) / 0.25);
 }
 
 .host-hero__subtitle {
@@ -1041,7 +1041,7 @@ async function onImportQuestFile(event: Event) {
 /* ── Responsive ── */
 @media (max-width: 768px) {
   .host-hero__title {
-    font-size: clamp(1.45rem, 5vw, 1.85rem);
+    font-size: clamp(0.85rem, 4vw, 1.1rem);
   }
 
   .host-dock__inner {
