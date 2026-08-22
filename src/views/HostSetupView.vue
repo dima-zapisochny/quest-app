@@ -17,7 +17,6 @@
 
     <main v-else class="host-main">
       <header class="host-hero">
-        <p class="host-hero__eyebrow">{{ t('host.chooseQuest') }}</p>
         <h1 class="host-hero__title">{{ t('host.title') }}</h1>
         <p class="host-hero__subtitle">{{ t('host.subtitle') }}</p>
       </header>
@@ -180,6 +179,7 @@ import { useQuizStore } from '@/store/quizStore'
 import { useGameSessionStore } from '@/store/gameSessionStore'
 import AppHeader from '@/components/common/AppHeader.vue'
 import { useIsMobileViewport } from '@/composables/useIsMobileViewport'
+import { seedTestQuests } from '@/utils/seedTestQuests'
 
 const { t } = useI18n()
 const importingQuest = ref(false)
@@ -237,6 +237,8 @@ async function checkProfileAndLoad() {
   if (!quests.value.length) {
     await quizStore.loadFromStorage()
   }
+
+  await seedTestQuests(quizStore)
 
   const restoreId = route.query.restore_quest as string | undefined
   if (restoreId) {
@@ -469,15 +471,6 @@ async function onImportQuestFile(event: Event) {
   flex-shrink: 0;
   text-align: center;
   padding: 0.5rem 0 1.25rem;
-}
-
-.host-hero__eyebrow {
-  margin: 0 0 0.5rem;
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: rgb(var(--c-accent) / 0.85);
 }
 
 .host-hero__title {
