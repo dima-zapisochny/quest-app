@@ -22,6 +22,23 @@
       <path d="M19 12H5" />
       <path d="M12 19l-7-7 7-7" />
     </svg>
+    <svg
+      v-else-if="variant === 'home'"
+      class="nav-button__home"
+      viewBox="0 0 24 24"
+      width="18"
+      height="18"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2.2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M3 10.5 12 3l9 7.5" />
+      <path d="M5 9.5V21h14V9.5" />
+      <path d="M9 21v-7h6v7" />
+    </svg>
     <span>{{ label }}</span>
   </button>
 </template>
@@ -30,7 +47,7 @@
 import { computed } from 'vue'
 
 interface Props {
-  variant?: 'back' | 'exit'
+  variant?: 'back' | 'exit' | 'home'
   label?: string
   disabled?: boolean
 }
@@ -69,16 +86,18 @@ const buttonClass = computed(() => {
   box-sizing: border-box;
 }
 
-.nav-button--back {
+.nav-button--back,
+.nav-button--home {
   background: rgb(var(--c-teal) / 0.12);
   border: 1px solid rgb(var(--c-accent) / 0.4);
   color: rgb(var(--c-text));
   min-width: 9rem;
-  padding-left: 2rem;
-  padding-right: 2rem;
+  padding-left: 1.35rem;
+  padding-right: 1.6rem;
 }
 
-.nav-button--back:hover:not(:disabled) {
+.nav-button--back:hover:not(:disabled),
+.nav-button--home:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 10px 20px rgb(var(--c-accent) / 0.25);
 }
@@ -128,12 +147,16 @@ const buttonClass = computed(() => {
   cursor: not-allowed;
 }
 
-.nav-button__arrow {
+.nav-button__arrow,
+.nav-button__home {
   flex-shrink: 0;
   transition: transform 0.2s ease;
 }
 .nav-button--back:hover:not(:disabled) .nav-button__arrow {
   transform: translateX(-3px);
+}
+.nav-button--home:hover:not(:disabled) .nav-button__home {
+  transform: translateY(-2px);
 }
 
 @media (max-width: 768px) {
@@ -160,4 +183,3 @@ const buttonClass = computed(() => {
   }
 }
 </style>
-

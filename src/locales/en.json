@@ -15,7 +15,8 @@
     "soundOn": "Turn sound on",
     "soundOff": "Turn sound off",
     "unknownError": "Something went wrong. Please try again",
-    "deleted": "Deleted"
+    "deleted": "Deleted",
+    "toHome": "Home"
   },
   "landing": {
     "checkingAuth": "Checking authorization…",
@@ -336,6 +337,7 @@
     "topPagesLead": "Last 30 days",
     "topClicks": "Where people click",
     "topClicksLead": "CTAs and nav over 30 days",
-    "empty": "No data yet — browse the site as a normal visitor."
+    "empty": "No data yet — browse the site as a normal visitor.",
+    "refreshed": "Updated"
   }
 }

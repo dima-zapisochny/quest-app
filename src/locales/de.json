@@ -15,7 +15,8 @@
     "soundOn": "Ton einschalten",
     "soundOff": "Ton ausschalten",
     "unknownError": "Etwas ist schiefgelaufen. Bitte erneut versuchen",
-    "deleted": "Gelöscht"
+    "deleted": "Gelöscht",
+    "toHome": "Zur Startseite"
   },
   "landing": {
     "checkingAuth": "Autorisierung wird geprüft…",
@@ -336,6 +337,7 @@
     "topPagesLead": "Letzte 30 Tage",
     "topClicks": "Wohin geklickt wird",
     "topClicksLead": "CTAs und Navigation (30 Tage)",
-    "empty": "Noch keine Daten — Seite als normaler Besucher öffnen."
+    "empty": "Noch keine Daten — Seite als normaler Besucher öffnen.",
+    "refreshed": "Aktualisiert"
   }
 }
