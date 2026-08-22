@@ -497,12 +497,10 @@ async function onImportQuestFile(event: Event) {
 .quests-grid {
   flex: 1;
   min-height: 0;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-content: flex-start;
-  align-items: stretch;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 1.1rem;
+  align-content: start;
   overflow-y: auto;
   padding: 0.25rem 0.5rem 1rem;
   scrollbar-width: thin;
@@ -521,8 +519,8 @@ async function onImportQuestFile(event: Event) {
 /* ── Quest cards ── */
 .quest-card {
   position: relative;
-  width: min(100%, 240px);
-  flex: 0 0 auto;
+  width: 100%;
+  min-width: 0;
   background: linear-gradient(165deg, rgb(var(--c-surface) / 0.92), rgb(var(--c-bg) / 0.75));
   border-radius: 1.15rem;
   padding: 0.85rem;
@@ -957,6 +955,12 @@ async function onImportQuestFile(event: Event) {
 }
 
 /* ── Responsive ── */
+@media (max-width: 1024px) {
+  .quests-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 768px) {
   .host-hero__title {
     font-size: clamp(0.95rem, 4.5vw, 1.35rem);
