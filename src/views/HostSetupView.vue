@@ -508,6 +508,7 @@ async function onImportQuestFile(event: Event) {
   flex-wrap: wrap;
   justify-content: center;
   align-content: flex-start;
+  align-items: stretch;
   gap: 1.1rem;
   overflow-y: auto;
   padding: 0.25rem 0.5rem 1rem;
