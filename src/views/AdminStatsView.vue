@@ -9,7 +9,7 @@
 
     <main class="stats-page__main">
       <h1 class="stats-page__title">Site analytics</h1>
-      <p class="stats-page__lead">{{ tUk('stats.lead') }}</p>
+      <p v-if="!unlocked" class="stats-page__lead">{{ tUk('stats.lead') }}</p>
 
       <form v-if="!unlocked" class="stats-gate" @submit.prevent="unlock">
         <label class="stats-gate__label" for="stats-token">{{ tUk('stats.tokenLabel') }}</label>
@@ -29,6 +29,7 @@
       </form>
 
       <template v-else>
+        <div class="stats-dashboard">
         <div class="stats-toolbar">
           <button type="button" class="stats-toolbar__btn" :disabled="loading" @click="refresh">
             {{ loading ? tUk('stats.loading') : tUk('stats.refresh') }}
@@ -58,9 +59,8 @@
               </svg>
             </span>
           </transition>
+          <p v-if="error" class="stats-gate__error stats-toolbar__error">{{ error }}</p>
         </div>
-
-        <p v-if="error" class="stats-gate__error">{{ error }}</p>
 
         <section class="stats-kpis" aria-label="KPI">
           <article class="stats-kpi">
@@ -81,13 +81,12 @@
           </article>
         </section>
 
-        <section class="stats-panel">
+        <section class="stats-panel stats-panel--chart">
           <header class="stats-panel__head">
             <h2>{{ tUk('stats.chartTitle') }}</h2>
-            <p>{{ tUk('stats.chartLead') }}</p>
           </header>
           <div class="stats-chart" role="img" :aria-label="tUk('stats.chartTitle')">
-            <svg :viewBox="`0 0 ${chartW} ${chartH}`" class="stats-chart__svg">
+            <svg :viewBox="`0 0 ${chartW} ${chartH}`" class="stats-chart__svg" preserveAspectRatio="xMidYMid meet">
               <defs>
                 <linearGradient id="statsBarGrad" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stop-color="#38bdf8" />
@@ -152,13 +151,12 @@
         </section>
 
         <div class="stats-grids">
-          <section class="stats-panel">
+          <section class="stats-panel stats-panel--rank">
             <header class="stats-panel__head">
               <h2>{{ tUk('stats.topPages') }}</h2>
-              <p>{{ tUk('stats.topPagesLead') }}</p>
             </header>
-            <ul v-if="data?.top_paths?.length" class="stats-rank">
-              <li v-for="row in data.top_paths" :key="row.path">
+            <ul v-if="topPaths.length" class="stats-rank">
+              <li v-for="row in topPaths" :key="row.path">
                 <span class="stats-rank__name">{{ row.path }}</span>
                 <span class="stats-rank__bar-wrap">
                   <span class="stats-rank__bar" :style="{ width: pathBarWidth(row.views) }" />
@@ -169,13 +167,12 @@
             <p v-else class="stats-empty">{{ tUk('stats.empty') }}</p>
           </section>
 
-          <section class="stats-panel">
+          <section class="stats-panel stats-panel--rank">
             <header class="stats-panel__head">
               <h2>{{ tUk('stats.topClicks') }}</h2>
-              <p>{{ tUk('stats.topClicksLead') }}</p>
             </header>
-            <ul v-if="data?.top_clicks?.length" class="stats-rank">
-              <li v-for="row in data.top_clicks" :key="row.name">
+            <ul v-if="topClicks.length" class="stats-rank">
+              <li v-for="row in topClicks" :key="row.name">
                 <span class="stats-rank__name">{{ row.name }}</span>
                 <span class="stats-rank__bar-wrap">
                   <span
@@ -188,6 +185,7 @@
             </ul>
             <p v-else class="stats-empty">{{ tUk('stats.empty') }}</p>
           </section>
+        </div>
         </div>
       </template>
     </main>
@@ -225,11 +223,11 @@ const refreshState = ref<'idle' | 'saving' | 'saved'>('idle')
 let refreshHideTimer: ReturnType<typeof setTimeout> | null = null
 
 const chartW = 640
-const chartH = 260
+const chartH = 168
 const padL = 28
 const padR = 16
-const padT = 28
-const padB = 36
+const padT = 22
+const padB = 30
 
 function applyNoIndex() {
   document.title = 'Site analytics · Quiz Quest'
@@ -322,13 +320,16 @@ const gridLines = computed(() => {
   return [0, 0.5, 1].map(t => padT + plotH * (1 - t))
 })
 
+const topPaths = computed(() => (data.value?.top_paths ?? []).slice(0, 5))
+const topClicks = computed(() => (data.value?.top_clicks ?? []).slice(0, 5))
+
 function pathBarWidth(views: number) {
-  const max = Math.max(1, ...(data.value?.top_paths ?? []).map(p => p.views))
+  const max = Math.max(1, ...topPaths.value.map(p => p.views))
   return `${Math.round((views / max) * 100)}%`
 }
 
 function clickBarWidth(clicks: number) {
-  const max = Math.max(1, ...(data.value?.top_clicks ?? []).map(p => p.clicks))
+  const max = Math.max(1, ...topClicks.value.map(p => p.clicks))
   return `${Math.round((clicks / max) * 100)}%`
 }
 
@@ -402,7 +403,12 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .stats-page {
-  min-height: 100vh;
+  height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
   font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   background:
     radial-gradient(ellipse 70% 45% at 20% -10%, rgb(var(--c-accent-sky) / 0.18), transparent),
@@ -417,26 +423,43 @@ onBeforeUnmount(() => {
 }
 
 .stats-page__main {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
   max-width: 56rem;
   margin: 0 auto;
-  padding: 1.25rem 1.25rem 3rem;
+  padding: 0.35rem 1.15rem 0.75rem;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .stats-page__title {
-  margin: 0 0 0.75rem;
+  margin: 0 0 0.35rem;
   font-family: 'Press Start 2P', 'Nunito', cursive !important;
-  font-size: clamp(1.45rem, 4vw, 2rem);
+  font-size: clamp(1.15rem, 2.8vw, 1.55rem);
   font-weight: 400;
   letter-spacing: 0.06em !important;
-  line-height: 1.45;
+  line-height: 1.4;
   color: rgb(var(--c-text));
+  flex-shrink: 0;
 }
 
 .stats-page__lead {
-  margin: 0 0 1.5rem;
+  margin: 0 0 0.85rem;
   color: rgb(var(--c-text-soft) / 0.9);
-  line-height: 1.5;
-  font-size: 1.08rem;
+  line-height: 1.4;
+  font-size: 0.98rem;
+  flex-shrink: 0;
+}
+
+.stats-dashboard {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1.15fr) minmax(0, 0.95fr);
+  gap: 0.55rem;
+  overflow: hidden;
 }
 
 .stats-gate {
@@ -492,19 +515,20 @@ onBeforeUnmount(() => {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.65rem 0.85rem;
-  margin-bottom: 1.15rem;
+  gap: 0.5rem 0.75rem;
+  margin: 0;
+  flex-shrink: 0;
 }
 
 .stats-toolbar__btn {
-  padding: 0.7rem 1.35rem;
-  min-height: 2.75rem;
+  padding: 0.5rem 1.15rem;
+  min-height: 2.35rem;
   border-radius: 999px;
   border: 1px solid rgb(var(--c-accent-sky) / 0.4);
   background: linear-gradient(135deg, rgb(var(--c-accent) / 0.22), rgb(var(--c-accent-sky) / 0.16));
   color: rgb(var(--c-accent-soft));
   font-weight: 800;
-  font-size: 1rem;
+  font-size: 0.95rem;
   letter-spacing: 0.02em;
   cursor: pointer;
   box-shadow: 0 6px 18px rgb(var(--c-bg-deep) / 0.28);
@@ -523,17 +547,22 @@ onBeforeUnmount(() => {
 }
 
 .stats-toolbar__updated {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   color: rgb(var(--c-text-muted));
   font-weight: 600;
+}
+
+.stats-toolbar__error {
+  flex-basis: 100%;
+  margin: 0;
 }
 
 .save-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1.75rem;
-  height: 1.75rem;
+  width: 1.65rem;
+  height: 1.65rem;
   border-radius: 50%;
   flex-shrink: 0;
 }
@@ -550,8 +579,8 @@ onBeforeUnmount(() => {
 }
 
 .save-icon__spinner {
-  width: 0.95rem;
-  height: 0.95rem;
+  width: 0.9rem;
+  height: 0.9rem;
   border-radius: 50%;
   border: 2px solid rgb(var(--c-text-muted) / 0.35);
   border-top-color: rgb(var(--c-text-muted));
@@ -559,8 +588,8 @@ onBeforeUnmount(() => {
 }
 
 .save-icon__check {
-  width: 1.05rem;
-  height: 1.05rem;
+  width: 1rem;
+  height: 1rem;
 }
 
 .save-icon__check path {
@@ -570,24 +599,16 @@ onBeforeUnmount(() => {
 }
 
 @keyframes save-spin {
-  to {
-    transform: rotate(360deg);
-  }
+  to { transform: rotate(360deg); }
 }
 
 @keyframes save-pop {
-  0% {
-    transform: scale(0.4);
-  }
-  100% {
-    transform: scale(1);
-  }
+  0% { transform: scale(0.4); }
+  100% { transform: scale(1); }
 }
 
 @keyframes save-draw {
-  to {
-    stroke-dashoffset: 0;
-  }
+  to { stroke-dashoffset: 0; }
 }
 
 .save-pill-enter-active,
@@ -604,20 +625,21 @@ onBeforeUnmount(() => {
 .stats-kpis {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.75rem;
-  margin-bottom: 1rem;
+  gap: 0.5rem;
+  margin: 0;
+  flex-shrink: 0;
 }
 
 .stats-kpi {
-  padding: 0.95rem 0.9rem;
-  border-radius: 0.95rem;
+  padding: 0.55rem 0.7rem;
+  border-radius: 0.75rem;
   background: rgb(var(--c-surface) / 0.55);
   border: 1px solid rgb(var(--c-accent-sky) / 0.16);
 }
 
 .stats-kpi__label {
-  margin: 0 0 0.35rem;
-  font-size: 0.92rem;
+  margin: 0 0 0.2rem;
+  font-size: 0.82rem;
   font-weight: 700;
   letter-spacing: 0.02em;
   text-transform: none;
@@ -626,35 +648,44 @@ onBeforeUnmount(() => {
 
 .stats-kpi__value {
   margin: 0;
-  font-size: clamp(1.35rem, 3vw, 1.85rem);
+  font-size: clamp(1.15rem, 2.4vw, 1.55rem);
   font-weight: 800;
   color: rgb(var(--c-accent-soft));
 }
 
 .stats-panel {
-  margin-bottom: 1rem;
-  padding: 1rem 1rem 1.1rem;
-  border-radius: 1rem;
+  margin: 0;
+  padding: 0.55rem 0.75rem 0.65rem;
+  border-radius: 0.85rem;
   background: rgb(var(--c-surface) / 0.45);
   border: 1px solid rgb(var(--c-accent-sky) / 0.14);
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.stats-panel__head {
+  flex-shrink: 0;
 }
 
 .stats-panel__head h2 {
-  margin: 0 0 0.3rem;
-  font-size: 1.22rem;
+  margin: 0 0 0.35rem;
+  font-size: 1.02rem;
   font-weight: 800;
 }
 
-.stats-panel__head p {
-  margin: 0 0 0.85rem;
-  font-size: 0.98rem;
-  color: rgb(var(--c-text-muted));
+.stats-chart {
+  flex: 1;
+  min-height: 0;
+  display: flex;
 }
 
 .stats-chart__svg {
   display: block;
   width: 100%;
-  height: auto;
+  height: 100%;
+  max-height: 100%;
 }
 
 .stats-chart__grid {
@@ -678,7 +709,9 @@ onBeforeUnmount(() => {
 .stats-grids {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.85rem;
+  gap: 0.55rem;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .stats-rank {
@@ -687,25 +720,27 @@ onBeforeUnmount(() => {
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.55rem;
+  gap: 0.35rem;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .stats-rank li {
   display: grid;
   grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) auto;
-  gap: 0.55rem;
+  gap: 0.45rem;
   align-items: center;
 }
 
 .stats-rank__name {
-  font-size: 0.88rem;
+  font-size: 0.82rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .stats-rank__bar-wrap {
-  height: 0.45rem;
+  height: 0.4rem;
   border-radius: 999px;
   background: rgb(var(--c-bg-deep) / 0.65);
   overflow: hidden;
@@ -724,25 +759,45 @@ onBeforeUnmount(() => {
 
 .stats-rank__num {
   font-weight: 800;
-  font-size: 0.88rem;
+  font-size: 0.82rem;
   color: rgb(var(--c-accent-soft));
-  min-width: 2.5rem;
+  min-width: 2.2rem;
   text-align: right;
 }
 
 .stats-empty {
   margin: 0;
   color: rgb(var(--c-text-muted));
-  font-size: 0.92rem;
+  font-size: 0.88rem;
 }
 
 @media (max-width: 800px) {
+  .stats-page {
+    overflow-y: auto;
+    height: auto;
+    min-height: 100dvh;
+    max-height: none;
+  }
+
+  .stats-dashboard {
+    display: flex;
+    flex-direction: column;
+    overflow: visible;
+  }
+
   .stats-kpis {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .stats-grids {
     grid-template-columns: 1fr;
+    overflow: visible;
+  }
+
+  .stats-chart__svg {
+    height: auto;
+    max-height: 12rem;
   }
 }
 </style>
+
