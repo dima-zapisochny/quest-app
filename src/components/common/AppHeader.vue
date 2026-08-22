@@ -112,7 +112,7 @@ onBeforeUnmount(() => {
 <style scoped>
 .app-header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 1.5rem;
   padding: 1.2rem 1.5rem 0.75rem;
@@ -125,15 +125,19 @@ onBeforeUnmount(() => {
 
 .app-header-left {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.5rem;
   min-width: 0;
+  flex-shrink: 0;
 }
 
 .app-header-right {
   display: inline-flex;
   align-items: center;
   gap: 0.75rem;
+  min-width: 0;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .session-chip {

@@ -178,11 +178,6 @@ async function submit() {
   background: linear-gradient(135deg, rgb(var(--c-bg)) 0%, rgb(var(--c-surface)) 100%);
 }
 
-.quest-create :deep(.app-header) {
-  padding-top: 0.75rem;
-  padding-bottom: 0.4rem;
-}
-
 .quest-create__main {
   flex: 1;
   min-height: 0;
