@@ -259,9 +259,13 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 /* Текст снизу */
 .howto__content {
   flex-shrink: 0;
-  padding: 1rem 1.6rem 0.5rem;
+  /* Фиксированная высота: текст (1–3 строки) не двигает верхний блок-сцену при переходах */
+  height: 128px;
+  padding: 0.5rem 1.6rem;
   text-align: center;
-  min-height: 92px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 .howto__step-num {
   font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em;
