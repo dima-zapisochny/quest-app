@@ -7,6 +7,18 @@ import type { GameSession, Quest, Question, ActiveQuestionState, PlayerStatus } 
  * сессии и сохранение) делает gameSessionStore.
  */
 
+/**
+ * Снимок quest_data из Realtime/UPDATE без TOAST-поля часто пустой.
+ * Серверный снимок с rounds авторитетен; без rounds — оставляем локальный.
+ */
+export function mergeSessionQuestSnapshot(
+  incoming: Quest | undefined,
+  previous: Quest | undefined
+): Quest | undefined {
+  if (incoming?.rounds?.length) return incoming
+  return previous
+}
+
 /** Находит вопрос в квесте по идентификаторам раунда/категории/вопроса. */
 export function findQuestion(
   quest: Quest | undefined,

@@ -298,6 +298,9 @@ onMounted(async () => {
 
   // Ждём готовности store без busy-wait (#35)
   await sessionStore.whenReady()
+
+  // Realtime може додати сесію без quest_data раніше за GET — підтягуємо знімок квеста
+  await sessionStore.ensureSessionQuestLoaded(sessionId)
   
   // Если сессия не найдена локально, пытаемся загрузить из базы
   if (!session.value) {
@@ -415,6 +418,15 @@ onMounted(async () => {
   // Запускаем presence-heartbeat (сразу и далее каждые 15с, + при возврате вкладки)
   startHeartbeat()
 })
+
+watch(
+  () => activeQuestion.value?.questionId,
+  async (questionId) => {
+    if (!questionId) return
+    if (currentQuestion.value?.question) return
+    await sessionStore.ensureSessionQuestLoaded(sessionId)
+  }
+)
 
 // Отслеживаем удаление сессии (когда хост выходит из игры)
 watch(
