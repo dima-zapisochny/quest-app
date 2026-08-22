@@ -8,8 +8,11 @@ type QuizStore = ReturnType<typeof useQuizStore>
 /** Стандартні готові квести для всіх користувачів (не лише DEV). */
 export const STANDARD_QUESTS: Quest[] = [movieNightQuest, hitParadeQuest]
 
+const STANDARD_TITLES = new Set(STANDARD_QUESTS.map(q => q.title))
+
 /**
  * Ідемпотентно додає Movie Night і Hit Parade, якщо ще немає квесту з такою назвою.
+ * У DEV також прибирає всі інші локальні квести (тестові тощо), щоб лишились лише стандартні.
  * Повертає кількість новостворених.
  */
 export async function seedStandardQuests(store: QuizStore): Promise<number> {
@@ -24,6 +27,20 @@ export async function seedStandardQuests(store: QuizStore): Promise<number> {
       created++
     } catch (e) {
       console.warn('[StandardQuests] Failed to seed', quest.title, e)
+    }
+  }
+
+  if (import.meta.env.DEV) {
+    const extras = store.quests.filter(q => !STANDARD_TITLES.has(q.title))
+    for (const quest of extras) {
+      try {
+        await store.deleteQuest(quest.id)
+      } catch (e) {
+        console.warn('[StandardQuests] Failed to remove local quest', quest.title, e)
+      }
+    }
+    if (extras.length > 0) {
+      console.log(`🧹 [Quest] Removed ${extras.length} non-standard quest(s) (DEV)`)
     }
   }
 
