@@ -144,6 +144,7 @@
 import { computed, ref, watch, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useQuizStore } from '@/store/quizStore'
+import { defaultCategoryTitle } from '@/utils/boardLabels'
 import AdminQuestionRow from './AdminQuestionRow.vue'
 import GridSizePicker from '@/components/common/GridSizePicker.vue'
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
@@ -202,7 +203,7 @@ async function addCategory() {
   if (isAddingCategory.value || categories.value.length >= 5) return
   isAddingCategory.value = true
   try {
-    await store.addCategory(props.questId, props.round.id, '')
+    await store.addCategory(props.questId, props.round.id, defaultCategoryTitle(categories.value.length))
   } finally {
     isAddingCategory.value = false
   }

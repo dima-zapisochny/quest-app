@@ -167,6 +167,7 @@
     "errInvalidCode": "Code de partie invalide",
     "errJoin": "Impossible de rejoindre la partie. Assurez-vous qu'elle est ouverte dans un autre onglet.",
     "participants": "Participants",
+    "waitingForPlayers": "En attente de joueurs… Partagez le code de la partie pour qu'ils puissent rejoindre.",
     "pointsWord": "points",
     "stepLabel": "Pas (multiple de 5) :",
     "subtractPoints": "Retirer des points",

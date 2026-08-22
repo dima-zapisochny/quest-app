@@ -167,6 +167,7 @@
     "errInvalidCode": "Invalid game code",
     "errJoin": "Couldn't join the game. Make sure the game is running in another tab.",
     "participants": "Participants",
+    "waitingForPlayers": "Waiting for players to join… Share the game code so they can connect.",
     "pointsWord": "points",
     "stepLabel": "Step (multiple of 5):",
     "subtractPoints": "Subtract points",

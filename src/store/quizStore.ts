@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed, watch } from 'vue'
 import type { Quest, Round, Category, Question, MediaAsset } from '@/types'
 import { generateId } from '@/utils/id'
+import { defaultCategoryTitle, defaultRoundTitle } from '@/utils/boardLabels'
 import { isSupabaseConfigured } from '@/config/supabase'
 import {
   getQuestList,
@@ -498,7 +499,7 @@ export const useQuizStore = defineStore('quiz', () => {
   ): Promise<string | null> {
     let firstCategoryId: string | null = null
     for (let c = 0; c < categories; c++) {
-      const categoryId = await addCategory(questId, roundId, '')
+      const categoryId = await addCategory(questId, roundId, defaultCategoryTitle(c))
       if (!categoryId) continue
       if (!firstCategoryId) firstCategoryId = categoryId
       for (let q = 1; q <= questions; q++) {
@@ -522,7 +523,7 @@ export const useQuizStore = defineStore('quiz', () => {
     const questId = await createQuest(title, description)
     const roundCount = Math.max(1, Math.min(5, rounds))
     for (let r = 0; r < roundCount; r++) {
-      const roundId = await addRound(questId, '')
+      const roundId = await addRound(questId, defaultRoundTitle(r))
       if (roundId) await buildBoard(questId, roundId, categories, questions)
     }
     // Сохраняем доску немедленно: иначе loadQuestFull в редакторе перезапишет
