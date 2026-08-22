@@ -723,7 +723,9 @@ async function onImportQuestFile(event: Event) {
 
 .quest-card__cover {
   position: relative;
+  box-sizing: border-box;
   aspect-ratio: 1;
+  flex-shrink: 0;
   border-radius: 0.75rem;
   overflow: hidden;
   display: flex;
@@ -758,6 +760,9 @@ async function onImportQuestFile(event: Event) {
 }
 
 .quest-card__body {
+  /* Однакова висота всіх карток: місце під title (2) + desc (2) + meta */
+  flex: 1 1 auto;
+  min-height: 7.35rem;
   padding: 0.85rem 0.25rem 0.35rem;
   display: flex;
   flex-direction: column;
@@ -779,6 +784,7 @@ async function onImportQuestFile(event: Event) {
   margin: 0;
   font-size: 0.72rem;
   line-height: 1.4;
+  min-height: calc(0.72rem * 1.4 * 2);
   color: rgb(var(--c-text-muted) / 0.88);
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -854,6 +860,7 @@ async function onImportQuestFile(event: Event) {
 
 .quest-card__body--cta {
   align-items: center;
+  justify-content: center;
   text-align: center;
   gap: 0.25rem;
 }
@@ -909,6 +916,7 @@ async function onImportQuestFile(event: Event) {
   align-items: center;
   flex-wrap: wrap;
   gap: 0.35rem;
+  margin-top: auto;
   font-size: 0.75rem;
   color: rgb(var(--c-text-muted) / 0.9);
 }
