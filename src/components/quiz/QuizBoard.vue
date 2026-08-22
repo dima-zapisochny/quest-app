@@ -8,9 +8,10 @@
     </div>
     <div v-else class="board-grid">
       <CategoryColumn
-        v-for="category in round.categories"
+        v-for="(category, index) in round.categories"
         :key="category.id"
         :category="category"
+        :index="index"
         @question-click="handleQuestionClick"
       />
     </div>

@@ -167,6 +167,7 @@
     "errInvalidCode": "Código de juego no válido",
     "errJoin": "No se pudo unir al juego. Asegúrate de que el juego esté abierto en otra pestaña.",
     "participants": "Participantes",
+    "waitingForPlayers": "Esperando jugadores… Comparte el código de la partida para que se unan.",
     "pointsWord": "puntos",
     "stepLabel": "Paso (múltiplo de 5):",
     "subtractPoints": "Restar puntos",

@@ -1,10 +1,10 @@
 <template>
-  <section v-if="leaderboardEntries.length" class="quest-leaderboard">
+  <section v-if="showPanel" class="quest-leaderboard">
     <BaseCard class="leaderboard-card">
       <header class="leaderboard-header">
         <span class="leaderboard-label">{{ t('game.participants') }}</span>
       </header>
-      <TransitionGroup name="leaderboard" tag="ul" class="leaderboard-list">
+      <TransitionGroup v-if="leaderboardEntries.length" name="leaderboard" tag="ul" class="leaderboard-list">
         <li
           v-for="(player, index) in leaderboardEntries"
           :key="player.id"
@@ -40,6 +40,7 @@
           </div>
         </li>
       </TransitionGroup>
+      <p v-else class="leaderboard-empty">{{ t('game.waitingForPlayers') }}</p>
     </BaseCard>
   </section>
 
@@ -111,6 +112,7 @@
 
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
+import { computed } from 'vue'
 import { useLeaderboard } from '@/composables/useLeaderboard'
 import BaseCard from '@/components/common/BaseCard.vue'
 import type { GameSession } from '@/types'
@@ -135,6 +137,9 @@ const {
   addScore,
   handleApplyClick
 } = useLeaderboard(() => props.session)
+
+/** Панель видна всегда в игре; без сессии — только если есть демо-участники (dev). */
+const showPanel = computed(() => !!props.session || leaderboardEntries.value.length > 0)
 
 /** Игрок «ответил» — подсветка карточки (нажал кнопку/в очереди/текущий отвечающий). */
 function isPlayerAnswered(playerId: string): boolean {
@@ -169,6 +174,17 @@ function isPlayerAnswered(playerId: string): boolean {
   text-transform: uppercase;
   letter-spacing: 0.16em;
   color: rgb(var(--c-text-muted) / 0.8);
+}
+
+.leaderboard-empty {
+  margin: 1rem 0 0.25rem;
+  padding: 0.85rem 1rem;
+  text-align: center;
+  font-size: 0.85rem;
+  color: rgb(var(--c-text-muted) / 0.85);
+  border: 1px dashed rgb(var(--c-accent-sky) / 0.25);
+  border-radius: 12px;
+  background: rgb(var(--c-bg) / 0.35);
 }
 
 /* Корпус карточки — в BaseCard; здесь только специфика лидерборда */

@@ -30,13 +30,13 @@
         <nav class="rounds-nav rounds-nav--stage">
       <div class="rounds-track">
         <button
-          v-for="round in (quest?.rounds || [])"
+          v-for="(round, index) in (quest?.rounds || [])"
           :key="round.id"
           :class="['round-chip', { active: round.id === activeRoundId } ]"
-          :title="round.title"
+          :title="roundLabel(round.title, index)"
           @click="selectRound(round.id)"
         >
-          <span class="round-chip__label">{{ round.title }}</span>
+          <span class="round-chip__label">{{ roundLabel(round.title, index) }}</span>
         </button>
       </div>
     </nav>
@@ -106,6 +106,7 @@ import { useHostSessionSync } from '@/composables/useHostSessionSync'
 import { useResponderTimeout } from '@/composables/useResponderTimeout'
 import LeaderboardPanel from '@/components/quiz/LeaderboardPanel.vue'
 import QuestSidebar from '@/components/quiz/QuestSidebar.vue'
+import { displayRoundTitle } from '@/utils/boardLabels'
 
 interface Props {
   questId?: string
@@ -116,6 +117,7 @@ interface Props {
 
 const props = defineProps<Props>()
 const { t } = useI18n()
+const roundLabel = (title: string, index: number) => displayRoundTitle(title, index, t)
 const router = useRouter()
 const route = useRoute()
 const quizStore = useQuizStore()

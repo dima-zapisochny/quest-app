@@ -1,7 +1,7 @@
 <template>
   <div class="category-column">
-    <h3 class="category-title" :title="category.title">
-      <span class="category-title-text">{{ category.title }}</span>
+    <h3 class="category-title" :title="displayTitle">
+      <span class="category-title-text">{{ displayTitle }}</span>
     </h3>
     <div class="category-tiles">
       <template v-for="item in tileItems" :key="item.key">
@@ -18,14 +18,22 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import QuizTile from './QuizTile.vue'
 import type { Category, Question } from '@/types'
+import { displayCategoryTitle } from '@/utils/boardLabels'
 
 interface Props {
   category: Category
+  index: number
 }
 
 const props = defineProps<Props>()
+const { t } = useI18n()
+
+const displayTitle = computed(() =>
+  displayCategoryTitle(props.category.title, props.index, t)
+)
 
 const emit = defineEmits<{
   questionClick: [question: Question, categoryId: string]

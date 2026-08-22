@@ -167,6 +167,7 @@
     "errInvalidCode": "Ungültiger Spielcode",
     "errJoin": "Beitritt zum Spiel fehlgeschlagen. Stelle sicher, dass das Spiel in einem anderen Tab läuft.",
     "participants": "Teilnehmer",
+    "waitingForPlayers": "Warten auf Spieler… Teilen Sie den Spielcode, damit sie beitreten können.",
     "pointsWord": "Punkte",
     "stepLabel": "Schritt (Vielfaches von 5):",
     "subtractPoints": "Punkte abziehen",
