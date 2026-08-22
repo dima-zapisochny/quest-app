@@ -1,41 +1,34 @@
-export type QuestTheme = {
+/** RGB-triplets для акцентной полоски карточки квеста. */
+export type QuestAccent = {
   id: string
-  /** CSS rgb triplet for rgb(var(--x) / α) */
-  accent: string
-  accent2: string
-  icon: string
+  a: string
+  b: string
 }
 
-const ICONS = {
-  history: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/></svg>`,
-  science: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="2"/><ellipse cx="12" cy="12" rx="9" ry="4"/><ellipse cx="12" cy="12" rx="9" ry="4" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="9" ry="4" transform="rotate(120 12 12)"/></svg>`,
-  cinema: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 8h20M7 4v4M17 4v4"/></svg>`,
-  sport: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55.47.98 1 .98h2c.53 0 1-.43 1-.98v-2.34"/><path d="M12 2v8"/></svg>`,
-  default: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>`
-} as const
-
-const THEMES: QuestTheme[] = [
-  { id: 'violet', accent: '139 92 246', accent2: '129 140 248', icon: ICONS.default },
-  { id: 'cyan', accent: '34 211 238', accent2: '56 189 248', icon: ICONS.default },
-  { id: 'amber', accent: '251 191 36', accent2: '249 115 22', icon: ICONS.default },
-  { id: 'rose', accent: '244 63 94', accent2: '236 72 153', icon: ICONS.default }
+const PALETTE: QuestAccent[] = [
+  { id: 'violet', a: '139 92 246', b: '129 140 248' },
+  { id: 'cyan', a: '34 211 238', b: '56 189 248' },
+  { id: 'amber', a: '251 191 36', b: '249 115 22' },
+  { id: 'emerald', a: '52 211 153', b: '16 185 129' },
+  { id: 'rose', a: '244 63 94', b: '236 72 153' }
 ]
 
-const KEYWORD_THEMES: Array<{ test: RegExp } & QuestTheme> = [
-  { test: /істор|истор|histor|минул|past/, id: 'history', accent: '251 191 36', accent2: '245 158 11', icon: ICONS.history },
-  { test: /наук|science|косм|space|фіз|phys/, id: 'science', accent: '56 189 248', accent2: '34 211 238', icon: ICONS.science },
-  { test: /кіно|кино|cinema|film|movie|фільм/, id: 'cinema', accent: '244 63 94', accent2: '236 72 153', icon: ICONS.cinema },
-  { test: /спорт|sport|game|чемп/, id: 'sport', accent: '34 197 94', accent2: '16 185 129', icon: ICONS.sport }
+const KEYWORDS: Array<{ test: RegExp; accent: QuestAccent }> = [
+  { test: /істор|истор|histor|минул|past/, accent: { id: 'history', a: '251 191 36', b: '245 158 11' } },
+  { test: /наук|science|косм|space|фіз|phys/, accent: { id: 'science', a: '56 189 248', b: '34 211 238' } },
+  { test: /кіно|кино|cinema|film|movie|фільм/, accent: { id: 'cinema', a: '244 63 94', b: '236 72 153' } },
+  { test: /спорт|sport|чемп/, accent: { id: 'sport', a: '52 211 153', b: '34 197 94' } }
 ]
 
-/** Тема обложки по названию квеста (или палитра по индексу). */
-export function getQuestTheme(title: string, index: number): QuestTheme {
+export function getQuestAccent(title: string, index: number): QuestAccent {
   const normalized = title.replace(/^\[Тест\]\s*/i, '').trim().toLowerCase()
-  for (const entry of KEYWORD_THEMES) {
-    if (entry.test.test(normalized)) {
-      const { test: _, ...theme } = entry
-      return theme
-    }
+  for (const { test, accent } of KEYWORDS) {
+    if (test.test(normalized)) return accent
   }
-  return THEMES[index % THEMES.length]!
+  return PALETTE[index % PALETTE.length]!
+}
+
+/** Убираем префикс [Тест] для отображения на карточке. */
+export function displayQuestTitle(title: string): string {
+  return title.replace(/^\[Тест\]\s*/i, '').trim() || title
 }

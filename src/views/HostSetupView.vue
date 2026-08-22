@@ -29,6 +29,7 @@
             v-for="(quest, qi) in quests"
             :key="quest.id"
             :class="['quest-card', { active: selectedQuestId === quest.id }]"
+            :style="questAccentStyle(quest.title, qi)"
             @click="handleCardClick($event, quest.id)"
           >
             <div v-if="selectedQuestId === quest.id" class="quest-card__selected" aria-hidden="true">
@@ -36,12 +37,9 @@
                 <path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/>
               </svg>
             </div>
-            <div class="quest-card__cover">
-              <QuestCardPreview
-                :quest="quest"
-                :index="qi"
-                :total-questions="questQuestions(quest)"
-              />
+
+            <div class="quest-card__head">
+              <h2 class="quest-title">{{ displayQuestTitle(quest.title) }}</h2>
               <div class="quest-actions" @click.stop @mousedown.stop>
                 <button
                   type="button"
@@ -78,26 +76,28 @@
                 </button>
               </div>
             </div>
-            <div class="quest-card__body">
-              <h2 class="quest-title">{{ quest.title }}</h2>
-              <div class="quest-meta">
-                <span class="quest-meta__pill">{{ t('host.rounds', { count: quest.roundsCount ?? (quest.rounds?.length ?? 0) }) }}</span>
-                <span class="quest-meta__pill">{{ t('host.questions', { count: questQuestions(quest) }) }}</span>
-                <span v-if="questQuestions(quest) === 0" class="quest-empty-badge">
-                  <i aria-hidden="true">⚠</i> {{ t('host.noQuestions') }}
-                </span>
-              </div>
+
+            <p v-if="quest.description?.trim()" class="quest-desc">{{ quest.description }}</p>
+
+            <div class="quest-meta">
+              <span class="quest-meta__pill">
+                <svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M2 3h12v2H2V3zm0 4h12v2H2V7zm0 4h8v2H2v-2z"/></svg>
+                {{ t('host.rounds', { count: quest.roundsCount ?? (quest.rounds?.length ?? 0) }) }}
+              </span>
+              <span class="quest-meta__pill">
+                <svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm.5 3.5v3.25l2.5 1.5-.75 1.23L7 8.5V4.5h1.5z"/></svg>
+                {{ t('host.questions', { count: questQuestions(quest) }) }}
+              </span>
+              <span v-if="questQuestions(quest) === 0" class="quest-empty-badge">
+                <i aria-hidden="true">⚠</i> {{ t('host.noQuestions') }}
+              </span>
             </div>
           </article>
 
           <article class="quest-card quest-card--cta" @click="createNewQuest">
-            <div class="quest-card__cover quest-card__cover--cta">
-              <QuestCardPreview variant="create" />
-            </div>
-            <div class="quest-card__body quest-card__body--cta">
-              <span class="quest-card__ctalabel">{{ t('host.createNewQuest') }}</span>
-              <span class="quest-card__ctahint">{{ t('host.createNewQuestHint') }}</span>
-            </div>
+            <div class="quest-card__cta-icon" aria-hidden="true">+</div>
+            <span class="quest-card__ctalabel">{{ t('host.createNewQuest') }}</span>
+            <span class="quest-card__ctahint">{{ t('host.createNewQuestHint') }}</span>
           </article>
 
           <article class="quest-card quest-card--cta quest-card--import" @click.stop="triggerImportQuest">
@@ -109,13 +109,13 @@
               :disabled="importingQuest"
               @change="onImportQuestFile"
             />
-            <div class="quest-card__cover quest-card__cover--cta">
-              <QuestCardPreview variant="import" />
+            <div class="quest-card__cta-icon quest-card__cta-icon--import" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <path d="M12 15V3"/><path d="m7 8 5-5 5 5"/><path d="M20 15v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-4"/>
+              </svg>
             </div>
-            <div class="quest-card__body quest-card__body--cta">
-              <span class="quest-card__ctalabel">{{ importingQuest ? t('host.importing') : t('host.importQuest') }}</span>
-              <span class="quest-card__ctahint">{{ t('host.importQuestHint') }}</span>
-            </div>
+            <span class="quest-card__ctalabel">{{ importingQuest ? t('host.importing') : t('host.importQuest') }}</span>
+            <span class="quest-card__ctahint">{{ t('host.importQuestHint') }}</span>
           </article>
         </div>
       </section>
@@ -180,7 +180,7 @@ import { useGameSessionStore } from '@/store/gameSessionStore'
 import AppHeader from '@/components/common/AppHeader.vue'
 import { useIsMobileViewport } from '@/composables/useIsMobileViewport'
 import { seedTestQuests } from '@/utils/seedTestQuests'
-import QuestCardPreview from '@/components/host/QuestCardPreview.vue'
+import { displayQuestTitle, getQuestAccent } from '@/utils/questCardTheme'
 
 const { t } = useI18n()
 const importingQuest = ref(false)
@@ -262,6 +262,11 @@ onBeforeUnmount(() => {
 // Из лёгкого списка (#16) берём questionsCount; иначе считаем по загруженной структуре
 const questQuestions = (quest: { id: string; questionsCount?: number }) =>
   quest.questionsCount ?? quizStore.getQuestProgress(quest.id).totalQuestions
+
+function questAccentStyle(title: string, index: number) {
+  const { a, b } = getQuestAccent(title, index)
+  return { '--qa': a, '--qb': b }
+}
 
 // Нельзя начать игру по квесту без вопросов
 const selectedQuestEmpty = computed(() => {
@@ -534,99 +539,123 @@ async function onImportQuestFile(event: Event) {
 
 /* ── Quest cards ── */
 .quest-card {
+  --qa: 56 189 248;
+  --qb: 34 211 238;
   position: relative;
-  width: min(100%, 240px);
+  width: min(100%, 272px);
   flex: 0 0 auto;
-  background: linear-gradient(165deg, rgb(var(--c-surface) / 0.92), rgb(var(--c-bg) / 0.75));
-  border-radius: 1.15rem;
-  padding: 0.85rem;
-  border: 1px solid rgb(var(--c-accent-sky) / 0.16);
+  min-height: 132px;
+  padding: 1rem 1rem 1rem 1.15rem;
+  border-radius: 1rem;
+  border: 1px solid rgb(var(--c-accent-sky) / 0.14);
+  background:
+    linear-gradient(135deg, rgb(var(--qa) / 0.07) 0%, transparent 55%),
+    linear-gradient(165deg, rgb(var(--c-surface) / 0.9), rgb(var(--c-bg) / 0.82));
   color: rgb(var(--c-text));
   display: flex;
   flex-direction: column;
+  gap: 0.65rem;
   cursor: pointer;
   overflow: hidden;
-  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
-  box-shadow: 0 10px 28px rgb(var(--c-bg-deep) / 0.35);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  box-shadow: 0 8px 24px rgb(var(--c-bg-deep) / 0.32);
+}
+
+.quest-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: linear-gradient(180deg, rgb(var(--qa)), rgb(var(--qb)));
+  border-radius: 1rem 0 0 1rem;
 }
 
 .quest-card:hover {
-  transform: translateY(-4px);
-  border-color: rgb(var(--c-accent-sky) / 0.38);
-  box-shadow: 0 18px 40px rgb(var(--c-bg-deep) / 0.5);
+  transform: translateY(-3px);
+  border-color: rgb(var(--qa) / 0.35);
+  box-shadow: 0 14px 32px rgb(var(--c-bg-deep) / 0.45);
 }
 
 .quest-card.active {
-  border-color: rgb(var(--c-accent) / 0.65);
+  border-color: rgb(var(--qa) / 0.55);
   box-shadow:
-    0 0 0 1px rgb(var(--c-accent) / 0.35),
-    0 18px 42px rgb(var(--c-accent-sky) / 0.18);
+    0 0 0 1px rgb(var(--qa) / 0.3),
+    0 14px 36px rgb(var(--qa) / 0.12);
 }
 
 .quest-card__selected {
   position: absolute;
-  top: 0.65rem;
-  left: 0.65rem;
+  top: 0.7rem;
+  left: 0.85rem;
   z-index: 3;
-  width: 1.55rem;
-  height: 1.55rem;
+  width: 1.4rem;
+  height: 1.4rem;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, rgb(var(--c-accent)), rgb(var(--c-accent-sky)));
+  background: linear-gradient(135deg, rgb(var(--qa)), rgb(var(--qb)));
   color: rgb(var(--c-bg-deep));
-  box-shadow: 0 4px 12px rgb(var(--c-accent) / 0.45);
+  box-shadow: 0 3px 10px rgb(var(--qa) / 0.4);
 }
 
-.quest-card__cover {
-  position: relative;
-  aspect-ratio: 1;
-  border-radius: 0.75rem;
-  overflow: hidden;
-  background: rgb(var(--c-bg-deep) / 0.6);
-  border: 1px solid rgb(var(--c-accent-sky) / 0.12);
-}
-
-.quest-card__cover--cta {
-  background: transparent;
-  border: none;
-}
-
-.quest-card__body {
-  padding: 0.85rem 0.25rem 0.35rem;
+.quest-card__head {
   display: flex;
-  flex-direction: column;
-  gap: 0.55rem;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding-left: 0.1rem;
+}
+
+.quest-card.active .quest-card__head {
+  padding-left: 1.65rem;
 }
 
 .quest-title {
   margin: 0;
-  font-size: 1rem;
+  font-size: 1.08rem;
   font-weight: 800;
-  line-height: 1.25;
-  white-space: nowrap;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
+}
+
+.quest-desc {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  color: rgb(var(--c-text-muted) / 0.85);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .quest-actions {
-  position: absolute;
-  top: 0.45rem;
-  right: 0.45rem;
+  flex-shrink: 0;
   display: inline-flex;
   gap: 0.05rem;
-  z-index: 2;
-  padding: 0.15rem;
+  padding: 0.12rem;
   border-radius: 999px;
-  background: rgb(var(--c-bg-deep) / 0.6);
-  border: 1px solid rgb(var(--c-white) / 0.08);
+  background: rgb(var(--c-bg-deep) / 0.5);
+  border: 1px solid rgb(var(--c-white) / 0.06);
   backdrop-filter: blur(8px);
+  opacity: 0;
+  transition: opacity 0.18s ease;
+}
+
+.quest-card:hover .quest-actions,
+.quest-card.active .quest-actions {
+  opacity: 1;
 }
 
 .quest-action-button {
-  width: 28px;
-  height: 28px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
   border: none;
   background: transparent;
@@ -639,8 +668,8 @@ async function onImportQuestFile(event: Event) {
 }
 
 .quest-action-button svg {
-  width: 15px;
-  height: 15px;
+  width: 14px;
+  height: 14px;
   fill: currentColor;
 }
 
@@ -661,14 +690,48 @@ async function onImportQuestFile(event: Event) {
   color: rgb(var(--c-danger-soft));
 }
 
-.quest-card__body--cta {
+/* CTA cards */
+.quest-card--cta {
   align-items: center;
+  justify-content: center;
   text-align: center;
-  gap: 0.25rem;
+  min-height: 132px;
+  border-style: dashed;
+  border-color: rgb(var(--c-accent-sky) / 0.28);
+  background: rgb(var(--c-surface) / 0.35);
+  gap: 0.35rem;
+}
+
+.quest-card--cta::before {
+  display: none;
+}
+
+.quest-card--cta:hover {
+  border-color: rgb(var(--c-accent-sky) / 0.55);
+  background: rgb(var(--c-accent-sky) / 0.06);
+}
+
+.quest-card__cta-icon {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  border: 1px solid rgb(var(--c-accent-sky) / 0.35);
+  background: rgb(var(--c-bg) / 0.45);
+  color: rgb(var(--c-accent-soft));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: 300;
+  line-height: 1;
+}
+
+.quest-card__cta-icon--import {
+  color: rgb(var(--c-accent-sky) / 0.8);
 }
 
 .quest-card__ctalabel {
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 700;
   color: rgb(var(--c-text-soft) / 0.95);
 }
@@ -677,6 +740,7 @@ async function onImportQuestFile(event: Event) {
   font-size: 0.72rem;
   color: rgb(var(--c-text-muted) / 0.8);
   line-height: 1.35;
+  max-width: 14rem;
 }
 
 .quest-import-input {
@@ -699,16 +763,25 @@ async function onImportQuestFile(event: Event) {
   gap: 0.35rem;
   align-items: center;
   flex-wrap: wrap;
+  margin-top: auto;
 }
 
 .quest-meta__pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
   font-size: 0.68rem;
   font-weight: 600;
-  padding: 0.2rem 0.55rem;
+  padding: 0.22rem 0.55rem;
   border-radius: 999px;
-  background: rgb(var(--c-bg) / 0.55);
-  border: 1px solid rgb(var(--c-accent-sky) / 0.18);
+  background: rgb(var(--c-bg) / 0.45);
+  border: 1px solid rgb(var(--c-accent-sky) / 0.14);
   color: rgb(var(--c-text-muted) / 0.95);
+}
+
+.quest-meta__pill svg {
+  opacity: 0.7;
+  flex-shrink: 0;
 }
 
 .quest-empty-badge {
@@ -1017,7 +1090,11 @@ async function onImportQuestFile(event: Event) {
   }
 
   .quest-card {
-    width: min(100%, 200px);
+    width: min(100%, 280px);
+  }
+
+  .quest-actions {
+    opacity: 1;
   }
 }
 
