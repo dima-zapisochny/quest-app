@@ -43,6 +43,7 @@
           v-model="questTitle"
           class="toolbar-input"
           :placeholder="t('editor.questTitlePlaceholder')"
+          :maxlength="QUEST_TITLE_MAX_LENGTH"
         />
         <label class="toolbar-label" for="quest-description">{{ t('editor.questDescLabel') }}</label>
         <textarea
@@ -51,6 +52,7 @@
           rows="2"
           class="toolbar-textarea"
           :placeholder="t('editor.questDescPlaceholder')"
+          :maxlength="QUEST_DESCRIPTION_MAX_LENGTH"
         ></textarea>
         <span class="toolbar-label">{{ t('create.emoji') }}</span>
         <QuestEmojiPicker v-model="questEmoji" fill-row :aria-label="t('create.emojiAria')" />
@@ -140,6 +142,12 @@ import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
 import QuestEmojiPicker from '@/components/common/QuestEmojiPicker.vue'
 import { questDisplayEmoji } from '@/utils/questCardTheme'
 import { notifyDeleted } from '@/utils/notifyDeleted'
+import {
+  QUEST_DESCRIPTION_MAX_LENGTH,
+  QUEST_TITLE_MAX_LENGTH,
+  clampQuestDescription,
+  clampQuestTitle
+} from '@/constants/questLimits'
 
 interface Props {
   questId: string
@@ -185,7 +193,7 @@ const questTitle = computed({
   get: () => quest.value?.title ?? '',
   set: value => {
     if (quest.value) {
-      store.updateQuest(quest.value.id, { title: value })
+      store.updateQuest(quest.value.id, { title: clampQuestTitle(value) })
     }
   }
 })
@@ -194,7 +202,7 @@ const questDescription = computed({
   get: () => quest.value?.description ?? '',
   set: value => {
     if (quest.value) {
-      store.updateQuest(quest.value.id, { description: value })
+      store.updateQuest(quest.value.id, { description: clampQuestDescription(value) })
     }
   }
 })

@@ -19,6 +19,7 @@ import {
   uploadQuestMedia
 } from '@/services/supabaseService'
 import { useGameSessionStore } from './gameSessionStore'
+import { clampQuestDescription, clampQuestTitle } from '@/constants/questLimits'
 
 const AUDIO_EXT = ['mp3', 'wav', 'ogg', 'm4a', 'aac', 'flac']
 const IMAGE_EXT = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'avif', 'bmp']
@@ -383,8 +384,8 @@ export const useQuizStore = defineStore('quiz', () => {
     
     const newQuest: Quest = {
       id: generateId('quest'),
-      title,
-      description,
+      title: clampQuestTitle(title),
+      description: clampQuestDescription(description),
       ...(emoji ? { emoji } : {}),
       rounds: []
     }
@@ -402,7 +403,10 @@ export const useQuizStore = defineStore('quiz', () => {
 
   function updateQuest(questId: string, payload: Partial<Omit<Quest, 'id' | 'rounds'>>) {
     const quest = findQuest(questId)
-    Object.assign(quest, payload)
+    const next = { ...payload }
+    if (typeof next.title === 'string') next.title = clampQuestTitle(next.title)
+    if (typeof next.description === 'string') next.description = clampQuestDescription(next.description)
+    Object.assign(quest, next)
     scheduleSave(questId)
   }
 

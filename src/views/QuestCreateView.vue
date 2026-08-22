@@ -22,7 +22,9 @@
             type="text"
             :placeholder="t('create.namePlaceholder')"
             :class="{ 'field-input--error': error }"
+            :maxlength="QUEST_TITLE_MAX_LENGTH"
             required
+            @input="clearError"
           />
           <transition name="err-slide">
             <p v-if="error" class="field-error field-error--inline">{{ error }}</p>
@@ -35,6 +37,7 @@
             class="field-input field-textarea"
             rows="2"
             :placeholder="t('create.descriptionPlaceholder')"
+            :maxlength="QUEST_DESCRIPTION_MAX_LENGTH"
           ></textarea>
 
           <span class="field-label">{{ t('create.emoji') }}</span>
@@ -86,6 +89,12 @@ import GridSizePicker from '@/components/common/GridSizePicker.vue'
 import QuestEmojiPicker from '@/components/common/QuestEmojiPicker.vue'
 import { DEFAULT_QUEST_EMOJI, questThemeEmoji } from '@/utils/questCardTheme'
 import { mapAppError } from '@/utils/mapAppError'
+import {
+  QUEST_DESCRIPTION_MAX_LENGTH,
+  QUEST_TITLE_MAX_LENGTH,
+  clampQuestDescription,
+  clampQuestTitle
+} from '@/constants/questLimits'
 
 const { t } = useI18n()
 const { count } = usePlural()
@@ -111,6 +120,10 @@ onMounted(() => {
   nextTick(() => titleInput.value?.focus())
 })
 
+function clearError() {
+  if (error.value) error.value = ''
+}
+
 function goBack() {
   router.push({ name: 'host-setup' })
 }
@@ -124,7 +137,9 @@ function onGridSelect(c: number, r: number) {
 
 async function submit() {
   error.value = ''
-  const name = title.value.trim()
+  const name = clampQuestTitle(title.value).trim()
+  title.value = clampQuestTitle(title.value)
+  description.value = clampQuestDescription(description.value)
   if (!name) {
     error.value = t('create.errName')
     titleInput.value?.focus()
@@ -134,7 +149,7 @@ async function submit() {
   if (isCreating.value) return
   isCreating.value = true
   try {
-    const desc = description.value.trim()
+    const desc = clampQuestDescription(description.value).trim()
     const questId = await quizStore.createQuestWithBoard(
       name,
       desc,
