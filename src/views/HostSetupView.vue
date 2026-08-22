@@ -22,8 +22,6 @@
       </header>
 
       <section class="host-library">
-        <p class="host-library__hint">{{ t('host.chooseQuestHint') }}</p>
-
         <div class="quests-grid">
           <article
             v-for="quest in quests"
@@ -501,14 +499,6 @@ async function onImportQuestFile(event: Event) {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-}
-
-.host-library__hint {
-  flex-shrink: 0;
-  margin: 0 0 1rem;
-  text-align: center;
-  font-size: 0.88rem;
-  color: rgb(var(--c-text-soft) / 0.75);
 }
 
 .quests-grid {
