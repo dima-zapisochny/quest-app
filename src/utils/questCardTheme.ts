@@ -20,6 +20,8 @@ export function questThemeEmoji(title: string): string {
   if (/спорт|sport/.test(label)) return '⚽'
   if (/муз|music|musik/.test(label)) return '🎵'
   if (/геог|geograph|країн|country|land/.test(label)) return '🌍'
+  if (/літер|literatur|literature|книг|book/.test(label)) return '📚'
+  if (/техн|tech|it|digital/.test(label)) return '💡'
   return DEFAULT_QUEST_EMOJI
 }
 
