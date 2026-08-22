@@ -15,7 +15,8 @@ import {
   buildActiveQuestion,
   applyBuzzFallback,
   applyWrongAnswer,
-  applyTimeoutResponderFallback
+  applyTimeoutResponderFallback,
+  mergeSessionQuestSnapshot
 } from '@/services/gameFlow'
 import {
   getSessionsByHost,
@@ -89,17 +90,14 @@ export const useGameSessionStore = defineStore('game-session', () => {
 
   /** Применяет realtime-обновление сессии в store (новые объекты для реактивности Vue). */
   function applySessionUpdate(session: GameSession) {
-    const existingIndex = sessions.value.findIndex(s => s.id === session.id)
+    const existing = sessions.value.find(s => s.id === session.id)
     const rebuilt: GameSession = {
       ...session,
+      quest: mergeSessionQuestSnapshot(session.quest, existing?.quest),
       players: session.players.map(player => ({ ...player })),
       activeQuestion: session.activeQuestion ? { ...session.activeQuestion } : undefined
     }
-    if (existingIndex >= 0) {
-      updateSessionInArray(rebuilt)
-    } else {
-      sessions.value = [...sessions.value, rebuilt]
-    }
+    upsertSession(rebuilt)
   }
 
   // Подписка на текущую сессию (одну, с фильтром по id — #17)
@@ -140,12 +138,8 @@ export const useGameSessionStore = defineStore('game-session', () => {
 
       // Realtime UPDATE часто приходить без quest_data: Postgres TOAST не шле
       // незмінений jsonb у WAL → mapSessionRow дає quest=undefined і гравець
-      // бачить «Завантаження сесії…» замість жовтої кнопки. Серверний знімок
-      // з rounds авторитетний; порожній — лишаємо локальний (#28 + TOAST).
-      const quest =
-        updatedSession.quest?.rounds?.length
-          ? updatedSession.quest
-          : oldSession.quest
+      // бачить «Завантаження сесії…» / «Запитання приховано». mergeSessionQuestSnapshot.
+      const quest = mergeSessionQuestSnapshot(updatedSession.quest, oldSession.quest)
       
       // Создаем полностью новый объект и новый массив для триггера реактивности Vue
       // Важно: создаем новые объекты для каждого игрока, чтобы Vue отследил изменения в score
@@ -190,15 +184,30 @@ export const useGameSessionStore = defineStore('game-session', () => {
 
   /** Кладе сесію з БД у store (update або insert). Потрібно для deep-link / refresh гравця. */
   function upsertSession(session: GameSession) {
-    if (!updateSessionInArray(session)) {
-      sessions.value = [
-        ...sessions.value,
-        {
-          ...session,
-          players: session.players.map(player => ({ ...player }))
-        }
-      ]
+    const existing = sessions.value.find(s => s.id === session.id)
+    const merged: GameSession = {
+      ...session,
+      quest: mergeSessionQuestSnapshot(session.quest, existing?.quest),
+      players: session.players.map(player => ({ ...player })),
+      activeQuestion: session.activeQuestion ? { ...session.activeQuestion } : undefined
     }
+    if (!updateSessionInArray(merged)) {
+      sessions.value = [...sessions.value, merged]
+    }
+  }
+
+  /**
+   * Підтягує quest_data з БД, якщо в store сесія без знімка квеста
+   * (race: Realtime додав сесію раніше за GET / reload гравця).
+   */
+  async function ensureSessionQuestLoaded(sessionId: string): Promise<void> {
+    const local = getSessionById(sessionId)
+    if (local?.quest?.rounds?.length) return
+
+    const fromDb = await getSessionByIdFromDb(sessionId)
+    if (!fromDb?.quest?.rounds?.length) return
+
+    upsertSession(fromDb)
   }
 
   /**
@@ -595,7 +604,9 @@ export const useGameSessionStore = defineStore('game-session', () => {
 
       // Значение вопроса для начисления + отметка «кто ответил» в квесте
       let awardDelta = 0
-      const question = findQuestion(quizStore.getQuestById(session.questId), roundId, categoryId, questionId)
+      const questForAward =
+        session.quest ?? quizStore.getQuestById(session.questId)
+      const question = findQuestion(questForAward, roundId, categoryId, questionId)
       if (responder && question) {
         awardDelta = question.value
         question.answeredBy = answeredBy
@@ -675,7 +686,7 @@ export const useGameSessionStore = defineStore('game-session', () => {
       return
     }
 
-    // Fallback (RPC не задеплоен): старый путь. Сохраняем buzzedOrder, возобновляем общий таймер.
+    // Fallback (RPC не задеплоен): очищаем buzzedOrder, возобновляем общий таймер.
     applyTimeoutResponderFallback(session, failedPlayerId)
     session.updatedAt = now()
     await persistSession(session)
@@ -905,6 +916,7 @@ export const useGameSessionStore = defineStore('game-session', () => {
     pruneStalePlayers,
     watchSession,
     unwatchSession,
-    upsertSession
+    upsertSession,
+    ensureSessionQuestLoaded
   }
 })

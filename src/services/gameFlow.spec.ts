@@ -5,7 +5,8 @@ import {
   buildActiveQuestion,
   applyBuzzFallback,
   applyWrongAnswer,
-  applyTimeoutResponderFallback
+  applyTimeoutResponderFallback,
+  mergeSessionQuestSnapshot
 } from './gameFlow'
 import type { GameSession, Quest, Player } from '@/types'
 
@@ -69,6 +70,25 @@ describe('findQuestion', () => {
 
   it('не падает на квесте-заглушке из списка (rounds отсутствуют)', () => {
     expect(findQuestion({ id: 'x', title: 't' }, 'r1', 'c1', 'q1')).toBeUndefined()
+  })
+})
+
+describe('mergeSessionQuestSnapshot', () => {
+  const full = makeQuest()
+  const stub = { id: 'quest-1', title: 't' }
+
+  it('берёт серверный снимок, если в нём есть rounds', () => {
+    expect(mergeSessionQuestSnapshot(full, stub as Quest)).toBe(full)
+  })
+
+  it('сохраняет локальный снимок, если incoming без rounds', () => {
+    expect(mergeSessionQuestSnapshot(undefined, full)).toBe(full)
+    expect(mergeSessionQuestSnapshot(stub as Quest, full)).toBe(full)
+  })
+
+  it('возвращает undefined, если ни один снимок полный', () => {
+    expect(mergeSessionQuestSnapshot(undefined, undefined)).toBeUndefined()
+    expect(mergeSessionQuestSnapshot(stub as Quest, undefined)).toBeUndefined()
   })
 })
 
@@ -156,5 +176,6 @@ describe('applyTimeoutResponderFallback', () => {
     expect(aq.currentResponderId).toBeNull()
     expect(aq.responderStartedAt).toBeNull()
     expect(aq.timerPaused).toBe(false)
+    expect(aq.buzzedOrder).toEqual([])
   })
 })
