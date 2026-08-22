@@ -315,5 +315,27 @@
     "faq5A": "It’s closer to a classic point board with buzz-in: host on the big screen, answers from phones with a show feel.",
     "ctaTitle": "Ready to play?",
     "ctaText": "Go back home and tap Create game — pick Movie Night, Hit Parade or your own quest and share the code with friends."
+  },
+  "stats": {
+    "title": "Site analytics",
+    "lead": "Private dashboard: visits, top pages and clicks. Not indexed by search engines.",
+    "tokenLabel": "Secret token",
+    "tokenPlaceholder": "paste token from Supabase",
+    "unlock": "Unlock",
+    "loading": "Loading…",
+    "refresh": "Refresh",
+    "privateHint": "noindex page · keep the URL to yourself",
+    "error": "Invalid token or analytics unavailable. Check migration 009 and UPDATE site_analytics_secrets.",
+    "kpiViews7d": "Views / 7 days",
+    "kpiSessions7d": "Sessions / 7 days",
+    "kpiClicks7d": "Clicks / 7 days",
+    "kpiViewsTotal": "Views total",
+    "chartTitle": "Visitors this week",
+    "chartLead": "Page views over the last 7 days (UTC)",
+    "topPages": "Top pages",
+    "topPagesLead": "Last 30 days",
+    "topClicks": "Where people click",
+    "topClicksLead": "CTAs and nav over 30 days",
+    "empty": "No data yet — browse the site as a normal visitor."
   }
 }

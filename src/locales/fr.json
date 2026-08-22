@@ -315,5 +315,27 @@
     "faq5A": "Plus proche d’un plateau à points avec buzz : animateur sur grand écran, réponses depuis les téléphones façon show.",
     "ctaTitle": "Prêts à jouer ?",
     "ctaText": "Retour à l’accueil et Créer une partie — choisissez Movie Night, Hit Parade ou votre quest et partagez le code."
+  },
+  "stats": {
+    "title": "Statistiques du site",
+    "lead": "Tableau privé : visites, pages populaires et clics. Non indexé.",
+    "tokenLabel": "Jeton secret",
+    "tokenPlaceholder": "coller le jeton Supabase",
+    "unlock": "Ouvrir",
+    "loading": "Chargement…",
+    "refresh": "Actualiser",
+    "privateHint": "page noindex · gardez l’URL pour vous",
+    "error": "Jeton invalide ou analytics indisponible. Vérifiez la migration 009 et UPDATE site_analytics_secrets.",
+    "kpiViews7d": "Vues / 7 jours",
+    "kpiSessions7d": "Sessions / 7 jours",
+    "kpiClicks7d": "Clics / 7 jours",
+    "kpiViewsTotal": "Vues totales",
+    "chartTitle": "Visiteurs de la semaine",
+    "chartLead": "Vues sur les 7 derniers jours (UTC)",
+    "topPages": "Pages populaires",
+    "topPagesLead": "30 derniers jours",
+    "topClicks": "Où l’on clique",
+    "topClicksLead": "CTA et navigation (30 jours)",
+    "empty": "Pas encore de données — parcourez le site normalement."
   }
 }

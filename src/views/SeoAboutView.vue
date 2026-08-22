@@ -171,7 +171,7 @@
         <h2 id="about-cta-title">{{ t('about.ctaTitle') }}</h2>
         <p>{{ t('about.ctaText') }}</p>
         <p class="seo-page__cta-wrap">
-          <RouterLink class="seo-page__cta" to="/">{{ t('landing.createGame') }}</RouterLink>
+          <RouterLink class="seo-page__cta" to="/" data-track="cta:create-game-about">{{ t('landing.createGame') }}</RouterLink>
         </p>
       </section>
 

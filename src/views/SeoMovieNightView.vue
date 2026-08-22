@@ -18,7 +18,7 @@
       </ul>
 
       <p class="seo-page__cta-wrap">
-        <RouterLink class="seo-page__cta" to="/">{{ t('seo.linkPlay') }}</RouterLink>
+        <RouterLink class="seo-page__cta" to="/" data-track="cta:play-movie-night">{{ t('seo.linkPlay') }}</RouterLink>
       </p>
 
       <nav class="seo-page__nav" :aria-label="t('seo.relatedNav')">

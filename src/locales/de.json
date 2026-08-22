@@ -315,5 +315,27 @@
     "faq5A": "Näher am klassischen Punkte-Board mit Buzz-in: Moderator am großen Screen, Antworten vom Handy im Show-Feeling.",
     "ctaTitle": "Bereit zu spielen?",
     "ctaText": "Zurück zur Startseite und „Spiel erstellen“ — Movie Night, Hit Parade oder eigenes Quest wählen und den Code teilen."
+  },
+  "stats": {
+    "title": "Website-Statistik",
+    "lead": "Privates Dashboard: Besuche, Top-Seiten und Klicks. Nicht indexiert.",
+    "tokenLabel": "Geheimtoken",
+    "tokenPlaceholder": "Token aus Supabase einfügen",
+    "unlock": "Öffnen",
+    "loading": "Laden…",
+    "refresh": "Aktualisieren",
+    "privateHint": "noindex-Seite · URL nur für dich",
+    "error": "Ungültiger Token oder keine Analytics. Migration 009 und UPDATE site_analytics_secrets prüfen.",
+    "kpiViews7d": "Aufrufe / 7 Tage",
+    "kpiSessions7d": "Sitzungen / 7 Tage",
+    "kpiClicks7d": "Klicks / 7 Tage",
+    "kpiViewsTotal": "Aufrufe gesamt",
+    "chartTitle": "Besucher dieser Woche",
+    "chartLead": "Seitenaufrufe der letzten 7 Tage (UTC)",
+    "topPages": "Beliebte Seiten",
+    "topPagesLead": "Letzte 30 Tage",
+    "topClicks": "Wohin geklickt wird",
+    "topClicksLead": "CTAs und Navigation (30 Tage)",
+    "empty": "Noch keine Daten — Seite als normaler Besucher öffnen."
   }
 }

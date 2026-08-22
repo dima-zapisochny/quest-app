@@ -315,5 +315,27 @@
     "faq5A": "Más cerca de un tablero con puntos y buzz: anfitrión en pantalla grande, respuestas desde el móvil con vibe de concurso.",
     "ctaTitle": "¿Listos para jugar?",
     "ctaText": "Vuelve a la home y pulsa Crear partida — elige Movie Night, Hit Parade o tu quest y comparte el código."
+  },
+  "stats": {
+    "title": "Estadísticas del sitio",
+    "lead": "Panel privado: visitas, páginas top y clics. No indexado.",
+    "tokenLabel": "Token secreto",
+    "tokenPlaceholder": "pega el token de Supabase",
+    "unlock": "Abrir",
+    "loading": "Cargando…",
+    "refresh": "Actualizar",
+    "privateHint": "página noindex · guarda la URL solo para ti",
+    "error": "Token inválido o sin analytics. Revisa la migración 009 y UPDATE site_analytics_secrets.",
+    "kpiViews7d": "Vistas / 7 días",
+    "kpiSessions7d": "Sesiones / 7 días",
+    "kpiClicks7d": "Clics / 7 días",
+    "kpiViewsTotal": "Vistas totales",
+    "chartTitle": "Visitantes de la semana",
+    "chartLead": "Vistas de los últimos 7 días (UTC)",
+    "topPages": "Páginas populares",
+    "topPagesLead": "Últimos 30 días",
+    "topClicks": "Dónde hacen clic",
+    "topClicksLead": "CTA y navegación (30 días)",
+    "empty": "Aún no hay datos — entra al sitio como visitante normal."
   }
 }
