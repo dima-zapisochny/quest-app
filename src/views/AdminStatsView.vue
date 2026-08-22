@@ -62,12 +62,12 @@
             <p class="stats-kpi__value">{{ formatNum(data?.views_7d) }}</p>
           </article>
           <article class="stats-kpi">
-            <p class="stats-kpi__label">{{ tUk('stats.kpiSessions7d') }}</p>
-            <p class="stats-kpi__value">{{ formatNum(data?.unique_sessions_7d) }}</p>
+            <p class="stats-kpi__label">{{ tUk('stats.kpiUnique7d') }}</p>
+            <p class="stats-kpi__value">{{ formatNum(data?.unique_visitors_7d) }}</p>
           </article>
           <article class="stats-kpi">
-            <p class="stats-kpi__label">{{ tUk('stats.kpiClicks7d') }}</p>
-            <p class="stats-kpi__value">{{ formatNum(data?.clicks_7d) }}</p>
+            <p class="stats-kpi__label">{{ tUk('stats.kpiUniqueTotal') }}</p>
+            <p class="stats-kpi__value">{{ formatNum(data?.unique_visitors_total) }}</p>
           </article>
           <article class="stats-kpi">
             <p class="stats-kpi__label">{{ tUk('stats.kpiViewsTotal') }}</p>
@@ -321,7 +321,8 @@ const weekSeries = computed(() => {
       day,
       views: Number(row?.views ?? 0),
       clicks: Number(row?.clicks ?? 0),
-      sessions: Number(row?.sessions ?? 0)
+      sessions: Number(row?.sessions ?? 0),
+      visitors: Number(row?.visitors ?? 0)
     }
   })
 })

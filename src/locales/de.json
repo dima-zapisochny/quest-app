@@ -332,6 +332,8 @@
     "error": "Ungültiger Token oder keine Analytics.",
     "kpiViews7d": "Aufrufe / 7 Tage",
     "kpiSessions7d": "Sitzungen / 7 Tage",
+    "kpiUnique7d": "Unique / 7 Tage",
+    "kpiUniqueTotal": "Unique gesamt",
     "kpiClicks7d": "Klicks / 7 Tage",
     "kpiViewsTotal": "Aufrufe gesamt",
     "chartTitle": "Besucher dieser Woche",
