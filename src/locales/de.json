@@ -45,7 +45,7 @@
     "createNewQuestHint": "Board von Grund auf erstellen",
     "importQuestHint": ".json-Datei laden",
     "selectedQuest": "Ausgewählt",
-    "pickQuestHint": "Wählen Sie oben ein Quiz aus",
+    "pickQuestHint": "Wähle oben ein Quiz aus",
     "startGame": "Spiel starten",
     "startHint": "Füge mindestens eine Frage hinzu, um das Spiel zu starten",
     "rounds": "Runden: {count}",
@@ -73,7 +73,7 @@
     "name": "Name",
     "namePlaceholder": "Quiz-Name",
     "description": "Beschreibung (optional)",
-    "descriptionPlaceholder": "Eine kurze Notiz zum Quiz",
+    "descriptionPlaceholder": "Kurze Notiz zum Quiz",
     "emoji": "Quiz-Symbol",
     "emojiAria": "Emoji für das Quiz wählen",
     "emojiMore": "Weitere Symbole",
@@ -87,7 +87,7 @@
     "next": "Weiter",
     "creating": "Wird erstellt…",
     "tapGrid": "Tippe auf das Raster, um fortzufahren",
-    "errName": "Gib einen Quiznamen ein",
+    "errName": "Quiznamen eingeben",
     "errCreate": "Quiz konnte nicht erstellt werden"
   },
   "plural": {
@@ -177,7 +177,7 @@
     "playAnswerAudio": "Antwort-Audio abspielen",
     "questChip": "Quiz",
     "noDescription": "Noch keine Beschreibung hinzugefügt",
-    "joinChip": "Dem Spiel beitreten",
+    "joinChip": "Spiel beitreten",
     "joinHint": "Gib den Spielcode ein, um als Teilnehmer beizutreten",
     "statsChip": "Statistik",
     "totalQuestions": "Fragen gesamt",
@@ -198,7 +198,7 @@
     "resume": "Fortsetzen",
     "wrong": "Falsch",
     "answering": "Antwortet",
-    "waiting": "Warten auf eine Antwort",
+    "waiting": "Warte auf Antwort",
     "imageNotLoaded": "Bild nicht geladen",
     "audioNotLoaded": "Audio nicht geladen",
     "noAudio": "Kein Audio",
@@ -218,11 +218,11 @@
     "waitTurn": "Warte, bis du dran bist",
     "answered": "Antwort bereits gegeben",
     "buzz": "Antworten",
-    "waitForQuestion": "Warte auf eine Frage"
+    "waitForQuestion": "Warte auf Frage"
   },
   "howto": {
     "title": "So wird gespielt",
-    "subtitle": "Eine kurze Anleitung zum Spielen und Erstellen eines Quiz",
+    "subtitle": "Kurze Anleitung zum Spielen und Erstellen eines Quiz",
     "tabPlay": "Spielen",
     "tabCreate": "Quiz erstellen",
     "gotIt": "Verstanden",
