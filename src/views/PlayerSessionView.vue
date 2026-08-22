@@ -1,5 +1,5 @@
 <template>
-  <div v-if="session && quest" class="player-view">
+  <div v-if="session" class="player-view">
     <AppHeader
       button-variant="exit"
       :button-label="isExiting ? t('game.exitBusy') : t('game.exitConfirm')"

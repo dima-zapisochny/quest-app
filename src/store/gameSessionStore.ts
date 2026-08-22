@@ -137,6 +137,15 @@ export const useGameSessionStore = defineStore('game-session', () => {
       const oldSession = sessions.value[index]
       const oldPlayersCount = oldSession.players.length
       const newPlayersCount = updatedSession.players.length
+
+      // Realtime UPDATE часто приходить без quest_data: Postgres TOAST не шле
+      // незмінений jsonb у WAL → mapSessionRow дає quest=undefined і гравець
+      // бачить «Завантаження сесії…» замість жовтої кнопки. Серверний знімок
+      // з rounds авторитетний; порожній — лишаємо локальний (#28 + TOAST).
+      const quest =
+        updatedSession.quest?.rounds?.length
+          ? updatedSession.quest
+          : oldSession.quest
       
       // Создаем полностью новый объект и новый массив для триггера реактивности Vue
       // Важно: создаем новые объекты для каждого игрока, чтобы Vue отследил изменения в score
@@ -144,7 +153,7 @@ export const useGameSessionStore = defineStore('game-session', () => {
         id: updatedSession.id,
         code: updatedSession.code,
         questId: updatedSession.questId,
-        quest: updatedSession.quest,
+        quest,
         hostId: updatedSession.hostId,
         hostName: updatedSession.hostName,
         hostAvatar: updatedSession.hostAvatar,
@@ -837,15 +846,8 @@ export const useGameSessionStore = defineStore('game-session', () => {
     if (!session) return
     const idx = sessions.value.findIndex(s => s.id === sessionId)
     if (idx < 0) return
-    const local = sessions.value[idx]
-    // Снимок quest_data на сервере авторитетен по «сыграно» (#28): пишется при
-    // resolve / close / timeout / reset (includeQuestData). Раньше здесь сохранялся
-    // локальный квест из-за устаревшего снимка — это и было источником расхождения
-    // между хостом и игроком. Теперь доверяем серверу (как и realtime-путь).
-    // Fallback: если серверный снимок пуст, оставляем локальный квест, чтобы не сломать доску.
-    if (!session.quest?.rounds?.length && local.quest?.rounds?.length) {
-      session.quest = local.quest
-    }
+    // Збереження локального quest при порожньому серверному знімку —
+    // у updateSessionInArray (Realtime TOAST + #28).
     updateSessionInArray(session)
   }
 
