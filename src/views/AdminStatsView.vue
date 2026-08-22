@@ -1,18 +1,18 @@
 <template>
   <div class="stats-page" data-analytics-ignore>
     <AppHeader
-      button-variant="back"
-      :button-label="t('common.back')"
+      button-variant="home"
+      :button-label="tUk('common.toHome')"
+      :show-sound-toggle="false"
       @button-click="goHome"
     />
 
     <main class="stats-page__main">
-      <p class="stats-page__eyebrow">Quiz Quest · private</p>
-      <h1 class="stats-page__title">{{ t('stats.title') }}</h1>
-      <p class="stats-page__lead">{{ t('stats.lead') }}</p>
+      <h1 class="stats-page__title">Site analytics</h1>
+      <p class="stats-page__lead">{{ tUk('stats.lead') }}</p>
 
       <form v-if="!unlocked" class="stats-gate" @submit.prevent="unlock">
-        <label class="stats-gate__label" for="stats-token">{{ t('stats.tokenLabel') }}</label>
+        <label class="stats-gate__label" for="stats-token">{{ tUk('stats.tokenLabel') }}</label>
         <input
           id="stats-token"
           v-model="tokenInput"
@@ -20,10 +20,10 @@
           type="password"
           autocomplete="off"
           spellcheck="false"
-          :placeholder="t('stats.tokenPlaceholder')"
+          :placeholder="tUk('stats.tokenPlaceholder')"
         />
         <button class="stats-gate__btn" type="submit" :disabled="loading || tokenInput.trim().length < 16">
-          {{ loading ? t('stats.loading') : t('stats.unlock') }}
+          {{ loading ? tUk('stats.loading') : tUk('stats.unlock') }}
         </button>
         <p v-if="error" class="stats-gate__error">{{ error }}</p>
       </form>
@@ -31,38 +31,60 @@
       <template v-else>
         <div class="stats-toolbar">
           <button type="button" class="stats-toolbar__btn" :disabled="loading" @click="refresh">
-            {{ loading ? t('stats.loading') : t('stats.refresh') }}
+            {{ loading ? tUk('stats.loading') : tUk('stats.refresh') }}
           </button>
-          <span class="stats-toolbar__hint">{{ t('stats.privateHint') }}</span>
+          <transition name="save-pill">
+            <span
+              v-if="refreshState !== 'idle'"
+              class="save-icon"
+              :class="`save-icon--${refreshState}`"
+              :title="refreshState === 'saving' ? tUk('stats.loading') : tUk('stats.refreshed')"
+              :aria-label="refreshState === 'saving' ? tUk('stats.loading') : tUk('stats.refreshed')"
+              aria-live="polite"
+            >
+              <span v-if="refreshState === 'saving'" class="save-icon__spinner" aria-hidden="true"></span>
+              <svg v-else class="save-icon__check" viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M5 12.5l4.5 4.5L19 7"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </span>
+          </transition>
+          <span class="stats-toolbar__hint">{{ tUk('stats.privateHint') }}</span>
         </div>
 
         <p v-if="error" class="stats-gate__error">{{ error }}</p>
 
         <section class="stats-kpis" aria-label="KPI">
           <article class="stats-kpi">
-            <p class="stats-kpi__label">{{ t('stats.kpiViews7d') }}</p>
+            <p class="stats-kpi__label">{{ tUk('stats.kpiViews7d') }}</p>
             <p class="stats-kpi__value">{{ formatNum(data?.views_7d) }}</p>
           </article>
           <article class="stats-kpi">
-            <p class="stats-kpi__label">{{ t('stats.kpiSessions7d') }}</p>
+            <p class="stats-kpi__label">{{ tUk('stats.kpiSessions7d') }}</p>
             <p class="stats-kpi__value">{{ formatNum(data?.unique_sessions_7d) }}</p>
           </article>
           <article class="stats-kpi">
-            <p class="stats-kpi__label">{{ t('stats.kpiClicks7d') }}</p>
+            <p class="stats-kpi__label">{{ tUk('stats.kpiClicks7d') }}</p>
             <p class="stats-kpi__value">{{ formatNum(data?.clicks_7d) }}</p>
           </article>
           <article class="stats-kpi">
-            <p class="stats-kpi__label">{{ t('stats.kpiViewsTotal') }}</p>
+            <p class="stats-kpi__label">{{ tUk('stats.kpiViewsTotal') }}</p>
             <p class="stats-kpi__value">{{ formatNum(data?.total_views) }}</p>
           </article>
         </section>
 
         <section class="stats-panel">
           <header class="stats-panel__head">
-            <h2>{{ t('stats.chartTitle') }}</h2>
-            <p>{{ t('stats.chartLead') }}</p>
+            <h2>{{ tUk('stats.chartTitle') }}</h2>
+            <p>{{ tUk('stats.chartLead') }}</p>
           </header>
-          <div class="stats-chart" role="img" :aria-label="t('stats.chartTitle')">
+          <div class="stats-chart" role="img" :aria-label="tUk('stats.chartTitle')">
             <svg :viewBox="`0 0 ${chartW} ${chartH}`" class="stats-chart__svg">
               <defs>
                 <linearGradient id="statsBarGrad" x1="0" y1="0" x2="0" y2="1">
@@ -130,8 +152,8 @@
         <div class="stats-grids">
           <section class="stats-panel">
             <header class="stats-panel__head">
-              <h2>{{ t('stats.topPages') }}</h2>
-              <p>{{ t('stats.topPagesLead') }}</p>
+              <h2>{{ tUk('stats.topPages') }}</h2>
+              <p>{{ tUk('stats.topPagesLead') }}</p>
             </header>
             <ul v-if="data?.top_paths?.length" class="stats-rank">
               <li v-for="row in data.top_paths" :key="row.path">
@@ -142,13 +164,13 @@
                 <span class="stats-rank__num">{{ formatNum(row.views) }}</span>
               </li>
             </ul>
-            <p v-else class="stats-empty">{{ t('stats.empty') }}</p>
+            <p v-else class="stats-empty">{{ tUk('stats.empty') }}</p>
           </section>
 
           <section class="stats-panel">
             <header class="stats-panel__head">
-              <h2>{{ t('stats.topClicks') }}</h2>
-              <p>{{ t('stats.topClicksLead') }}</p>
+              <h2>{{ tUk('stats.topClicks') }}</h2>
+              <p>{{ tUk('stats.topClicksLead') }}</p>
             </header>
             <ul v-if="data?.top_clicks?.length" class="stats-rank">
               <li v-for="row in data.top_clicks" :key="row.name">
@@ -162,7 +184,7 @@
                 <span class="stats-rank__num">{{ formatNum(row.clicks) }}</span>
               </li>
             </ul>
-            <p v-else class="stats-empty">{{ t('stats.empty') }}</p>
+            <p v-else class="stats-empty">{{ tUk('stats.empty') }}</p>
           </section>
         </div>
       </template>
@@ -184,6 +206,11 @@ const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 
+/** Сторінка статистики завжди українською; заголовок — англійський Site analytics. */
+function tUk(key: string) {
+  return t(key, {}, { locale: 'uk' }) as string
+}
+
 const TOKEN_STORAGE = 'quest-app:analytics-token'
 
 const tokenInput = ref('')
@@ -191,6 +218,8 @@ const unlocked = ref(false)
 const loading = ref(false)
 const error = ref('')
 const data = ref<SiteAnalyticsSummary | null>(null)
+const refreshState = ref<'idle' | 'saving' | 'saved'>('idle')
+let refreshHideTimer: ReturnType<typeof setTimeout> | null = null
 
 const chartW = 640
 const chartH = 260
@@ -200,7 +229,7 @@ const padT = 28
 const padB = 36
 
 function applyNoIndex() {
-  document.title = 'Stats · Quiz Quest'
+  document.title = 'Site analytics · Quiz Quest'
   let robots = document.head.querySelector<HTMLMetaElement>('meta[name="robots"]')
   if (!robots) {
     robots = document.createElement('meta')
@@ -211,7 +240,7 @@ function applyNoIndex() {
 }
 
 function formatNum(n?: number) {
-  return new Intl.NumberFormat(undefined).format(n ?? 0)
+  return new Intl.NumberFormat('uk-UA').format(n ?? 0)
 }
 
 function last7Days(): string[] {
@@ -290,9 +319,13 @@ function clickBarWidth(clicks: number) {
   return `${Math.round((clicks / max) * 100)}%`
 }
 
-async function load(token: string) {
+async function load(token: string, fromRefresh = false) {
   loading.value = true
   error.value = ''
+  if (fromRefresh) {
+    if (refreshHideTimer) clearTimeout(refreshHideTimer)
+    refreshState.value = 'saving'
+  }
   try {
     data.value = await fetchSiteAnalytics(token)
     unlocked.value = true
@@ -301,10 +334,17 @@ async function load(token: string) {
     } catch {
       /* ignore */
     }
+    if (fromRefresh) {
+      refreshState.value = 'saved'
+      refreshHideTimer = setTimeout(() => {
+        refreshState.value = 'idle'
+      }, 1600)
+    }
   } catch {
     unlocked.value = false
     data.value = null
-    error.value = t('stats.error')
+    error.value = tUk('stats.error')
+    if (fromRefresh) refreshState.value = 'idle'
   } finally {
     loading.value = false
   }
@@ -318,7 +358,7 @@ function unlock() {
 
 function refresh() {
   const token = tokenInput.value.trim()
-  if (token) void load(token)
+  if (token) void load(token, true)
 }
 
 function goHome() {
@@ -342,18 +382,24 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
-  // leave robots as-is; next page useSeo will overwrite
+  if (refreshHideTimer) clearTimeout(refreshHideTimer)
 })
 </script>
 
 <style scoped>
 .stats-page {
   min-height: 100vh;
+  font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   background:
     radial-gradient(ellipse 70% 45% at 20% -10%, rgb(var(--c-accent-sky) / 0.18), transparent),
     radial-gradient(ellipse 50% 40% at 90% 10%, rgb(var(--c-accent) / 0.1), transparent),
     rgb(var(--c-bg-deep));
   color: rgb(var(--c-text));
+}
+
+.stats-page :is(h1, h2, h3) {
+  font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  letter-spacing: normal;
 }
 
 .stats-page__main {
@@ -362,25 +408,21 @@ onBeforeUnmount(() => {
   padding: 1.25rem 1.25rem 3rem;
 }
 
-.stats-page__eyebrow {
-  margin: 0 0 0.4rem;
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: rgb(var(--c-accent-soft));
-}
-
 .stats-page__title {
-  margin: 0 0 0.55rem;
-  font-size: clamp(1.6rem, 4vw, 2.15rem);
-  font-weight: 800;
+  margin: 0 0 0.75rem;
+  font-family: 'Press Start 2P', 'Nunito', cursive !important;
+  font-size: clamp(1.05rem, 3.2vw, 1.45rem);
+  font-weight: 400;
+  letter-spacing: 0.06em !important;
+  line-height: 1.55;
+  color: rgb(var(--c-text));
 }
 
 .stats-page__lead {
   margin: 0 0 1.5rem;
   color: rgb(var(--c-text-soft) / 0.9);
   line-height: 1.5;
+  font-size: 1.02rem;
 }
 
 .stats-gate {
@@ -436,23 +478,112 @@ onBeforeUnmount(() => {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.75rem 1rem;
-  margin-bottom: 1.1rem;
+  gap: 0.65rem 0.85rem;
+  margin-bottom: 1.15rem;
 }
 
 .stats-toolbar__btn {
-  padding: 0.45rem 0.9rem;
+  padding: 0.7rem 1.35rem;
+  min-height: 2.75rem;
   border-radius: 999px;
-  border: 1px solid rgb(var(--c-accent-sky) / 0.3);
-  background: rgb(var(--c-surface) / 0.6);
+  border: 1px solid rgb(var(--c-accent-sky) / 0.4);
+  background: linear-gradient(135deg, rgb(var(--c-accent) / 0.22), rgb(var(--c-accent-sky) / 0.16));
   color: rgb(var(--c-accent-soft));
-  font-weight: 700;
+  font-weight: 800;
+  font-size: 1rem;
+  letter-spacing: 0.02em;
   cursor: pointer;
+  box-shadow: 0 6px 18px rgb(var(--c-bg-deep) / 0.28);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+
+.stats-toolbar__btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgb(var(--c-accent) / 0.22);
+  background: linear-gradient(135deg, rgb(var(--c-accent) / 0.3), rgb(var(--c-accent-sky) / 0.22));
+}
+
+.stats-toolbar__btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .stats-toolbar__hint {
-  font-size: 0.85rem;
+  font-size: 0.88rem;
   color: rgb(var(--c-text-muted));
+}
+
+.save-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.save-icon--saving {
+  background: rgb(var(--c-text-muted) / 0.14);
+}
+
+.save-icon--saved {
+  background: rgb(var(--c-success));
+  color: rgb(var(--c-white));
+  box-shadow: 0 2px 10px rgb(var(--c-success) / 0.45);
+  animation: save-pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.save-icon__spinner {
+  width: 0.95rem;
+  height: 0.95rem;
+  border-radius: 50%;
+  border: 2px solid rgb(var(--c-text-muted) / 0.35);
+  border-top-color: rgb(var(--c-text-muted));
+  animation: save-spin 0.7s linear infinite;
+}
+
+.save-icon__check {
+  width: 1.05rem;
+  height: 1.05rem;
+}
+
+.save-icon__check path {
+  stroke-dasharray: 26;
+  stroke-dashoffset: 26;
+  animation: save-draw 0.4s ease 0.1s forwards;
+}
+
+@keyframes save-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes save-pop {
+  0% {
+    transform: scale(0.4);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes save-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.save-pill-enter-active,
+.save-pill-leave-active {
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.save-pill-enter-from,
+.save-pill-leave-to {
+  opacity: 0;
+  transform: scale(0.6);
 }
 
 .stats-kpis {
@@ -471,10 +602,10 @@ onBeforeUnmount(() => {
 
 .stats-kpi__label {
   margin: 0 0 0.35rem;
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   font-weight: 700;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-transform: none;
   color: rgb(var(--c-text-muted));
 }
 
@@ -495,12 +626,13 @@ onBeforeUnmount(() => {
 
 .stats-panel__head h2 {
   margin: 0 0 0.25rem;
-  font-size: 1.05rem;
+  font-size: 1.08rem;
+  font-weight: 800;
 }
 
 .stats-panel__head p {
   margin: 0 0 0.85rem;
-  font-size: 0.88rem;
+  font-size: 0.9rem;
   color: rgb(var(--c-text-muted));
 }
 

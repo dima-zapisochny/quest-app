@@ -27,7 +27,7 @@ import UserPill from './UserPill.vue'
 const { t } = useI18n()
 
 interface Props {
-  buttonVariant?: 'back' | 'exit'
+  buttonVariant?: 'back' | 'exit' | 'home'
   buttonLabel?: string
   buttonDisabled?: boolean
   showSessionCode?: boolean

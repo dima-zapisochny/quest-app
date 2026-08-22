@@ -15,7 +15,8 @@
     "soundOn": "Activar sonido",
     "soundOff": "Desactivar sonido",
     "unknownError": "Algo salió mal. Inténtalo de nuevo",
-    "deleted": "Eliminado"
+    "deleted": "Eliminado",
+    "toHome": "Inicio"
   },
   "landing": {
     "checkingAuth": "Comprobando autorización…",
@@ -336,6 +337,7 @@
     "topPagesLead": "Últimos 30 días",
     "topClicks": "Dónde hacen clic",
     "topClicksLead": "CTA y navegación (30 días)",
-    "empty": "Aún no hay datos — entra al sitio como visitante normal."
+    "empty": "Aún no hay datos — entra al sitio como visitante normal.",
+    "refreshed": "Actualizado"
   }
 }

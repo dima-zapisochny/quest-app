@@ -1,22 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Quiz Quest">
-  <rect width="32" height="32" fill="#050a18"/>
-  <!-- QQ in Press Start 2P-like pixels: two eyes on brand navy. 2px stroke for 16x16 tabs. -->
-  <g fill="#ffffff">
-    <g transform="translate(2 9)">
-      <rect x="2" y="0" width="8" height="2"/>
-      <rect x="2" y="10" width="8" height="2"/>
-      <rect x="0" y="2" width="2" height="8"/>
-      <rect x="10" y="2" width="2" height="8"/>
-      <rect x="10" y="10" width="2" height="2"/>
-      <rect x="12" y="12" width="2" height="2"/>
-    </g>
-    <g transform="translate(17 9)">
-      <rect x="2" y="0" width="8" height="2"/>
-      <rect x="2" y="10" width="8" height="2"/>
-      <rect x="0" y="2" width="2" height="8"/>
-      <rect x="10" y="2" width="2" height="8"/>
-      <rect x="10" y="10" width="2" height="2"/>
-      <rect x="12" y="12" width="2" height="2"/>
-    </g>
-  </g>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Quiz Quest">
+  <rect width="64" height="64" rx="14" fill="#0b1220"/>
+  <circle cx="32" cy="32" r="22" fill="rgba(56,189,248,0.16)" stroke="rgba(56,189,248,0.45)" stroke-width="2.5"/>
+  <text x="32" y="34" text-anchor="middle" dominant-baseline="central"
+    font-family="Nunito, Arial Black, Helvetica, Arial, sans-serif"
+    font-size="34" font-weight="800" fill="#bae6fd">?</text>
 </svg>
