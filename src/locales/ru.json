@@ -41,7 +41,7 @@
     "createNewQuestHint": "Собрать доску с нуля",
     "importQuestHint": "Загрузить файл .json",
     "selectedQuest": "Выбран",
-    "pickQuestHint": "Выберите квест из списка слева, чтобы продолжить",
+    "pickQuestHint": "Выберите квест выше, чтобы продолжить",
     "startGame": "Начать игру",
     "startHint": "Добавьте хотя бы один вопрос, чтобы начать игру.",
     "rounds": "Раундов: {count}",

@@ -41,7 +41,7 @@
     "createNewQuestHint": "Build a board from scratch",
     "importQuestHint": "Load a .json file",
     "selectedQuest": "Selected",
-    "pickQuestHint": "Pick a quest from the list on the left to continue",
+    "pickQuestHint": "Pick a quest above to continue",
     "startGame": "Start game",
     "startHint": "Add at least one question to start the game.",
     "rounds": "Rounds: {count}",

@@ -41,7 +41,7 @@
     "createNewQuestHint": "Crear un tablero desde cero",
     "importQuestHint": "Cargar archivo .json",
     "selectedQuest": "Seleccionado",
-    "pickQuestHint": "Elige un cuestionario de la lista de la izquierda para continuar",
+    "pickQuestHint": "Elige un cuestionario arriba para continuar",
     "startGame": "Empezar partida",
     "startHint": "Añade al menos una pregunta para empezar la partida.",
     "rounds": "Rondas: {count}",

@@ -41,7 +41,7 @@
     "createNewQuestHint": "Créer un plateau à partir de zéro",
     "importQuestHint": "Charger un fichier .json",
     "selectedQuest": "Sélectionné",
-    "pickQuestHint": "Choisissez un quiz dans la liste à gauche pour continuer",
+    "pickQuestHint": "Choisissez un quiz ci-dessus pour continuer",
     "startGame": "Démarrer la partie",
     "startHint": "Ajoutez au moins une question pour démarrer la partie.",
     "rounds": "Manches : {count}",

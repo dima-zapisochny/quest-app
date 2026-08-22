@@ -41,7 +41,7 @@
     "createNewQuestHint": "Board von Grund auf erstellen",
     "importQuestHint": ".json-Datei laden",
     "selectedQuest": "Ausgewählt",
-    "pickQuestHint": "Wählen Sie links ein Quiz aus, um fortzufahren",
+    "pickQuestHint": "Wählen Sie oben ein Quiz aus",
     "startGame": "Spiel starten",
     "startHint": "Füge mindestens eine Frage hinzu, um das Spiel zu starten.",
     "rounds": "Runden: {count}",
