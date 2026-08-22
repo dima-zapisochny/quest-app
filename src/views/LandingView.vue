@@ -1222,6 +1222,11 @@ watch(() => route.path, (newPath) => {
     overflow: hidden;
   }
 
+  /* SEO-ссылки остаются в DOM для индексации, но не ломают мобильный лейаут */
+  .landing-seo-links {
+    display: none;
+  }
+
   .landing-card {
     padding: 2rem 1.75rem;
     gap: 1.25rem;
