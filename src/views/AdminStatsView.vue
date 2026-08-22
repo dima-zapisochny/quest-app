@@ -33,6 +33,9 @@
           <button type="button" class="stats-toolbar__btn" :disabled="loading" @click="refresh">
             {{ loading ? tUk('stats.loading') : tUk('stats.refresh') }}
           </button>
+          <span v-if="lastUpdatedAt" class="stats-toolbar__updated">
+            {{ tUk('stats.lastUpdated') }} {{ formatUpdatedAt(lastUpdatedAt) }}
+          </span>
           <transition name="save-pill">
             <span
               v-if="refreshState !== 'idle'"
@@ -55,7 +58,6 @@
               </svg>
             </span>
           </transition>
-          <span class="stats-toolbar__hint">{{ tUk('stats.privateHint') }}</span>
         </div>
 
         <p v-if="error" class="stats-gate__error">{{ error }}</p>
@@ -218,6 +220,7 @@ const unlocked = ref(false)
 const loading = ref(false)
 const error = ref('')
 const data = ref<SiteAnalyticsSummary | null>(null)
+const lastUpdatedAt = ref<Date | null>(null)
 const refreshState = ref<'idle' | 'saving' | 'saved'>('idle')
 let refreshHideTimer: ReturnType<typeof setTimeout> | null = null
 
@@ -241,6 +244,16 @@ function applyNoIndex() {
 
 function formatNum(n?: number) {
   return new Intl.NumberFormat('uk-UA').format(n ?? 0)
+}
+
+function formatUpdatedAt(d: Date) {
+  return new Intl.DateTimeFormat('uk-UA', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  }).format(d)
 }
 
 function last7Days(): string[] {
@@ -329,6 +342,7 @@ async function load(token: string, fromRefresh = false) {
   try {
     data.value = await fetchSiteAnalytics(token)
     unlocked.value = true
+    lastUpdatedAt.value = new Date()
     try {
       sessionStorage.setItem(TOKEN_STORAGE, token)
     } catch {
@@ -411,10 +425,10 @@ onBeforeUnmount(() => {
 .stats-page__title {
   margin: 0 0 0.75rem;
   font-family: 'Press Start 2P', 'Nunito', cursive !important;
-  font-size: clamp(1.05rem, 3.2vw, 1.45rem);
+  font-size: clamp(1.45rem, 4vw, 2rem);
   font-weight: 400;
   letter-spacing: 0.06em !important;
-  line-height: 1.55;
+  line-height: 1.45;
   color: rgb(var(--c-text));
 }
 
@@ -422,7 +436,7 @@ onBeforeUnmount(() => {
   margin: 0 0 1.5rem;
   color: rgb(var(--c-text-soft) / 0.9);
   line-height: 1.5;
-  font-size: 1.02rem;
+  font-size: 1.08rem;
 }
 
 .stats-gate {
@@ -508,9 +522,10 @@ onBeforeUnmount(() => {
   cursor: not-allowed;
 }
 
-.stats-toolbar__hint {
-  font-size: 0.88rem;
+.stats-toolbar__updated {
+  font-size: 0.95rem;
   color: rgb(var(--c-text-muted));
+  font-weight: 600;
 }
 
 .save-icon {
@@ -602,7 +617,7 @@ onBeforeUnmount(() => {
 
 .stats-kpi__label {
   margin: 0 0 0.35rem;
-  font-size: 0.8rem;
+  font-size: 0.92rem;
   font-weight: 700;
   letter-spacing: 0.02em;
   text-transform: none;
@@ -625,14 +640,14 @@ onBeforeUnmount(() => {
 }
 
 .stats-panel__head h2 {
-  margin: 0 0 0.25rem;
-  font-size: 1.08rem;
+  margin: 0 0 0.3rem;
+  font-size: 1.22rem;
   font-weight: 800;
 }
 
 .stats-panel__head p {
   margin: 0 0 0.85rem;
-  font-size: 0.9rem;
+  font-size: 0.98rem;
   color: rgb(var(--c-text-muted));
 }
 
