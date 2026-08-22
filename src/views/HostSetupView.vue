@@ -16,69 +16,105 @@
     </div>
 
     <main v-else class="host-main">
-      <div class="host-panel">
-        <header class="host-hero">
-          <h1 class="host-hero__title">{{ t('host.title') }}</h1>
-          <p class="host-hero__subtitle">{{ t('host.subtitle') }}</p>
-        </header>
+      <header class="host-hero">
+        <h1 class="host-hero__title">{{ t('host.title') }}</h1>
+        <p class="host-hero__subtitle">{{ t('host.subtitle') }}</p>
+      </header>
 
-        <div class="host-quests">
-          <div class="host-quests__grid">
-            <article
-              v-for="quest in quests"
-              :key="quest.id"
-              :class="['quest-tile', { 'quest-tile--active': selectedQuestId === quest.id }]"
-              @click="handleCardClick($event, quest.id)"
-            >
-              <div class="quest-tile__main">
-                <h2 class="quest-tile__title">{{ displayQuestTitle(quest.title) }}</h2>
-                <p class="quest-tile__meta">
-                  {{ t('host.rounds', { count: quest.roundsCount ?? (quest.rounds?.length ?? 0) }) }}
-                  ·
-                  {{ t('host.questions', { count: questQuestions(quest) }) }}
-                </p>
-                <span v-if="questQuestions(quest) === 0" class="quest-empty-badge">{{ t('host.noQuestions') }}</span>
-              </div>
-              <div class="quest-tile__actions" @click.stop @mousedown.stop>
-                <button type="button" class="quest-action-button" @click="goToQuestEditor(quest.id)" :aria-label="t('host.editQuestAria')" :title="t('common.edit')">
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zm17.71-10.04a1.003 1.003 0 0 0 0-1.42l-2.5-2.5a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1-1z"></path></svg>
-                </button>
-                <button type="button" class="quest-action-button" @click="exportQuest(quest.id)" :aria-label="t('host.exportQuestAria')" :title="t('host.exportTooltip')">
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
-                </button>
-                <button type="button" class="quest-action-button quest-action-button--danger" @click="deleteQuest(quest.id)" :aria-label="t('host.deleteQuestAria')" :title="t('common.delete')">
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12zm12-15h-3.5l-1-1h-3l-1 1H6v2h12V4z"></path></svg>
-                </button>
-              </div>
-            </article>
-          </div>
+      <div class="host-workspace">
+        <aside class="host-sidebar">
+          <ul class="quest-pick-list">
+            <li v-for="(quest, index) in quests" :key="quest.id">
+              <button
+                type="button"
+                :class="['quest-pick', { 'quest-pick--active': selectedQuestId === quest.id }]"
+                @click="selectQuest(quest.id)"
+              >
+                <span class="quest-pick__num">{{ index + 1 }}</span>
+                <span class="quest-pick__body">
+                  <span class="quest-pick__name">{{ displayQuestTitle(quest.title) }}</span>
+                  <span class="quest-pick__meta">
+                    {{ t('host.questions', { count: questQuestions(quest) }) }}
+                  </span>
+                </span>
+                <span v-if="questQuestions(quest) === 0" class="quest-pick__warn" aria-hidden="true">!</span>
+              </button>
+            </li>
+          </ul>
 
-          <div class="host-quests__toolbar">
-            <button type="button" class="host-toolbar-btn" @click="createNewQuest">
-              <span class="host-toolbar-btn__icon">+</span>
+          <div class="host-sidebar__footer">
+            <button type="button" class="sidebar-action" @click="createNewQuest">
+              <span class="sidebar-action__icon">+</span>
               {{ t('host.createNewQuest') }}
             </button>
-            <button type="button" class="host-toolbar-btn" :disabled="importingQuest" @click.stop="triggerImportQuest">
+            <button type="button" class="sidebar-action" :disabled="importingQuest" @click.stop="triggerImportQuest">
               <input ref="importQuestInputRef" type="file" accept=".json,application/json" class="quest-import-input" :disabled="importingQuest" @change="onImportQuestFile" />
-              <span class="host-toolbar-btn__icon" aria-hidden="true">↑</span>
+              <span class="sidebar-action__icon" aria-hidden="true">↑</span>
               {{ importingQuest ? t('host.importing') : t('host.importQuest') }}
             </button>
           </div>
-        </div>
+        </aside>
 
-        <footer class="host-panel__footer">
-          <button
-            class="host-start primary"
-            :disabled="!selectedQuestId || isMobileViewport || selectedQuestEmpty"
-            :title="startDisabledReason"
-            @click="handleStart"
-          >
-            <span class="btn-glow" aria-hidden="true" />
-            <span class="btn-text">{{ t('host.startGame') }}</span>
-          </button>
-          <p v-if="selectedQuestId && selectedQuestEmpty" class="start-hint">{{ t('host.startHint') }}</p>
-          <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
-        </footer>
+        <section
+          class="host-stage"
+          :class="{ 'host-stage--empty': !selectedQuest, 'host-stage--ready': selectedQuest && !selectedQuestEmpty }"
+          :style="selectedQuest ? { '--stage-hue': questAccentHue(selectedQuest.title) } : undefined"
+        >
+          <template v-if="selectedQuest">
+            <div class="host-stage__glow" aria-hidden="true" />
+
+            <div class="host-stage__content">
+              <p class="host-stage__eyebrow">{{ t('host.selectedQuest') }}</p>
+              <h2 class="host-stage__title">{{ displayQuestTitle(selectedQuest.title) }}</h2>
+              <p v-if="selectedQuest.description?.trim()" class="host-stage__desc">{{ selectedQuest.description }}</p>
+
+              <div class="host-stage__stats">
+                <div class="stat-chip">
+                  <strong>{{ selectedQuest.roundsCount ?? (selectedQuest.rounds?.length ?? 0) }}</strong>
+                  <span>{{ t('host.rounds', { count: selectedQuest.roundsCount ?? (selectedQuest.rounds?.length ?? 0) }) }}</span>
+                </div>
+                <div class="stat-chip">
+                  <strong>{{ questQuestions(selectedQuest) }}</strong>
+                  <span>{{ t('host.questions', { count: questQuestions(selectedQuest) }) }}</span>
+                </div>
+              </div>
+
+              <div v-if="selectedQuestEmpty" class="host-stage__alert">
+                {{ t('host.noQuestions') }}
+              </div>
+
+              <div class="host-stage__manage">
+                <button type="button" class="manage-btn" @click="goToQuestEditor(selectedQuest.id)">
+                  {{ t('common.edit') }}
+                </button>
+                <button type="button" class="manage-btn" @click="exportQuest(selectedQuest.id)">
+                  {{ t('host.exportTooltip') }}
+                </button>
+                <button type="button" class="manage-btn manage-btn--danger" @click="deleteQuest(selectedQuest.id)">
+                  {{ t('common.delete') }}
+                </button>
+              </div>
+
+              <button
+                class="host-start primary"
+                :disabled="isMobileViewport || selectedQuestEmpty"
+                :title="startDisabledReason"
+                @click="handleStart"
+              >
+                <span class="btn-glow" aria-hidden="true" />
+                <span class="btn-text">{{ t('host.startGame') }}</span>
+              </button>
+              <p v-if="selectedQuestEmpty" class="start-hint">{{ t('host.startHint') }}</p>
+              <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
+            </div>
+          </template>
+
+          <div v-else class="host-stage__empty">
+            <div class="host-stage__empty-icon" aria-hidden="true">?</div>
+            <p class="host-stage__empty-title">{{ t('host.chooseQuest') }}</p>
+            <p class="host-stage__empty-hint">{{ t('host.pickQuestHint') }}</p>
+          </div>
+        </section>
       </div>
     </main>
 
@@ -103,7 +139,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useQuizStore } from '@/store/quizStore'
@@ -111,7 +147,7 @@ import { useGameSessionStore } from '@/store/gameSessionStore'
 import AppHeader from '@/components/common/AppHeader.vue'
 import { useIsMobileViewport } from '@/composables/useIsMobileViewport'
 import { seedTestQuests } from '@/utils/seedTestQuests'
-import { displayQuestTitle } from '@/utils/questCardTheme'
+import { displayQuestTitle, questAccentHue } from '@/utils/questCardTheme'
 
 const { t } = useI18n()
 const importingQuest = ref(false)
@@ -125,6 +161,9 @@ const { isMobileViewport } = useIsMobileViewport()
 
 const quests = computed(() => quizStore.quests)
 const selectedQuestId = ref<string | null>(null)
+const selectedQuest = computed(() =>
+  selectedQuestId.value ? quests.value.find(q => q.id === selectedQuestId.value) ?? null : null
+)
 const errorMessage = ref('')
 const loading = ref(true)
 const confirmDeleteModal = ref<{ visible: boolean; questId: string | null; questTitle: string }>({
@@ -135,24 +174,9 @@ const confirmDeleteModal = ref<{ visible: boolean; questId: string | null; quest
 
 const userProfile = computed(() => sessionStore.userProfile)
 
-const handleClickOutside = (event: MouseEvent) => {
-  const hostRoot = document.querySelector('.host-setup')
-  const target = event.target as HTMLElement
-  if (!hostRoot?.contains(target)) {
-    return
-  }
-  const questCard = target.closest('.quest-tile')
-  if (!questCard) {
-    selectedQuestId.value = null
-  }
-}
-
 onMounted(async () => {
-  // Ждём готовности store без busy-wait/setInterval (#35)
   await sessionStore.whenReady()
   await checkProfileAndLoad()
-
-  window.addEventListener('click', handleClickOutside)
 })
 
 async function checkProfileAndLoad() {
@@ -183,10 +207,6 @@ async function checkProfileAndLoad() {
   loading.value = false
 }
 
-onBeforeUnmount(() => {
-  window.removeEventListener('click', handleClickOutside)
-})
-
 // Из лёгкого списка (#16) берём questionsCount; иначе считаем по загруженной структуре
 const questQuestions = (quest: { id: string; questionsCount?: number }) =>
   quest.questionsCount ?? quizStore.getQuestProgress(quest.id).totalQuestions
@@ -203,14 +223,6 @@ const startDisabledReason = computed(() => {
   if (selectedQuestId.value && selectedQuestEmpty.value) return t('host.reasonNoQuestions')
   return undefined
 })
-
-function handleCardClick(event: MouseEvent, questId: string) {
-  const target = event.target as HTMLElement | null
-  if (target?.closest('.quest-action-button')) {
-    return
-  }
-  selectQuest(questId)
-}
 
 function selectQuest(questId: string) {
   if (selectedQuestId.value === questId) {
@@ -387,39 +399,25 @@ async function onImportQuestFile(event: Event) {
   flex: 1;
   min-height: 0;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: clamp(0.75rem, 2vw, 1.5rem);
-  box-sizing: border-box;
-}
-
-/* ── Glass panel (landing-style) ── */
-.host-panel {
-  width: min(720px, 100%);
-  max-height: calc(100dvh - 5rem);
-  display: flex;
   flex-direction: column;
-  gap: 1.75rem;
-  padding: clamp(1.75rem, 4vw, 2.75rem);
-  border-radius: 2rem;
-  background: rgba(12, 19, 36, 0.65);
-  backdrop-filter: blur(24px) saturate(160%);
-  border: 1px solid rgb(var(--c-accent-sky) / 0.25);
-  box-shadow: 0 45px 90px rgba(5, 12, 28, 0.65);
+  max-width: 1180px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 clamp(1rem, 3vw, 2rem) clamp(1rem, 2vw, 1.5rem);
   box-sizing: border-box;
-  overflow: hidden;
 }
 
 /* ── Hero ── */
 .host-hero {
   flex-shrink: 0;
-  text-align: center;
+  text-align: left;
+  padding: 0.25rem 0 1.25rem;
 }
 
 .host-hero__title {
   margin: 0;
   font-family: 'Press Start 2P', cursive;
-  font-size: clamp(0.95rem, 2.6vw, 1.45rem);
+  font-size: clamp(1rem, 2.4vw, 1.5rem);
   line-height: 1.55;
   letter-spacing: 0.06em;
   color: rgb(var(--c-text));
@@ -427,195 +425,182 @@ async function onImportQuestFile(event: Event) {
 }
 
 .host-hero__subtitle {
-  margin: 0.85rem auto 0;
-  max-width: 32rem;
+  margin: 0.75rem 0 0;
+  max-width: 36rem;
   font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
-  font-size: clamp(0.9rem, 2vw, 1.05rem);
+  font-size: clamp(0.9rem, 1.8vw, 1.05rem);
   line-height: 1.5;
   color: rgb(var(--c-text-soft) / 0.9);
 }
 
-/* ── Quest grid ── */
-.host-quests {
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.host-quests__grid {
+/* ── Split workspace ── */
+.host-workspace {
   flex: 1;
   min-height: 0;
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.75rem;
+  grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
+  gap: clamp(0.85rem, 2vw, 1.25rem);
+  align-items: stretch;
+}
+
+.host-sidebar {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  border-radius: 1.25rem;
+  border: 1px solid rgb(var(--c-accent-sky) / 0.18);
+  background: rgb(var(--c-surface) / 0.45);
+  backdrop-filter: blur(12px);
+  overflow: hidden;
+}
+
+.quest-pick-list {
+  flex: 1;
+  min-height: 0;
+  list-style: none;
+  margin: 0;
+  padding: 0.5rem;
   overflow-y: auto;
-  padding: 0.15rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
   scrollbar-width: thin;
   scrollbar-color: rgb(var(--c-accent-sky) / 0.4) transparent;
 }
 
-.host-quests__grid::-webkit-scrollbar {
-  width: 6px;
+.quest-pick-list::-webkit-scrollbar {
+  width: 5px;
 }
 
-.host-quests__grid::-webkit-scrollbar-thumb {
+.quest-pick-list::-webkit-scrollbar-thumb {
   background: rgb(var(--c-accent-sky) / 0.45);
   border-radius: 999px;
 }
 
-.quest-tile {
-  position: relative;
+.quest-pick {
+  width: 100%;
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  align-items: center;
   gap: 0.65rem;
-  min-height: 5.5rem;
-  padding: 1rem 1.1rem;
-  border-radius: 1.1rem;
-  border: 1px solid rgb(var(--c-accent-sky) / 0.18);
-  background: rgb(var(--c-bg-deep) / 0.55);
-  box-shadow: inset 0 1px 0 rgb(var(--c-white) / 0.04);
-  cursor: pointer;
-  transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
-}
-
-.quest-tile:hover {
-  border-color: rgb(var(--c-accent-sky) / 0.38);
-  background: rgb(var(--c-bg-deep) / 0.72);
-  transform: translateY(-1px);
-}
-
-.quest-tile--active {
-  border-color: rgb(var(--c-orange-500) / 0.65);
-  background: linear-gradient(145deg, rgb(var(--c-orange-500) / 0.12), rgb(var(--c-bg-deep) / 0.7));
-  box-shadow:
-    0 0 0 1px rgb(var(--c-orange-500) / 0.25),
-    0 12px 28px rgb(var(--c-orange-500) / 0.12);
-}
-
-.quest-tile__main {
-  min-width: 0;
-}
-
-.quest-tile__title {
-  margin: 0;
-  font-family: 'Plus Jakarta Sans', 'Nunito', sans-serif;
-  font-size: 0.95rem;
-  font-weight: 700;
-  line-height: 1.35;
-  color: rgb(var(--c-text));
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.quest-tile__meta {
-  margin: 0.4rem 0 0;
-  font-size: 0.75rem;
-  color: rgb(var(--c-text-muted) / 0.9);
-}
-
-.quest-tile__actions {
-  display: inline-flex;
-  gap: 0.1rem;
-  opacity: 0;
-  transition: opacity 0.18s ease;
-}
-
-.quest-tile:hover .quest-tile__actions,
-.quest-tile--active .quest-tile__actions {
-  opacity: 1;
-}
-
-.quest-action-button {
-  width: 28px;
-  height: 28px;
-  border-radius: 0.45rem;
-  border: none;
+  padding: 0.7rem 0.75rem;
+  border: 1px solid transparent;
+  border-radius: 0.85rem;
   background: transparent;
-  color: rgb(var(--c-text-soft) / 0.85);
+  color: rgb(var(--c-text));
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+}
+
+.quest-pick:hover {
+  background: rgb(var(--c-bg-deep) / 0.55);
+  border-color: rgb(var(--c-accent-sky) / 0.2);
+}
+
+.quest-pick--active {
+  background: rgb(var(--c-accent-sky) / 0.12);
+  border-color: rgb(var(--c-accent-sky) / 0.45);
+  box-shadow: inset 3px 0 0 rgb(var(--c-accent));
+}
+
+.quest-pick__num {
+  flex-shrink: 0;
+  width: 1.65rem;
+  height: 1.65rem;
+  border-radius: 0.45rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  transition: background 0.18s ease, color 0.18s ease;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: rgb(var(--c-accent-soft));
+  background: rgb(var(--c-bg-deep) / 0.7);
+  border: 1px solid rgb(var(--c-accent-sky) / 0.25);
 }
 
-.quest-action-button svg {
-  width: 14px;
-  height: 14px;
-  fill: currentColor;
+.quest-pick--active .quest-pick__num {
+  color: rgb(var(--c-bg));
+  background: linear-gradient(135deg, rgb(var(--c-accent)), rgb(var(--c-accent-sky)));
+  border-color: transparent;
 }
 
-.quest-action-button:hover,
-.quest-action-button:focus-visible {
-  outline: none;
-  background: rgb(var(--c-white) / 0.1);
-  color: rgb(var(--c-text));
+.quest-pick__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
 }
 
-.quest-action-button--danger {
-  color: rgb(var(--c-danger-soft) / 0.9);
+.quest-pick__name {
+  font-size: 0.88rem;
+  font-weight: 700;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.quest-action-button--danger:hover,
-.quest-action-button--danger:focus-visible {
-  background: rgb(var(--c-danger) / 0.2);
+.quest-pick__meta {
+  font-size: 0.7rem;
+  color: rgb(var(--c-text-muted) / 0.85);
 }
 
-.quest-empty-badge {
-  display: inline-block;
-  margin-top: 0.35rem;
-  font-size: 0.65rem;
-  padding: 0.1rem 0.45rem;
-  border-radius: 999px;
-  color: rgb(var(--c-danger-soft));
-  background: rgb(var(--c-danger) / 0.12);
-  border: 1px solid rgb(var(--c-danger) / 0.28);
-}
-
-/* Toolbar */
-.host-quests__toolbar {
+.quest-pick__warn {
   flex-shrink: 0;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.65rem;
+  width: 1.1rem;
+  height: 1.1rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: rgb(var(--c-danger-soft));
+  background: rgb(var(--c-danger) / 0.15);
+  border: 1px solid rgb(var(--c-danger) / 0.35);
 }
 
-.host-toolbar-btn {
+.host-sidebar__footer {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.65rem;
+  border-top: 1px solid rgb(var(--c-accent-sky) / 0.12);
+}
+
+.sidebar-action {
   position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.45rem;
-  padding: 0.7rem 0.85rem;
-  border-radius: 0.9rem;
-  border: 1px dashed rgb(var(--c-accent-sky) / 0.35);
-  background: rgb(var(--c-bg-deep) / 0.45);
+  padding: 0.65rem 0.75rem;
+  border-radius: 0.75rem;
+  border: 1px dashed rgb(var(--c-accent-sky) / 0.32);
+  background: rgb(var(--c-bg-deep) / 0.35);
   color: rgb(var(--c-text-soft));
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   font-weight: 600;
   cursor: pointer;
   transition: border-color 0.18s ease, background 0.18s ease, color 0.18s ease;
 }
 
-.host-toolbar-btn:hover:not(:disabled) {
-  border-color: rgb(var(--c-accent-sky) / 0.55);
+.sidebar-action:hover:not(:disabled) {
+  border-color: rgb(var(--c-accent-sky) / 0.5);
   background: rgb(var(--c-accent-sky) / 0.08);
   color: rgb(var(--c-text));
 }
 
-.host-toolbar-btn:disabled {
+.sidebar-action:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
-.host-toolbar-btn__icon {
-  font-size: 1rem;
-  line-height: 1;
+.sidebar-action__icon {
+  font-size: 0.95rem;
   color: rgb(var(--c-accent-soft));
 }
 
@@ -634,18 +619,156 @@ async function onImportQuestFile(event: Event) {
   pointer-events: none;
 }
 
-/* ── Footer / start button (landing primary) ── */
-.host-panel__footer {
-  flex-shrink: 0;
+/* ── Preview stage ── */
+.host-stage {
+  position: relative;
+  min-height: 0;
+  border-radius: 1.35rem;
+  border: 1px solid rgb(var(--c-accent-sky) / 0.22);
+  background: rgb(var(--c-bg-deep) / 0.55);
+  overflow: hidden;
+  display: flex;
+  align-items: stretch;
+}
+
+.host-stage--empty {
+  align-items: center;
+  justify-content: center;
+  background: rgb(var(--c-surface) / 0.35);
+}
+
+.host-stage__glow {
+  position: absolute;
+  inset: -20% -10% auto;
+  height: 70%;
+  background: radial-gradient(
+    ellipse at 30% 20%,
+    hsl(var(--stage-hue, 210) 85% 58% / 0.28),
+    transparent 65%
+  );
+  pointer-events: none;
+}
+
+.host-stage__content {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-  align-items: stretch;
+  justify-content: center;
+  padding: clamp(1.5rem, 3vw, 2.5rem);
+  gap: 1rem;
+}
+
+.host-stage__eyebrow {
+  margin: 0;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgb(var(--c-text-muted) / 0.8);
+}
+
+.host-stage__title {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', 'Nunito', sans-serif;
+  font-size: clamp(1.6rem, 3.5vw, 2.35rem);
+  font-weight: 800;
+  line-height: 1.15;
+  color: rgb(var(--c-text));
+  text-wrap: balance;
+}
+
+.host-stage__desc {
+  margin: 0;
+  max-width: 38rem;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: rgb(var(--c-text-muted) / 0.92);
+}
+
+.host-stage__stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.stat-chip {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 7.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.9rem;
+  border: 1px solid rgb(var(--c-accent-sky) / 0.22);
+  background: rgb(var(--c-bg) / 0.45);
+}
+
+.stat-chip strong {
+  font-size: 1.65rem;
+  font-weight: 800;
+  line-height: 1;
+  color: rgb(var(--c-accent-soft));
+}
+
+.stat-chip span {
+  font-size: 0.72rem;
+  color: rgb(var(--c-text-muted) / 0.88);
+}
+
+.host-stage__alert {
+  display: inline-flex;
+  align-self: flex-start;
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgb(var(--c-danger-soft));
+  background: rgb(var(--c-danger) / 0.12);
+  border: 1px solid rgb(var(--c-danger) / 0.28);
+}
+
+.host-stage__manage {
+  display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
+}
+
+.manage-btn {
+  padding: 0.5rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid rgb(var(--c-accent-sky) / 0.28);
+  background: rgb(var(--c-bg) / 0.4);
+  color: rgb(var(--c-text-soft));
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+}
+
+.manage-btn:hover {
+  border-color: rgb(var(--c-accent-sky) / 0.5);
+  background: rgb(var(--c-accent-sky) / 0.1);
+  color: rgb(var(--c-text));
+}
+
+.manage-btn--danger {
+  color: rgb(var(--c-danger-soft));
+  border-color: rgb(var(--c-danger) / 0.35);
+}
+
+.manage-btn--danger:hover {
+  background: rgb(var(--c-danger) / 0.15);
+  border-color: rgb(var(--c-danger) / 0.5);
+  color: rgb(var(--c-danger-soft));
 }
 
 .host-start.primary {
   position: relative;
-  width: 100%;
+  align-self: flex-start;
+  margin-top: 0.35rem;
+  min-width: min(100%, 280px);
   border: none;
   border-radius: 1.25rem;
   padding: 1.05rem 1.8rem;
@@ -704,7 +827,6 @@ async function onImportQuestFile(event: Event) {
   margin: 0;
   font-size: 0.78rem;
   color: rgb(var(--c-danger-soft));
-  text-align: center;
 }
 
 .error {
@@ -712,7 +834,41 @@ async function onImportQuestFile(event: Event) {
   color: rgb(var(--c-danger));
   font-weight: 600;
   font-size: 0.8rem;
+}
+
+.host-stage__empty {
   text-align: center;
+  padding: 2rem;
+  max-width: 22rem;
+}
+
+.host-stage__empty-icon {
+  width: 3.5rem;
+  height: 3.5rem;
+  margin: 0 auto 1rem;
+  border-radius: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: rgb(var(--c-text-muted) / 0.7);
+  border: 2px dashed rgb(var(--c-accent-sky) / 0.3);
+  background: rgb(var(--c-bg) / 0.35);
+}
+
+.host-stage__empty-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: rgb(var(--c-text));
+}
+
+.host-stage__empty-hint {
+  margin: 0.5rem 0 0;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: rgb(var(--c-text-muted) / 0.85);
 }
 
 /* ── Loading ── */
@@ -861,38 +1017,46 @@ async function onImportQuestFile(event: Event) {
 
 /* ── Responsive ── */
 @media (max-width: 768px) {
-  .host-panel {
-    max-height: calc(100dvh - 3.5rem);
-    padding: 1.5rem 1.25rem;
-    gap: 1.25rem;
-    border-radius: 1.5rem;
+  .host-workspace {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto minmax(280px, 1fr);
+  }
+
+  .host-hero {
+    text-align: center;
   }
 
   .host-hero__title {
     font-size: clamp(0.8rem, 4vw, 1rem);
   }
 
-  .host-quests__grid {
-    grid-template-columns: 1fr;
+  .host-sidebar {
+    max-height: 42vh;
   }
 
-  .quest-tile__actions {
-    opacity: 1;
+  .host-stage__content {
+    justify-content: flex-start;
+    padding: 1.25rem;
+  }
+
+  .host-start.primary {
+    width: 100%;
+    align-self: stretch;
   }
 }
 
 @media (max-width: 480px) {
   .host-main {
-    padding: 0.5rem;
+    padding: 0 0.75rem 0.75rem;
   }
 
-  .host-panel {
-    padding: 1.25rem 1rem;
-    border-radius: 1.25rem;
+  .host-stage__title {
+    font-size: 1.45rem;
   }
 
-  .host-quests__toolbar {
-    grid-template-columns: 1fr;
+  .stat-chip {
+    min-width: calc(50% - 0.35rem);
+    flex: 1;
   }
 }
 </style>
