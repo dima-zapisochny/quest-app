@@ -1,5 +1,11 @@
 <template>
   <div class="host-setup">
+    <div class="host-setup__ambient" aria-hidden="true">
+      <span class="host-setup__orb host-setup__orb--1" />
+      <span class="host-setup__orb host-setup__orb--2" />
+      <span class="host-setup__orb host-setup__orb--3" />
+    </div>
+
     <AppHeader
       button-variant="back"
       :button-label="t('common.back')"
@@ -14,22 +20,30 @@
         <p>{{ t('host.preparing') }}</p>
       </div>
     </div>
-    <template v-else>
-      <header class="host-header">
-        <div class="host-title">
-          <h1>{{ t('host.title') }}</h1>
-          <p>{{ t('host.subtitle') }}</p>
-        </div>
+
+    <main v-else class="host-main">
+      <header class="host-hero">
+        <span class="host-hero__badge" aria-hidden="true">🎮</span>
+        <p class="host-hero__eyebrow">{{ t('host.chooseQuest') }}</p>
+        <h1 class="host-hero__title">{{ t('host.title') }}</h1>
+        <p class="host-hero__subtitle">{{ t('host.subtitle') }}</p>
       </header>
 
-      <section class="quest-selection">
+      <section class="host-library">
+        <p class="host-library__hint">{{ t('host.chooseQuestHint') }}</p>
+
         <div class="quests-grid">
           <article
             v-for="(quest, qi) in quests"
             :key="quest.id"
-            :class="['quest-card', { active: selectedQuestId === quest.id } ]"
+            :class="['quest-card', { active: selectedQuestId === quest.id }]"
             @click="handleCardClick($event, quest.id)"
           >
+            <div v-if="selectedQuestId === quest.id" class="quest-card__selected" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+                <path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/>
+              </svg>
+            </div>
             <div class="quest-card__cover" :style="{ '--hue': qi }">
               <span class="quest-card__mono">{{ (quest.title || '?').trim().charAt(0).toUpperCase() }}</span>
               <div class="quest-actions" @click.stop @mousedown.stop>
@@ -71,23 +85,25 @@
             <div class="quest-card__body">
               <h2 class="quest-title">{{ quest.title }}</h2>
               <div class="quest-meta">
-                <span>{{ t('host.rounds', { count: quest.roundsCount ?? (quest.rounds?.length ?? 0) }) }}</span>
-                <span class="quest-meta__dot">·</span>
-                <span>{{ t('host.questions', { count: questQuestions(quest) }) }}</span>
+                <span class="quest-meta__pill">{{ t('host.rounds', { count: quest.roundsCount ?? (quest.rounds?.length ?? 0) }) }}</span>
+                <span class="quest-meta__pill">{{ t('host.questions', { count: questQuestions(quest) }) }}</span>
                 <span v-if="questQuestions(quest) === 0" class="quest-empty-badge">
                   <i aria-hidden="true">⚠</i> {{ t('host.noQuestions') }}
                 </span>
               </div>
             </div>
           </article>
+
           <article class="quest-card quest-card--cta" @click="createNewQuest">
             <div class="quest-card__cover quest-card__cover--dashed">
               <span class="new-quest-circle">+</span>
             </div>
             <div class="quest-card__body quest-card__body--cta">
               <span class="quest-card__ctalabel">{{ t('host.createNewQuest') }}</span>
+              <span class="quest-card__ctahint">{{ t('host.createNewQuestHint') }}</span>
             </div>
           </article>
+
           <article class="quest-card quest-card--cta quest-card--import" @click.stop="triggerImportQuest">
             <input
               ref="importQuestInputRef"
@@ -106,24 +122,43 @@
             </div>
             <div class="quest-card__body quest-card__body--cta">
               <span class="quest-card__ctalabel">{{ importingQuest ? t('host.importing') : t('host.importQuest') }}</span>
+              <span class="quest-card__ctahint">{{ t('host.importQuestHint') }}</span>
             </div>
           </article>
         </div>
       </section>
 
-      <section class="actions actions--fixed">
-        <button
-          class="primary"
-          :disabled="!selectedQuestId || isMobileViewport || selectedQuestEmpty"
-          :title="startDisabledReason"
-          @click="handleStart"
-        >{{ t('host.startGame') }}</button>
-        <p v-if="selectedQuestId && selectedQuestEmpty" class="start-hint">
-          {{ t('host.startHint') }}
-        </p>
-        <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
-      </section>
-    </template>
+      <footer class="host-dock">
+        <div class="host-dock__inner">
+          <div class="host-dock__info">
+            <template v-if="selectedQuest">
+              <span class="host-dock__label">{{ t('host.selectedQuest') }}</span>
+              <strong class="host-dock__quest">{{ selectedQuest.title }}</strong>
+              <span class="host-dock__stats">
+                {{ t('host.rounds', { count: selectedQuest.roundsCount ?? (selectedQuest.rounds?.length ?? 0) }) }}
+                ·
+                {{ t('host.questions', { count: questQuestions(selectedQuest) }) }}
+              </span>
+            </template>
+            <p v-else class="host-dock__placeholder">{{ t('host.pickQuestHint') }}</p>
+          </div>
+          <div class="host-dock__actions">
+            <button
+              class="host-dock__start"
+              :disabled="!selectedQuestId || isMobileViewport || selectedQuestEmpty"
+              :title="startDisabledReason"
+              @click="handleStart"
+            >
+              <span class="host-dock__start-glow" aria-hidden="true" />
+              <span>{{ t('host.startGame') }}</span>
+            </button>
+            <p v-if="selectedQuestId && selectedQuestEmpty" class="start-hint">{{ t('host.startHint') }}</p>
+            <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
+          </div>
+        </div>
+      </footer>
+    </main>
+
     <teleport to="body">
       <div v-if="confirmDeleteModal.visible" class="quest-modal-backdrop" @click="cancelDeleteQuest">
         <div class="quest-modal quest-modal--confirm" role="dialog" aria-modal="true" @click.stop>
@@ -165,6 +200,9 @@ const { isMobileViewport } = useIsMobileViewport()
 
 const quests = computed(() => quizStore.quests)
 const selectedQuestId = ref<string | null>(null)
+const selectedQuest = computed(() =>
+  selectedQuestId.value ? quests.value.find(q => q.id === selectedQuestId.value) ?? null : null
+)
 const errorMessage = ref('')
 const loading = ref(true)
 const confirmDeleteModal = ref<{ visible: boolean; questId: string | null; questTitle: string }>({
@@ -408,324 +446,254 @@ async function onImportQuestFile(event: Event) {
 </script>
 
 <style scoped>
+/* ── Page shell ── */
 .host-setup {
+  position: relative;
   height: 100dvh;
   overflow: hidden;
-  background: linear-gradient(135deg, rgb(var(--c-bg)) 0%, rgb(var(--c-surface)) 100%);
-  padding: 0 clamp(1rem, 4vw, 3rem);
+  background: rgb(var(--c-bg-deep));
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
   box-sizing: border-box;
 }
 
-.host-loading-wrapper {
+.host-setup__ambient {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, rgb(var(--c-bg)) 0%, rgb(var(--c-surface)) 100%);
-  z-index: 1000;
-}
-
-.loading-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1.5rem;
-  text-align: center;
-}
-
-.loader {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, rgb(var(--c-accent) / 0.2), rgb(var(--c-accent-sky) / 0.15));
-  border: 3px solid rgb(var(--c-accent-sky) / 0.3);
-  position: relative;
-  animation: pulse 2s ease-in-out infinite;
-  box-shadow: 
-    0 0 0 0 rgb(var(--c-accent) / 0.4),
-    0 8px 24px rgb(var(--c-bg) / 0.3),
-    inset 0 2px 4px rgb(var(--c-white) / 0.1);
-}
-
-.loader::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  border: 3px solid transparent;
-  border-top-color: rgb(var(--c-accent));
-  border-right-color: rgb(var(--c-accent-sky));
-  animation: spin 1s linear infinite;
-}
-
-.loader::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgb(var(--c-accent) / 0.6), transparent);
-  animation: pulse-inner 1.5s ease-in-out infinite;
-}
-
-@keyframes spin {
-  0% { transform: translate(-50%, -50%) rotate(0deg); }
-  100% { transform: translate(-50%, -50%) rotate(360deg); }
-}
-
-@keyframes pulse {
-  0%, 100% {
-    transform: scale(1);
-    box-shadow: 
-      0 0 0 0 rgb(var(--c-accent) / 0.4),
-      0 8px 24px rgb(var(--c-bg) / 0.3),
-      inset 0 2px 4px rgb(var(--c-white) / 0.1);
-  }
-  50% {
-    transform: scale(1.05);
-    box-shadow: 
-      0 0 0 8px rgb(var(--c-accent) / 0),
-      0 12px 32px rgb(var(--c-bg) / 0.4),
-      inset 0 2px 4px rgb(var(--c-white) / 0.15);
-  }
-}
-
-@keyframes pulse-inner {
-  0%, 100% {
-    opacity: 0.6;
-    transform: translate(-50%, -50%) scale(1);
-  }
-  50% {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1.2);
-  }
-}
-
-.loading-state p {
-  color: rgb(var(--c-text-soft) / 0.9);
-  font-size: 1.05rem;
-  font-weight: 600;
-  margin: 0;
-  letter-spacing: 0.05em;
-  text-shadow: 0 2px 8px rgb(var(--c-bg) / 0.3);
-}
-
-
-
-.host-header {
-  background: linear-gradient(135deg, rgb(var(--c-surface) / 0.6), rgb(var(--c-bg) / 0.55));
-  border: 1px solid rgb(var(--c-accent-sky) / 0.14);
-  border-radius: 1.25rem;
-  padding: 1.35rem 1.75rem;
-  box-shadow: 0 12px 30px rgb(var(--c-bg-deep) / 0.35);
-  color: rgb(var(--c-text));
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 2rem;
-  flex-shrink: 0;
-}
-
-.host-title {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 0.65rem;
-  justify-content: center;
-}
-
-.host-title h1 {
-  margin: 0;
-  font-size: clamp(1.8rem, 3vw, 2.2rem);
-  font-family: 'Press Start 2P', cursive;
-  letter-spacing: 0.08em;
-}
-
-.host-title p {
-  margin: 0.5rem 0 0;
-  color: rgb(var(--c-text-soft) / 0.85);
-}
-
-.host-pixel-story {
-  position: relative;
-  flex: 1;
-  min-height: clamp(200px, 18vw, 240px);
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
   overflow: hidden;
-  border-radius: 1.75rem;
-  background: transparent;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
-.quest-selection {
+.host-setup__orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.45;
+}
+
+.host-setup__orb--1 {
+  width: 420px;
+  height: 420px;
+  top: -120px;
+  left: -80px;
+  background: rgb(var(--c-violet) / 0.35);
+}
+
+.host-setup__orb--2 {
+  width: 360px;
+  height: 360px;
+  top: 20%;
+  right: -100px;
+  background: rgb(var(--c-accent-sky) / 0.28);
+}
+
+.host-setup__orb--3 {
+  width: 300px;
+  height: 300px;
+  bottom: -60px;
+  left: 35%;
+  background: rgb(var(--c-teal) / 0.35);
+}
+
+.host-main {
+  position: relative;
+  z-index: 1;
+  flex: 1;
   min-height: 0;
-  /* Занимает всё свободное место между шапкой и кнопкой «Начать игру»,
-     список внутри скроллится — без наложения на кнопку. */
-  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  max-width: 1040px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 clamp(1rem, 3vw, 2rem);
+  box-sizing: border-box;
+}
+
+/* ── Hero ── */
+.host-hero {
+  flex-shrink: 0;
+  text-align: center;
+  padding: 0.5rem 0 1.25rem;
+}
+
+.host-hero__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  margin-bottom: 0.65rem;
+  border-radius: 0.85rem;
+  font-size: 1.35rem;
+  background: rgb(var(--c-surface) / 0.65);
+  border: 1px solid rgb(var(--c-accent-sky) / 0.25);
+  box-shadow: 0 8px 24px rgb(var(--c-bg-deep) / 0.45);
+}
+
+.host-hero__eyebrow {
+  margin: 0 0 0.5rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgb(var(--c-accent) / 0.85);
+}
+
+.host-hero__title {
+  margin: 0;
+  font-family: 'Press Start 2P', cursive;
+  font-size: clamp(1rem, 2.8vw, 1.55rem);
+  line-height: 1.55;
+  letter-spacing: 0.06em;
+  color: rgb(var(--c-text));
+  text-shadow: 0 0 28px rgb(var(--c-accent-sky) / 0.25);
+}
+
+.host-hero__subtitle {
+  margin: 0.85rem auto 0;
+  max-width: 36rem;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: rgb(var(--c-text-muted) / 0.9);
+}
+
+/* ── Library ── */
+.host-library {
+  flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  padding: 0.25rem 0 0;
 }
 
-.quest-selection::-webkit-scrollbar {
-  width: 8px;
-}
-
-.quest-selection::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.quest-selection::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, rgb(var(--c-accent) / 0.45), rgb(var(--c-blue) / 0.45));
-  border-radius: 999px;
-}
-
-.section-header {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  margin-top: 0;
-  margin-bottom: 1rem;
-  padding: 0 0.25rem;
+.host-library__hint {
   flex-shrink: 0;
-}
-
-.section-title {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-}
-
-.section-title h2 {
-  margin: 0;
-  font-size: clamp(1.1rem, 3vw, 1.35rem);
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: rgb(var(--c-text-soft) / 0.92);
-}
-
-.section-subtitle {
-  margin: 0;
-  color: rgb(var(--c-text-muted) / 0.9);
-  font-size: 0.95rem;
+  margin: 0 0 1rem;
+  text-align: center;
+  font-size: 0.88rem;
+  color: rgb(var(--c-text-soft) / 0.75);
 }
 
 .quests-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
-  gap: 1.25rem;
-  padding-top: 0.2rem;
-  overflow-y: auto;
-  padding-right: 0.75rem;
-  scrollbar-width: thin;
-  scrollbar-color: rgb(var(--c-text-muted) / 0.6) transparent;
-  flex: 1 1 auto;
+  flex: 1;
   min-height: 0;
-  align-content: start;
-  align-items: stretch;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-content: flex-start;
+  gap: 1.1rem;
+  overflow-y: auto;
+  padding: 0.25rem 0.5rem 1rem;
+  scrollbar-width: thin;
+  scrollbar-color: rgb(var(--c-accent-sky) / 0.4) transparent;
 }
 
 .quests-grid::-webkit-scrollbar {
-  width: 8px;
-}
-
-.quests-grid::-webkit-scrollbar-track {
-  background: transparent;
+  width: 6px;
 }
 
 .quests-grid::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, rgb(var(--c-accent) / 0.45), rgb(var(--c-blue) / 0.45));
+  background: rgb(var(--c-accent-sky) / 0.45);
   border-radius: 999px;
 }
 
-.quests-grid::-webkit-scrollbar-thumb:hover {
-  background: rgb(var(--c-text-muted) / 0.7);
-}
-
+/* ── Quest cards ── */
 .quest-card {
   position: relative;
-  z-index: 0;
-  background: rgb(var(--c-surface) / 0.7);
-  border-radius: 1.2rem;
-  padding: 1rem;
-  border: 1px solid rgb(var(--c-accent-sky) / 0.18);
+  width: min(100%, 240px);
+  flex: 0 0 auto;
+  background: linear-gradient(165deg, rgb(var(--c-surface) / 0.92), rgb(var(--c-bg) / 0.75));
+  border-radius: 1.15rem;
+  padding: 0.85rem;
+  border: 1px solid rgb(var(--c-accent-sky) / 0.16);
   color: rgb(var(--c-text));
   display: flex;
   flex-direction: column;
   cursor: pointer;
   overflow: hidden;
   transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+  box-shadow: 0 10px 28px rgb(var(--c-bg-deep) / 0.35);
 }
 
-.quest-card:hover,
+.quest-card:hover {
+  transform: translateY(-4px);
+  border-color: rgb(var(--c-accent-sky) / 0.38);
+  box-shadow: 0 18px 40px rgb(var(--c-bg-deep) / 0.5);
+}
+
 .quest-card.active {
-  transform: translateY(-3px);
-  box-shadow: 0 16px 34px rgb(var(--c-bg-deep) / 0.5);
-  border-color: rgb(var(--c-accent-sky) / 0.45);
+  border-color: rgb(var(--c-accent) / 0.65);
+  box-shadow:
+    0 0 0 1px rgb(var(--c-accent) / 0.35),
+    0 18px 42px rgb(var(--c-accent-sky) / 0.18);
+}
+
+.quest-card__selected {
+  position: absolute;
+  top: 0.65rem;
+  left: 0.65rem;
+  z-index: 3;
+  width: 1.55rem;
+  height: 1.55rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgb(var(--c-accent)), rgb(var(--c-accent-sky)));
+  color: rgb(var(--c-bg-deep));
+  box-shadow: 0 4px 12px rgb(var(--c-accent) / 0.45);
 }
 
 .quest-card__cover {
   position: relative;
-  aspect-ratio: 1.05;
-  border-radius: 0.8rem;
+  aspect-ratio: 1;
+  border-radius: 0.75rem;
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, rgb(var(--c-violet) / 0.5), rgb(var(--c-blue) / 0.45));
+  background: linear-gradient(135deg, rgb(var(--c-violet) / 0.55), rgb(var(--c-blue) / 0.5));
 }
+
 .quest-card:nth-child(3n + 2):not(.quest-card--cta) .quest-card__cover {
-  background: linear-gradient(135deg, rgb(var(--c-accent-sky) / 0.5), rgb(var(--c-indigo-500) / 0.5));
+  background: linear-gradient(135deg, rgb(var(--c-accent-sky) / 0.55), rgb(var(--c-indigo) / 0.5));
 }
+
 .quest-card:nth-child(3n):not(.quest-card--cta) .quest-card__cover {
-  background: linear-gradient(135deg, rgb(var(--c-accent) / 0.4), rgb(var(--c-violet) / 0.5));
+  background: linear-gradient(135deg, rgb(var(--c-accent) / 0.45), rgb(var(--c-violet) / 0.55));
 }
-/* Обложки CTA-карточек — пунктирный плейсхолдер, не градиент */
+
 .quest-card--cta .quest-card__cover {
-  background: rgb(var(--c-accent-sky) / 0.05);
+  background: rgb(var(--c-accent-sky) / 0.04);
 }
+
 .quest-card__cover::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at 30% 22%, rgb(var(--c-white) / 0.18), transparent 55%);
+  background: radial-gradient(circle at 30% 22%, rgb(var(--c-white) / 0.2), transparent 55%);
   pointer-events: none;
 }
+
 .quest-card__mono {
   position: relative;
   font-family: 'Press Start 2P', 'Nunito', monospace;
-  font-size: 1.9rem;
+  font-size: 1.75rem;
   color: rgb(var(--c-white) / 0.95);
   text-shadow: 0 3px 12px rgb(var(--c-bg-deep) / 0.55);
 }
 
 .quest-card__body {
-  padding: 1.1rem 0.5rem 1.3rem;
+  padding: 0.85rem 0.25rem 0.35rem;
   display: flex;
   flex-direction: column;
-  gap: 0.45rem;
+  gap: 0.55rem;
 }
 
 .quest-title {
   margin: 0;
-  font-size: 1.02rem;
+  font-size: 1rem;
   font-weight: 800;
   line-height: 1.25;
   white-space: nowrap;
@@ -735,14 +703,14 @@ async function onImportQuestFile(event: Event) {
 
 .quest-actions {
   position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
+  top: 0.45rem;
+  right: 0.45rem;
   display: inline-flex;
-  gap: 0.1rem;
+  gap: 0.05rem;
   z-index: 2;
-  padding: 0.2rem;
+  padding: 0.15rem;
   border-radius: 999px;
-  background: rgb(var(--c-bg-deep) / 0.55);
+  background: rgb(var(--c-bg-deep) / 0.6);
   border: 1px solid rgb(var(--c-white) / 0.08);
   backdrop-filter: blur(8px);
 }
@@ -784,49 +752,58 @@ async function onImportQuestFile(event: Event) {
   color: rgb(var(--c-danger-soft));
 }
 
-/* «Новый квест» / «Импорт» — та же структура (обложка + подпись), что и у квеста */
 .quest-card__cover--dashed {
-  background: rgb(var(--c-accent-sky) / 0.05);
-  border: 1.5px dashed rgb(var(--c-accent-sky) / 0.4);
+  background: rgb(var(--c-accent-sky) / 0.04);
+  border: 1.5px dashed rgb(var(--c-accent-sky) / 0.35);
   transition: border-color 0.2s ease, background 0.2s ease;
 }
+
 .quest-card__cover--dashed::after {
   content: none;
 }
+
 .quest-card--cta:hover .quest-card__cover--dashed {
-  border-color: rgb(var(--c-accent-sky) / 0.7);
-  background: rgb(var(--c-accent-sky) / 0.1);
+  border-color: rgb(var(--c-accent-sky) / 0.65);
+  background: rgb(var(--c-accent-sky) / 0.08);
 }
 
 .new-quest-circle {
-  width: 4.3rem;
-  height: 4.3rem;
+  width: 3.75rem;
+  height: 3.75rem;
   border-radius: 50%;
-  border: 1px dashed rgb(var(--c-accent-sky) / 0.6);
-  background: rgb(var(--c-bg) / 0.5);
+  border: 1px dashed rgb(var(--c-accent-sky) / 0.55);
+  background: rgb(var(--c-bg) / 0.45);
   color: rgb(var(--c-accent-soft));
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.9rem;
+  font-size: 1.75rem;
   line-height: 1;
 }
+
 .new-quest-circle svg {
-  width: 1.6rem;
-  height: 1.6rem;
+  width: 1.5rem;
+  height: 1.5rem;
 }
 
 .quest-card__body--cta {
   align-items: center;
-  justify-content: center;
-  flex: 1;
-}
-.quest-card__ctalabel {
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: rgb(var(--c-text-soft) / 0.92);
   text-align: center;
+  gap: 0.25rem;
 }
+
+.quest-card__ctalabel {
+  font-size: 1rem;
+  font-weight: 700;
+  color: rgb(var(--c-text-soft) / 0.95);
+}
+
+.quest-card__ctahint {
+  font-size: 0.72rem;
+  color: rgb(var(--c-text-muted) / 0.8);
+  line-height: 1.35;
+}
+
 .quest-import-input {
   position: absolute;
   inset: 0;
@@ -836,6 +813,7 @@ async function onImportQuestFile(event: Event) {
   cursor: pointer;
   font-size: 0;
 }
+
 .quest-import-input:disabled {
   cursor: not-allowed;
   pointer-events: none;
@@ -843,21 +821,26 @@ async function onImportQuestFile(event: Event) {
 
 .quest-meta {
   display: flex;
-  gap: 0.4rem;
+  gap: 0.35rem;
   align-items: center;
   flex-wrap: wrap;
-  font-size: 0.8rem;
-  color: rgb(var(--c-text-muted) / 0.85);
 }
-.quest-meta__dot {
-  opacity: 0.5;
+
+.quest-meta__pill {
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background: rgb(var(--c-bg) / 0.55);
+  border: 1px solid rgb(var(--c-accent-sky) / 0.18);
+  color: rgb(var(--c-text-muted) / 0.95);
 }
 
 .quest-empty-badge {
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   padding: 0.15rem 0.55rem;
   border-radius: var(--radius-pill);
   color: rgb(var(--c-danger-soft));
@@ -865,84 +848,189 @@ async function onImportQuestFile(event: Event) {
   border: 1px solid rgb(var(--c-danger) / 0.35);
 }
 
-.start-hint {
-  margin: 0.4rem 0 0;
-  font-size: 0.8rem;
-  color: rgb(var(--c-danger-soft));
+/* ── Bottom dock ── */
+.host-dock {
+  flex-shrink: 0;
+  padding: 0.75rem 0 1.25rem;
 }
 
-.actions {
+.host-dock__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  padding: 1rem 1.25rem;
+  border-radius: 1.15rem;
+  background: linear-gradient(135deg, rgb(var(--c-surface) / 0.88), rgb(var(--c-bg) / 0.82));
+  border: 1px solid rgb(var(--c-accent-sky) / 0.22);
+  box-shadow:
+    0 -8px 32px rgb(var(--c-bg-deep) / 0.35),
+    inset 0 1px 0 rgb(var(--c-white) / 0.06);
+  backdrop-filter: blur(14px);
+}
+
+.host-dock__info {
+  min-width: 0;
+  flex: 1;
+}
+
+.host-dock__label {
+  display: block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgb(var(--c-text-muted) / 0.75);
+  margin-bottom: 0.2rem;
+}
+
+.host-dock__quest {
+  display: block;
+  font-size: 1.05rem;
+  font-weight: 800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: rgb(var(--c-text));
+}
+
+.host-dock__stats {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.78rem;
+  color: rgb(var(--c-text-muted) / 0.85);
+}
+
+.host-dock__placeholder {
+  margin: 0;
+  font-size: 0.88rem;
+  color: rgb(var(--c-text-muted) / 0.8);
+}
+
+.host-dock__actions {
+  flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
-  align-items: center;
+  align-items: flex-end;
+  gap: 0.35rem;
 }
 
-.actions--fixed {
-  flex-shrink: 0;
-  padding: 2rem 0;
-  margin-top: auto;
-  z-index: 10;
-}
-
-.primary,
-.secondary {
-  border-radius: 9999px;
-  padding: 1.2rem 2.5rem;
-  font-weight: 600;
-  font-size: 1.1rem;
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
-  width: auto;
-  min-width: 280px;
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  box-sizing: border-box;
-}
-
-.primary {
-  background: rgb(var(--c-teal) / 0.12);
-  border: 1px solid rgb(var(--c-accent) / 0.45);
-  color: rgb(var(--c-text));
+.host-dock__start {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgb(var(--c-accent) / 0.55);
+  border-radius: 999px;
+  padding: 0.85rem 2rem;
+  min-width: 200px;
+  font-size: 1rem;
+  font-weight: 700;
   letter-spacing: 0.04em;
+  color: rgb(var(--c-text));
+  background: linear-gradient(135deg, rgb(var(--c-teal) / 0.35), rgb(var(--c-accent-sky) / 0.2));
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
 }
 
-.primary:hover:not(:disabled) {
+.host-dock__start-glow {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 30%, rgb(var(--c-white) / 0.12) 50%, transparent 70%);
+  transform: translateX(-100%);
+  transition: transform 0.5s ease;
+}
+
+.host-dock__start:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 12px 22px rgb(var(--c-accent) / 0.28);
+  box-shadow: 0 12px 28px rgb(var(--c-accent) / 0.28);
 }
 
-.primary:disabled {
-  opacity: 0.55;
+.host-dock__start:hover:not(:disabled) .host-dock__start-glow {
+  transform: translateX(100%);
+}
+
+.host-dock__start:disabled {
+  opacity: 0.5;
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
-  filter: grayscale(0.6);
-  border-color: rgb(var(--c-text-muted) / 0.35);
-  background: rgb(var(--c-teal) / 0.08);
-  color: rgb(var(--c-text-soft) / 0.4);
+  filter: grayscale(0.5);
 }
 
-.secondary {
-  background: linear-gradient(135deg, rgb(var(--c-accent)), rgb(var(--c-purple)));
-  border: 1px solid transparent;
-  color: rgb(var(--c-white));
-  min-width: 220px;
-}
-
-.secondary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 22px rgba(138, 99, 235, 0.28);
+.start-hint {
+  margin: 0;
+  font-size: 0.75rem;
+  color: rgb(var(--c-danger-soft));
+  text-align: right;
 }
 
 .error {
   margin: 0;
   color: rgb(var(--c-danger));
   font-weight: 600;
+  font-size: 0.8rem;
+  text-align: right;
 }
 
+/* ── Loading ── */
+.host-loading-wrapper {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgb(var(--c-bg-deep));
+  z-index: 1000;
+}
 
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  text-align: center;
+}
+
+.loader {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgb(var(--c-accent) / 0.2), rgb(var(--c-accent-sky) / 0.15));
+  border: 3px solid rgb(var(--c-accent-sky) / 0.3);
+  position: relative;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.loader::before {
+  content: '';
+  position: absolute;
+  inset: 50% auto auto 50%;
+  transform: translate(-50%, -50%);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  border-top-color: rgb(var(--c-accent));
+  border-right-color: rgb(var(--c-accent-sky));
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.loading-state p {
+  color: rgb(var(--c-text-soft) / 0.9);
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* ── Modal ── */
 .quest-modal-backdrop {
   position: fixed;
   inset: 0;
@@ -972,7 +1060,6 @@ async function onImportQuestFile(event: Event) {
 .quest-modal--confirm {
   max-width: 500px;
   padding: 1.9rem;
-  gap: 1.5rem;
 }
 
 .quest-modal__header {
@@ -997,445 +1084,88 @@ async function onImportQuestFile(event: Event) {
   width: 34px;
   height: 34px;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.quest-modal__close:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgb(var(--c-accent) / 0.3);
 }
 
 .quest-modal__actions {
   display: flex;
   justify-content: flex-end;
   gap: 0.75rem;
-  margin-top: 0.5rem;
 }
 
 .quest-modal__actions .secondary,
-.quest-modal__actions .primary {
+.quest-modal__actions .primary,
+.quest-modal__actions .danger {
   min-width: 140px;
-}
-
-.quest-modal__actions .primary {
-  background: linear-gradient(135deg, rgb(var(--c-accent)), rgb(var(--c-accent-sky)));
-  border: 1px solid transparent;
-  color: rgb(var(--c-bg));
-  box-shadow: 0 12px 24px rgb(var(--c-accent) / 0.28);
   border-radius: 999px;
-}
-
-.quest-modal__actions .primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 16px 26px rgb(var(--c-accent) / 0.32);
+  padding: 0.65rem 1.25rem;
+  font-weight: 600;
+  cursor: pointer;
 }
 
 .quest-modal__actions .secondary {
   background: rgb(var(--c-teal) / 0.15);
   border: 1px solid rgb(var(--c-accent) / 0.45);
   color: rgb(var(--c-accent-soft));
-  border-radius: 999px;
 }
 
-.quest-modal__actions .secondary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 14px 24px rgb(var(--c-accent) / 0.22);
-}
-
+.quest-modal__actions .primary,
 .quest-modal__actions .danger {
-  min-width: 140px;
   background: linear-gradient(135deg, rgb(var(--c-accent)), rgb(var(--c-accent-sky)));
   border: 1px solid transparent;
   color: rgb(var(--c-bg));
-  box-shadow: 0 12px 24px rgb(var(--c-accent) / 0.28);
-  border-radius: 999px;
 }
 
-.quest-modal__actions .danger:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 16px 26px rgb(var(--c-accent) / 0.32);
-}
-
-@media (max-width: 640px) {
-  .quest-modal {
-    padding: 1.25rem;
-  }
-
-  .quest-modal__actions {
-    flex-direction: column-reverse;
-    align-items: stretch;
-  }
-
-  .quest-modal__actions .secondary,
-  .quest-modal__actions .primary,
-  .quest-modal__actions .danger {
-    width: 100%;
-  }
-}
-
+/* ── Responsive ── */
 @media (max-width: 768px) {
-  .host-setup {
-    padding: 1.5rem;
-    gap: 1rem;
+  .host-hero__title {
+    font-size: clamp(0.85rem, 4vw, 1.1rem);
   }
 
-  .host-nav {
+  .host-dock__inner {
     flex-direction: column;
     align-items: stretch;
-    gap: 0.75rem;
+    gap: 0.85rem;
   }
 
-  .actions {
+  .host-dock__actions {
     align-items: stretch;
   }
 
-  .primary,
-  .secondary {
+  .host-dock__start {
     width: 100%;
     min-width: 0;
-    padding: 0.9rem 1.75rem;
-    font-size: 0.95rem;
   }
 
-  .actions--fixed {
-    padding: 1rem 0;
-  }
-
-  .host-header {
-    flex-direction: column;
-    align-items: stretch;
+  .start-hint,
+  .error {
     text-align: center;
-    gap: 1.75rem;
-    padding: 1.75rem 1.25rem;
   }
 
-  .host-title h1 {
-    font-size: clamp(0.9rem, 2.5vw, 1.1rem);
-  }
-
-  .host-title p {
-    font-size: clamp(0.7rem, 2vw, 0.85rem);
-  }
-
-  .host-pixel-story {
-    width: 100%;
-    order: 1;
-    min-height: clamp(220px, 40vw, 260px);
-    padding: 0;
-    margin-top: 1.25rem;
-  }
-
-  /* Уменьшаем карточки квестов для мобильных */
   .quest-card {
-    border-radius: 0.9rem;
-  }
-
-  .quest-title {
-    font-size: 0.75rem;
-    line-height: 1.25;
-  }
-
-  .quest-description {
-    font-size: 0.6rem;
-    line-height: 1.35;
-    max-height: calc(0.6rem * 1.35 * 2);
-  }
-
-  .quest-meta {
-    font-size: 0.55rem;
-    gap: 0.4rem;
-  }
-
-  .quest-action-button {
-    width: 24px;
-    height: 24px;
-  }
-
-  .quest-action-button svg {
-    width: 12px;
-    height: 12px;
-  }
-
-  .quest-topline {
-    gap: 0.4rem;
-  }
-
-  .quest-actions {
-    gap: 0.3rem;
-  }
-
-  .quest-card--new {
-    gap: 0.4rem;
-  }
-
-  .new-quest-circle {
-    width: 50px;
-    height: 50px;
-    font-size: 1.5rem;
-    border-width: 1.5px;
-  }
-
-  .quest-card--new span {
-    font-size: 0.6rem;
-  }
-
-  .quests-grid {
-    gap: 1rem;
-  }
-
-  .section-title h2 {
-    white-space: nowrap;
-    font-size: clamp(0.7rem, 2.5vw, 0.9rem);
-  }
-
-  .section-subtitle {
-    display: none;
+    width: min(100%, 200px);
   }
 }
 
 @media (max-width: 480px) {
-  .host-setup {
+  .host-main {
     padding: 0 0.75rem;
-    gap: 0.75rem;
-  }
-
-  .host-header {
-    padding: 1.25rem 1rem;
-    gap: 1.25rem;
-    border-radius: 1rem;
-  }
-
-  .host-title h1 {
-    font-size: clamp(0.8rem, 2.2vw, 1rem);
-  }
-
-  .host-title p {
-    font-size: clamp(0.65rem, 1.8vw, 0.78rem);
-  }
-
-  .quest-card {
-    border-radius: 0.8rem;
-  }
-
-  .quest-title {
-    font-size: 0.7rem;
-  }
-
-  .quest-description {
-    font-size: 0.55rem;
-    max-height: calc(0.55rem * 1.35 * 2);
-  }
-
-  .quest-meta {
-    font-size: 0.5rem;
-    gap: 0.3rem;
-  }
-
-  .quest-action-button {
-    width: 22px;
-    height: 22px;
-  }
-
-  .quest-action-button svg {
-    width: 11px;
-    height: 11px;
-  }
-
-  .new-quest-circle {
-    width: 42px;
-    height: 42px;
-    font-size: 1.3rem;
-  }
-
-  .quest-card--new span {
-    font-size: 0.55rem;
   }
 
   .quests-grid {
     gap: 0.75rem;
   }
 
-  .primary,
-  .secondary {
-    padding: 0.8rem 1.5rem;
-    font-size: 0.88rem;
-  }
-
-  .section-header {
-    padding: 0 0.5rem;
-  }
-
-  .actions--fixed {
-    padding: 0.75rem 0;
-  }
-}
-
-@media (max-width: 360px) {
-  .host-setup {
-    padding: 0 0.5rem;
-    gap: 0.5rem;
-  }
-
-  .host-header {
-    padding: 1rem 0.75rem;
-    gap: 1rem;
-    border-radius: 0.875rem;
-  }
-
-  .host-title h1 {
-    font-size: clamp(0.75rem, 2vw, 0.9rem);
-  }
-
   .quest-card {
-    border-radius: 0.75rem;
+    width: calc(50% - 0.5rem);
+    min-width: 140px;
   }
 
   .quest-title {
-    font-size: 0.65rem;
+    font-size: 0.85rem;
   }
 
-  .quest-description {
-    display: none;
-  }
-
-  .quest-meta {
-    font-size: 0.48rem;
-  }
-
-  .new-quest-circle {
-    width: 36px;
-    height: 36px;
-    font-size: 1.1rem;
-  }
-
-  .quest-card--new span {
-    font-size: 0.5rem;
-  }
-
-  .quests-grid {
-    gap: 0.6rem;
-  }
-
-  .primary,
-  .secondary {
-    padding: 0.7rem 1.25rem;
-    font-size: 0.82rem;
-  }
-
-  .actions--fixed {
-    padding: 0.5rem 0;
+  .host-dock {
+    padding-bottom: 0.85rem;
   }
 }
-
-@media (max-width: 320px) {
-  .host-setup {
-    padding: 0 0.375rem;
-    gap: 0.4rem;
-  }
-
-  .host-header {
-    padding: 0.75rem 0.6rem;
-    gap: 0.75rem;
-  }
-
-  .host-title h1 {
-    font-size: clamp(0.7rem, 1.8vw, 0.85rem);
-  }
-
-  .quest-card {
-    border-radius: 0.7rem;
-  }
-
-  .quest-title {
-    font-size: 0.6rem;
-  }
-
-  .quest-action-button {
-    width: 20px;
-    height: 20px;
-  }
-
-  .quest-action-button svg {
-    width: 10px;
-    height: 10px;
-  }
-
-  .new-quest-circle {
-    width: 32px;
-    height: 32px;
-    font-size: 1rem;
-  }
-
-  .quest-card--new span {
-    font-size: 0.45rem;
-  }
-
-  .primary,
-  .secondary {
-    padding: 0.65rem 1rem;
-    font-size: 0.78rem;
-  }
-}
-
-@media (max-width: 1024px) {
-  .quest-selection {
-    padding-right: 0;
-    margin-right: 0;
-  }
-
-  .quests-grid {
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    padding-right: 0;
-    margin-top: 1.2rem;
-  }
-
-  .quest-card--new {
-    gap: 0.4rem;
-  }
-
-  .new-quest-circle {
-    width: 64px;
-    height: 64px;
-    font-size: 2rem;
-  }
-
-  .actions {
-    align-items: stretch;
-  }
-
-  .primary,
-  .secondary {
-    width: 100%;
-    min-width: 0;
-  }
-
-  .host-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1.5rem;
-  }
-
-  .host-title {
-    width: 100%;
-  }
-
-  .host-user-pill {
-    align-self: center;
-  }
-
-}
-
-
-
-.host-user-name {
-  font-size: 0.9rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-}
-
-.host-user-avatar--placeholder {
-  border-style: dashed;
-  color: rgb(var(--c-accent-soft));
-}
-
 </style>
