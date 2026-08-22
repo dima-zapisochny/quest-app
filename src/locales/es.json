@@ -338,6 +338,7 @@
     "topClicks": "Dónde hacen clic",
     "topClicksLead": "CTA y navegación (30 días)",
     "empty": "Aún no hay datos — entra al sitio como visitante normal.",
-    "refreshed": "Actualizado"
+    "refreshed": "Actualizado",
+    "lastUpdated": "Última actualización:"
   }
 }
