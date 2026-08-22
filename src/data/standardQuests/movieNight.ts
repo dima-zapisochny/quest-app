@@ -3,7 +3,7 @@ import { buildStandardQuest, q } from './buildQuest'
 const rounds = [
   {
     title: 'Розігрів',
-    description: 'Постери, легкі цитати, знамениті ролі та кримінал.',
+    description: 'Постери, легкі цитати, знамениті ролі та кримінал',
     categories: [
       {
         title: 'Постери',
@@ -153,7 +153,7 @@ const rounds = [
   },
   {
     title: 'Середній рівень',
-    description: 'Режисери, серіали, саундтреки та сюжетні деталі.',
+    description: 'Режисери, серіали, саундтреки та сюжетні деталі',
     categories: [
       {
         title: 'Режисери',
@@ -348,7 +348,7 @@ const rounds = [
   },
   {
     title: 'Експерти',
-    description: 'Роки, другий план, trivia та глибокі деталі.',
+    description: 'Роки, другий план, trivia та глибокі деталі',
     categories: [
       {
         title: 'Рік і нагороди',
@@ -464,7 +464,7 @@ const rounds = [
 export const movieNightQuest = buildStandardQuest(
   'movie-night',
   'Movie Night',
-  'Хіти IMDb: кіно й серіали без магії й надприродного. Постери, цитати, саундтреки, ролі.',
+  'Хіти IMDb: кіно й серіали без магії й надприродного. Постери, цитати, саундтреки, ролі',
   '🎬',
   rounds
 )

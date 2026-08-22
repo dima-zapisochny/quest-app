@@ -59,7 +59,7 @@ const IMG = {
 } as const
 
 const description =
-  'Хіти останніх десятиліть і вічна класика: тексти, виконавці, жанри, колаборації.'
+  'Хіти останніх десятиліть і вічна класика: тексти, виконавці, жанри, колаборації'
 
 export const hitParadeQuest = buildStandardQuest('hit-parade', 'Hit Parade', description, '🎵', [
   {
@@ -69,19 +69,19 @@ export const hitParadeQuest = buildStandardQuest('hit-parade', 'Hit Parade', des
       {
         title: 'Фото легенд',
         questions: [
-          q(100, 'Хто на фото? Британський квартет 1960-х, автори «Hey Jude».', 'The Beatles', {
+          q(100, 'Хто на фото? Британський квартет 1960-х, автори «Hey Jude»', 'The Beatles', {
             imageUrl: IMG.beatles
           }),
-          q(200, 'Хто на фото? Фредді Мерк’юрі — фронтмен цієї групи.', 'Queen', {
+          q(200, 'Хто на фото? Фредді Мерк’юрі — фронтмен цієї групи', 'Queen', {
             imageUrl: IMG.queen
           }),
-          q(300, 'Хто на фото? «King of Rock and Roll», Jailhouse Rock.', 'Elvis Presley', {
+          q(300, 'Хто на фото? «King of Rock and Roll», Jailhouse Rock', 'Elvis Presley', {
             imageUrl: IMG.elvis
           }),
-          q(400, 'Хто на фото? Шведський квартет, хіт «Dancing Queen».', 'ABBA', {
+          q(400, 'Хто на фото? Шведський квартет, хіт «Dancing Queen»', 'ABBA', {
             imageUrl: IMG.abba
           }),
-          q(500, 'Хто на фото? King of Pop, альбом Thriller.', 'Michael Jackson', {
+          q(500, 'Хто на фото? King of Pop, альбом Thriller', 'Michael Jackson', {
             imageUrl: IMG.mj
           })
         ]
@@ -218,7 +218,7 @@ export const hitParadeQuest = buildStandardQuest('hit-parade', 'Hit Parade', des
       {
         title: 'Pop хіти',
         questions: [
-          q(100, 'Хто на фото? Авторка «Hello» і «Rolling in the Deep».', 'Adele', {
+          q(100, 'Хто на фото? Авторка «Hello» і «Rolling in the Deep»', 'Adele', {
             imageUrl: IMG.adele
           }),
           q(
@@ -250,10 +250,10 @@ export const hitParadeQuest = buildStandardQuest('hit-parade', 'Hit Parade', des
       {
         title: 'Rock & Alternative',
         questions: [
-          q(100, 'Хто на фото? Грутж-тріо з «Smells Like Teen Spirit».', 'Nirvana', {
+          q(100, 'Хто на фото? Грутж-тріо з «Smells Like Teen Spirit»', 'Nirvana', {
             imageUrl: IMG.nirvana
           }),
-          q(200, 'Хто на фото? Австралійський hard rock, «Highway to Hell».', 'AC/DC', {
+          q(200, 'Хто на фото? Австралійський hard rock, «Highway to Hell»', 'AC/DC', {
             imageUrl: IMG.acdc
           }),
           q(
@@ -279,10 +279,10 @@ export const hitParadeQuest = buildStandardQuest('hit-parade', 'Hit Parade', des
       {
         title: 'Hip-Hop',
         questions: [
-          q(100, 'Хто на фото? Slim Shady, хіт «Lose Yourself».', 'Eminem', {
+          q(100, 'Хто на фото? Slim Shady, хіт «Lose Yourself»', 'Eminem', {
             imageUrl: IMG.eminem
           }),
-          q(200, 'Хто на фото? Канадський репер, хіти «Hotline Bling», «God’s Plan».', 'Drake', {
+          q(200, 'Хто на фото? Канадський репер, хіти «Hotline Bling», «God’s Plan»', 'Drake', {
             imageUrl: IMG.drake
           }),
           q(
@@ -305,7 +305,7 @@ export const hitParadeQuest = buildStandardQuest('hit-parade', 'Hit Parade', des
       {
         title: 'Dance & Electronic',
         questions: [
-          q(100, 'Хто на фото? Французький дует у шоломах, «Get Lucky».', 'Daft Punk', {
+          q(100, 'Хто на фото? Французький дует у шоломах, «Get Lucky»', 'Daft Punk', {
             imageUrl: IMG.daftPunk
           }),
           q(
@@ -320,7 +320,7 @@ export const hitParadeQuest = buildStandardQuest('hit-parade', 'Hit Parade', des
           ),
           q(
             400,
-            'Хто на фото? Авторка «bad guy» і «Therefore I Am».',
+            'Хто на фото? Авторка «bad guy» і «Therefore I Am»',
             'Billie Eilish',
             { imageUrl: IMG.billie }
           ),
@@ -334,10 +334,10 @@ export const hitParadeQuest = buildStandardQuest('hit-parade', 'Hit Parade', des
       {
         title: 'Балади й вокал',
         questions: [
-          q(100, 'Хто на фото? «I Will Always Love You», The Bodyguard.', 'Whitney Houston', {
+          q(100, 'Хто на фото? «I Will Always Love You», The Bodyguard', 'Whitney Houston', {
             imageUrl: IMG.whitney
           }),
-          q(200, 'Хто на фото? «Shape of You», «Perfect».', 'Ed Sheeran', {
+          q(200, 'Хто на фото? «Shape of You», «Perfect»', 'Ed Sheeran', {
             imageUrl: IMG.ed
           }),
           q(
@@ -368,7 +368,7 @@ export const hitParadeQuest = buildStandardQuest('hit-parade', 'Hit Parade', des
         questions: [
           q(
             100,
-            'Хто на фото? Барбадоська зірка хіта «Umbrella».',
+            'Хто на фото? Барбадоська зірка хіта «Umbrella»',
             'Rihanna',
             { imageUrl: IMG.rihanna }
           ),
@@ -379,7 +379,7 @@ export const hitParadeQuest = buildStandardQuest('hit-parade', 'Hit Parade', des
           ),
           q(
             300,
-            'Хто на фото? Солістка Destiny’s Child і хіта «Crazy in Love».',
+            'Хто на фото? Солістка Destiny’s Child і хіта «Crazy in Love»',
             'Beyoncé',
             { imageUrl: IMG.beyonce }
           ),
@@ -491,7 +491,7 @@ export const hitParadeQuest = buildStandardQuest('hit-parade', 'Hit Parade', des
           ),
           q(
             500,
-            'Хто на фото? Британська група альбому The Dark Side of the Moon.',
+            'Хто на фото? Британська група альбому The Dark Side of the Moon',
             'Pink Floyd',
             { imageUrl: IMG.pinkFloyd }
           )
