@@ -7,7 +7,10 @@
         :src="mediaUrl"
         :alt="media.name"
         loading="lazy"
-        @error="loadError = true"
+        decoding="async"
+        referrerpolicy="no-referrer"
+        @error="onMediaError"
+        @load="loadError = false"
       />
       <div v-else-if="loadError" class="media-placeholder">{{ t('game.imageNotLoaded') }}</div>
       <div v-else class="media-placeholder"></div>
@@ -18,7 +21,8 @@
         :src="mediaUrl"
         controls
         preload="none"
-        @error="loadError = true"
+        referrerpolicy="no-referrer"
+        @error="onMediaError"
       ></audio>
       <div v-else-if="loadError" class="media-placeholder">{{ t('game.audioNotLoaded') }}</div>
       <div v-else class="media-placeholder">{{ t('game.noAudio') }}</div>
@@ -31,7 +35,7 @@
 
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import type { MediaAsset } from '@/types'
 import { safeMediaUrl } from '@/utils/mediaUrl'
 
@@ -45,6 +49,14 @@ const props = defineProps<Props>()
 const loadError = ref(false)
 
 const mediaUrl = computed(() => safeMediaUrl(props.media?.url) ?? null)
+
+watch(mediaUrl, () => {
+  loadError.value = false
+})
+
+function onMediaError() {
+  loadError.value = true
+}
 </script>
 
 <style scoped>
@@ -134,4 +146,3 @@ audio {
   }
 }
 </style>
-

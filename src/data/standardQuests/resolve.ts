@@ -164,7 +164,8 @@ export function localizeExistingStandardQuest(existing: Quest, locale: AppLocale
                 ...q,
                 question: tq.question,
                 answer: tq.answer,
-                imageUrl: tq.imageUrl ?? q.imageUrl,
+                // Завжди підтягуємо актуальний imageUrl з шаблону (померлі wiki-лінкі).
+                imageUrl: tq.imageUrl ?? null,
                 value: tq.value
               }
             })
