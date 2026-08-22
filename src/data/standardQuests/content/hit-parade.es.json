@@ -1,0 +1,398 @@
+{
+  "description": "Éxitos de las últimas décadas y clásicos eternos: letras, artistas, géneros, colaboraciones",
+  "rounds": [
+    {
+      "title": "Legends & Classics",
+      "description": "Beatles, Queen, Elvis, ABBA, Michael Jackson y otros iconos",
+      "categories": [
+        {
+          "title": "Fotos de leyendas",
+          "questions": [
+            {
+              "question": "¿Quién está en la foto? Cuarteto británico de los años 60, autores de «Hey Jude»",
+              "answer": "The Beatles"
+            },
+            {
+              "question": "¿Quién está en la foto? Freddie Mercury — líder de esta banda",
+              "answer": "Queen"
+            },
+            {
+              "question": "¿Quién está en la foto? «King of Rock and Roll», Jailhouse Rock",
+              "answer": "Elvis Presley"
+            },
+            {
+              "question": "¿Quién está en la foto? Cuarteto sueco, hit «Dancing Queen»",
+              "answer": "ABBA"
+            },
+            {
+              "question": "¿Quién está en la foto? King of Pop, álbum Thriller",
+              "answer": "Michael Jackson"
+            }
+          ]
+        },
+        {
+          "title": "Palabra que falta",
+          "questions": [
+            {
+              "question": "Di la palabra que falta (The Beatles):\n\n«Yesterday, all my … seemed so far away»",
+              "answer": "troubles"
+            },
+            {
+              "question": "Di la palabra que falta (Queen):\n\n«Is this the real life? Is this just …?»",
+              "answer": "fantasy"
+            },
+            {
+              "question": "Di la palabra que falta (Elvis Presley):\n\n«You ain’t nothin’ but a … dog»",
+              "answer": "hound"
+            },
+            {
+              "question": "Di la palabra que falta (ABBA):\n\n«You can dance, you can jive, having the time of your …»",
+              "answer": "life"
+            },
+            {
+              "question": "Di la palabra que falta (Michael Jackson — «Smooth Criminal»):\n\n«Annie, are you …?»",
+              "answer": "OK"
+            }
+          ]
+        },
+        {
+          "title": "Termina el verso",
+          "questions": [
+            {
+              "question": "Termina el verso (The Beatles — «Hey Jude»):\n\n«Hey Jude, don’t make it …»",
+              "answer": "bad"
+            },
+            {
+              "question": "Termina el verso (Queen — «We Will Rock You»):\n\n«We will, we will … you»",
+              "answer": "rock"
+            },
+            {
+              "question": "Termina el verso (Madonna — «Like a Virgin»):\n\n«Like a virgin, touched for the very first …»",
+              "answer": "time"
+            },
+            {
+              "question": "Termina el verso (Whitney Houston — «I Will Always Love You»):\n\n«And I will always love …»",
+              "answer": "you"
+            },
+            {
+              "question": "Termina el verso (Pink Floyd — «Wish You Were Here»):\n\n«How I wish, how I wish you were …»",
+              "answer": "here"
+            }
+          ]
+        },
+        {
+          "title": "Álbumes y épocas",
+          "questions": [
+            {
+              "question": "¿Qué álbum de The Beatles de 1967 se considera a menudo uno de los primeros conceptuales?",
+              "answer": "Sgt. Pepper’s Lonely Hearts Club Band"
+            },
+            {
+              "question": "¿Qué álbum de Queen de 1975 contiene «Bohemian Rhapsody»?",
+              "answer": "A Night at the Opera"
+            },
+            {
+              "question": "¿En qué año se publicó este álbum de Michael Jackson?",
+              "answer": "1982"
+            },
+            {
+              "question": "¿Qué álbum de Madonna de 1984 la convirtió en estrella mundial del pop?",
+              "answer": "Like a Virgin"
+            },
+            {
+              "question": "¿Qué álbum de Pink Floyd de 1973 tiene esta portada (prisma)?",
+              "answer": "The Dark Side of the Moon"
+            }
+          ]
+        },
+        {
+          "title": "Original o versión",
+          "questions": [
+            {
+              "question": "¿Quién interpretó el original de «I Will Always Love You» antes del hit de Whitney Houston?",
+              "answer": "Dolly Parton"
+            },
+            {
+              "question": "¿Quién cantó el original de «Respect», que más tarde popularizó Aretha Franklin?",
+              "answer": "Otis Redding"
+            },
+            {
+              "question": "¿Quién grabó el original de «All Along the Watchtower», versionado por Jimi Hendrix?",
+              "answer": "Bob Dylan"
+            },
+            {
+              "question": "¿Quién interpretó el original de «Nothing Compares 2 U» antes de la versión de Sinéad O’Connor?",
+              "answer": "Prince (The Family)"
+            },
+            {
+              "question": "¿Quién grabó el original de «Hallelujah», popularizado después por Jeff Buckley y otros?",
+              "answer": "Leonard Cohen"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Charts & Genres",
+      "description": "Pop, rock, hip-hop, dance y baladas 1990–2020",
+      "categories": [
+        {
+          "title": "Hits pop",
+          "questions": [
+            {
+              "question": "¿Quién está en la foto? Autora de «Hello» y «Rolling in the Deep»",
+              "answer": "Adele"
+            },
+            {
+              "question": "Termina el verso (Taylor Swift — «Shake It Off»):\n\n«The players gonna play, play, play, play, …»",
+              "answer": "play"
+            },
+            {
+              "question": "Di la palabra que falta (Lady Gaga — «Bad Romance»):\n\n«I want your …, I want your revenge»",
+              "answer": "love"
+            },
+            {
+              "question": "¿Qué hit de Bruno Mars de 2010 empieza con palabras sobre una «grenade»?",
+              "answer": "Grenade"
+            },
+            {
+              "question": "¿En qué año The Weeknd lanzó el hit global «Blinding Lights»?",
+              "answer": "2019"
+            }
+          ]
+        },
+        {
+          "title": "Rock & Alternative",
+          "questions": [
+            {
+              "question": "¿Quién está en la foto? Trío grunge de «Smells Like Teen Spirit»",
+              "answer": "Nirvana"
+            },
+            {
+              "question": "¿Quién está en la foto? Hard rock australiano, «Highway to Hell»",
+              "answer": "AC/DC"
+            },
+            {
+              "question": "Di la palabra que falta (Linkin Park — «In the End»):\n\n«I tried so hard and got so …»",
+              "answer": "far"
+            },
+            {
+              "question": "Termina el verso (Oasis — «Wonderwall»):\n\n«Because maybe, you’re gonna be the one that … me»",
+              "answer": "saves"
+            },
+            {
+              "question": "¿Qué género describe mejor a Coldplay de principios de los 2000 (Parachutes, A Rush of Blood to the Head)?",
+              "answer": "Alternative rock / Britpop-influenced rock"
+            }
+          ]
+        },
+        {
+          "title": "Hip-Hop",
+          "questions": [
+            {
+              "question": "¿Quién está en la foto? Slim Shady, hit «Lose Yourself»",
+              "answer": "Eminem"
+            },
+            {
+              "question": "¿Quién está en la foto? Rapero canadiense, hits «Hotline Bling», «God’s Plan»",
+              "answer": "Drake"
+            },
+            {
+              "question": "Di la palabra que falta (Eminem — «Lose Yourself»):\n\n«You better lose yourself in the …»",
+              "answer": "music"
+            },
+            {
+              "question": "Termina el verso (Drake — «Hotline Bling»):\n\n«You used to call me on my …»",
+              "answer": "cell phone"
+            },
+            {
+              "question": "¿En qué año Eminem lanzó The Marshall Mathers LP?",
+              "answer": "2000"
+            }
+          ]
+        },
+        {
+          "title": "Dance & Electronic",
+          "questions": [
+            {
+              "question": "¿Quién está en la foto? Dúo francés con cascos, «Get Lucky»",
+              "answer": "Daft Punk"
+            },
+            {
+              "question": "Di la palabra que falta (Daft Punk — «Get Lucky»):\n\n«We’re up all night to get …»",
+              "answer": "lucky"
+            },
+            {
+              "question": "¿Qué género describe mejor a Daft Punk y el tema «One More Time»?",
+              "answer": "French house / electronic dance"
+            },
+            {
+              "question": "¿Quién está en la foto? Autora de «bad guy» y «Therefore I Am»",
+              "answer": "Billie Eilish"
+            },
+            {
+              "question": "Termina el verso (Billie Eilish — «bad guy»):\n\n«So you’re a tough guy, like it really rough …»",
+              "answer": "guy"
+            }
+          ]
+        },
+        {
+          "title": "Baladas y voz",
+          "questions": [
+            {
+              "question": "¿Quién está en la foto? «I Will Always Love You», The Bodyguard",
+              "answer": "Whitney Houston"
+            },
+            {
+              "question": "¿Quién está en la foto? «Shape of You», «Perfect»",
+              "answer": "Ed Sheeran"
+            },
+            {
+              "question": "Termina el verso (Adele — «Someone Like You»):\n\n«Never mind, I’ll find someone like …»",
+              "answer": "you"
+            },
+            {
+              "question": "Di la palabra que falta (Ed Sheeran — «Perfect»):\n\n«Darling, just hold my …»",
+              "answer": "hand"
+            },
+            {
+              "question": "¿Qué álbum de Adele de 2011 contiene «Someone Like You» y «Rolling in the Deep»?",
+              "answer": "21"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Deep Cuts",
+      "description": "Colaboraciones, años, álbumes y letras más difíciles",
+      "categories": [
+        {
+          "title": "Colaboraciones",
+          "questions": [
+            {
+              "question": "¿Quién está en la foto? Estrella barbadense del hit «Umbrella»",
+              "answer": "Rihanna"
+            },
+            {
+              "question": "¿Quién fue el artista invitado (feat.) en «Umbrella» de Rihanna?",
+              "answer": "Jay-Z"
+            },
+            {
+              "question": "¿Quién está en la foto? Vocalista de Destiny’s Child y del hit «Crazy in Love»",
+              "answer": "Beyoncé"
+            },
+            {
+              "question": "¿Quién cantó con Daft Punk en el hit «Get Lucky» (voz principal)?",
+              "answer": "Pharrell Williams"
+            },
+            {
+              "question": "¿Quién está en la foto y grabó «Hips Don’t Lie» junto a Wyclef Jean?",
+              "answer": "Shakira"
+            }
+          ]
+        },
+        {
+          "title": "Años y listas",
+          "questions": [
+            {
+              "question": "¿En qué año Nirvana publicó Nevermind?",
+              "answer": "1991"
+            },
+            {
+              "question": "¿En qué año Lady Gaga publicó su álbum debut The Fame?",
+              "answer": "2008"
+            },
+            {
+              "question": "¿En qué año Taylor Swift publicó 1989?",
+              "answer": "2014"
+            },
+            {
+              "question": "¿En qué año The Weeknd publicó After Hours?",
+              "answer": "2020"
+            },
+            {
+              "question": "¿En qué año Billie Eilish publicó When We All Fall Asleep, Where Do We Go?",
+              "answer": "2019"
+            }
+          ]
+        },
+        {
+          "title": "Álbumes deep cut",
+          "questions": [
+            {
+              "question": "¿Qué álbum de Linkin Park de 2000 abre con el tema «Papercut»?",
+              "answer": "Hybrid Theory"
+            },
+            {
+              "question": "¿Qué álbum de Oasis de 1995 contiene «Wonderwall» y «Don’t Look Back in Anger»?",
+              "answer": "(What’s the Story) Morning Glory?"
+            },
+            {
+              "question": "¿Qué álbum de AC/DC de 1980 con Brian Johnson se convirtió en su bestseller?",
+              "answer": "Back in Black"
+            },
+            {
+              "question": "¿Qué álbum de Madonna de 1998 con sonido electrónico incluye «Frozen»?",
+              "answer": "Ray of Light"
+            },
+            {
+              "question": "¿Qué álbum de Daft Punk de 2013 contiene «Get Lucky» e «Instant Crush»?",
+              "answer": "Random Access Memories"
+            }
+          ]
+        },
+        {
+          "title": "Letras difíciles",
+          "questions": [
+            {
+              "question": "Di la palabra que falta (Rihanna — «Umbrella»):\n\n«You can stand under my …»",
+              "answer": "umbrella"
+            },
+            {
+              "question": "Termina el verso (Beyoncé — «Single Ladies»):\n\n«If you liked it then you shoulda put a … on it»",
+              "answer": "ring"
+            },
+            {
+              "question": "Di la palabra que falta (Shakira — «Hips Don’t Lie»):\n\n«I never really knew that she could … like this»",
+              "answer": "dance"
+            },
+            {
+              "question": "Termina el verso (The Weeknd — «Blinding Lights»):\n\n«I can’t sleep until I feel your …»",
+              "answer": "touch"
+            },
+            {
+              "question": "Di la palabra que falta (Coldplay — «Viva La Vida»):\n\n«I used to rule the …»",
+              "answer": "world"
+            }
+          ]
+        },
+        {
+          "title": "¿Quién cantaba?",
+          "questions": [
+            {
+              "question": "¿Quién canta el original del hit «Smells Like Teen Spirit»?",
+              "answer": "Nirvana"
+            },
+            {
+              "question": "¿Quién canta el original de «Bohemian Rhapsody»?",
+              "answer": "Queen"
+            },
+            {
+              "question": "¿Quién grabó el original de «Shape of You»?",
+              "answer": "Ed Sheeran"
+            },
+            {
+              "question": "¿Quién grabó el original de «bad guy»?",
+              "answer": "Billie Eilish"
+            },
+            {
+              "question": "¿Quién está en la foto? Grupo británico del álbum The Dark Side of the Moon",
+              "answer": "Pink Floyd"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

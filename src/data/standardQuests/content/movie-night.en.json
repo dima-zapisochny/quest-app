@@ -1,0 +1,398 @@
+{
+  "description": "IMDb hits: movies and series without magic or the supernatural. Posters, quotes, soundtracks, roles",
+  "rounds": [
+    {
+      "title": "Warm-up",
+      "description": "Posters, easy quotes, famous roles, and crime",
+      "categories": [
+        {
+          "title": "Posters",
+          "questions": [
+            {
+              "question": "Which film does this poster advertise?",
+              "answer": "The Shawshank Redemption"
+            },
+            {
+              "question": "Which film is on this poster?",
+              "answer": "Forrest Gump"
+            },
+            {
+              "question": "Which film is shown on this poster?",
+              "answer": "Pulp Fiction"
+            },
+            {
+              "question": "Which Christopher Nolan film is on this poster?",
+              "answer": "Inception"
+            },
+            {
+              "question": "Which Oscar-winning South Korean film is on this poster?",
+              "answer": "Parasite"
+            }
+          ]
+        },
+        {
+          "title": "Famous quotes",
+          "questions": [
+            {
+              "question": "«Life is like a box of chocolates…» — from which film?",
+              "answer": "Forrest Gump"
+            },
+            {
+              "question": "«I'm gonna make him an offer he can't refuse» — who said this?",
+              "answer": "Vito Corleone / The Godfather"
+            },
+            {
+              "question": "«Why so serious?» — who delivers this line?",
+              "answer": "The Joker (The Dark Knight)"
+            },
+            {
+              "question": "«Get busy living, or get busy dying» — from which film?",
+              "answer": "The Shawshank Redemption"
+            },
+            {
+              "question": "«What's in the box?» — from which David Fincher thriller?",
+              "answer": "Se7en"
+            }
+          ]
+        },
+        {
+          "title": "Who played?",
+          "questions": [
+            {
+              "question": "Who played Forrest Gump?",
+              "answer": "Tom Hanks"
+            },
+            {
+              "question": "Who played Jack Dawson in Titanic?",
+              "answer": "Leonardo DiCaprio"
+            },
+            {
+              "question": "Who played Bruce Wayne / Batman in The Dark Knight?",
+              "answer": "Christian Bale"
+            },
+            {
+              "question": "Who played Maximus in Gladiator?",
+              "answer": "Russell Crowe"
+            },
+            {
+              "question": "Who played Arthur Fleck / the Joker in the 2019 film?",
+              "answer": "Joaquin Phoenix"
+            }
+          ]
+        },
+        {
+          "title": "Film classics",
+          "questions": [
+            {
+              "question": "Which Coppola film is often called the greatest in cinema history?",
+              "answer": "The Godfather"
+            },
+            {
+              "question": "In which film does the main character run with a box of chocolates in his memories?",
+              "answer": "Forrest Gump"
+            },
+            {
+              "question": "Which film about a sunken ocean liner was released in 1997?",
+              "answer": "Titanic"
+            },
+            {
+              "question": "Which Ridley Scott film about a Roman general won the Oscar for Best Picture?",
+              "answer": "Gladiator"
+            },
+            {
+              "question": "Which Martin Scorsese film about the Irish mob in Boston was released in 2006?",
+              "answer": "The Departed"
+            }
+          ]
+        },
+        {
+          "title": "Crime",
+          "questions": [
+            {
+              "question": "Which Scorsese gangster film stars Ray Liotta and Robert De Niro?",
+              "answer": "Goodfellas"
+            },
+            {
+              "question": "Which thriller about the seven deadly sins did David Fincher direct?",
+              "answer": "Se7en"
+            },
+            {
+              "question": "Which Tarantino film is about two hitmen and a briefcase with unknown contents?",
+              "answer": "Pulp Fiction"
+            },
+            {
+              "question": "In which film does a cop infiltrate the mob while a mobster infiltrates the police (Boston)?",
+              "answer": "The Departed"
+            },
+            {
+              "question": "Which Tarantino film is about a former slave on a path of revenge?",
+              "answer": "Django Unchained"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Intermediate",
+      "description": "Directors, series, soundtracks, and plot details",
+      "categories": [
+        {
+          "title": "Directors",
+          "questions": [
+            {
+              "question": "Who directed Inception and Interstellar?",
+              "answer": "Christopher Nolan"
+            },
+            {
+              "question": "Who directed Pulp Fiction and Django Unchained?",
+              "answer": "Quentin Tarantino"
+            },
+            {
+              "question": "Who directed Parasite?",
+              "answer": "Bong Joon-ho"
+            },
+            {
+              "question": "Who directed The Social Network?",
+              "answer": "David Fincher"
+            },
+            {
+              "question": "Who directed Whiplash and La La Land?",
+              "answer": "Damien Chazelle"
+            }
+          ]
+        },
+        {
+          "title": "Series",
+          "questions": [
+            {
+              "question": "Which series is about a chemistry teacher who becomes a drug lord?",
+              "answer": "Breaking Bad"
+            },
+            {
+              "question": "Which British series is about a detective from Baker Street?",
+              "answer": "Sherlock"
+            },
+            {
+              "question": "Which series is about an American football coach in England?",
+              "answer": "Ted Lasso"
+            },
+            {
+              "question": "Which Korean series is about deadly games for money?",
+              "answer": "Squid Game"
+            },
+            {
+              "question": "Which Breaking Bad spin-off is about lawyer Jimmy McGill?",
+              "answer": "Better Call Saul"
+            }
+          ]
+        },
+        {
+          "title": "Soundtracks",
+          "questions": [
+            {
+              "question": "Who sings the main theme «My Heart Will Go On» for Titanic?",
+              "answer": "Céline Dion"
+            },
+            {
+              "question": "Who wrote and performed «Lose Yourself» — the Oscar-winning soundtrack for 8 Mile?",
+              "answer": "Eminem"
+            },
+            {
+              "question": "Who composed the epic soundtrack for Interstellar (including «Cornfield Chase»)?",
+              "answer": "Hans Zimmer"
+            },
+            {
+              "question": "In which Damien Chazelle musical does the duet «City of Stars» appear?",
+              "answer": "La La Land"
+            },
+            {
+              "question": "Who performs the title song «Skyfall» for the Bond film of the same name?",
+              "answer": "Adele"
+            }
+          ]
+        },
+        {
+          "title": "Plot without spoilers",
+          "questions": [
+            {
+              "question": "In which film does a man describe his life sitting on a bench with a box of chocolates?",
+              "answer": "Forrest Gump"
+            },
+            {
+              "question": "In which film do two lovers meet aboard a ship on its maiden voyage?",
+              "answer": "Titanic"
+            },
+            {
+              "question": "In which film do thieves enter dreams to steal or plant an idea?",
+              "answer": "Inception"
+            },
+            {
+              "question": "In which film do a poor and a rich family in Seoul gradually intertwine their lives?",
+              "answer": "Parasite"
+            },
+            {
+              "question": "In which film does a team of explorers fly through a wormhole seeking a new home for humanity?",
+              "answer": "Interstellar"
+            }
+          ]
+        },
+        {
+          "title": "On screen",
+          "questions": [
+            {
+              "question": "Which logo belongs to the series about Baltimore and the drug trade?",
+              "answer": "The Wire"
+            },
+            {
+              "question": "Which HBO miniseries is about a disaster at a nuclear power plant?",
+              "answer": "Chernobyl"
+            },
+            {
+              "question": "Which Spielberg war film opens with the Normandy landing?",
+              "answer": "Saving Private Ryan"
+            },
+            {
+              "question": "Which film about the creation of Facebook stars Jesse Eisenberg?",
+              "answer": "The Social Network"
+            },
+            {
+              "question": "Which post-apocalyptic George Miller action film has Charlize Theron behind the wheel?",
+              "answer": "Mad Max: Fury Road"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Experts",
+      "description": "Years, supporting roles, trivia, and deep details",
+      "categories": [
+        {
+          "title": "Year & awards",
+          "questions": [
+            {
+              "question": "In what year was James Cameron's Titanic released?",
+              "answer": "1997"
+            },
+            {
+              "question": "In what year was The Dark Knight released?",
+              "answer": "2008"
+            },
+            {
+              "question": "In what year did Parasite win the Oscar for Best Picture?",
+              "answer": "2020 (ceremony for 2019)"
+            },
+            {
+              "question": "In what year was Nolan's biographical Oppenheimer released?",
+              "answer": "2023"
+            },
+            {
+              "question": "How many Oscars did Titanic win?",
+              "answer": "11"
+            }
+          ]
+        },
+        {
+          "title": "Supporting roles",
+          "questions": [
+            {
+              "question": "Who played Lieutenant Dan in Forrest Gump?",
+              "answer": "Gary Sinise"
+            },
+            {
+              "question": "Who played Red in The Shawshank Redemption?",
+              "answer": "Morgan Freeman"
+            },
+            {
+              "question": "Who played Harvey Dent in The Dark Knight?",
+              "answer": "Aaron Eckhart"
+            },
+            {
+              "question": "Who played Dr. King Schultz in Django Unchained?",
+              "answer": "Christoph Waltz"
+            },
+            {
+              "question": "Who played Terence Fletcher — the ruthless jazz teacher in Whiplash?",
+              "answer": "J.K. Simmons"
+            }
+          ]
+        },
+        {
+          "title": "Details & trivia",
+          "questions": [
+            {
+              "question": "What nickname did Walter White have in Breaking Bad?",
+              "answer": "Heisenberg"
+            },
+            {
+              "question": "Which color dominates Arthur Fleck's costume on the Joker (2019) poster?",
+              "answer": "Red"
+            },
+            {
+              "question": "What is the name of the prison Andy Dufresne escapes from?",
+              "answer": "Shawshank"
+            },
+            {
+              "question": "What totem does Cobb use in Inception to check reality?",
+              "answer": "Spinning top"
+            },
+            {
+              "question": "Under which street brand / color is White's lab product known in Breaking Bad?",
+              "answer": "Blue Sky / blue meth"
+            }
+          ]
+        },
+        {
+          "title": "Episodes & series",
+          "questions": [
+            {
+              "question": "What is the main character of Better Call Saul called before changing his name?",
+              "answer": "Jimmy McGill"
+            },
+            {
+              "question": "Who plays Sherlock Holmes in the BBC's Sherlock?",
+              "answer": "Benedict Cumberbatch"
+            },
+            {
+              "question": "What is the coach from Ted Lasso called (character's full name)?",
+              "answer": "Ted Lasso"
+            },
+            {
+              "question": "Which player / costume number is often associated with Squid Game's main character (Gi-hun)?",
+              "answer": "456"
+            },
+            {
+              "question": "Who played Valery Legasov in the Chernobyl miniseries?",
+              "answer": "Jared Harris"
+            }
+          ]
+        },
+        {
+          "title": "Deep cut",
+          "questions": [
+            {
+              "question": "Which film about a journey through time and space stars Matthew McConaughey?",
+              "answer": "Interstellar"
+            },
+            {
+              "question": "What is the Joker's real name as Arthur Fleck? (character's name)",
+              "answer": "Arthur Fleck"
+            },
+            {
+              "question": "In which city is the main action of The Wire set?",
+              "answer": "Baltimore"
+            },
+            {
+              "question": "Which character in The Godfather says the line about an offer you can't refuse?",
+              "answer": "Vito Corleone (Don Corleone)"
+            },
+            {
+              "question": "Which role did Cillian Murphy play in Oppenheimer?",
+              "answer": "J. Robert Oppenheimer"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,398 @@
+{
+  "description": "Хіти IMDb: кіно й серіали без магії й надприродного. Постери, цитати, саундтреки, ролі",
+  "rounds": [
+    {
+      "title": "Розігрів",
+      "description": "Постери, легкі цитати, знамениті ролі та кримінал",
+      "categories": [
+        {
+          "title": "Постери",
+          "questions": [
+            {
+              "question": "Який фільм рекламує цей постер?",
+              "answer": "The Shawshank Redemption"
+            },
+            {
+              "question": "Який фільм на цьому постері?",
+              "answer": "Forrest Gump"
+            },
+            {
+              "question": "Який фільм зображено на цьому постері?",
+              "answer": "Pulp Fiction"
+            },
+            {
+              "question": "Який фільм Крістофера Нолана на цьому постері?",
+              "answer": "Inception"
+            },
+            {
+              "question": "Який південнокорейський оскароносний фільм на цьому постері?",
+              "answer": "Parasite"
+            }
+          ]
+        },
+        {
+          "title": "Відомі цитати",
+          "questions": [
+            {
+              "question": "«Life is like a box of chocolates…» — з якого фільму?",
+              "answer": "Forrest Gump"
+            },
+            {
+              "question": "«I'm gonna make him an offer he can't refuse» — хто це сказав?",
+              "answer": "Vito Corleone / The Godfather"
+            },
+            {
+              "question": "«Why so serious?» — хто вимовляє цю фразу?",
+              "answer": "The Joker (The Dark Knight)"
+            },
+            {
+              "question": "«Get busy living, or get busy dying» — з якого фільму?",
+              "answer": "The Shawshank Redemption"
+            },
+            {
+              "question": "«What's in the box?» — з якого трилера Девіда Фінчера?",
+              "answer": "Se7en"
+            }
+          ]
+        },
+        {
+          "title": "Хто зіграв?",
+          "questions": [
+            {
+              "question": "Хто зіграв Форреста Гампа?",
+              "answer": "Tom Hanks"
+            },
+            {
+              "question": "Хто зіграв Джека Доусона в «Титаніку»?",
+              "answer": "Leonardo DiCaprio"
+            },
+            {
+              "question": "Хто зіграв Брюса Вейна / Бетмена в «The Dark Knight»?",
+              "answer": "Christian Bale"
+            },
+            {
+              "question": "Хто зіграв Максимуса у «Гладіаторі»?",
+              "answer": "Russell Crowe"
+            },
+            {
+              "question": "Хто зіграв Артура Флека / Джокера у фільмі 2019 року?",
+              "answer": "Joaquin Phoenix"
+            }
+          ]
+        },
+        {
+          "title": "Кінокласика",
+          "questions": [
+            {
+              "question": "Який фільм Копполи часто називають найкращим у історії кіно?",
+              "answer": "The Godfather"
+            },
+            {
+              "question": "У якому фільмі головний герой бігає з коробкою шоколадних цукерок у спогадах?",
+              "answer": "Forrest Gump"
+            },
+            {
+              "question": "Який фільм про затонулий океанський лайнер вийшов у 1997?",
+              "answer": "Titanic"
+            },
+            {
+              "question": "Який фільм Рідлі Скотта про римського генерала здобув «Оскар» за найкращий фільм?",
+              "answer": "Gladiator"
+            },
+            {
+              "question": "Який фільм Мартіна Скорсезе про ірландську мафію в Бостоні вийшов у 2006?",
+              "answer": "The Departed"
+            }
+          ]
+        },
+        {
+          "title": "Кримінал",
+          "questions": [
+            {
+              "question": "Який гангстерський фільм Скорсезе з Рей Ліоттою та Робертом Де Ніро?",
+              "answer": "Goodfellas"
+            },
+            {
+              "question": "Який трилер про сім смертних гріхів зняв Девід Фінчер?",
+              "answer": "Se7en"
+            },
+            {
+              "question": "Який фільм Тарантіно про двох кілерів і валізу з невідомим вмістом?",
+              "answer": "Pulp Fiction"
+            },
+            {
+              "question": "У якому фільмі поліцейський впроваджується в мафію, а мафіозі — у поліцію (Бостон)?",
+              "answer": "The Departed"
+            },
+            {
+              "question": "Який фільм Тарантіно про колишнього раба на шляху помсти?",
+              "answer": "Django Unchained"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Середній рівень",
+      "description": "Режисери, серіали, саундтреки та сюжетні деталі",
+      "categories": [
+        {
+          "title": "Режисери",
+          "questions": [
+            {
+              "question": "Хто режисер «Inception» та «Interstellar»?",
+              "answer": "Christopher Nolan"
+            },
+            {
+              "question": "Хто режисер «Pulp Fiction» і «Django Unchained»?",
+              "answer": "Quentin Tarantino"
+            },
+            {
+              "question": "Хто режисер «Parasite»?",
+              "answer": "Bong Joon-ho"
+            },
+            {
+              "question": "Хто режисер «The Social Network»?",
+              "answer": "David Fincher"
+            },
+            {
+              "question": "Хто режисер «Whiplash» і «La La Land»?",
+              "answer": "Damien Chazelle"
+            }
+          ]
+        },
+        {
+          "title": "Серіали",
+          "questions": [
+            {
+              "question": "Який серіал про вчителя хімії, що став наркобароном?",
+              "answer": "Breaking Bad"
+            },
+            {
+              "question": "Який британський серіал про детектива з Бейкер-стріт?",
+              "answer": "Sherlock"
+            },
+            {
+              "question": "Який серіал про американського тренера футбольної команди в Англії?",
+              "answer": "Ted Lasso"
+            },
+            {
+              "question": "Який корейський серіал про смертельні ігри за гроші?",
+              "answer": "Squid Game"
+            },
+            {
+              "question": "Який спін-офф «Breaking Bad» про адвоката Джиммі Макгілла?",
+              "answer": "Better Call Saul"
+            }
+          ]
+        },
+        {
+          "title": "Саундтреки",
+          "questions": [
+            {
+              "question": "Хто співає головну тему «My Heart Will Go On» до «Титаніка»?",
+              "answer": "Céline Dion"
+            },
+            {
+              "question": "Хто написав і виконав «Lose Yourself» — оскароносний саундтрек до «8 Mile»?",
+              "answer": "Eminem"
+            },
+            {
+              "question": "Хто композитор епічного саундтреку до «Interstellar» (зокрема «Cornfield Chase»)?",
+              "answer": "Hans Zimmer"
+            },
+            {
+              "question": "У якому мюзиклі Демієна Шазелла звучить дует «City of Stars»?",
+              "answer": "La La Land"
+            },
+            {
+              "question": "Хто виконує титульну пісню «Skyfall» до однойменного фільму про Бонда?",
+              "answer": "Adele"
+            }
+          ]
+        },
+        {
+          "title": "Сюжет без спойлерів",
+          "questions": [
+            {
+              "question": "У якому фільмі чоловік описує своє життя, сидячи на лавці з коробкою цукерок?",
+              "answer": "Forrest Gump"
+            },
+            {
+              "question": "У якому фільмі двоє закоханих зустрічаються на борту корабля, що йде в перший рейс?",
+              "answer": "Titanic"
+            },
+            {
+              "question": "У якому фільмі злодії проникають у сни, щоб викрасти або посадити ідею?",
+              "answer": "Inception"
+            },
+            {
+              "question": "У якому фільмі бідна й багата сім'ї в Сеулі поступово переплітають свої життя?",
+              "answer": "Parasite"
+            },
+            {
+              "question": "У якому фільмі група дослідників летить крізь червоточину, шукаючи новий дім для людства?",
+              "answer": "Interstellar"
+            }
+          ]
+        },
+        {
+          "title": "На екрані",
+          "questions": [
+            {
+              "question": "Який логотип належить серіалу про Балтимор і наркоторгівлю?",
+              "answer": "The Wire"
+            },
+            {
+              "question": "Який мінісеріал HBO про катастрофу на атомній станції?",
+              "answer": "Chernobyl"
+            },
+            {
+              "question": "Який воєнний фільм Спілберга відкривається висадкою в Нормандії?",
+              "answer": "Saving Private Ryan"
+            },
+            {
+              "question": "Який фільм про створення Facebook з Джессі Айзенбергом?",
+              "answer": "The Social Network"
+            },
+            {
+              "question": "Який постапокаліптичний екшен Джорджа Міллера з Шарліз Терон за кермом?",
+              "answer": "Mad Max: Fury Road"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Експерти",
+      "description": "Роки, другий план, trivia та глибокі деталі",
+      "categories": [
+        {
+          "title": "Рік і нагороди",
+          "questions": [
+            {
+              "question": "У якому році вийшов «Titanic» Джеймса Кемерона?",
+              "answer": "1997"
+            },
+            {
+              "question": "У якому році вийшов «The Dark Knight»?",
+              "answer": "2008"
+            },
+            {
+              "question": "У якому році «Parasite» взяв «Оскар» за найкращий фільм?",
+              "answer": "2020 (церемонія за 2019)"
+            },
+            {
+              "question": "У якому році вийшов біографічний «Oppenheimer» Нолана?",
+              "answer": "2023"
+            },
+            {
+              "question": "Скільки премій «Оскар» отримав «Titanic»?",
+              "answer": "11"
+            }
+          ]
+        },
+        {
+          "title": "Другий план",
+          "questions": [
+            {
+              "question": "Хто зіграв лейтенанта Дена в «Forrest Gump»?",
+              "answer": "Gary Sinise"
+            },
+            {
+              "question": "Хто зіграв червоного (Red) у «The Shawshank Redemption»?",
+              "answer": "Morgan Freeman"
+            },
+            {
+              "question": "Хто зіграв Гарві Дента в «The Dark Knight»?",
+              "answer": "Aaron Eckhart"
+            },
+            {
+              "question": "Хто зіграв Кінґа Шульца в «Django Unchained»?",
+              "answer": "Christoph Waltz"
+            },
+            {
+              "question": "Хто зіграв Терренса Флетчера — жорстокого викладача джазу у «Whiplash»?",
+              "answer": "J.K. Simmons"
+            }
+          ]
+        },
+        {
+          "title": "Деталі й trivia",
+          "questions": [
+            {
+              "question": "Яке прізвисько мав Волтер Вайт у «Breaking Bad»?",
+              "answer": "Heisenberg"
+            },
+            {
+              "question": "Який колір переважає на костюмі Артура Флека на постері «Joker» (2019)?",
+              "answer": "Червоний / red"
+            },
+            {
+              "question": "Як називається в'язниця, з якої тікає Енді Дюфрейн?",
+              "answer": "Shawshank"
+            },
+            {
+              "question": "Який тотем використовує Кобб у «Inception», щоб перевірити реальність?",
+              "answer": "Дзиґа / spinning top"
+            },
+            {
+              "question": "Під яким вуличним брендом / кольором відомий продукт лабораторії Вайта в «Breaking Bad»?",
+              "answer": "Blue Sky / blue meth"
+            }
+          ]
+        },
+        {
+          "title": "Епізоди й серіали",
+          "questions": [
+            {
+              "question": "Як звати головного героя «Better Call Saul» до зміни імені?",
+              "answer": "Jimmy McGill"
+            },
+            {
+              "question": "Хто грає Шерлока Холмса в BBC «Sherlock»?",
+              "answer": "Benedict Cumberbatch"
+            },
+            {
+              "question": "Як звати тренера з «Ted Lasso» (повне ім'я персонажа)?",
+              "answer": "Ted Lasso"
+            },
+            {
+              "question": "Який номер гравця / костюма часто асоціюють із головним героєм «Squid Game» (Gi-hun)?",
+              "answer": "456"
+            },
+            {
+              "question": "Хто зіграв Валерію Легасову в мінісеріалі «Chernobyl»?",
+              "answer": "Jared Harris"
+            }
+          ]
+        },
+        {
+          "title": "Глибокий кат",
+          "questions": [
+            {
+              "question": "Який фільм про мандрівку крізь час і космос з Меттью Макконагі?",
+              "answer": "Interstellar"
+            },
+            {
+              "question": "Яке справжнє ім'я Джокера Артура Флека? (ім'я персонажа)",
+              "answer": "Arthur Fleck"
+            },
+            {
+              "question": "У якому місті розгортається основна дія «The Wire»?",
+              "answer": "Baltimore"
+            },
+            {
+              "question": "Який персонаж у «The Godfather» каже фразу про пропозицію, від якої не відмовишся?",
+              "answer": "Vito Corleone (Don Corleone)"
+            },
+            {
+              "question": "Яку роль у «Oppenheimer» зіграв Кілліан Мерфі?",
+              "answer": "J. Robert Oppenheimer"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

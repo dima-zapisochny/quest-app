@@ -1,3 +1,9 @@
-export { buildStandardQuest, q } from './buildQuest'
-export { movieNightQuest } from './movieNight'
-export { hitParadeQuest } from './hitParade'
+export {
+  getStandardQuest,
+  getAllStandardQuests,
+  localizeExistingStandardQuest,
+  slugFromStandardTitle,
+  STANDARD_SLUGS,
+  STANDARD_TITLES,
+  type StandardSlug
+} from './resolve'

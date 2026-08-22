@@ -50,6 +50,8 @@ export type Quest = {
   description?: string
   /** Иконка на карточке квеста (emoji). */
   emoji?: string
+  /** Стабільний slug стандартного квесту (Movie Night / Hit Parade). */
+  standardSlug?: string
   /** Відсутній або порожній — квест завантажений лише для списку; повний квест підвантажується через loadQuestFull */
   rounds?: Round[]
   /** Лёгкие счётчики из quest_list_view (#16); есть только у элементов списка, не у полного квеста */
