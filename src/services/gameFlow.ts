@@ -121,3 +121,33 @@ export function applyTimeoutResponderFallback(session: GameSession, failedPlayer
     if (p.status !== 'locked' && p.id !== failedPlayerId) p.status = 'idle'
   })
 }
+
+/**
+ * Після таймауту/RPC без міграції 013: відкрити питання для повторного buzz
+ * (очистити buzzedOrder, зняти timerPaused, queued→idle). Повертає true, якщо щось змінили.
+ */
+export function reopenQuestionForRebuzz(session: GameSession): boolean {
+  const aq = session.activeQuestion
+  if (!aq || aq.showAnswer || aq.currentResponderId) return false
+
+  let changed = false
+  if (aq.buzzedOrder.length > 0) {
+    aq.buzzedOrder = []
+    changed = true
+  }
+  if (aq.timerPaused) {
+    aq.timerPaused = false
+    changed = true
+  }
+  if (aq.responderStartedAt != null) {
+    aq.responderStartedAt = null
+    changed = true
+  }
+  for (const p of session.players) {
+    if (p.status === 'queued' || p.status === 'buzzed') {
+      p.status = 'idle'
+      changed = true
+    }
+  }
+  return changed
+}
