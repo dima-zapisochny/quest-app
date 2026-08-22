@@ -31,6 +31,11 @@ const router = createRouter({
       component: () => import('@/views/SeoHitParadeView.vue')
     },
     {
+      path: '/about',
+      name: 'seo-about',
+      component: () => import('@/views/SeoAboutView.vue')
+    },
+    {
       path: '/quest/:questId',
       name: 'quest-root',
       component: QuestView,
@@ -75,6 +80,11 @@ const router = createRouter({
       name: 'admin-quest',
       component: AdminQuestView,
       props: true
+    },
+    {
+      path: '/admin/stats',
+      name: 'admin-stats',
+      component: () => import('@/views/AdminStatsView.vue')
     }
   ]
 })
@@ -150,7 +160,7 @@ router.beforeEach(async (to, _from, next) => {
     // Если активной сессии нет, но мы на странице с сессией, продолжаем проверку ниже
   } else if (activeSession) {
     // Публічні SEO-сторінки не форсимо в активну сесію
-    const publicSeo = ['seo-howto', 'seo-movie-night', 'seo-hit-parade']
+    const publicSeo = ['seo-howto', 'seo-movie-night', 'seo-hit-parade', 'seo-about', 'admin-stats']
     if (publicSeo.includes(to.name as string)) {
       next()
       return
@@ -258,8 +268,15 @@ router.beforeEach(async (to, _from, next) => {
     return
   }
   
-  // Если дошли сюда, значит активной сессии нет или мы уже на правильной странице
+  // Якщо дошли сюда, значит активной сессии нет или мы уже на правильной странице
   next()
+})
+
+router.afterEach(to => {
+  // Лінивий імпорт, щоб не тягнути analytics у критичний шлях guard'ів
+  void import('@/services/api/analytics').then(({ trackPageView }) => {
+    trackPageView(to.fullPath)
+  })
 })
 
 export default router

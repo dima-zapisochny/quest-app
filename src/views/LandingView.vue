@@ -6,7 +6,7 @@
     </div>
   </div>
   <div v-else-if="!shouldRedirect" class="landing">
-    <button type="button" class="landing-howto" @click="showHowTo = true">
+    <button type="button" class="landing-howto" data-track="cta:howto" @click="showHowTo = true">
       <span class="landing-howto__icon" aria-hidden="true">?</span>
       <span class="landing-howto__label">{{ t('howto.title') }}</span>
     </button>
@@ -54,6 +54,7 @@
         <button
           class="primary"
           type="button"
+          data-track="cta:create-game"
           :disabled="isMobileViewport"
           :title="isMobileViewport ? t('landing.createGameMobileHint') : undefined"
           @click="handleCreateGame"
@@ -72,7 +73,7 @@
             :placeholder="t('landing.codePlaceholder')"
             class="join-input"
           />
-          <button class="secondary" type="button" @click="handleJoinGame">
+          <button class="secondary" type="button" data-track="cta:join-game" @click="handleJoinGame">
             <span class="btn-glow"></span>
             <span class="btn-text">{{ t('landing.join') }}</span>
           </button>
@@ -86,6 +87,7 @@
       <RouterLink to="/how-to-play">{{ t('seo.linkHowTo') }}</RouterLink>
       <RouterLink to="/quests/movie-night">{{ t('seo.linkMovieNight') }}</RouterLink>
       <RouterLink to="/quests/hit-parade">{{ t('seo.linkHitParade') }}</RouterLink>
+      <RouterLink to="/about">{{ t('seo.linkAbout') }}</RouterLink>
     </nav>
   </div>
 </template>

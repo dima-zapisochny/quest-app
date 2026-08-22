@@ -18,12 +18,13 @@
       </ul>
 
       <p class="seo-page__cta-wrap">
-        <RouterLink class="seo-page__cta" to="/">{{ t('seo.linkPlay') }}</RouterLink>
+        <RouterLink class="seo-page__cta" to="/" data-track="cta:play-hit-parade">{{ t('seo.linkPlay') }}</RouterLink>
       </p>
 
       <nav class="seo-page__nav" :aria-label="t('seo.relatedNav')">
         <RouterLink to="/how-to-play">{{ t('seo.linkHowTo') }}</RouterLink>
         <RouterLink to="/quests/movie-night">{{ t('seo.linkMovieNight') }}</RouterLink>
+        <RouterLink to="/about">{{ t('seo.linkAbout') }}</RouterLink>
       </nav>
     </main>
   </div>

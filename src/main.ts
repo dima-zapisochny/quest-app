@@ -30,6 +30,12 @@ app.use(pinia)
 app.use(router)
 app.use(i18n)
 
+if (typeof window !== 'undefined') {
+  void import('@/services/api/analytics').then(({ installClickTracking }) => {
+    installClickTracking()
+  })
+}
+
 app.mount('#app')
 
 

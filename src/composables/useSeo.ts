@@ -57,7 +57,7 @@ function clearHreflang() {
 
 /** Оновлює title/description/OG/Twitter/hreflang/JSON-LD для SEO-сторінки. */
 export function useSeo(pageId: SeoPageId) {
-  const { locale } = useI18n()
+  const { locale, t } = useI18n()
 
   function apply() {
     const loc = locale.value as AppLocale
@@ -131,11 +131,34 @@ export function useSeo(pageId: SeoPageId) {
             position: 3,
             name: SEO_COPY['hit-parade'][loc].title,
             url: `${site}${SEO_PATHS['hit-parade']}`
+          },
+          {
+            '@type': 'ListItem',
+            position: 4,
+            name: SEO_COPY.about[loc].title,
+            url: `${site}${SEO_PATHS.about}`
           }
         ]
       })
     } else {
       document.getElementById('seo-jsonld-sitelinks')?.remove()
+    }
+
+    if (pageId === 'about') {
+      upsertJsonLd('seo-jsonld-faq', {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: [1, 2, 3, 4, 5].map(n => ({
+          '@type': 'Question',
+          name: t(`about.faq${n}Q`),
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: t(`about.faq${n}A`)
+          }
+        }))
+      })
+    } else {
+      document.getElementById('seo-jsonld-faq')?.remove()
     }
   }
 
