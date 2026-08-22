@@ -266,9 +266,12 @@ function updateQuestGridLayout() {
     const { rowH, rowGap } = measureRowStride(grid)
     if (!rowH) return
 
+    const cardCount = grid.querySelectorAll('.quest-card').length
+    const neededRows = Math.max(1, Math.ceil(cardCount / cols))
+
     const availH = library.clientHeight
     let rows = Math.floor((availH - padTop + rowGap) / (rowH + rowGap))
-    rows = Math.max(1, Math.min(3, rows))
+    rows = Math.max(1, Math.min(3, rows, neededRows))
 
     // Висота рівно до межі наступного рядка — без «торчащих» карток
     gridMaxHeight.value = `${Math.floor(padTop + rows * rowH + rows * rowGap) - 4}px`
@@ -586,7 +589,7 @@ async function onImportQuestFile(event: Event) {
   flex: 1;
   min-height: 0;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   overflow: visible;
   padding-bottom: 0.75rem;
