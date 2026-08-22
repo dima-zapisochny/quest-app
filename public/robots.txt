@@ -9,4 +9,4 @@ Disallow: /admin/
 Disallow: /session/
 Disallow: /quest/
 
-Sitemap: https://quizquest.app/sitemap.xml
+Sitemap: https://quizzes.website/sitemap.xml

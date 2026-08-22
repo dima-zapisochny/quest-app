@@ -2,7 +2,7 @@
  * Статичні SEO-оболонки для публічних URL (пререндер після vite build).
  * Мова за замовчуванням — uk (як у index.html); клієнт підхопить i18n після гідрації.
  */
-export const SITE_URL = (process.env.VITE_PUBLIC_SITE_URL || 'https://quizquest.app').replace(/\/$/, '')
+export const SITE_URL = (process.env.VITE_PUBLIC_SITE_URL || 'https://quizzes.website').replace(/\/$/, '')
 
 export const PUBLIC_SEO_PAGES = [
   {
