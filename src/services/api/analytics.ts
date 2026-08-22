@@ -1,6 +1,9 @@
 import { supabase, isSupabaseConfigured } from '@/config/supabase'
 import { i18n } from '@/i18n'
 
+/** Календарні дні на діаграмі та в RPC — по Києву, не UTC. */
+export const SITE_ANALYTICS_TIMEZONE = 'Europe/Kyiv'
+
 const SESSION_KEY = 'quest-app:analytics-sid'
 const VISITOR_KEY = 'quest-app:analytics-vid'
 const LAST_VIEW_KEY = 'quest-app:analytics-last-view'
@@ -226,6 +229,28 @@ export function trackClick(name: string, path?: string, meta?: Record<string, un
     path ?? (typeof window !== 'undefined' ? window.location.pathname : '/')
   if (shouldSkipTracking(current)) return
   void insertEvent('click', current, name || 'click', meta)
+}
+
+/** Ключі YYYY-MM-DD для 7 календарних днів (сьогодні + 6 назад) у SITE_ANALYTICS_TIMEZONE. */
+export function siteAnalyticsLast7DayKeys(): string[] {
+  const tz = SITE_ANALYTICS_TIMEZONE
+  const now = new Date()
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: tz,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  }).formatToParts(now)
+  const year = Number(parts.find(p => p.type === 'year')!.value)
+  const month = Number(parts.find(p => p.type === 'month')!.value)
+  const day = Number(parts.find(p => p.type === 'day')!.value)
+  const fmt = new Intl.DateTimeFormat('en-CA', { timeZone: tz })
+  const days: string[] = []
+  for (let i = 6; i >= 0; i--) {
+    const noon = new Date(Date.UTC(year, month - 1, day - i, 12, 0, 0))
+    days.push(fmt.format(noon))
+  }
+  return days
 }
 
 export async function fetchSiteAnalytics(token: string): Promise<SiteAnalyticsSummary> {

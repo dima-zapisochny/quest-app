@@ -227,6 +227,7 @@ import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 import {
   fetchSiteAnalytics,
+  siteAnalyticsLast7DayKeys,
   type SiteAnalyticsSummary
 } from '@/services/api/analytics'
 
@@ -303,19 +304,9 @@ function countryLabel(code: string) {
   }
 }
 
-function last7Days(): string[] {
-  const days: string[] = []
-  const now = new Date()
-  for (let i = 6; i >= 0; i--) {
-    const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - i))
-    days.push(d.toISOString().slice(0, 10))
-  }
-  return days
-}
-
 const weekSeries = computed(() => {
   const map = new Map((data.value?.daily ?? []).map(d => [d.day, d]))
-  return last7Days().map(day => {
+  return siteAnalyticsLast7DayKeys().map(day => {
     const row = map.get(day)
     return {
       day,
