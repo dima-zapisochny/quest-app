@@ -326,7 +326,7 @@
     "loading": "Loading…",
     "refresh": "Refresh",
     "privateHint": "noindex page · keep the URL to yourself",
-    "error": "Invalid token or analytics unavailable. Check migration 009 and UPDATE site_analytics_secrets.",
+    "error": "Invalid token or analytics unavailable. Check migrations 009–010 and UPDATE site_analytics_secrets.",
     "kpiViews7d": "Views / 7 days",
     "kpiSessions7d": "Sessions / 7 days",
     "kpiClicks7d": "Clicks / 7 days",
@@ -337,7 +337,10 @@
     "topPagesLead": "Last 30 days",
     "topClicks": "Where people click",
     "topClicksLead": "CTAs and nav over 30 days",
+    "topCountries": "Countries",
+    "topRegions": "Regions",
     "empty": "No data yet — browse the site as a normal visitor.",
+    "emptyGeo": "Geo data will appear after new visits (migration 010 required).",
     "refreshed": "Updated",
     "lastUpdated": "Last updated:"
   }

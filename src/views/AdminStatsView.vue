@@ -1,8 +1,10 @@
 <template>
   <div class="stats-page" data-analytics-ignore>
     <main class="stats-page__main">
-      <h1 class="stats-page__title">Site analytics</h1>
-      <p v-if="!unlocked" class="stats-page__lead">{{ tUk('stats.lead') }}</p>
+      <header class="stats-page__header">
+        <h1 class="stats-page__title">Site analytics</h1>
+        <p v-if="!unlocked" class="stats-page__lead">{{ tUk('stats.lead') }}</p>
+      </header>
 
       <form v-if="!unlocked" class="stats-gate" @submit.prevent="unlock">
         <label class="stats-gate__label" for="stats-token">{{ tUk('stats.tokenLabel') }}</label>
@@ -21,8 +23,7 @@
         <p v-if="error" class="stats-gate__error">{{ error }}</p>
       </form>
 
-      <template v-else>
-        <div class="stats-dashboard">
+      <div v-else class="stats-dashboard">
         <div class="stats-toolbar">
           <button type="button" class="stats-toolbar__btn" :disabled="loading" @click="refresh">
             {{ loading ? tUk('stats.loading') : tUk('stats.refresh') }}
@@ -144,7 +145,7 @@
         </section>
 
         <div class="stats-grids">
-          <section class="stats-panel stats-panel--rank">
+          <section class="stats-panel">
             <header class="stats-panel__head">
               <h2>{{ tUk('stats.topPages') }}</h2>
             </header>
@@ -160,7 +161,7 @@
             <p v-else class="stats-empty">{{ tUk('stats.empty') }}</p>
           </section>
 
-          <section class="stats-panel stats-panel--rank">
+          <section class="stats-panel">
             <header class="stats-panel__head">
               <h2>{{ tUk('stats.topClicks') }}</h2>
             </header>
@@ -178,9 +179,45 @@
             </ul>
             <p v-else class="stats-empty">{{ tUk('stats.empty') }}</p>
           </section>
+
+          <section class="stats-panel">
+            <header class="stats-panel__head">
+              <h2>{{ tUk('stats.topCountries') }}</h2>
+            </header>
+            <ul v-if="topCountries.length" class="stats-rank stats-rank--geo">
+              <li v-for="row in topCountries" :key="row.country_code">
+                <span class="stats-rank__flag" aria-hidden="true">{{ countryFlag(row.country_code) }}</span>
+                <span class="stats-rank__name">{{ countryLabel(row.country_code) }}</span>
+                <span class="stats-rank__bar-wrap">
+                  <span class="stats-rank__bar stats-rank__bar--geo" :style="{ width: countryBarWidth(row.views) }" />
+                </span>
+                <span class="stats-rank__num">{{ formatNum(row.views) }}</span>
+              </li>
+            </ul>
+            <p v-else class="stats-empty">{{ tUk('stats.emptyGeo') }}</p>
+          </section>
+
+          <section class="stats-panel">
+            <header class="stats-panel__head">
+              <h2>{{ tUk('stats.topRegions') }}</h2>
+            </header>
+            <ul v-if="topRegions.length" class="stats-rank stats-rank--geo">
+              <li v-for="row in topRegions" :key="`${row.country_code}-${row.region}`">
+                <span class="stats-rank__flag" aria-hidden="true">{{ countryFlag(row.country_code) }}</span>
+                <span class="stats-rank__name">
+                  <span class="stats-rank__region">{{ row.region }}</span>
+                  <span class="stats-rank__country-soft">{{ countryLabel(row.country_code) }}</span>
+                </span>
+                <span class="stats-rank__bar-wrap">
+                  <span class="stats-rank__bar stats-rank__bar--geo" :style="{ width: regionBarWidth(row.views) }" />
+                </span>
+                <span class="stats-rank__num">{{ formatNum(row.views) }}</span>
+              </li>
+            </ul>
+            <p v-else class="stats-empty">{{ tUk('stats.emptyGeo') }}</p>
+          </section>
         </div>
-        </div>
-      </template>
+      </div>
     </main>
   </div>
 </template>
@@ -203,6 +240,9 @@ function tUk(key: string) {
 }
 
 const TOKEN_STORAGE = 'quest-app:analytics-token'
+const countryNames = typeof Intl !== 'undefined' && 'DisplayNames' in Intl
+  ? new Intl.DisplayNames(['uk'], { type: 'region' })
+  : null
 
 const tokenInput = ref('')
 const unlocked = ref(false)
@@ -213,12 +253,12 @@ const lastUpdatedAt = ref<Date | null>(null)
 const refreshState = ref<'idle' | 'saving' | 'saved'>('idle')
 let refreshHideTimer: ReturnType<typeof setTimeout> | null = null
 
-const chartW = 640
-const chartH = 168
+const chartW = 720
+const chartH = 200
 const padL = 28
 const padR = 16
-const padT = 22
-const padB = 30
+const padT = 24
+const padB = 32
 
 function applyNoIndex() {
   document.title = 'Site analytics · Quiz Quest'
@@ -243,6 +283,25 @@ function formatUpdatedAt(d: Date) {
     hour: '2-digit',
     minute: '2-digit'
   }).format(d)
+}
+
+function countryFlag(code: string) {
+  const cc = (code || '').toUpperCase()
+  if (!/^[A-Z]{2}$/.test(cc)) return '🌐'
+  const base = 0x1f1e6
+  return String.fromCodePoint(
+    ...[...cc].map(ch => base + ch.charCodeAt(0) - 65)
+  )
+}
+
+function countryLabel(code: string) {
+  const cc = (code || '').toUpperCase()
+  if (!cc) return '—'
+  try {
+    return countryNames?.of(cc) || cc
+  } catch {
+    return cc
+  }
 }
 
 function last7Days(): string[] {
@@ -273,7 +332,7 @@ const maxViews = computed(() => Math.max(1, ...weekSeries.value.map(d => d.views
 const bars = computed(() => {
   const n = weekSeries.value.length
   const inner = chartW - padL - padR
-  const gap = 12
+  const gap = 14
   const w = (inner - gap * (n - 1)) / n
   const plotH = chartH - padT - padB
   return weekSeries.value.map((d, i) => {
@@ -311,8 +370,10 @@ const gridLines = computed(() => {
   return [0, 0.5, 1].map(t => padT + plotH * (1 - t))
 })
 
-const topPaths = computed(() => (data.value?.top_paths ?? []).slice(0, 5))
-const topClicks = computed(() => (data.value?.top_clicks ?? []).slice(0, 5))
+const topPaths = computed(() => (data.value?.top_paths ?? []).slice(0, 8))
+const topClicks = computed(() => (data.value?.top_clicks ?? []).slice(0, 8))
+const topCountries = computed(() => (data.value?.top_countries ?? []).slice(0, 8))
+const topRegions = computed(() => (data.value?.top_regions ?? []).slice(0, 8))
 
 function pathBarWidth(views: number) {
   const max = Math.max(1, ...topPaths.value.map(p => p.views))
@@ -322,6 +383,16 @@ function pathBarWidth(views: number) {
 function clickBarWidth(clicks: number) {
   const max = Math.max(1, ...topClicks.value.map(p => p.clicks))
   return `${Math.round((clicks / max) * 100)}%`
+}
+
+function countryBarWidth(views: number) {
+  const max = Math.max(1, ...topCountries.value.map(p => p.views))
+  return `${Math.round((views / max) * 100)}%`
+}
+
+function regionBarWidth(views: number) {
+  const max = Math.max(1, ...topRegions.value.map(p => p.views))
+  return `${Math.round((views / max) * 100)}%`
 }
 
 async function load(token: string, fromRefresh = false) {
@@ -390,16 +461,13 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .stats-page {
-  height: 100dvh;
-  max-height: 100dvh;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
+  min-height: 100dvh;
   box-sizing: border-box;
   font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   background:
-    radial-gradient(ellipse 70% 45% at 20% -10%, rgb(var(--c-accent-sky) / 0.18), transparent),
-    radial-gradient(ellipse 50% 40% at 90% 10%, rgb(var(--c-accent) / 0.1), transparent),
+    radial-gradient(ellipse 70% 45% at 18% -8%, rgb(var(--c-accent-sky) / 0.2), transparent 55%),
+    radial-gradient(ellipse 55% 40% at 92% 8%, rgb(var(--c-accent) / 0.12), transparent 50%),
+    radial-gradient(ellipse 40% 30% at 70% 100%, rgb(var(--c-violet) / 0.08), transparent 45%),
     rgb(var(--c-bg-deep));
   color: rgb(var(--c-text));
 }
@@ -410,54 +478,58 @@ onBeforeUnmount(() => {
 }
 
 .stats-page__main {
-  flex: 1;
-  min-height: 0;
   width: 100%;
-  max-width: 56rem;
+  max-width: 72rem;
   margin: 0 auto;
-  padding: 1rem 1.15rem 0.75rem;
-  overflow: hidden;
+  padding: clamp(1.5rem, 4vh, 2.75rem) clamp(1.15rem, 3vw, 2rem) clamp(1.75rem, 5vh, 3rem);
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
+  gap: 1.15rem;
+}
+
+.stats-page__header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
 }
 
 .stats-page__title {
-  margin: 0 0 0.35rem;
+  margin: 0;
   font-family: 'Press Start 2P', 'Nunito', cursive !important;
-  font-size: clamp(1.15rem, 2.8vw, 1.55rem);
+  font-size: clamp(1.2rem, 2.6vw, 1.65rem);
   font-weight: 400;
   letter-spacing: 0.06em !important;
-  line-height: 1.4;
+  line-height: 1.45;
   color: rgb(var(--c-text));
-  flex-shrink: 0;
+  text-shadow: 0 0 28px rgb(var(--c-accent-sky) / 0.22);
 }
 
 .stats-page__lead {
-  margin: 0 0 0.85rem;
+  margin: 0;
+  max-width: 40rem;
   color: rgb(var(--c-text-soft) / 0.9);
-  line-height: 1.4;
-  font-size: 0.98rem;
-  flex-shrink: 0;
+  line-height: 1.45;
+  font-size: 1rem;
 }
 
 .stats-dashboard {
-  flex: 1;
-  min-height: 0;
-  display: grid;
-  grid-template-rows: auto auto minmax(0, 1.15fr) minmax(0, 0.95fr);
-  gap: 0.55rem;
-  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  width: 100%;
 }
 
 .stats-gate {
   display: flex;
   flex-direction: column;
-  gap: 0.65rem;
-  max-width: 26rem;
-  padding: 1.15rem;
-  border-radius: 1rem;
+  gap: 0.7rem;
+  width: min(100%, 26rem);
+  padding: 1.25rem;
+  border-radius: 1.1rem;
   background: rgb(var(--c-surface) / 0.55);
   border: 1px solid rgb(var(--c-accent-sky) / 0.18);
+  box-shadow: 0 18px 40px rgb(var(--c-bg-deep) / 0.35);
 }
 
 .stats-gate__label {
@@ -467,18 +539,19 @@ onBeforeUnmount(() => {
 
 .stats-gate__input {
   width: 100%;
-  padding: 0.7rem 0.85rem;
-  border-radius: 0.7rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: 0.75rem;
   border: 1px solid rgb(var(--c-accent-sky) / 0.25);
   background: rgb(var(--c-bg-deep) / 0.85);
   color: rgb(var(--c-text));
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.9rem;
+  box-sizing: border-box;
 }
 
 .stats-gate__btn {
   align-self: flex-start;
-  padding: 0.65rem 1.15rem;
+  padding: 0.65rem 1.2rem;
   border: none;
   border-radius: 999px;
   background: linear-gradient(135deg, rgb(var(--c-accent)), rgb(var(--c-accent-sky)));
@@ -502,14 +575,12 @@ onBeforeUnmount(() => {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.5rem 0.75rem;
-  margin: 0;
-  flex-shrink: 0;
+  gap: 0.55rem 0.85rem;
 }
 
 .stats-toolbar__btn {
-  padding: 0.5rem 1.15rem;
-  min-height: 2.35rem;
+  padding: 0.55rem 1.25rem;
+  min-height: 2.4rem;
   border-radius: 999px;
   border: 1px solid rgb(var(--c-accent-sky) / 0.4);
   background: linear-gradient(135deg, rgb(var(--c-accent) / 0.22), rgb(var(--c-accent-sky) / 0.16));
@@ -534,7 +605,7 @@ onBeforeUnmount(() => {
 }
 
 .stats-toolbar__updated {
-  font-size: 0.9rem;
+  font-size: 0.92rem;
   color: rgb(var(--c-text-muted));
   font-weight: 600;
 }
@@ -612,67 +683,61 @@ onBeforeUnmount(() => {
 .stats-kpis {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.5rem;
-  margin: 0;
-  flex-shrink: 0;
+  gap: 0.85rem;
 }
 
 .stats-kpi {
-  padding: 0.55rem 0.7rem;
-  border-radius: 0.75rem;
-  background: rgb(var(--c-surface) / 0.55);
+  padding: 0.95rem 1.05rem;
+  border-radius: 1rem;
+  background: rgb(var(--c-surface) / 0.5);
   border: 1px solid rgb(var(--c-accent-sky) / 0.16);
+  box-shadow: 0 10px 28px rgb(var(--c-bg-deep) / 0.22);
 }
 
 .stats-kpi__label {
-  margin: 0 0 0.2rem;
-  font-size: 0.82rem;
+  margin: 0 0 0.35rem;
+  font-size: 0.86rem;
   font-weight: 700;
-  letter-spacing: 0.02em;
-  text-transform: none;
   color: rgb(var(--c-text-muted));
 }
 
 .stats-kpi__value {
   margin: 0;
-  font-size: clamp(1.15rem, 2.4vw, 1.55rem);
+  font-size: clamp(1.35rem, 2.4vw, 1.85rem);
   font-weight: 800;
   color: rgb(var(--c-accent-soft));
+  letter-spacing: -0.02em;
 }
 
 .stats-panel {
   margin: 0;
-  padding: 0.55rem 0.75rem 0.65rem;
-  border-radius: 0.85rem;
-  background: rgb(var(--c-surface) / 0.45);
+  padding: 1rem 1.15rem 1.1rem;
+  border-radius: 1.05rem;
+  background: rgb(var(--c-surface) / 0.42);
   border: 1px solid rgb(var(--c-accent-sky) / 0.14);
-  min-height: 0;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
-.stats-panel__head {
-  flex-shrink: 0;
+  box-shadow: 0 12px 32px rgb(var(--c-bg-deep) / 0.2);
+  height: fit-content;
 }
 
 .stats-panel__head h2 {
-  margin: 0 0 0.35rem;
-  font-size: 1.02rem;
+  margin: 0 0 0.75rem;
+  font-size: 1.05rem;
   font-weight: 800;
 }
 
+.stats-panel--chart {
+  padding-bottom: 0.85rem;
+}
+
 .stats-chart {
-  flex: 1;
-  min-height: 0;
-  display: flex;
+  width: 100%;
 }
 
 .stats-chart__svg {
   display: block;
   width: 100%;
-  height: 100%;
-  max-height: 100%;
+  height: auto;
+  max-height: 14rem;
 }
 
 .stats-chart__grid {
@@ -696,9 +761,8 @@ onBeforeUnmount(() => {
 .stats-grids {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.55rem;
-  min-height: 0;
-  overflow: hidden;
+  gap: 0.9rem;
+  align-items: start;
 }
 
 .stats-rank {
@@ -707,27 +771,52 @@ onBeforeUnmount(() => {
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
-  min-height: 0;
-  overflow: hidden;
+  gap: 0.55rem;
 }
 
 .stats-rank li {
   display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) auto;
-  gap: 0.45rem;
+  grid-template-columns: minmax(0, 1.35fr) minmax(3.5rem, 1fr) auto;
+  gap: 0.55rem;
   align-items: center;
 }
 
+.stats-rank--geo li {
+  grid-template-columns: auto minmax(0, 1.35fr) minmax(3.5rem, 1fr) auto;
+}
+
+.stats-rank__flag {
+  font-size: 1.05rem;
+  line-height: 1;
+}
+
 .stats-rank__name {
-  font-size: 0.82rem;
+  font-size: 0.88rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.stats-rank__region {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stats-rank__country-soft {
+  font-size: 0.75rem;
+  color: rgb(var(--c-text-muted));
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .stats-rank__bar-wrap {
-  height: 0.4rem;
+  height: 0.42rem;
   border-radius: 999px;
   background: rgb(var(--c-bg-deep) / 0.65);
   overflow: hidden;
@@ -744,9 +833,13 @@ onBeforeUnmount(() => {
   background: linear-gradient(90deg, rgb(var(--c-violet-light)), rgb(var(--c-accent-sky)));
 }
 
+.stats-rank__bar--geo {
+  background: linear-gradient(90deg, rgb(var(--c-teal)), rgb(var(--c-accent)));
+}
+
 .stats-rank__num {
   font-weight: 800;
-  font-size: 0.82rem;
+  font-size: 0.86rem;
   color: rgb(var(--c-accent-soft));
   min-width: 2.2rem;
   text-align: right;
@@ -755,36 +848,33 @@ onBeforeUnmount(() => {
 .stats-empty {
   margin: 0;
   color: rgb(var(--c-text-muted));
-  font-size: 0.88rem;
+  font-size: 0.9rem;
+  line-height: 1.45;
 }
 
-@media (max-width: 800px) {
-  .stats-page {
-    overflow-y: auto;
-    height: auto;
-    min-height: 100dvh;
-    max-height: none;
-  }
-
-  .stats-dashboard {
-    display: flex;
-    flex-direction: column;
-    overflow: visible;
-  }
-
+@media (max-width: 900px) {
   .stats-kpis {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .stats-grids {
     grid-template-columns: 1fr;
-    overflow: visible;
+  }
+}
+
+@media (max-width: 520px) {
+  .stats-kpis {
+    grid-template-columns: 1fr;
   }
 
-  .stats-chart__svg {
-    height: auto;
-    max-height: 12rem;
+  .stats-rank li,
+  .stats-rank--geo li {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .stats-rank__bar-wrap,
+  .stats-rank__flag {
+    display: none;
   }
 }
 </style>
-
