@@ -760,12 +760,12 @@ async function onImportQuestFile(event: Event) {
 }
 
 .quest-card__body {
-  /* Фіксована підложка: title 2 рядки + desc 2 + meta, без дірки між ними */
+  /* Однакова висота карток: title+desc зверху щільно, meta знизу з відступом */
   --q-title-size: 1rem;
   --q-title-lh: 1.25;
   --q-desc-size: 0.72rem;
   --q-desc-lh: 1.4;
-  --q-gap: 0.4rem;
+  --q-gap: 0.3rem;
   --q-meta-h: 1.15rem;
   --q-pad-top: 0.85rem;
   --q-pad-bottom: 0.35rem;
@@ -788,7 +788,7 @@ async function onImportQuestFile(event: Event) {
 .quest-title {
   margin: 0;
   flex: 0 0 auto;
-  height: calc(var(--q-title-size) * var(--q-title-lh) * 2);
+  max-height: calc(var(--q-title-size) * var(--q-title-lh) * 2);
   font-size: var(--q-title-size);
   font-weight: 800;
   line-height: var(--q-title-lh);
@@ -801,7 +801,7 @@ async function onImportQuestFile(event: Event) {
 .quest-desc {
   margin: 0;
   flex: 0 0 auto;
-  height: calc(var(--q-desc-size) * var(--q-desc-lh) * 2);
+  max-height: calc(var(--q-desc-size) * var(--q-desc-lh) * 2);
   font-size: var(--q-desc-size);
   line-height: var(--q-desc-lh);
   color: rgb(var(--c-text-muted) / 0.88);
@@ -936,7 +936,8 @@ async function onImportQuestFile(event: Event) {
   flex-wrap: wrap;
   gap: 0.35rem;
   flex: 0 0 auto;
-  min-height: 1.15rem;
+  margin-top: auto;
+  min-height: var(--q-meta-h, 1.15rem);
   font-size: 0.75rem;
   color: rgb(var(--c-text-muted) / 0.9);
 }
