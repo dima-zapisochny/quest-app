@@ -1,5 +1,5 @@
 <template>
-  <div class="quest-emoji-picker" role="group" :aria-label="ariaLabel">
+  <div class="quest-emoji-picker" :class="{ 'quest-emoji-picker--fill-row': fillRow }" role="group" :aria-label="ariaLabel">
     <div ref="rowRef" class="quest-emoji-picker__row">
       <button
         v-for="item in rowEmojis"
@@ -70,10 +70,14 @@ const GAP_REM = 0.45
 
 const { t } = useI18n()
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   modelValue: string
   ariaLabel?: string
-}>()
+  /** Рівномірно розтягнути іконки на всю ширину рядка (редактор квесту). */
+  fillRow?: boolean
+}>(), {
+  fillRow: false
+})
 
 const emit = defineEmits<{
   'update:modelValue': [value: string]
@@ -85,7 +89,11 @@ const visibleCount = ref(QUEST_EMOJI_ROW_ORDER.length)
 
 let rowObserver: ResizeObserver | null = null
 
-const rowEmojis = computed(() => QUEST_EMOJI_ROW_ORDER.slice(0, visibleCount.value))
+const rowEmojis = computed(() =>
+  props.fillRow
+    ? QUEST_EMOJI_ROW_ORDER
+    : QUEST_EMOJI_ROW_ORDER.slice(0, visibleCount.value)
+)
 
 const pickerEmojis = computed(() => {
   const seen = new Set<string>()
@@ -108,6 +116,7 @@ function remPx(rem: number): number {
 }
 
 function updateVisibleCount() {
+  if (props.fillRow) return
   const row = rowRef.value
   if (!row) return
 
@@ -134,6 +143,7 @@ function closePicker() {
 
 onMounted(() => {
   updateVisibleCount()
+  if (props.fillRow) return
   rowObserver = new ResizeObserver(updateVisibleCount)
   if (rowRef.value) rowObserver.observe(rowRef.value)
   window.addEventListener('resize', updateVisibleCount)
@@ -253,5 +263,18 @@ onBeforeUnmount(() => {
 .quest-emoji-picker__grid .quest-emoji-picker__btn {
   width: 2.65rem;
   height: 2.65rem;
+}
+
+.quest-emoji-picker--fill-row .quest-emoji-picker__row {
+  gap: 0.35rem;
+}
+
+.quest-emoji-picker--fill-row .quest-emoji-picker__btn,
+.quest-emoji-picker--fill-row .quest-emoji-picker__more {
+  flex: 1 1 0;
+  min-width: 0;
+  width: auto;
+  height: 2.45rem;
+  font-size: clamp(1rem, 1.6vw, 1.3rem);
 }
 </style>

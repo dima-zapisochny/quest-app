@@ -8,7 +8,7 @@
           <span class="startcard__field"><span class="startcard__name">Alex</span><span class="caret caret--name" aria-hidden="true"></span></span>
           <span class="startcard__ava">🦊</span>
         </div>
-        <button class="startcard__create"><span>Create game</span><span class="cursor cursor--start" aria-hidden="true">👆</span></button>
+        <button class="startcard__create"><span>Create game</span><span class="cursor cursor--start" aria-hidden="true"><HowToPointer /></span></button>
         <div class="startcard__or"><span></span>or<span></span></div>
         <div class="startcard__join">
           <span class="startcard__code">CODE</span>
@@ -53,7 +53,7 @@
             :key="n"
             class="tile"
             :class="{ 'tile--tap': n === 6 }"
-          >{{ (Math.floor((n - 1) / 4) + 1) * 100 }}<span v-if="n === 6" class="cursor cursor--tile" aria-hidden="true">👆</span></button>
+          >{{ (Math.floor((n - 1) / 4) + 1) * 100 }}<span v-if="n === 6" class="cursor cursor--tile" aria-hidden="true"><HowToPointer /></span></button>
         </div>
       </div>
       <div class="qstrip">
@@ -84,7 +84,7 @@
       <div class="buzzer">
         <span class="ring"></span><span class="ring ring--2"></span><span class="ring ring--3"></span>
         <span class="buzzer__bolt">⚡</span>
-        <span class="cursor cursor--buzz" aria-hidden="true">👆</span>
+        <span class="cursor cursor--buzz" aria-hidden="true"><HowToPointer /></span>
       </div>
       <div class="racer racer--lose">
         <span class="racer__ava racer__ava--dim">🐼</span>
@@ -133,7 +133,7 @@
           <span class="qcard__plus" aria-hidden="true"></span>
           <span class="qcard__newlabel">New quest</span>
         </div>
-        <span class="cursor questcursor" aria-hidden="true">👆</span>
+        <span class="cursor questcursor" aria-hidden="true"><HowToPointer /></span>
       </div>
     </div>
 
@@ -152,7 +152,7 @@
               class="sizepick__c"
               :style="{ '--n': cell.n }"
             ></span>
-            <span class="cursor cursor--pick" aria-hidden="true">👆</span>
+            <span class="cursor cursor--pick" aria-hidden="true"><HowToPointer /></span>
           </div>
         </div>
         <!-- Фаза 2: готовая доска (как в «Играть») -->
@@ -211,6 +211,8 @@
 </template>
 
 <script setup lang="ts">
+import HowToPointer from './HowToPointer.vue'
+
 defineProps<{ scene: string }>()
 const gridCells = Array.from({ length: 25 }, (_, i) => ({ k: i, c: i % 5, r: Math.floor(i / 5), n: Math.max(i % 5, Math.floor(i / 5)) }))
 </script>
@@ -224,16 +226,12 @@ const gridCells = Array.from({ length: 25 }, (_, i) => ({ k: i, c: i % 5, r: Mat
 
 .cursor {
   position: absolute;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.55rem;
-  line-height: 1;
-  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
-  filter: drop-shadow(0 1px 2px rgb(var(--c-black) / 0.28));
+  width: 1.45rem;
+  height: 1.45rem;
   pointer-events: none;
   user-select: none;
-  transform-origin: 50% 88%;
+  transform-origin: 47% 8%;
+  filter: drop-shadow(0 1px 1px rgb(var(--c-black) / 0.25));
 }
 
 /* панель-мокап */
