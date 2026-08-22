@@ -9,7 +9,7 @@
       />
     </div>
     <div class="app-header-right">
-      <SoundToggleButton />
+      <SoundToggleButton v-if="showSoundToggle" />
       <div v-if="showSessionCode && sessionCode" class="session-chip">
         {{ t('common.gameCode') }}: <strong>{{ sessionCode }}</strong>
       </div>
@@ -34,6 +34,7 @@ interface Props {
   sessionCode?: string | null
   userName?: string | null
   userAvatar?: string | null
+  showSoundToggle?: boolean
 }
 
 withDefaults(defineProps<Props>(), {
@@ -43,7 +44,8 @@ withDefaults(defineProps<Props>(), {
   showSessionCode: false,
   sessionCode: null,
   userName: null,
-  userAvatar: null
+  userAvatar: null,
+  showSoundToggle: true
 })
 
 defineEmits<{

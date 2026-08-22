@@ -180,10 +180,7 @@ router.beforeEach(async (to, _from, next) => {
         const dbSession = await getSessionByIdFromDb(sessionId)
         if (dbSession) {
           console.log('✅ Session exists in database, adding to store and allowing navigation')
-          // Сессия будет добавлена в store автоматически через checkActivePlayerSession
-          // или через WebSocket подписку, поэтому просто пропускаем навигацию
-          // Пропускаем навигацию, даже если нет активной сессии в localStorage
-          // Компонент сам разберется с восстановлением игрока
+          sessionStore.upsertSession(dbSession)
           next()
           return
         }
@@ -213,7 +210,11 @@ router.beforeEach(async (to, _from, next) => {
           if (!session) {
             try {
               const { getSessionById: getSessionByIdFromDb } = await import('@/services/supabaseService')
-              session = (await getSessionByIdFromDb(sessionId)) ?? undefined
+              const dbSession = await getSessionByIdFromDb(sessionId)
+              if (dbSession) {
+                sessionStore.upsertSession(dbSession)
+                session = sessionStore.getSessionById(sessionId)
+              }
             } catch (error) {
               console.error('❌ Error fetching session on retry:', error)
             }

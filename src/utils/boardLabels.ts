@@ -1,12 +1,12 @@
 type BoardLabelTranslate = (key: string, params?: { n: number }) => string
 
-/** Дефолт при создании (store без i18n) — совпадает с редактором. */
+/** Дефолт при создании (store без i18n) — нейтральный EN; UI показывает через display*. */
 export function defaultRoundTitle(index: number): string {
-  return `Раунд ${index + 1}`
+  return `Round ${index + 1}`
 }
 
 export function defaultCategoryTitle(index: number): string {
-  return `Категория ${index + 1}`
+  return `Category ${index + 1}`
 }
 
 /** Отображаемое имя с fallback для пустых сохранённых значений. */

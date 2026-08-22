@@ -85,6 +85,7 @@ import BaseCard from '@/components/common/BaseCard.vue'
 import GridSizePicker from '@/components/common/GridSizePicker.vue'
 import QuestEmojiPicker from '@/components/common/QuestEmojiPicker.vue'
 import { DEFAULT_QUEST_EMOJI, questThemeEmoji } from '@/utils/questCardTheme'
+import { mapAppError } from '@/utils/mapAppError'
 
 const { t } = useI18n()
 const { count } = usePlural()
@@ -144,7 +145,7 @@ async function submit() {
     )
     router.replace({ name: 'admin-quest', params: { questId } })
   } catch (e: any) {
-    error.value = e?.message ?? t('create.errCreate')
+    error.value = mapAppError(e, t, 'create.errCreate')
   } finally {
     isCreating.value = false
   }

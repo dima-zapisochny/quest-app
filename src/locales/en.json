@@ -13,7 +13,8 @@
     "avatarPicker": "Choose an avatar",
     "refreshAvatar": "Refresh avatar",
     "soundOn": "Turn sound on",
-    "soundOff": "Turn sound off"
+    "soundOff": "Turn sound off",
+    "unknownError": "Something went wrong. Please try again."
   },
   "landing": {
     "checkingAuth": "Checking authorization…",
@@ -27,7 +28,8 @@
     "errName": "Enter a participant name",
     "errAvatar": "Choose an avatar",
     "errCode": "Enter the game code (4 characters)",
-    "errNotFound": "No session found with this code"
+    "errNotFound": "No session found with this code",
+    "errFull": "This game is full. Try joining another game."
   },
   "host": {
     "preparing": "Preparing quests…",
@@ -62,7 +64,8 @@
     "errImportFormat": "Invalid file format: a quest JSON with title and rounds fields is required",
     "errCreateGame": "Failed to create the game",
     "errDeleteQuest": "Failed to delete the quest",
-    "errImportQuest": "Failed to import the quest"
+    "errImportQuest": "Failed to import the quest",
+    "errCreateCode": "Couldn't create the game: no free code available"
   },
   "create": {
     "title": "New quest",
@@ -148,7 +151,12 @@
     "maxAudio": "You can add only one audio file.",
     "uploadFailed": "Failed to upload media. Try another file.",
     "round": "Round {n}",
-    "noRounds": "No rounds yet. Create the first one to add categories and questions."
+    "noRounds": "No rounds yet. Create the first one to add categories and questions.",
+    "errAuth": "Sign in to manage quests",
+    "errRoundLimit": "Maximum 5 rounds per quest",
+    "errCategoryLimit": "Maximum 5 categories per round",
+    "errQuestionLimit": "Maximum 5 questions per category",
+    "errMediaUpload": "Upload failed: {files}. Check your connection and try again."
   },
   "game": {
     "loadingQuest": "Loading quest…",

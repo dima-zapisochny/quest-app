@@ -378,7 +378,7 @@ export const useQuizStore = defineStore('quiz', () => {
     const sessionStore = useGameSessionStore()
     const userId = sessionStore.userProfile?.id
     if (!userId) {
-      throw new Error('User must be authenticated to create quests')
+      throw new Error('QUEST_AUTH_REQUIRED')
     }
     
     const newQuest: Quest = {
@@ -417,7 +417,7 @@ export const useQuizStore = defineStore('quiz', () => {
     const sessionStore = useGameSessionStore()
     const userId = sessionStore.userProfile?.id
     if (!userId) {
-      throw new Error('User must be authenticated to delete quests')
+      throw new Error('QUEST_AUTH_REQUIRED')
     }
 
     const questToDelete = quests.value.find(q => q.id === questId)
@@ -447,7 +447,7 @@ export const useQuizStore = defineStore('quiz', () => {
     if (!Array.isArray(quest.rounds)) {
       quest.rounds = []
     }
-    if (quest.rounds.length >= 5) throw new Error('Максимум 5 раундов в квесте')
+    if (quest.rounds.length >= 5) throw new Error('QUEST_ROUND_LIMIT')
     const newRound: Round = {
       id: generateId('round'),
       title,
@@ -463,15 +463,6 @@ export const useQuizStore = defineStore('quiz', () => {
     const quest = findQuest(questId)
     const round = findRound(quest, roundId)
     Object.assign(round, payload)
-    scheduleSave(questId)
-  }
-
-  async function replaceRound(questId: string, round: Round) {
-    const quest = findQuest(questId)
-    if (!Array.isArray(quest.rounds)) throw new Error('Quest data not loaded (call loadQuestFull first)')
-    const index = quest.rounds.findIndex(r => r.id === round.id)
-    if (index === -1) throw new Error('Round not found')
-    quest.rounds[index] = round
     scheduleSave(questId)
   }
 
@@ -492,7 +483,7 @@ export const useQuizStore = defineStore('quiz', () => {
     if (!Array.isArray(round.categories)) {
       round.categories = []
     }
-    if (round.categories.length >= 5) throw new Error('Maximum 5 categories per round')
+    if (round.categories.length >= 5) throw new Error('QUEST_CATEGORY_LIMIT')
     const newCategory: Category = {
       id: generateId('category'),
       title,
@@ -508,15 +499,6 @@ export const useQuizStore = defineStore('quiz', () => {
     const round = findRound(quest, roundId)
     const category = findCategory(round, categoryId)
     Object.assign(category, payload)
-    scheduleSave(questId)
-  }
-
-  async function replaceCategory(questId: string, roundId: string, category: Category) {
-    const quest = findQuest(questId)
-    const round = findRound(quest, roundId)
-    const index = round.categories.findIndex(c => c.id === category.id)
-    if (index === -1) throw new Error('Category not found')
-    round.categories[index] = category
     scheduleSave(questId)
   }
 
@@ -548,7 +530,7 @@ export const useQuizStore = defineStore('quiz', () => {
     if (!Array.isArray(category.questions)) {
       category.questions = []
     }
-    if (category.questions.length >= 5) throw new Error('Maximum 5 questions per category')
+    if (category.questions.length >= 5) throw new Error('QUEST_QUESTION_LIMIT')
 
     const newQuestion: Question = {
       id: generateId('question'),
@@ -634,21 +616,6 @@ export const useQuizStore = defineStore('quiz', () => {
     scheduleSave(questId)
   }
 
-  async function replaceQuestion(
-    questId: string,
-    roundId: string,
-    categoryId: string,
-    question: Question
-  ) {
-    const quest = findQuest(questId)
-    const round = findRound(quest, roundId)
-    const category = findCategory(round, categoryId)
-    const index = category.questions.findIndex(q => q.id === question.id)
-    if (index === -1) throw new Error('Question not found')
-    category.questions[index] = question
-    scheduleSave(questId)
-  }
-
   async function deleteQuestion(
     questId: string,
     roundId: string,
@@ -725,7 +692,7 @@ export const useQuizStore = defineStore('quiz', () => {
 
     // О неудачных загрузках сообщаем ошибкой (её ловит вызывающий код в AdminQuestionRow)
     if (failedUploads.length) {
-      throw new Error(`Не удалось загрузить в хранилище: ${failedUploads.join(', ')}. Проверьте соединение и повторите.`)
+      throw new Error(`MEDIA_UPLOAD_FAILED:${failedUploads.join(', ')}`)
     }
     return mediaAssets
   }
@@ -851,7 +818,7 @@ export const useQuizStore = defineStore('quiz', () => {
   async function importQuest(questData: Quest): Promise<string> {
     const sessionStore = useGameSessionStore()
     const userId = sessionStore.userProfile?.id
-    if (!userId) throw new Error('User must be authenticated to import quests')
+    if (!userId) throw new Error('QUEST_AUTH_REQUIRED')
 
     const clone = JSON.parse(JSON.stringify(questData)) as Quest
     const oldToNewId = new Map<string, string>()
@@ -916,15 +883,12 @@ export const useQuizStore = defineStore('quiz', () => {
     deleteQuest,
     addRound,
     updateRound,
-    replaceRound,
     deleteRound,
     addCategory,
     updateCategory,
-    replaceCategory,
     deleteCategory,
     addQuestion,
     updateQuestion,
-    replaceQuestion,
     deleteQuestion,
     appendQuestionMedia,
     removeQuestionMedia,

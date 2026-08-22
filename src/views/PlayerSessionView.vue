@@ -6,6 +6,7 @@
       :button-disabled="isExiting"
       :user-name="player?.name"
       :user-avatar="player?.avatar"
+      :show-sound-toggle="false"
       @button-click="handleExit"
     />
 
@@ -306,10 +307,7 @@ onMounted(async () => {
       const dbSession = await getSessionByIdFromDb(sessionId)
       if (dbSession) {
         console.log('✅ Session loaded from database')
-        // Сессия будет добавлена в store через checkActivePlayerSession
-        // Но для немедленного отображения вызываем checkActivePlayerSession
-        // Если активная сессия есть в localStorage, она загрузится автоматически
-        // Если нет - сессия все равно будет доступна через computed свойство после обновления
+        sessionStore.upsertSession(dbSession)
       } else {
         // Сессия не найдена в базе - проверяем активную сессию
         console.log('⚠️ Session not found in database, checking active session...')

@@ -13,7 +13,8 @@
     "avatarPicker": "Elegir avatar",
     "refreshAvatar": "Cambiar avatar",
     "soundOn": "Activar sonido",
-    "soundOff": "Desactivar sonido"
+    "soundOff": "Desactivar sonido",
+    "unknownError": "Algo salió mal. Inténtalo de nuevo."
   },
   "landing": {
     "checkingAuth": "Comprobando autorización…",
@@ -27,7 +28,8 @@
     "errName": "Introduce el nombre del participante",
     "errAvatar": "Elige un avatar",
     "errCode": "Introduce el código de juego (4 caracteres)",
-    "errNotFound": "No se encontró ninguna sesión con este código"
+    "errNotFound": "No se encontró ninguna sesión con este código",
+    "errFull": "Esta partida está llena. Prueba con otra."
   },
   "host": {
     "preparing": "Preparando los cuestionarios…",
@@ -62,7 +64,8 @@
     "errImportFormat": "Formato de archivo no válido: se necesita un JSON de cuestionario con los campos title y rounds",
     "errCreateGame": "No se pudo crear la partida",
     "errDeleteQuest": "No se pudo eliminar el cuestionario",
-    "errImportQuest": "No se pudo importar el cuestionario"
+    "errImportQuest": "No se pudo importar el cuestionario",
+    "errCreateCode": "No se pudo crear la partida: no hay código libre"
   },
   "create": {
     "title": "Nuevo cuestionario",
@@ -148,7 +151,12 @@
     "maxAudio": "Solo puedes añadir un archivo de audio.",
     "uploadFailed": "No se pudo subir el archivo. Prueba con otro.",
     "round": "Ronda {n}",
-    "noRounds": "Aún no hay rondas. Crea la primera para añadir categorías y preguntas."
+    "noRounds": "Aún no hay rondas. Crea la primera para añadir categorías y preguntas.",
+    "errAuth": "Inicia sesión para gestionar cuestionarios",
+    "errRoundLimit": "Máximo 5 rondas por cuestionario",
+    "errCategoryLimit": "Máximo 5 categorías por ronda",
+    "errQuestionLimit": "Máximo 5 preguntas por categoría",
+    "errMediaUpload": "Error al subir: {files}. Comprueba la conexión."
   },
   "game": {
     "loadingQuest": "Cargando el cuestionario…",

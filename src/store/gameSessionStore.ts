@@ -164,17 +164,32 @@ export const useGameSessionStore = defineStore('game-session', () => {
         ...sessions.value.slice(index + 1)
       ]
       
-      console.log('🔄 Session updated in array:', {
-        sessionId: updatedSession.id,
-        oldPlayersCount,
-        newPlayersCount,
-        playersChanged: oldPlayersCount !== newPlayersCount,
-        newArrayCreated: true
-      })
+      if (import.meta.env.DEV) {
+        console.log('🔄 Session updated in array:', {
+          sessionId: updatedSession.id,
+          oldPlayersCount,
+          newPlayersCount,
+          playersChanged: oldPlayersCount !== newPlayersCount,
+          newArrayCreated: true
+        })
+      }
       
       return true
     }
     return false
+  }
+
+  /** Кладе сесію з БД у store (update або insert). Потрібно для deep-link / refresh гравця. */
+  function upsertSession(session: GameSession) {
+    if (!updateSessionInArray(session)) {
+      sessions.value = [
+        ...sessions.value,
+        {
+          ...session,
+          players: session.players.map(player => ({ ...player }))
+        }
+      ]
+    }
   }
 
   /**
@@ -247,7 +262,7 @@ export const useGameSessionStore = defineStore('game-session', () => {
       }
     }
     // недостижимо, но для типов
-    throw new Error('Не удалось создать игру: не нашлось свободного кода')
+    throw new Error('SESSION_CODE_EXHAUSTED')
   }
 
   async function deleteSession(sessionId: string) {
@@ -287,7 +302,7 @@ export const useGameSessionStore = defineStore('game-session', () => {
     }
     
     if (!session) {
-      throw new Error('Сессия с таким кодом не найдена')
+      throw new Error('SESSION_NOT_FOUND')
     }
     
     return await processJoin(session, profile)
@@ -302,7 +317,7 @@ export const useGameSessionStore = defineStore('game-session', () => {
     
     // Лимит участников: не более MAX_SESSION_PLAYERS (включая ведущего)
     if (session.players.length >= MAX_SESSION_PLAYERS) {
-      throw new Error(`В игре уже максимальное число участников (${MAX_SESSION_PLAYERS}). Попробуйте подключиться к другой игре.`)
+      throw new Error('SESSION_FULL')
     }
 
     // Проверяем, есть ли игрок с таким же профилем (по ID профиля)
@@ -334,7 +349,7 @@ export const useGameSessionStore = defineStore('game-session', () => {
       }
     } catch (e) {
       if (e instanceof Error && e.message === 'SESSION_FULL') {
-        throw new Error(`В игре уже максимальное число участников (${MAX_SESSION_PLAYERS}). Попробуйте подключиться к другой игре.`)
+        throw new Error('SESSION_FULL')
       }
       // иная ошибка — уходим в fallback ниже
     }
@@ -390,24 +405,7 @@ export const useGameSessionStore = defineStore('game-session', () => {
       const profile = profileStore.ensureProfile()
       console.log('🔄 Restoring player to session:', parsed.playerId)
       
-      // Восстанавливаем игрока
       const result = await processJoin(session, profile, parsed.playerId)
-      
-      // Ждем, чтобы убедиться, что обновление применилось в базе
-      // Это предотвратит перезапись WebSocket обновлением
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      // Проверяем, что игрок действительно в сессии после восстановления
-      const verifySession = getSessionById(sessionId)
-      if (verifySession) {
-        const verifyPlayer = verifySession.players.find(p => p.id === parsed.playerId)
-        if (verifyPlayer) {
-          console.log('✅ Player restoration completed and verified in session')
-        } else {
-          console.warn('⚠️ Player not found after restoration, but restoration completed')
-        }
-      }
-      
       return result
     } catch (error) {
       console.error('❌ Error restoring player to session:', error)
@@ -750,15 +748,7 @@ export const useGameSessionStore = defineStore('game-session', () => {
         session = (await getSessionByIdFromDb(sessionId)) ?? undefined
         if (session) {
           console.log('✅ Session loaded from database, players count:', session.players.length)
-          // Добавляем в локальный кеш через helper функцию для правильной реактивности
-          if (!updateSessionInArray(session)) {
-            // Если сессия не найдена, добавляем новую, создавая новый массив для реактивности
-            sessions.value = [...sessions.value, {
-              ...session,
-              players: session.players.map(player => ({ ...player })) // Создаем новый объект для каждого игрока
-            }]
-          }
-          // Обновляем session для дальнейшей проверки
+          upsertSession(session)
           session = sessions.value.find(s => s.id === sessionId) || session
           console.log('✅ Session added to store from database')
         } else {
@@ -912,6 +902,7 @@ export const useGameSessionStore = defineStore('game-session', () => {
     heartbeat,
     pruneStalePlayers,
     watchSession,
-    unwatchSession
+    unwatchSession,
+    upsertSession
   }
 })

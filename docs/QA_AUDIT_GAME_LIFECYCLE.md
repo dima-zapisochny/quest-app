@@ -1,5 +1,12 @@
 # QA Audit: Game Lifecycle & Supabase Integration
 
+> **SUPERSEDED (Aug 2026).** Цей аудит відображає старий стан коду (глобальний
+> `subscribeToSessions`, scores у localStorage, exit+reset разом). Актуальна
+> архітектура: per-session `watchSession` / `unwatchSession`, presence heartbeat +
+> prune TTL, atomic RPC + fallbacks, host exit ≠ reset, quest save з dirty/rev/mute.
+> Не використовуйте цей файл як чекліст багів — див. код у `src/store/gameSessionStore.ts`,
+> `src/composables/useHostSessionSync.ts`, `src/composables/usePresenceHeartbeat.ts`.
+
 **Role:** Senior Full-Stack QA / Code Auditor  
 **Scope:** Game sessions, quests, progress, realtime, UI sync
 

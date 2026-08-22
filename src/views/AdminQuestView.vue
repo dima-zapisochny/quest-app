@@ -53,7 +53,7 @@
           :placeholder="t('editor.questDescPlaceholder')"
         ></textarea>
         <span class="toolbar-label">{{ t('create.emoji') }}</span>
-        <QuestEmojiPicker v-model="questEmoji" :aria-label="t('create.emojiAria')" />
+        <QuestEmojiPicker v-model="questEmoji" fill-row :aria-label="t('create.emojiAria')" />
       </div>
     </header>
 
@@ -248,9 +248,11 @@ async function saveFullQuest() {
   const q = quest.value
   if (!q) return
   try {
-    store.replaceQuest(q)
+    // Не replaceQuest: інакше bump dirty/rev навіть без змін. Лише flush уже dirty.
     await store.flushSave()
-    console.log('[AdminQuest] Квест збережено:', q.title || q.id)
+    if (import.meta.env.DEV) {
+      console.log('[AdminQuest] Квест збережено:', q.title || q.id)
+    }
   } catch (e) {
     console.warn('[AdminQuest] Auto-save failed:', e)
   }
@@ -315,7 +317,7 @@ watchEffect(() => {
 async function handleAddRound() {
   if (!quest.value) return
   const currentRounds = Array.isArray(quest.value.rounds) ? quest.value.rounds : []
-  const baseTitle = `Раунд ${currentRounds.length + 1}`
+  const baseTitle = t('editor.round', { n: currentRounds.length + 1 })
   isAddingRound.value = true
   try {
     const newRoundId = await store.addRound(quest.value.id, baseTitle)
@@ -434,24 +436,28 @@ function goBack() {
 }
 
 .admin-quest-view {
-  min-height: 100dvh;
+  height: 100dvh;
+  max-height: 100dvh;
+  overflow-y: auto;
+  overflow-x: hidden;
   box-sizing: border-box;
   background: linear-gradient(135deg, rgb(var(--c-bg)) 0%, rgb(var(--c-surface)) 100%);
-  padding: 0 clamp(1.25rem, 4vw, 3.5rem) 2.5rem;
+  padding: 0 clamp(1.25rem, 4vw, 3.5rem) 1rem;
   display: flex;
   flex-direction: column;
-  gap: 1.75rem;
+  gap: 0.85rem;
   color: rgb(var(--c-text-soft));
 }
 
 .quest-toolbar {
+  flex-shrink: 0;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: clamp(1rem, 4vw, 2.5rem);
+  gap: clamp(0.75rem, 2vw, 1.5rem);
   background: rgb(var(--c-bg) / 0.78);
-  border-radius: 24px;
-  padding: clamp(1rem, 3vw, 1.8rem);
+  border-radius: 20px;
+  padding: clamp(0.85rem, 2vw, 1.25rem);
   border: 1px solid rgb(var(--c-accent-sky) / 0.18);
   box-shadow: 0 26px 52px rgb(var(--c-sky-deep) / 0.42);
   backdrop-filter: blur(12px);
@@ -460,7 +466,7 @@ function goBack() {
 .toolbar-fields {
   flex: 1 1 0;
   display: grid;
-  gap: 0.6rem;
+  gap: 0.45rem;
   align-content: start;
   width: 100%;
   box-sizing: border-box;
@@ -492,8 +498,9 @@ function goBack() {
 
 .toolbar-textarea {
   font-weight: 500;
-  resize: vertical;
-  min-height: 3.4rem;
+  resize: none;
+  min-height: 2.6rem;
+  max-height: 4.5rem;
 }
 
 .toolbar-input::placeholder,
@@ -510,13 +517,14 @@ function goBack() {
 
 /* Капсула статистики над блоком названия — по центру, не на всю ширину */
 .stats-capsule {
+  flex-shrink: 0;
   align-self: center;
   display: inline-flex;
   align-items: center;
-  gap: 1.15rem;
+  gap: 1rem;
   flex-wrap: wrap;
   justify-content: center;
-  padding: 0.85rem 1.9rem;
+  padding: 0.65rem 1.5rem;
   border-radius: var(--radius-pill);
   background: rgb(var(--c-bg) / 0.72);
   border: 1px solid rgb(var(--c-accent-sky) / 0.2);
@@ -548,10 +556,11 @@ function goBack() {
 
 /* Отдельная капсула раундов — по центру, не на всю ширину (как статистика) */
 .rounds-capsule {
+  flex-shrink: 0;
   align-self: center;
   display: inline-flex;
   justify-content: center;
-  padding: 0.85rem 1.9rem;
+  padding: 0.55rem 1.35rem;
   border-radius: var(--radius-pill);
   background: rgb(var(--c-bg) / 0.72);
   border: 1px solid rgb(var(--c-accent-sky) / 0.2);
@@ -561,14 +570,30 @@ function goBack() {
 
 /* Блок с плитками вопросов */
 .board-panel {
+  flex: 0 0 auto;
+  align-self: stretch;
   background: rgb(var(--c-bg) / 0.72);
-  border-radius: 24px;
+  border-radius: 20px;
   border: 1px solid rgb(var(--c-accent-sky) / 0.16);
-  padding: clamp(1rem, 3vw, 1.8rem);
+  padding: clamp(0.75rem, 2vw, 1.15rem);
   display: flex;
   flex-direction: column;
-  gap: 1.6rem;
+  gap: 0.75rem;
   box-shadow: 0 24px 46px rgb(var(--c-sky-deep) / 0.35);
+}
+
+.board-panel :deep(.board-editor) {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.board-panel :deep(.board-scroll) {
+  overflow-x: auto;
+}
+
+.board-panel :deep(.board-empty) {
+  padding: 1.5rem 1rem;
 }
 
 .round-tabs {
@@ -780,6 +805,9 @@ function goBack() {
 
 @media (max-width: 768px) {
   .admin-quest-view {
+    height: auto;
+    max-height: none;
+    overflow: auto;
     gap: 1rem;
     padding: 0 1rem 1.5rem;
   }

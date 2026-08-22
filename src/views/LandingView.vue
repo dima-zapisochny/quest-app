@@ -93,6 +93,7 @@ import LanguageSwitcher from '@/components/common/LanguageSwitcher.vue'
 import HowToPlayModal from '@/components/common/HowToPlayModal.vue'
 import { useGameSessionStore } from '@/store/gameSessionStore'
 import { useIsMobileViewport } from '@/composables/useIsMobileViewport'
+import { mapAppError } from '@/utils/mapAppError'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -300,7 +301,7 @@ async function handleJoinGame() {
     // setActivePlayer уже вызывается в processJoin
     router.push({ name: 'player-session', params: { sessionId: session.id } })
   } catch (error: any) {
-    errorMessage.value = error?.message ?? 'Не удалось присоединиться к игре'
+    errorMessage.value = mapAppError(error, t, 'game.errJoin')
   }
 }
 

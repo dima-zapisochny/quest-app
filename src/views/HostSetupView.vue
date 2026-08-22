@@ -182,6 +182,7 @@ import { useIsMobileViewport } from '@/composables/useIsMobileViewport'
 import { seedTestQuests } from '@/utils/seedTestQuests'
 import { displayQuestTitle, questDisplayEmoji } from '@/utils/questCardTheme'
 import { playQuestDeselectSound, playQuestSelectSound } from '@/utils/uiSound'
+import { mapAppError } from '@/utils/mapAppError'
 
 const { t } = useI18n()
 const importingQuest = ref(false)
@@ -432,7 +433,7 @@ async function handleStart() {
       }
     })
   } catch (error: any) {
-    errorMessage.value = error?.message ?? t('host.errCreateGame')
+    errorMessage.value = mapAppError(error, t, 'host.errCreateGame')
   }
 }
 
@@ -525,7 +526,7 @@ async function onImportQuestFile(event: Event) {
     const questId = await quizStore.importQuest(data)
     selectedQuestId.value = questId
   } catch (err: any) {
-    errorMessage.value = err?.message ?? t('host.errImportQuest')
+    errorMessage.value = mapAppError(err, t, 'host.errImportQuest')
   } finally {
     importingQuest.value = false
   }

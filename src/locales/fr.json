@@ -13,7 +13,8 @@
     "avatarPicker": "Choisir un avatar",
     "refreshAvatar": "Changer d'avatar",
     "soundOn": "Activer le son",
-    "soundOff": "Désactiver le son"
+    "soundOff": "Désactiver le son",
+    "unknownError": "Une erreur s'est produite. Réessayez."
   },
   "landing": {
     "checkingAuth": "Vérification de l'autorisation…",
@@ -27,7 +28,8 @@
     "errName": "Entrez un nom de participant",
     "errAvatar": "Choisissez un avatar",
     "errCode": "Entrez le code de la partie (4 caractères)",
-    "errNotFound": "Aucune session trouvée avec ce code"
+    "errNotFound": "Aucune session trouvée avec ce code",
+    "errFull": "Cette partie est complète. Essayez une autre partie."
   },
   "host": {
     "preparing": "Préparation des quiz…",
@@ -62,7 +64,8 @@
     "errImportFormat": "Format de fichier invalide : un JSON de quiz avec les champs title et rounds est requis",
     "errCreateGame": "Impossible de créer la partie",
     "errDeleteQuest": "Impossible de supprimer le quiz",
-    "errImportQuest": "Impossible d'importer le quiz"
+    "errImportQuest": "Impossible d'importer le quiz",
+    "errCreateCode": "Impossible de créer la partie : aucun code libre"
   },
   "create": {
     "title": "Nouveau quiz",
@@ -148,7 +151,12 @@
     "maxAudio": "Vous ne pouvez ajouter qu’un seul fichier audio.",
     "uploadFailed": "Échec du téléversement. Essayez un autre fichier.",
     "round": "Manche {n}",
-    "noRounds": "Aucune manche pour l'instant. Créez la première pour ajouter des catégories et des questions."
+    "noRounds": "Aucune manche pour l'instant. Créez la première pour ajouter des catégories et des questions.",
+    "errAuth": "Connectez-vous pour gérer les quiz",
+    "errRoundLimit": "Maximum 5 manches par quiz",
+    "errCategoryLimit": "Maximum 5 catégories par manche",
+    "errQuestionLimit": "Maximum 5 questions par catégorie",
+    "errMediaUpload": "Échec du téléversement : {files}. Vérifiez la connexion."
   },
   "game": {
     "loadingQuest": "Chargement du quiz…",

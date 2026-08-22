@@ -13,7 +13,8 @@
     "avatarPicker": "Avatar auswählen",
     "refreshAvatar": "Avatar neu laden",
     "soundOn": "Ton einschalten",
-    "soundOff": "Ton ausschalten"
+    "soundOff": "Ton ausschalten",
+    "unknownError": "Etwas ist schiefgelaufen. Bitte erneut versuchen."
   },
   "landing": {
     "checkingAuth": "Autorisierung wird geprüft…",
@@ -27,7 +28,8 @@
     "errName": "Teilnehmernamen eingeben",
     "errAvatar": "Avatar auswählen",
     "errCode": "Spielcode eingeben (4 Zeichen)",
-    "errNotFound": "Keine Sitzung mit diesem Code gefunden"
+    "errNotFound": "Keine Sitzung mit diesem Code gefunden",
+    "errFull": "Das Spiel ist voll. Versuche ein anderes Spiel."
   },
   "host": {
     "preparing": "Quizze werden vorbereitet…",
@@ -62,7 +64,8 @@
     "errImportFormat": "Ungültiges Dateiformat: Ein Quiz-JSON mit den Feldern title und rounds ist erforderlich",
     "errCreateGame": "Spiel konnte nicht erstellt werden",
     "errDeleteQuest": "Quiz konnte nicht gelöscht werden",
-    "errImportQuest": "Quiz konnte nicht importiert werden"
+    "errImportQuest": "Quiz konnte nicht importiert werden",
+    "errCreateCode": "Spiel konnte nicht erstellt werden: kein freier Code"
   },
   "create": {
     "title": "Neues Quiz",
@@ -148,7 +151,12 @@
     "maxAudio": "Du kannst nur eine Audiodatei hinzufügen.",
     "uploadFailed": "Medien konnten nicht hochgeladen werden. Versuche eine andere Datei.",
     "round": "Runde {n}",
-    "noRounds": "Noch keine Runden. Erstelle die erste, um Kategorien und Fragen hinzuzufügen."
+    "noRounds": "Noch keine Runden. Erstelle die erste, um Kategorien und Fragen hinzuzufügen.",
+    "errAuth": "Melde dich an, um Quizze zu verwalten",
+    "errRoundLimit": "Maximal 5 Runden pro Quiz",
+    "errCategoryLimit": "Maximal 5 Kategorien pro Runde",
+    "errQuestionLimit": "Maximal 5 Fragen pro Kategorie",
+    "errMediaUpload": "Upload fehlgeschlagen: {files}. Verbindung prüfen."
   },
   "game": {
     "loadingQuest": "Quiz wird geladen…",
