@@ -85,6 +85,11 @@
   --color-accent: rgb(var(--c-accent));
 }
 
+html {
+  /* Вимикає double-tap zoom на мобільних (швидкі тапи на кнопках/екрані гравця). */
+  touch-action: manipulation;
+}
+
 body {
   margin: 0;
   font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -94,6 +99,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background-color: rgb(var(--c-bg));
   color: rgb(var(--c-text));
+  touch-action: manipulation;
 }
 
 h1, h2, h3, .page-title, .quiz-title {
@@ -107,4 +113,15 @@ strong {
 
 #app {
   min-height: 100dvh;
+  touch-action: manipulation;
+}
+
+button,
+a,
+[role='button'],
+input,
+textarea,
+select,
+label {
+  touch-action: manipulation;
 }
