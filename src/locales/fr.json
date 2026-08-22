@@ -326,7 +326,7 @@
     "loading": "Chargement…",
     "refresh": "Actualiser",
     "privateHint": "page noindex · gardez l’URL pour vous",
-    "error": "Jeton invalide ou analytics indisponible. Vérifiez les migrations 009–010 et UPDATE site_analytics_secrets.",
+    "error": "Jeton invalide ou analytics indisponible.",
     "kpiViews7d": "Vues / 7 jours",
     "kpiSessions7d": "Sessions / 7 jours",
     "kpiClicks7d": "Clics / 7 jours",
@@ -339,8 +339,8 @@
     "topClicksLead": "CTA et navigation (30 jours)",
     "topCountries": "Pays",
     "topRegions": "Régions",
-    "empty": "Pas encore de données — parcourez le site normalement.",
-    "emptyGeo": "Pas encore de données géo.",
+    "empty": "Pas encore de données.",
+    "emptyGeo": "Pas encore de données.",
     "refreshed": "Mis à jour",
     "lastUpdated": "Dernière mise à jour :"
   }

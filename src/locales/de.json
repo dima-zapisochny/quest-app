@@ -326,7 +326,7 @@
     "loading": "Laden…",
     "refresh": "Aktualisieren",
     "privateHint": "noindex-Seite · URL nur für dich",
-    "error": "Ungültiger Token oder keine Analytics. Migrationen 009–010 und UPDATE site_analytics_secrets prüfen.",
+    "error": "Ungültiger Token oder keine Analytics.",
     "kpiViews7d": "Aufrufe / 7 Tage",
     "kpiSessions7d": "Sitzungen / 7 Tage",
     "kpiClicks7d": "Klicks / 7 Tage",
@@ -339,8 +339,8 @@
     "topClicksLead": "CTAs und Navigation (30 Tage)",
     "topCountries": "Länder",
     "topRegions": "Regionen",
-    "empty": "Noch keine Daten — Seite als normaler Besucher öffnen.",
-    "emptyGeo": "Noch keine Geo-Daten.",
+    "empty": "Noch keine Daten.",
+    "emptyGeo": "Noch keine Daten.",
     "refreshed": "Aktualisiert",
     "lastUpdated": "Zuletzt aktualisiert:"
   }
