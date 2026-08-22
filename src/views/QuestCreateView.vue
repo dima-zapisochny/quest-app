@@ -169,39 +169,68 @@ async function submit() {
 
 <style scoped>
 .quest-create {
-  min-height: 100dvh;
+  height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
   background: linear-gradient(135deg, rgb(var(--c-bg)) 0%, rgb(var(--c-surface)) 100%);
 }
 
+.quest-create :deep(.app-header) {
+  padding-top: 0.75rem;
+  padding-bottom: 0.4rem;
+}
+
 .quest-create__main {
-  max-width: 680px;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  max-width: 640px;
   margin: 0 auto;
-  padding: 2.5rem 1.5rem 4rem;
+  padding: 0.35rem clamp(0.85rem, 2.5vw, 1.5rem) 0.75rem;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .quest-create__title {
-  margin: 0.5rem 0 1.75rem;
-  font-size: clamp(1.8rem, 5vw, 2.6rem);
+  flex-shrink: 0;
+  margin: 0 0 0.65rem;
+  font-family: 'Press Start 2P', cursive;
+  font-size: clamp(1.25rem, 3.8vw, 2.1rem);
+  line-height: 1.55;
+  letter-spacing: 0.06em;
   color: rgb(var(--c-text));
   text-align: center;
+  text-shadow: 0 0 28px rgb(var(--c-accent-sky) / 0.25);
 }
 
 .quest-create__card {
-  padding: clamp(1.5rem, 4vw, 2.5rem);
+  flex: 0 1 auto;
+  min-height: 0;
+  width: 100%;
+  padding: clamp(0.85rem, 2vw, 1.35rem) clamp(1rem, 2.5vw, 1.75rem);
+  overflow: hidden;
 }
 
 .quest-create__form {
   display: flex;
   flex-direction: column;
-  gap: 0.65rem;
+  gap: 0.4rem;
+  min-height: 0;
 }
 
 .field-label {
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: rgb(var(--c-text-muted) / 0.7);
-  margin-top: 0.5rem;
+  margin-top: 0.2rem;
 }
 
 .field-input {
@@ -211,8 +240,8 @@ async function submit() {
   border: 1px solid rgb(var(--c-accent-sky) / 0.28);
   background: rgb(var(--c-bg) / 0.5);
   color: rgb(var(--c-text));
-  padding: 0.65rem 0.85rem;
-  font-size: 1rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.95rem;
   font-family: inherit;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
@@ -222,8 +251,10 @@ async function submit() {
   box-shadow: 0 0 0 3px rgb(var(--c-accent) / 0.12);
 }
 .field-textarea {
-  resize: vertical;
-  min-height: 3rem;
+  resize: none;
+  min-height: 2.4rem;
+  max-height: 2.75rem;
+  line-height: 1.35;
 }
 
 .mode-switch {
@@ -251,9 +282,9 @@ async function submit() {
 .grid-size {
   display: flex;
   flex-direction: column;
-  gap: 1.35rem;
-  padding: 2rem 2.25rem;
-  border-radius: 18px;
+  gap: 0.65rem;
+  padding: 0.75rem 1rem 0.85rem;
+  border-radius: 14px;
   border: 1px solid rgb(var(--c-accent-sky) / 0.18);
   background: rgb(var(--c-bg) / 0.4);
 }
@@ -261,17 +292,17 @@ async function submit() {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.85rem;
-  padding: 0.35rem 1rem 1.35rem;
+  gap: 0.65rem;
+  padding: 0 0 0.65rem;
   border-bottom: 1px solid rgb(var(--c-accent-sky) / 0.14);
 }
 .seg {
   display: inline-flex;
   align-items: center;
   justify-content: stretch;
-  gap: 0.35rem;
-  width: min(100%, 22rem);
-  padding: 5px;
+  gap: 0.3rem;
+  width: min(100%, 20rem);
+  padding: 4px;
   border-radius: var(--radius-pill);
   border: 1px solid rgb(var(--c-accent-sky) / 0.22);
   background: rgb(var(--c-bg) / 0.5);
@@ -280,13 +311,13 @@ async function submit() {
 .seg__btn {
   flex: 1;
   min-width: 0;
-  height: 2.35rem;
-  padding: 0 0.65rem;
+  height: 2rem;
+  padding: 0 0.45rem;
   border: none;
   border-radius: var(--radius-pill);
   background: transparent;
   color: rgb(var(--c-text-soft) / 0.8);
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 700;
   cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
@@ -310,13 +341,28 @@ async function submit() {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.35rem 1rem 0;
+  gap: 0.4rem;
+  padding: 0;
   transition: opacity 0.2s ease;
 }
 .grid-size__picker--busy {
   opacity: 0.6;
   pointer-events: none;
+}
+
+/* Трохи компактніша сітка на цій сторінці */
+.quest-create__card :deep(.gp__cell) {
+  width: clamp(36px, 6.5vw, 54px);
+}
+.quest-create__card :deep(.quest-emoji-picker__btn),
+.quest-create__card :deep(.quest-emoji-picker__more) {
+  width: 2.35rem;
+  height: 2.35rem;
+  font-size: 1.2rem;
+}
+.quest-create__card :deep(.quest-emoji-picker__more-dots),
+.quest-create__card :deep(.quest-emoji-picker__more-emoji) {
+  font-size: 1.2rem;
 }
 .grid-size__hint {
   margin: 0.4rem 0 0;
@@ -391,85 +437,130 @@ async function submit() {
 
 @media (max-width: 768px) {
   .quest-create__main {
-    padding: 1.75rem 1.15rem 3rem;
+    padding: 0.25rem 0.85rem 0.55rem;
+    justify-content: flex-start;
+  }
+
+  .quest-create__title {
+    margin-bottom: 0.5rem;
+    font-size: clamp(1.05rem, 4.5vw, 1.55rem);
   }
 
   .quest-create__card {
-    padding: 1.35rem;
+    padding: 0.85rem 1rem;
   }
 
   .grid-size {
-    padding: 1.5rem 1.15rem;
-    gap: 1.15rem;
+    padding: 0.65rem 0.75rem;
+    gap: 0.55rem;
   }
 
   .grid-size__rounds {
-    padding: 0.25rem 0.35rem 1.15rem;
+    padding: 0 0 0.55rem;
   }
 
-  .grid-size__picker {
-    padding: 0.25rem 0 0;
+  .seg {
+    width: 100%;
   }
 }
 
 @media (max-width: 480px) {
   .quest-create__main {
-    padding: 1.15rem 0.85rem 2.25rem;
+    padding: 0.15rem 0.65rem 0.45rem;
   }
 
   .quest-create__title {
-    margin-bottom: 1.15rem;
-    font-size: clamp(1.45rem, 7vw, 1.95rem);
+    margin-bottom: 0.4rem;
+    font-size: clamp(0.95rem, 4.2vw, 1.35rem);
   }
 
   .quest-create__card {
-    padding: 1.1rem;
-  }
-
-  .field-label {
-    font-size: 0.68rem;
+    padding: 0.7rem 0.75rem;
   }
 
   .field-input {
-    font-size: 0.95rem;
-    padding: 0.6rem 0.75rem;
-  }
-
-  .grid-size {
-    padding: 1.15rem 0.75rem;
-    border-radius: 14px;
-    gap: 1rem;
-  }
-
-  .grid-size__rounds {
-    padding: 0.15rem 0 0.95rem;
-  }
-
-  .seg {
-    width: 100%;
-    gap: 0.25rem;
-    padding: 4px;
+    font-size: 0.9rem;
+    padding: 0.45rem 0.65rem;
   }
 
   .seg__btn {
-    height: 2.05rem;
-    padding: 0 0.3rem;
-    font-size: 0.86rem;
+    height: 1.85rem;
+    font-size: 0.82rem;
+  }
+
+  .quest-create__card :deep(.gp__cell) {
+    width: clamp(30px, 12vw, 44px);
+  }
+
+  .quest-create__card :deep(.quest-emoji-picker__btn),
+  .quest-create__card :deep(.quest-emoji-picker__more) {
+    width: 2.1rem;
+    height: 2.1rem;
+    font-size: 1.05rem;
   }
 }
 
-@media (max-width: 360px) {
-  .quest-create__main {
-    padding: 1rem 0.65rem 2rem;
+/* Низькі екрани (ноутбуки / landscape) — ще щільніше */
+@media (max-height: 820px) {
+  .quest-create__title {
+    margin-bottom: 0.4rem;
+    font-size: clamp(1.05rem, 3.2vw, 1.65rem);
+  }
+
+  .quest-create__card {
+    padding: 0.7rem 1rem;
+  }
+
+  .quest-create__form {
+    gap: 0.3rem;
+  }
+
+  .field-label {
+    margin-top: 0.1rem;
+  }
+
+  .field-textarea {
+    min-height: 2.1rem;
+    max-height: 2.25rem;
   }
 
   .grid-size {
-    padding: 1rem 0.55rem;
+    padding: 0.55rem 0.75rem 0.65rem;
+    gap: 0.45rem;
+  }
+
+  .quest-create__card :deep(.gp__cell) {
+    width: clamp(32px, 5.5vw, 46px);
+  }
+}
+
+@media (max-height: 700px) {
+  .quest-create__title {
+    margin-bottom: 0.3rem;
+    font-size: clamp(0.95rem, 2.8vw, 1.35rem);
+  }
+
+  .grid-size__rounds {
+    padding-bottom: 0.4rem;
   }
 
   .seg__btn {
-    height: 1.9rem;
-    font-size: 0.8rem;
+    height: 1.75rem;
+  }
+
+  .quest-create__card :deep(.gp__header) {
+    height: 8px;
+  }
+
+  .quest-create__card :deep(.gp__cell) {
+    width: clamp(28px, 5vw, 40px);
+  }
+
+  .quest-create__card :deep(.quest-emoji-picker__btn),
+  .quest-create__card :deep(.quest-emoji-picker__more) {
+    width: 1.95rem;
+    height: 1.95rem;
+    font-size: 1rem;
   }
 }
 </style>
