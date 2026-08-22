@@ -65,6 +65,7 @@
                   </svg>
                 </button>
                 <button
+                  v-if="!isStandardQuestTitle(quest.title)"
                   type="button"
                   class="quest-action-button quest-action-button--danger"
                   @click="deleteQuest(quest.id)"
@@ -179,7 +180,7 @@ import { useGameSessionStore } from '@/store/gameSessionStore'
 import AppHeader from '@/components/common/AppHeader.vue'
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
 import { useIsMobileViewport } from '@/composables/useIsMobileViewport'
-import { seedStandardQuests } from '@/utils/seedStandardQuests'
+import { seedStandardQuests, isStandardQuestTitle, sortQuestsWithStandardsFirst } from '@/utils/seedStandardQuests'
 import { displayQuestTitle, questDisplayEmoji } from '@/utils/questCardTheme'
 import { playQuestDeselectSound, playQuestSelectSound } from '@/utils/uiSound'
 import { mapAppError } from '@/utils/mapAppError'
@@ -194,7 +195,7 @@ const quizStore = useQuizStore()
 const sessionStore = useGameSessionStore()
 const { isMobileViewport } = useIsMobileViewport()
 
-const quests = computed(() => quizStore.quests)
+const quests = computed(() => sortQuestsWithStandardsFirst(quizStore.quests))
 const selectedQuestId = ref<string | null>(null)
 const selectedQuest = computed(() =>
   selectedQuestId.value ? quests.value.find(q => q.id === selectedQuestId.value) ?? null : null
@@ -323,7 +324,7 @@ async function checkProfileAndLoad() {
     return
   }
 
-  if (!quests.value.length) {
+  if (!quizStore.quests.length) {
     await quizStore.loadFromStorage()
   }
 
@@ -471,7 +472,7 @@ async function exportQuest(questId: string) {
 
 function deleteQuest(questId: string) {
   const quest = quizStore.getQuestById(questId)
-  if (!quest) return
+  if (!quest || isStandardQuestTitle(quest.title)) return
   confirmDeleteModal.value = {
     visible: true,
     questId,

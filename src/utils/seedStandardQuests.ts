@@ -5,15 +5,32 @@ import type { Quest } from '@/types'
 
 type QuizStore = ReturnType<typeof useQuizStore>
 
-/** Стандартні готові квести для всіх користувачів (не лише DEV). */
+/** Порядок фіксований: кіно → музика. */
 export const STANDARD_QUESTS: Quest[] = [movieNightQuest, hitParadeQuest]
 
-const STANDARD_TITLES = new Set(STANDARD_QUESTS.map(q => q.title))
+export const STANDARD_QUEST_ORDER = STANDARD_QUESTS.map(q => q.title)
+
+const STANDARD_TITLES = new Set(STANDARD_QUEST_ORDER)
+
+export function isStandardQuestTitle(title: string): boolean {
+  return STANDARD_TITLES.has(title)
+}
+
+/** Movie Night, Hit Parade зверху; решта — як були. */
+export function sortQuestsWithStandardsFirst(list: Quest[]): Quest[] {
+  const byTitle = new Map(list.map(q => [q.title, q]))
+  const pinned: Quest[] = []
+  for (const title of STANDARD_QUEST_ORDER) {
+    const q = byTitle.get(title)
+    if (q) pinned.push(q)
+  }
+  const pinnedIds = new Set(pinned.map(q => q.id))
+  return [...pinned, ...list.filter(q => !pinnedIds.has(q.id))]
+}
 
 /**
- * Ідемпотентно додає Movie Night і Hit Parade, якщо ще немає квесту з такою назвою.
- * У DEV також прибирає всі інші локальні квести (тестові тощо), щоб лишились лише стандартні.
- * Повертає кількість новостворених.
+ * Завжди гарантує наявність Movie Night і Hit Parade (за назвою).
+ * У DEV також прибирає всі інші локальні квести.
  */
 export async function seedStandardQuests(store: QuizStore): Promise<number> {
   const existing = new Set(store.quests.map(q => q.title))
@@ -43,6 +60,8 @@ export async function seedStandardQuests(store: QuizStore): Promise<number> {
       console.log(`🧹 [Quest] Removed ${extras.length} non-standard quest(s) (DEV)`)
     }
   }
+
+  store.quests = sortQuestsWithStandardsFirst(store.quests)
 
   if (created > 0) {
     console.log(`🎬🎵 [Quest] Seeded ${created} standard quest(s)`)
