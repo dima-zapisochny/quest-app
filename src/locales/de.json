@@ -11,7 +11,9 @@
     "confirm": "Bestätigen",
     "gameCode": "Spielcode",
     "avatarPicker": "Avatar auswählen",
-    "refreshAvatar": "Avatar neu laden"
+    "refreshAvatar": "Avatar neu laden",
+    "soundOn": "Ton einschalten",
+    "soundOff": "Ton ausschalten"
   },
   "landing": {
     "checkingAuth": "Autorisierung wird geprüft…",
@@ -71,6 +73,9 @@
     "descriptionPlaceholder": "Eine kurze Notiz zum Quiz",
     "emoji": "Quiz-Symbol",
     "emojiAria": "Emoji für das Quiz wählen",
+    "emojiMore": "Weitere Symbole",
+    "emojiMoreAria": "Vollständige Emoji-Liste öffnen",
+    "emojiPickerTitle": "Symbol wählen",
     "startFrom": "Womit anfangen",
     "boardSize": "Spielfeldgröße",
     "grid": "Fertiges Raster",

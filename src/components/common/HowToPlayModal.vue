@@ -359,18 +359,93 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 .howto-enter-from, .howto-leave-to { opacity: 0; }
 .howto-enter-from .howto, .howto-leave-to .howto { opacity: 0; transform: translateY(16px) scale(0.96); }
 
+@media (max-width: 768px) {
+  .howto-overlay {
+    padding: 0.5rem;
+    align-items: flex-start;
+  }
+
+  .howto {
+    width: 100%;
+    height: min(94vh, 100%);
+    margin-top: 0.25rem;
+    border-radius: 20px;
+  }
+
+  .howto__head {
+    padding: 1.15rem 1.15rem 0.65rem;
+    gap: 0.75rem;
+  }
+
+  .howto__title {
+    font-size: 1.45rem;
+  }
+
+  .howto__subtitle {
+    font-size: 0.85rem;
+  }
+
+  .howto__tabs {
+    margin-top: 0.65rem;
+    max-width: calc(100% - 1.5rem);
+  }
+
+  .howto__tab {
+    padding: 0.55rem 1.15rem;
+    font-size: 0.88rem;
+  }
+
+  .howto__stage {
+    margin: 0.55rem 0.85rem 0;
+    border-radius: 16px;
+    min-height: 220px;
+  }
+
+  .howto__illu {
+    padding: 0.45rem;
+  }
+
+  .howto__content {
+    height: auto;
+    min-height: 108px;
+    padding: 0.45rem 1rem;
+  }
+
+  .howto__step-title {
+    font-size: 1.15rem;
+  }
+
+  .howto__step-desc {
+    font-size: 0.88rem;
+    line-height: 1.45;
+  }
+
+  .howto__nav {
+    padding: 0.65rem 0.85rem 1rem;
+    gap: 0.65rem;
+  }
+}
+
 @media (max-width: 560px) {
   .howto { height: min(92vh, 100%); }
-  .howto__stage { margin: 0.5rem 1rem 0; }
+  .howto__stage { margin: 0.5rem 0.65rem 0; min-height: 200px; }
+  .howto__head { padding: 1rem 0.9rem 0.55rem; }
+  .howto__title { font-size: 1.28rem; }
+  .howto__tabs { padding: 0.32rem; gap: 0.25rem; }
+  .howto__tab { padding: 0.5rem 0.85rem; font-size: 0.82rem; }
   /* Компактная навигация, чтобы «Далее» не вылезал за край */
   .howto__nav { padding: 0.7rem 0.9rem 1.1rem; gap: 0.5rem; }
   .howto__prev { min-width: 84px; padding: 0.6rem 0.9rem; font-size: 0.9rem; }
   .howto__next { min-width: 84px; padding: 0.6rem 0.9rem; font-size: 0.9rem; }
   .howto__dots { gap: 0.35rem; }
+  .howto__content { min-height: 96px; padding: 0.4rem 0.75rem; }
+  .howto__step-title { font-size: 1.05rem; }
+  .howto__step-desc { font-size: 0.84rem; }
 }
 @media (max-width: 380px) {
   .howto__nav { padding: 0.7rem 0.7rem 1rem; }
   .howto__prev,
   .howto__next { min-width: 74px; padding: 0.55rem 0.75rem; font-size: 0.85rem; }
+  .howto__stage { min-height: 180px; }
 }
 </style>

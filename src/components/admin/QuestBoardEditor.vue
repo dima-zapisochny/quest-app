@@ -316,7 +316,7 @@ watch(() => props.round.id, closeModal)
   margin: 0;
   padding: 2.6rem 1.1rem;
   background: rgb(var(--c-bg) / 0.4);
-  border: 1px solid rgb(var(--c-accent-sky) / 0.14);
+  border: 1px dashed rgb(var(--c-accent-sky) / 0.22);
   border-radius: 18px;
   display: flex;
   flex-direction: column;

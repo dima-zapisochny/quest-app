@@ -710,6 +710,11 @@ async function confirmReset() {
   min-height: 0;
 }
 
+.quest-stage :deep(.empty-categories) {
+  flex: 1;
+  min-height: 0;
+}
+
 .rounds-nav--stage {
   gap: 0.6rem;
   padding: 0 1rem;

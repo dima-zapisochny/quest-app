@@ -3,13 +3,26 @@ export function displayQuestTitle(title: string): string {
   return title.replace(/^\[Тест\]\s*/i, '').trim() || title
 }
 
-/** Доступные emoji при создании квеста. */
-export const QUEST_EMOJIS = [
-  '🎯', '🏛', '🔬', '🎬', '⚽', '🎵', '🌍', '📚',
-  '🎮', '🍕', '✈️', '🎨', '💡', '🚀', '🐾', '🏆'
+/** Порядок у рядку: спочатку кіно, музика, книги, планета, історія. */
+export const QUEST_EMOJI_ROW_ORDER = [
+  '🎬', '🎵', '📚', '🌍', '🏛',
+  '🎯', '🔬', '⚽', '🎮', '🍕', '✈️', '🎨', '💡', '🚀', '🐾', '🏆'
 ] as const
 
-export const DEFAULT_QUEST_EMOJI = QUEST_EMOJIS[0]
+/** Усі emoji квесту (той самий набір, впорядкований для рядка). */
+export const QUEST_EMOJIS = QUEST_EMOJI_ROW_ORDER
+
+/** Додаткові emoji — у модальному пікері через «⋯». */
+export const QUEST_EMOJI_EXTRA = [
+  '📖', '🧪', '🎭', '🏀', '🎸', '🗺️', '💻', '🧠',
+  '🎪', '🌟', '🔥', '❤️', '🍎', '🌈', '⚡', '🎁',
+  '🦖', '🎲', '🏖', '🍿', '📷', '🎤', '🏔', '🌸',
+  '🍔', '☕', '🚗', '✨', '🎓', '🔮', '🛸', '🎹'
+] as const
+
+export type QuestEmoji = (typeof QUEST_EMOJIS)[number] | (typeof QUEST_EMOJI_EXTRA)[number]
+
+export const DEFAULT_QUEST_EMOJI = QUEST_EMOJI_ROW_ORDER[0]
 
 /** Эмодзи-тема по ключевым словам в названии (fallback). */
 export function questThemeEmoji(title: string): string {

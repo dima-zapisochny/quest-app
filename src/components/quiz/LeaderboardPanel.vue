@@ -4,7 +4,8 @@
       <header class="leaderboard-header">
         <span class="leaderboard-label">{{ t('game.participants') }}</span>
       </header>
-      <TransitionGroup v-if="leaderboardEntries.length" name="leaderboard" tag="ul" class="leaderboard-list">
+      <div class="leaderboard-body">
+        <TransitionGroup v-if="leaderboardEntries.length" name="leaderboard" tag="ul" class="leaderboard-list">
         <li
           v-for="(player, index) in leaderboardEntries"
           :key="player.id"
@@ -40,7 +41,8 @@
           </div>
         </li>
       </TransitionGroup>
-      <p v-else class="leaderboard-empty">{{ t('game.waitingForPlayers') }}</p>
+        <p v-else class="leaderboard-empty">{{ t('game.waitingForPlayers') }}</p>
+      </div>
     </BaseCard>
   </section>
 
@@ -177,7 +179,12 @@ function isPlayerAnswered(playerId: string): boolean {
 }
 
 .leaderboard-empty {
-  margin: 1rem 0 0.25rem;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  min-height: 8.75rem;
   padding: 0.85rem 1rem;
   text-align: center;
   font-size: 0.85rem;
@@ -185,6 +192,15 @@ function isPlayerAnswered(playerId: string): boolean {
   border: 1px dashed rgb(var(--c-accent-sky) / 0.25);
   border-radius: 12px;
   background: rgb(var(--c-bg) / 0.35);
+  box-sizing: border-box;
+}
+
+.leaderboard-body {
+  margin-top: 1rem;
+  min-height: 8.75rem;
+  display: flex;
+  align-items: stretch;
+  width: 100%;
 }
 
 /* Корпус карточки — в BaseCard; здесь только специфика лидерборда */
@@ -195,7 +211,7 @@ function isPlayerAnswered(playerId: string): boolean {
 
 .leaderboard-list {
   margin: 0;
-  margin-top: 1rem;
+  flex: 1;
   display: flex;
   gap: 0.5rem;
   overflow-x: auto;

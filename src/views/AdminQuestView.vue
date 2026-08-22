@@ -52,6 +52,8 @@
           class="toolbar-textarea"
           :placeholder="t('editor.questDescPlaceholder')"
         ></textarea>
+        <span class="toolbar-label">{{ t('create.emoji') }}</span>
+        <QuestEmojiPicker v-model="questEmoji" :aria-label="t('create.emojiAria')" />
       </div>
     </header>
 
@@ -135,6 +137,8 @@ import QuestBoardEditor from '@/components/admin/QuestBoardEditor.vue'
 import AppHeader from '@/components/common/AppHeader.vue'
 import BackLink from '@/components/common/BackLink.vue'
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
+import QuestEmojiPicker from '@/components/common/QuestEmojiPicker.vue'
+import { questDisplayEmoji } from '@/utils/questCardTheme'
 
 interface Props {
   questId: string
@@ -190,6 +194,18 @@ const questDescription = computed({
   set: value => {
     if (quest.value) {
       store.updateQuest(quest.value.id, { description: value })
+    }
+  }
+})
+
+const questEmoji = computed({
+  get: () => {
+    if (!quest.value) return ''
+    return quest.value.emoji?.trim() || questDisplayEmoji(quest.value)
+  },
+  set: value => {
+    if (quest.value) {
+      store.updateQuest(quest.value.id, { emoji: value })
     }
   }
 })

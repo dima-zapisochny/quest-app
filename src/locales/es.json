@@ -11,7 +11,9 @@
     "confirm": "Confirmar",
     "gameCode": "Código de juego",
     "avatarPicker": "Elegir avatar",
-    "refreshAvatar": "Cambiar avatar"
+    "refreshAvatar": "Cambiar avatar",
+    "soundOn": "Activar sonido",
+    "soundOff": "Desactivar sonido"
   },
   "landing": {
     "checkingAuth": "Comprobando autorización…",
@@ -71,6 +73,9 @@
     "descriptionPlaceholder": "Una nota breve sobre el cuestionario",
     "emoji": "Icono del cuestionario",
     "emojiAria": "Elige un emoji para el cuestionario",
+    "emojiMore": "Más iconos",
+    "emojiMoreAria": "Abrir lista completa de emoji",
+    "emojiPickerTitle": "Elige un icono",
     "startFrom": "Por dónde empezar",
     "boardSize": "Tamaño del tablero",
     "grid": "Tablero listo",

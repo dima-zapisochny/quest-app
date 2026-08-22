@@ -11,7 +11,9 @@
     "confirm": "Подтвердить",
     "gameCode": "Код игры",
     "avatarPicker": "Выбор аватара",
-    "refreshAvatar": "Обновить аватар"
+    "refreshAvatar": "Обновить аватар",
+    "soundOn": "Включить звук",
+    "soundOff": "Выключить звук"
   },
   "landing": {
     "checkingAuth": "Проверка авторизации…",
@@ -71,6 +73,9 @@
     "descriptionPlaceholder": "Коротко о квесте",
     "emoji": "Иконка квеста",
     "emojiAria": "Выберите emoji для квеста",
+    "emojiMore": "Другие иконки",
+    "emojiMoreAria": "Открыть полный список emoji",
+    "emojiPickerTitle": "Выберите иконку",
     "startFrom": "С чего начать",
     "boardSize": "Размер доски",
     "grid": "Готовая сетка",

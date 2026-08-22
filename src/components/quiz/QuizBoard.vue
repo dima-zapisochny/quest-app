@@ -219,10 +219,27 @@ function handleFinished() {
 }
 
 .empty-categories {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   text-align: center;
-  padding: 3rem 1.5rem;
+  padding: 2rem 1.5rem;
+  border-radius: 18px;
+  border: 1px solid rgb(var(--c-indigo) / 0.45);
+  background: rgb(var(--c-surface) / 0.55);
+  box-shadow:
+    0 8px 32px rgb(var(--c-bg) / 0.45),
+    0 4px 16px rgb(var(--c-tile-600) / 0.12),
+    inset 0 2px 4px rgb(var(--c-white) / 0.06),
+    inset 0 -2px 4px rgb(var(--c-black) / 0.3);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   color: rgb(var(--c-text-soft) / 0.85);
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  box-sizing: border-box;
 }
 
 .empty-categories p {

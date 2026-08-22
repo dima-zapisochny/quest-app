@@ -11,7 +11,9 @@
     "confirm": "Підтвердити",
     "gameCode": "Код гри",
     "avatarPicker": "Вибір аватара",
-    "refreshAvatar": "Оновити аватар"
+    "refreshAvatar": "Оновити аватар",
+    "soundOn": "Увімкнути звук",
+    "soundOff": "Вимкнути звук"
   },
   "landing": {
     "checkingAuth": "Перевірка авторизації…",
@@ -71,6 +73,9 @@
     "descriptionPlaceholder": "Коротко про квест",
     "emoji": "Іконка квесту",
     "emojiAria": "Оберіть emoji для квесту",
+    "emojiMore": "Інші іконки",
+    "emojiMoreAria": "Відкрити повний список emoji",
+    "emojiPickerTitle": "Оберіть іконку",
     "startFrom": "З чого почати",
     "boardSize": "Розмір дошки",
     "grid": "Готова сітка",

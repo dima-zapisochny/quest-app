@@ -11,7 +11,7 @@
     </div>
 
     <!-- Сетка плиток: колонки = категории, ряды = вопросы -->
-    <div class="gp__grid" :style="colsStyle" @mouseleave="hover = null">
+    <div class="gp__grid" :style="colsStyle" @mouseleave="onGridLeave">
       <button
         v-for="cell in cells"
         :key="cell.key"
@@ -19,8 +19,8 @@
         class="gp__cell"
         :class="{ 'gp__cell--active': cell.c <= selCols && cell.r <= selRows }"
         :aria-label="`${cell.c} × ${cell.r}`"
-        @mouseenter="hover = { c: cell.c, r: cell.r }"
-        @focus="hover = { c: cell.c, r: cell.r }"
+        @mouseenter="onCellEnter(cell.c, cell.r)"
+        @focus="onCellEnter(cell.c, cell.r)"
         @click="apply(cell.c, cell.r)"
       ></button>
     </div>
@@ -36,6 +36,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { usePlural } from '@/i18n/plural'
+import { playGridTileClickSound, playGridTileHoverSound } from '@/utils/uiSound'
 
 interface Props {
   categories: number
@@ -59,6 +60,20 @@ const emit = defineEmits<{
 }>()
 
 const hover = ref<{ c: number; r: number } | null>(null)
+let lastHoverKey: string | null = null
+
+function onCellEnter(c: number, r: number) {
+  hover.value = { c, r }
+  const key = `${c}-${r}`
+  if (key === lastHoverKey) return
+  lastHoverKey = key
+  void playGridTileHoverSound()
+}
+
+function onGridLeave() {
+  hover.value = null
+  lastHoverKey = null
+}
 
 // Пока курсор над сеткой — показываем предпросмотр наведённого размера,
 // иначе — текущий выбор.
@@ -83,6 +98,7 @@ const { count } = usePlural()
 const tilesLabel = computed(() => count(selCols.value * selRows.value, 'plural.tiles'))
 
 function apply(c: number, r: number) {
+  void playGridTileClickSound()
   emit('update:categories', c)
   emit('update:questions', r)
   emit('select', c, r)
@@ -95,6 +111,7 @@ function apply(c: number, r: number) {
   flex-direction: column;
   gap: 0.4rem;
   width: fit-content;
+  max-width: 100%;
 }
 
 .gp__headers {
@@ -154,5 +171,22 @@ function apply(c: number, r: number) {
   color: rgb(var(--c-accent-soft));
   margin-left: 0.35rem;
   font-size: 0.82rem;
+}
+
+@media (max-width: 480px) {
+  .gp {
+    width: 100%;
+    align-items: center;
+  }
+
+  .gp__headers,
+  .gp__grid {
+    width: min(100%, 340px);
+  }
+
+  .gp__cell {
+    width: 100%;
+    min-width: 0;
+  }
 }
 </style>

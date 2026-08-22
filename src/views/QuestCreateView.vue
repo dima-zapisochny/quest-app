@@ -10,7 +10,6 @@
 
     <main class="quest-create__main">
       <h1 class="quest-create__title">{{ t('create.title') }}</h1>
-      <p class="quest-create__subtitle">{{ t('create.subtitle') }}</p>
 
       <BaseCard class="quest-create__card">
         <form class="quest-create__form" @submit.prevent="submit">
@@ -165,15 +164,10 @@ async function submit() {
 }
 
 .quest-create__title {
-  margin: 0.5rem 0 0.4rem;
+  margin: 0.5rem 0 1.75rem;
   font-size: clamp(1.8rem, 5vw, 2.6rem);
   color: rgb(var(--c-text));
-}
-
-.quest-create__subtitle {
-  margin: 0 0 1.75rem;
-  color: rgb(var(--c-text-soft) / 0.75);
-  font-size: 1.02rem;
+  text-align: center;
 }
 
 .quest-create__card {
@@ -241,8 +235,8 @@ async function submit() {
 .grid-size {
   display: flex;
   flex-direction: column;
-  gap: 1.1rem;
-  padding: 1.35rem 1.4rem;
+  gap: 1.35rem;
+  padding: 2rem 2.25rem;
   border-radius: 18px;
   border: 1px solid rgb(var(--c-accent-sky) / 0.18);
   background: rgb(var(--c-bg) / 0.4);
@@ -252,28 +246,34 @@ async function submit() {
   align-items: center;
   justify-content: center;
   gap: 0.85rem;
-  padding-bottom: 1.1rem;
+  padding: 0.35rem 1rem 1.35rem;
   border-bottom: 1px solid rgb(var(--c-accent-sky) / 0.14);
 }
 .seg {
   display: inline-flex;
-  gap: 4px;
-  padding: 4px;
+  align-items: center;
+  justify-content: stretch;
+  gap: 0.35rem;
+  width: min(100%, 22rem);
+  padding: 5px;
   border-radius: var(--radius-pill);
   border: 1px solid rgb(var(--c-accent-sky) / 0.22);
   background: rgb(var(--c-bg) / 0.5);
+  box-sizing: border-box;
 }
 .seg__btn {
-  width: 2.2rem;
-  height: 2.2rem;
+  flex: 1;
+  min-width: 0;
+  height: 2.35rem;
+  padding: 0 0.65rem;
   border: none;
-  border-radius: 50%;
+  border-radius: var(--radius-pill);
   background: transparent;
   color: rgb(var(--c-text-soft) / 0.8);
   font-size: 0.95rem;
   font-weight: 700;
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
 }
 .seg__btn:hover:not(.seg__btn--active) {
   background: rgb(var(--c-accent-sky) / 0.12);
@@ -281,6 +281,7 @@ async function submit() {
 .seg__btn--active {
   background: linear-gradient(135deg, rgb(var(--c-accent-sky)), rgb(var(--c-accent)));
   color: rgb(var(--c-bg));
+  box-shadow: 0 2px 8px rgb(var(--c-accent) / 0.28);
 }
 .seg__btn:focus {
   outline: none;
@@ -294,6 +295,7 @@ async function submit() {
   flex-direction: column;
   align-items: center;
   gap: 0.75rem;
+  padding: 0.35rem 1rem 0;
   transition: opacity 0.2s ease;
 }
 .grid-size__picker--busy {
@@ -369,5 +371,89 @@ async function submit() {
 .btn-primary:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .quest-create__main {
+    padding: 1.75rem 1.15rem 3rem;
+  }
+
+  .quest-create__card {
+    padding: 1.35rem;
+  }
+
+  .grid-size {
+    padding: 1.5rem 1.15rem;
+    gap: 1.15rem;
+  }
+
+  .grid-size__rounds {
+    padding: 0.25rem 0.35rem 1.15rem;
+  }
+
+  .grid-size__picker {
+    padding: 0.25rem 0 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .quest-create__main {
+    padding: 1.15rem 0.85rem 2.25rem;
+  }
+
+  .quest-create__title {
+    margin-bottom: 1.15rem;
+    font-size: clamp(1.45rem, 7vw, 1.95rem);
+  }
+
+  .quest-create__card {
+    padding: 1.1rem;
+  }
+
+  .field-label {
+    font-size: 0.68rem;
+  }
+
+  .field-input {
+    font-size: 0.95rem;
+    padding: 0.6rem 0.75rem;
+  }
+
+  .grid-size {
+    padding: 1.15rem 0.75rem;
+    border-radius: 14px;
+    gap: 1rem;
+  }
+
+  .grid-size__rounds {
+    padding: 0.15rem 0 0.95rem;
+  }
+
+  .seg {
+    width: 100%;
+    gap: 0.25rem;
+    padding: 4px;
+  }
+
+  .seg__btn {
+    height: 2.05rem;
+    padding: 0 0.3rem;
+    font-size: 0.86rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .quest-create__main {
+    padding: 1rem 0.65rem 2rem;
+  }
+
+  .grid-size {
+    padding: 1rem 0.55rem;
+  }
+
+  .seg__btn {
+    height: 1.9rem;
+    font-size: 0.8rem;
+  }
 }
 </style>

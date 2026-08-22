@@ -15,14 +15,14 @@
       </div>
     </div>
 
-    <main v-else class="host-main">
+    <main v-else class="host-main" :style="mainGridStyle">
       <header class="host-hero">
         <h1 class="host-hero__title">{{ t('host.title') }}</h1>
         <p class="host-hero__subtitle">{{ t('host.subtitle') }}</p>
       </header>
 
-      <section class="host-library">
-        <div class="quests-grid">
+      <section ref="libraryRef" class="host-library">
+        <div ref="gridRef" class="quests-grid" :style="questsGridStyle">
           <article
             v-for="quest in quests"
             :key="quest.id"
@@ -30,9 +30,14 @@
             @click="handleCardClick($event, quest.id)"
           >
             <div v-if="selectedQuestId === quest.id" class="quest-card__selected" aria-hidden="true">
-              <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
-                <path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/>
-              </svg>
+              <span class="quest-card__selected-waves">
+                <span v-for="n in 3" :key="n" class="quest-card__check-wave" />
+              </span>
+              <span class="quest-card__selected-icon">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+                  <path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/>
+                </svg>
+              </span>
             </div>
             <div class="quest-card__cover">
               <span class="quest-card__emoji" aria-hidden="true">{{ questDisplayEmoji(quest) }}</span>
@@ -124,13 +129,15 @@
         <div class="host-dock__inner">
           <div class="host-dock__info">
             <template v-if="selectedQuest">
-              <span class="host-dock__label">{{ t('host.selectedQuest') }}</span>
-              <strong class="host-dock__quest">{{ displayQuestTitle(selectedQuest.title) }}</strong>
-              <span class="host-dock__stats">
-                {{ t('host.rounds', { count: selectedQuest.roundsCount ?? (selectedQuest.rounds?.length ?? 0) }) }}
-                ·
-                {{ t('host.questions', { count: questQuestions(selectedQuest) }) }}
-              </span>
+              <div class="host-dock__selection">
+                <strong class="host-dock__quest">{{ displayQuestTitle(selectedQuest.title) }}</strong>
+                <span class="host-dock__sep" aria-hidden="true">·</span>
+                <span class="host-dock__stats">
+                  {{ t('host.rounds', { count: selectedQuest.roundsCount ?? (selectedQuest.rounds?.length ?? 0) }) }}
+                  ·
+                  {{ t('host.questions', { count: questQuestions(selectedQuest) }) }}
+                </span>
+              </div>
             </template>
             <p v-else class="host-dock__placeholder">{{ t('host.pickQuestHint') }}</p>
           </div>
@@ -164,7 +171,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
+import { computed, ref, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useQuizStore } from '@/store/quizStore'
@@ -174,6 +181,7 @@ import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
 import { useIsMobileViewport } from '@/composables/useIsMobileViewport'
 import { seedTestQuests } from '@/utils/seedTestQuests'
 import { displayQuestTitle, questDisplayEmoji } from '@/utils/questCardTheme'
+import { playQuestDeselectSound, playQuestSelectSound } from '@/utils/uiSound'
 
 const { t } = useI18n()
 const importingQuest = ref(false)
@@ -200,6 +208,80 @@ const confirmDeleteModal = ref<{ visible: boolean; questId: string | null; quest
 
 const userProfile = computed(() => sessionStore.userProfile)
 
+const libraryRef = ref<HTMLElement | null>(null)
+const gridRef = ref<HTMLElement | null>(null)
+const gridCols = ref(4)
+const gridMaxHeight = ref('')
+
+const CARD_MAX_WIDTH = 240
+let layoutFrame = 0
+let gridResizeObserver: ResizeObserver | null = null
+
+const mainGridStyle = computed(() => ({
+  '--grid-cols': String(gridCols.value)
+}))
+
+const questsGridStyle = computed(() => ({
+  '--grid-cols': String(gridCols.value),
+  maxHeight: gridMaxHeight.value || undefined
+}))
+
+function measureRowStride(grid: HTMLElement): { rowH: number; rowGap: number } {
+  const styles = getComputedStyle(grid)
+  const fallbackGap = parseFloat(styles.rowGap || styles.gap) || 17.6
+  const cards = [...grid.querySelectorAll<HTMLElement>('.quest-card')]
+  if (!cards.length) return { rowH: 0, rowGap: fallbackGap }
+
+  const sorted = [...cards].sort((a, b) => a.offsetTop - b.offsetTop)
+  const firstTop = sorted[0].offsetTop
+  const firstRow = sorted.filter((c) => c.offsetTop === firstTop)
+  const rowH = Math.max(...firstRow.map((c) => c.offsetHeight))
+
+  const nextRow = sorted.find((c) => c.offsetTop > firstTop)
+  const rowGap = nextRow ? nextRow.offsetTop - firstTop - rowH : fallbackGap
+
+  return { rowH, rowGap }
+}
+
+function updateQuestGridLayout() {
+  const library = libraryRef.value
+  const grid = gridRef.value
+  if (!library || !grid) return
+
+  const styles = getComputedStyle(grid)
+  const padTop = parseFloat(styles.paddingTop) || 0
+  const innerW = library.clientWidth
+
+  const sample = grid.querySelector<HTMLElement>('.quest-card')
+  let cardW = CARD_MAX_WIDTH
+  if (sample) {
+    const maxW = parseFloat(getComputedStyle(sample).maxWidth)
+    cardW = Number.isFinite(maxW) && maxW > 0 ? maxW : sample.offsetWidth
+  }
+
+  const cols = Math.max(1, Math.min(4, Math.floor((innerW + 17.6) / (cardW + 17.6))))
+  gridCols.value = cols
+
+  requestAnimationFrame(() => {
+    const { rowH, rowGap } = measureRowStride(grid)
+    if (!rowH) return
+
+    const availH = library.clientHeight
+    let rows = Math.floor((availH - padTop + rowGap) / (rowH + rowGap))
+    rows = Math.max(1, Math.min(3, rows))
+
+    // Висота рівно до межі наступного рядка — без «торчащих» карток
+    gridMaxHeight.value = `${Math.floor(padTop + rows * rowH + rows * rowGap) - 4}px`
+  })
+}
+
+function scheduleQuestGridLayout() {
+  cancelAnimationFrame(layoutFrame)
+  layoutFrame = requestAnimationFrame(() => {
+    void nextTick(updateQuestGridLayout)
+  })
+}
+
 const handleClickOutside = (event: MouseEvent) => {
   const hostRoot = document.querySelector('.host-setup')
   const target = event.target as HTMLElement
@@ -217,7 +299,16 @@ onMounted(async () => {
   await sessionStore.whenReady()
   await checkProfileAndLoad()
 
+  scheduleQuestGridLayout()
+  gridResizeObserver = new ResizeObserver(scheduleQuestGridLayout)
+  if (libraryRef.value) gridResizeObserver.observe(libraryRef.value)
+  window.addEventListener('resize', scheduleQuestGridLayout)
   window.addEventListener('click', handleClickOutside)
+})
+
+watch(quests, scheduleQuestGridLayout)
+watch(loading, (isLoading) => {
+  if (!isLoading) scheduleQuestGridLayout()
 })
 
 async function checkProfileAndLoad() {
@@ -249,7 +340,10 @@ async function checkProfileAndLoad() {
 }
 
 onBeforeUnmount(() => {
+  gridResizeObserver?.disconnect()
+  window.removeEventListener('resize', scheduleQuestGridLayout)
   window.removeEventListener('click', handleClickOutside)
+  cancelAnimationFrame(layoutFrame)
 })
 
 // Из лёгкого списка (#16) берём questionsCount; иначе считаем по загруженной структуре
@@ -280,8 +374,10 @@ function handleCardClick(event: MouseEvent, questId: string) {
 function selectQuest(questId: string) {
   if (selectedQuestId.value === questId) {
     selectedQuestId.value = null
+    void playQuestDeselectSound()
   } else {
     selectedQuestId.value = questId
+    void playQuestSelectSound()
   }
   errorMessage.value = ''
 }
@@ -440,7 +536,7 @@ async function onImportQuestFile(event: Event) {
   position: relative;
   height: 100dvh;
   overflow: hidden;
-  background: linear-gradient(135deg, rgb(var(--c-bg)) 0%, rgb(var(--c-surface)) 100%);
+  background: rgb(var(--c-bg));
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
@@ -453,7 +549,7 @@ async function onImportQuestFile(event: Event) {
   min-height: 0;
   display: flex;
   flex-direction: column;
-  max-width: calc(4 * 240px + 3 * 1.1rem + 4rem);
+  max-width: calc(var(--grid-cols, 4) * 240px + (var(--grid-cols, 4) - 1) * 1.1rem + 5.25rem);
   width: 100%;
   margin: 0 auto;
   padding: 0 clamp(1rem, 3vw, 2rem);
@@ -464,7 +560,7 @@ async function onImportQuestFile(event: Event) {
 .host-hero {
   flex-shrink: 0;
   text-align: center;
-  padding: 0.5rem 0 1.25rem;
+  padding: 0.5rem 0 0.65rem;
 }
 
 .host-hero__title {
@@ -490,23 +586,30 @@ async function onImportQuestFile(event: Event) {
   flex: 1;
   min-height: 0;
   display: flex;
-  flex-direction: column;
-  overflow: hidden;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+  padding-bottom: 0.75rem;
 }
 
 .quests-grid {
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  flex-wrap: wrap;
+  box-sizing: border-box;
+  flex: 0 1 auto;
+  width: min(100%, calc(var(--grid-cols, 4) * 240px + (var(--grid-cols, 4) - 1) * 1.1rem + 1.25rem));
+  margin-inline: auto;
+  display: grid;
+  grid-template-columns: repeat(var(--grid-cols, 4), minmax(0, 240px));
   justify-content: center;
-  align-content: flex-start;
-  align-items: stretch;
+  align-content: start;
   gap: 1.1rem;
+  overflow-x: hidden;
   overflow-y: auto;
-  padding: 0.25rem 0.5rem 1rem;
+  /* місце під hover зверху + відступ від скролбара справа */
+  padding: 0.25rem 0.75rem 0 0.5rem;
+  scroll-padding-top: 0.5rem;
   scrollbar-width: thin;
   scrollbar-color: rgb(var(--c-accent-sky) / 0.4) transparent;
+  scroll-snap-type: y mandatory;
 }
 
 .quests-grid::-webkit-scrollbar {
@@ -521,41 +624,90 @@ async function onImportQuestFile(event: Event) {
 /* ── Quest cards ── */
 .quest-card {
   position: relative;
-  width: min(100%, 240px);
-  flex: 0 0 auto;
-  background: linear-gradient(165deg, rgb(var(--c-surface) / 0.92), rgb(var(--c-bg) / 0.75));
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 240px;
+  justify-self: center;
+  scroll-snap-align: start;
+  background: rgb(var(--c-surface) / 0.4);
   border-radius: 1.15rem;
   padding: 0.85rem;
-  border: 1px solid rgb(var(--c-accent-sky) / 0.16);
+  border: 1px solid rgb(var(--c-accent-sky) / 0.1);
   color: rgb(var(--c-text));
   display: flex;
   flex-direction: column;
   cursor: pointer;
   overflow: hidden;
-  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
-  box-shadow: 0 10px 28px rgb(var(--c-bg-deep) / 0.35);
+  transition: transform 0.22s ease, border-color 0.22s ease;
+  box-shadow: none;
 }
 
 .quest-card:hover {
   transform: translateY(-4px);
-  border-color: rgb(var(--c-accent-sky) / 0.38);
-  box-shadow: 0 18px 40px rgb(var(--c-bg-deep) / 0.5);
+  border-color: rgb(var(--c-accent-sky) / 0.28);
 }
 
 .quest-card.active {
-  border-color: rgb(var(--c-accent) / 0.65);
-  box-shadow:
-    0 0 0 1px rgb(var(--c-accent) / 0.35),
-    0 18px 42px rgb(var(--c-accent-sky) / 0.18);
+  z-index: 2;
+  overflow: visible;
+  border-color: rgb(var(--c-accent) / 0.55);
+  box-shadow: 0 0 0 1px rgb(var(--c-accent) / 0.25);
 }
 
 .quest-card__selected {
   position: absolute;
   top: 0.65rem;
   left: 0.65rem;
-  z-index: 3;
+  z-index: 4;
   width: 1.55rem;
   height: 1.55rem;
+  pointer-events: none;
+}
+
+.quest-card__selected-waves {
+  position: absolute;
+  inset: 0;
+}
+
+.quest-card__check-wave {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1.5px solid rgb(var(--c-accent) / 0.42);
+  animation: quest-check-wave 2.8s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+.quest-card__check-wave:nth-child(2) {
+  animation-delay: 0.93s;
+}
+
+.quest-card__check-wave:nth-child(3) {
+  animation-delay: 1.86s;
+}
+
+@keyframes quest-check-wave {
+  0% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+  100% {
+    transform: scale(2.55);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .quest-card__check-wave {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+.quest-card__selected-icon {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -573,24 +725,29 @@ async function onImportQuestFile(event: Event) {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(145deg, rgb(var(--c-accent-sky) / 0.42), rgb(var(--c-indigo-500) / 0.52));
+  background: rgb(var(--c-surface-2) / 0.28);
+}
+
+.quest-card.active .quest-card__cover {
+  box-shadow: inset 0 0 0 1px rgb(var(--c-accent) / 0.2);
 }
 
 .quest-card--cta .quest-card__cover {
-  background: rgb(var(--c-accent-sky) / 0.04);
+  background: rgb(var(--c-surface-2) / 0.28);
 }
 
 .quest-card__cover::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at 30% 22%, rgb(var(--c-white) / 0.2), transparent 55%);
+  z-index: 1;
+  background: radial-gradient(circle at 30% 22%, rgb(var(--c-white) / 0.05), transparent 55%);
   pointer-events: none;
 }
 
 .quest-card__emoji {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   font-size: clamp(2.5rem, 8vw, 3.25rem);
   line-height: 1;
   filter: drop-shadow(0 4px 14px rgb(var(--c-bg-deep) / 0.45));
@@ -677,8 +834,8 @@ async function onImportQuestFile(event: Event) {
 }
 
 .quest-card__cover--dashed {
-  background: rgb(var(--c-accent-sky) / 0.04);
-  border: 1.5px dashed rgb(var(--c-accent-sky) / 0.35);
+  background: rgb(var(--c-surface-2) / 0.28);
+  border: 1.5px dashed rgb(var(--c-accent-sky) / 0.28);
   transition: border-color 0.2s ease, background 0.2s ease;
 }
 
@@ -687,8 +844,8 @@ async function onImportQuestFile(event: Event) {
 }
 
 .quest-card--cta:hover .quest-card__cover--dashed {
-  border-color: rgb(var(--c-accent-sky) / 0.65);
-  background: rgb(var(--c-accent-sky) / 0.08);
+  border-color: rgb(var(--c-accent-sky) / 0.45);
+  background: rgb(var(--c-surface-2) / 0.36);
 }
 
 .quest-card__body--cta {
@@ -794,30 +951,39 @@ async function onImportQuestFile(event: Event) {
   flex: 1;
 }
 
-.host-dock__label {
-  display: block;
-  font-size: 0.65rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: rgb(var(--c-text-muted) / 0.75);
-  margin-bottom: 0.2rem;
+.host-dock__selection {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .host-dock__quest {
-  display: block;
   font-size: 1.05rem;
   font-weight: 800;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   color: rgb(var(--c-text));
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+.host-dock__sep {
+  flex: 0 0 auto;
+  color: rgb(var(--c-text-muted) / 0.45);
+  font-size: 1.1rem;
+  line-height: 1;
+  user-select: none;
 }
 
 .host-dock__stats {
-  display: block;
-  margin-top: 0.15rem;
+  flex: 0 0 auto;
   font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
   color: rgb(var(--c-text-muted) / 0.85);
 }
 
@@ -898,7 +1064,7 @@ async function onImportQuestFile(event: Event) {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, rgb(var(--c-bg)) 0%, rgb(var(--c-surface)) 100%);
+  background: rgb(var(--c-bg));
   z-index: 1000;
 }
 
@@ -952,14 +1118,50 @@ async function onImportQuestFile(event: Event) {
 
 /* ── Responsive ── */
 @media (max-width: 768px) {
+  .host-main {
+    gap: 0.55rem;
+    overflow-y: auto;
+    padding-bottom: 0.5rem;
+  }
+
+  .host-hero {
+    padding: 0.3rem 0 0.55rem;
+  }
+
   .host-hero__title {
     font-size: clamp(0.95rem, 4.5vw, 1.35rem);
+    line-height: 1.45;
+  }
+
+  .host-hero__subtitle {
+    margin-top: 0.4rem;
+    font-size: 0.86rem;
+  }
+
+  .host-library {
+    flex: 0 0 auto;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding-bottom: 0;
+  }
+
+  .quests-grid {
+    max-height: none !important;
+    overflow-y: visible;
+    flex: none;
+    padding-top: 0.2rem;
+    grid-template-columns: repeat(var(--grid-cols, 2), minmax(0, 200px));
+  }
+
+  .host-dock {
+    padding: 0.2rem 0 0.75rem;
   }
 
   .host-dock__inner {
     flex-direction: column;
     align-items: stretch;
-    gap: 0.85rem;
+    gap: 0.75rem;
+    padding: 0.85rem 1rem;
   }
 
   .host-dock__actions {
@@ -977,22 +1179,40 @@ async function onImportQuestFile(event: Event) {
   }
 
   .quest-card {
-    width: min(100%, 200px);
+    max-width: 200px;
   }
 }
 
 @media (max-width: 480px) {
   .host-main {
-    padding: 0 0.75rem;
+    padding: 0 0.65rem 0.35rem;
+    gap: 0.4rem;
+  }
+
+  .host-hero {
+    padding: 0.15rem 0 0.4rem;
+  }
+
+  .host-hero__subtitle {
+    margin-top: 0.3rem;
+    font-size: 0.8rem;
+    line-height: 1.4;
   }
 
   .quests-grid {
-    gap: 0.75rem;
+    gap: 0.65rem;
+    grid-template-columns: repeat(var(--grid-cols, 2), minmax(0, 1fr));
+    padding: 0.15rem 0.35rem 0 0.15rem;
   }
 
   .quest-card {
-    width: calc(50% - 0.5rem);
-    min-width: 140px;
+    max-width: none;
+    padding: 0.7rem;
+  }
+
+  .quest-card__body {
+    padding: 0.65rem 0.15rem 0.2rem;
+    gap: 0.4rem;
   }
 
   .quest-title {
@@ -1000,7 +1220,22 @@ async function onImportQuestFile(event: Event) {
   }
 
   .host-dock {
-    padding-bottom: 0.85rem;
+    padding: 0.15rem 0 0.55rem;
+  }
+
+  .host-dock__inner {
+    padding: 0.7rem 0.8rem;
+    gap: 0.6rem;
+    border-radius: 1rem;
+  }
+
+  .host-dock__placeholder {
+    font-size: 0.82rem;
+  }
+
+  .host-dock__start {
+    padding: 0.75rem 1.25rem;
+    font-size: 0.92rem;
   }
 }
 </style>

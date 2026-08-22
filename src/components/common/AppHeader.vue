@@ -9,6 +9,7 @@
       />
     </div>
     <div class="app-header-right">
+      <SoundToggleButton />
       <div v-if="showSessionCode && sessionCode" class="session-chip">
         {{ t('common.gameCode') }}: <strong>{{ sessionCode }}</strong>
       </div>
@@ -20,6 +21,7 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 import NavigationButton from './NavigationButton.vue'
+import SoundToggleButton from './SoundToggleButton.vue'
 import UserPill from './UserPill.vue'
 
 const { t } = useI18n()

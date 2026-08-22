@@ -118,43 +118,14 @@ const TEST_QUEST_DEFS: TestQuestDef[] = [
       ['Найбільша пустеля (не Арктика)?', 'Сахара'],
       ['Місто на двох континентах?', 'Стамбул']
     ]
-  },
-  {
-    title: `${TEST_QUEST_PREFIX}Література`,
-    description: 'Книги, автори та знамениті герої.',
-    emoji: '📚',
-    categories: 3,
-    questions: 3,
-    samples: [
-      ['Автор «1984»?', 'Джордж Оруелл'],
-      ['Хто написав «Harry Potter»?', 'Дж. К. Rowling'],
-      ['Герой «Пригод Тома Сойєра»?', 'Том Сойєр'],
-      ['«Війна і мир» — автор?', 'Лев Толстой'],
-      ['Поема Гомера про Трою?', 'Іліада'],
-      ['Українська «Енеїда» — автор?', 'Іван Котляревський'],
-      ['Детектив: друг Холмса?', 'Watson'],
-      ['«Майстер і Маргарита» — автор?', 'Mikhail Bulgakov'],
-      ['Казка: хто з\'їв Колобка?', 'Лисиця']
-    ]
-  },
-  {
-    title: `${TEST_QUEST_PREFIX}Технології`,
-    description: 'IT, гаджети та цифровий світ.',
-    emoji: '💡',
-    categories: 2,
-    questions: 4,
-    samples: [
-      ['Засновник Apple?', 'Steve Jobs'],
-      ['Мова веб-сторінок: HTML і …?', 'CSS'],
-      ['Рік випуску першого iPhone?', '2007'],
-      ['Що означає USB?', 'Universal Serial Bus'],
-      ['Компанія: Windows та Xbox?', 'Microsoft'],
-      ['Протокол безпечного сайту?', 'HTTPS'],
-      ['ШІ-модель: GPT — Generative …?', 'Pre-trained Transformer'],
-      ['Скільки значень може мати один біт?', '2']
-    ]
   }
 ]
+
+/** Тестові квести, прибрані з набору — видаляються при заході в dev. */
+const REMOVED_TEST_TITLES = new Set([
+  `${TEST_QUEST_PREFIX}Література`,
+  `${TEST_QUEST_PREFIX}Технології`
+])
 
 type QuizStore = ReturnType<typeof useQuizStore>
 
@@ -184,6 +155,12 @@ async function fillSampleQuestions(
 /** Создаёт тестовые квесты в dev, если их ещё нет (идемпотентно по названию). */
 export async function seedTestQuests(store: QuizStore): Promise<number> {
   if (!import.meta.env.DEV) return 0
+
+  for (const quest of [...store.quests]) {
+    if (REMOVED_TEST_TITLES.has(quest.title)) {
+      await store.deleteQuest(quest.id)
+    }
+  }
 
   const existing = new Set(store.quests.map(q => q.title))
   let created = 0

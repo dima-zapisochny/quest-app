@@ -11,7 +11,9 @@
     "confirm": "Confirm",
     "gameCode": "Game code",
     "avatarPicker": "Choose an avatar",
-    "refreshAvatar": "Refresh avatar"
+    "refreshAvatar": "Refresh avatar",
+    "soundOn": "Turn sound on",
+    "soundOff": "Turn sound off"
   },
   "landing": {
     "checkingAuth": "Checking authorization…",
@@ -71,6 +73,9 @@
     "descriptionPlaceholder": "A short note about the quest",
     "emoji": "Quest icon",
     "emojiAria": "Choose an emoji for the quest",
+    "emojiMore": "More icons",
+    "emojiMoreAria": "Open full emoji list",
+    "emojiPickerTitle": "Choose an icon",
     "startFrom": "Where to start",
     "boardSize": "Board size",
     "grid": "Ready-made grid",

@@ -8,7 +8,7 @@
           <span class="startcard__field"><span class="startcard__name">Alex</span><span class="caret caret--name" aria-hidden="true"></span></span>
           <span class="startcard__ava">🦊</span>
         </div>
-        <button class="startcard__create"><span>Create game</span><span class="cursor cursor--start" aria-hidden="true"></span></button>
+        <button class="startcard__create"><span>Create game</span><span class="cursor cursor--start" aria-hidden="true">👆</span></button>
         <div class="startcard__or"><span></span>or<span></span></div>
         <div class="startcard__join">
           <span class="startcard__code">CODE</span>
@@ -53,7 +53,7 @@
             :key="n"
             class="tile"
             :class="{ 'tile--tap': n === 6 }"
-          >{{ (Math.floor((n - 1) / 4) + 1) * 100 }}<span v-if="n === 6" class="cursor cursor--tile" aria-hidden="true"></span></button>
+          >{{ (Math.floor((n - 1) / 4) + 1) * 100 }}<span v-if="n === 6" class="cursor cursor--tile" aria-hidden="true">👆</span></button>
         </div>
       </div>
       <div class="qstrip">
@@ -84,7 +84,7 @@
       <div class="buzzer">
         <span class="ring"></span><span class="ring ring--2"></span><span class="ring ring--3"></span>
         <span class="buzzer__bolt">⚡</span>
-        <span class="cursor cursor--buzz" aria-hidden="true"></span>
+        <span class="cursor cursor--buzz" aria-hidden="true">👆</span>
       </div>
       <div class="racer racer--lose">
         <span class="racer__ava racer__ava--dim">🐼</span>
@@ -122,7 +122,7 @@
     </div>
 
     <!-- НОВЫЙ КВЕСТ -->
-    <div v-else-if="scene === 'new'" class="scene">
+    <div v-else-if="scene === 'new'" class="scene scene--new">
       <div class="questlist">
         <div class="qcard qcard--saved">
           <span class="qcard__cover"><span class="qcard__emoji">🎬</span></span>
@@ -133,7 +133,7 @@
           <span class="qcard__plus" aria-hidden="true"></span>
           <span class="qcard__newlabel">New quest</span>
         </div>
-        <span class="cursor questcursor" aria-hidden="true"></span>
+        <span class="cursor questcursor" aria-hidden="true">👆</span>
       </div>
     </div>
 
@@ -152,7 +152,7 @@
               class="sizepick__c"
               :style="{ '--n': cell.n }"
             ></span>
-            <span class="cursor cursor--pick" aria-hidden="true"></span>
+            <span class="cursor cursor--pick" aria-hidden="true">👆</span>
           </div>
         </div>
         <!-- Фаза 2: готовая доска (как в «Играть») -->
@@ -174,7 +174,7 @@
     </div>
 
     <!-- ЗАПОЛНИТЕ ВОПРОСЫ -->
-    <div v-else-if="scene === 'fill'" class="scene">
+    <div v-else-if="scene === 'fill'" class="scene scene--fill">
       <div class="qmodal">
         <div class="qmodal__head">
           <span class="qmodal__title">200 pts</span>
@@ -223,9 +223,17 @@ const gridCells = Array.from({ length: 25 }, (_, i) => ({ k: i, c: i % 5, r: Mat
 .scene--start { gap: 0.6rem; }
 
 .cursor {
-  position: absolute; width: 1.05rem; height: 1.05rem; border-radius: 50% 50% 50% 2px;
-  background: rgb(var(--c-white) / 0.92);
-  box-shadow: 0 3px 8px rgb(var(--c-black) / 0.45);
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.55rem;
+  line-height: 1;
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+  filter: drop-shadow(0 1px 2px rgb(var(--c-black) / 0.28));
+  pointer-events: none;
+  user-select: none;
+  transform-origin: 50% 88%;
 }
 
 /* панель-мокап */
@@ -374,8 +382,9 @@ const gridCells = Array.from({ length: 25 }, (_, i) => ({ k: i, c: i % 5, r: Mat
 @keyframes growbar { 0%,15%{transform:scaleX(0)} 45%,100%{transform:scaleX(1)} }
 
 /* NEW */
-.questlist { position: relative; display: flex; align-items: stretch; gap: 0.8rem; }
-.qcard { width: 132px; height: 158px; border-radius: 16px; display: flex; flex-direction: column; box-sizing: border-box; }
+.scene--new { width: 100%; max-width: 100%; padding: 0 0.35rem; box-sizing: border-box; }
+.questlist { position: relative; display: flex; align-items: stretch; justify-content: center; gap: 0.8rem; max-width: 100%; }
+.qcard { width: min(132px, 40vw); height: auto; min-height: 134px; aspect-ratio: 132 / 158; border-radius: 16px; display: flex; flex-direction: column; box-sizing: border-box; flex-shrink: 1; }
 .qcard--saved { padding: 0.7rem; gap: 0.4rem; background: rgb(var(--c-surface) / 0.7); border: 1px solid rgb(var(--c-accent-sky) / 0.18); animation: savedhi 4.4s ease-in-out infinite; }
 .qcard__cover { flex: 1; border-radius: 11px; display: flex; align-items: center; justify-content: center; font-size: 1.9rem; background: linear-gradient(135deg, rgb(var(--c-violet) / 0.35), rgb(var(--c-blue) / 0.35)); }
 .qcard__title { font-size: 0.75rem; font-weight: 800; color: rgb(var(--c-text)); white-space: nowrap; overflow: hidden; opacity: 0; animation: qtextin 4.4s ease-in-out infinite; }
@@ -402,13 +411,13 @@ const gridCells = Array.from({ length: 25 }, (_, i) => ({ k: i, c: i % 5, r: Mat
 }
 
 /* BOARD */
-.scene--board { gap: 0.9rem; }
-.boardstage { position: relative; width: 186px; height: 203px; }
+.scene--board { gap: 0.9rem; width: 100%; max-width: 100%; padding: 0 0.35rem; box-sizing: border-box; }
+.boardstage { position: relative; width: min(186px, 78vw); aspect-ratio: 186 / 203; height: auto; margin: 0 auto; }
 /* Фаза 1 — выбор размера (та же геометрия: категории сверху + сетка) */
 .sizepick { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; animation: pickfade 4.6s ease-in-out infinite; }
-.sizepick__heads { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; width: 186px; }
+.sizepick__heads { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; width: 100%; }
 .sizepick__h { height: 12px; border-radius: 4px; background: rgb(var(--c-accent-sky) / 0.16); }
-.sizepick__grid { position: relative; display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; width: 186px; }
+.sizepick__grid { position: relative; display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; width: 100%; }
 .sizepick__c { height: 24px; border-radius: 6px; background: rgb(var(--c-bg) / 0.5); border: 1px solid rgb(var(--c-accent-sky) / 0.2); animation: pickon 4.6s ease-in-out infinite; animation-delay: calc(var(--n) * 0.05s); }
 .cursor--pick { left: 0; top: 0; animation: cursorpick 4.6s ease-in-out infinite; }
 @keyframes pickfade { 0%,40%{opacity:1} 47%,100%{opacity:0} }
@@ -416,13 +425,13 @@ const gridCells = Array.from({ length: 25 }, (_, i) => ({ k: i, c: i % 5, r: Mat
 @keyframes cursorpick { 0%{transform:translate(8px,6px) scale(1);opacity:0} 6%{opacity:1} 10%{transform:translate(15px,10px) scale(1)} 34%{transform:translate(150px,120px) scale(1)} 39%{transform:translate(150px,120px) scale(0.78)} 43%{transform:translate(150px,120px) scale(1)} 47%{opacity:0} 100%{opacity:0} }
 /* Фаза 2 — схема доски */
 .boardscheme { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; animation: boardfade 4.6s ease-in-out infinite; }
-.gridhead { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; width: 186px; }
+.gridhead { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; width: 100%; }
 .gridhead__h { height: 12px; border-radius: 4px; background: linear-gradient(135deg, rgb(var(--c-accent-sky) / 0.9), rgb(var(--c-blue) / 0.8)); opacity: 0.35; animation: headin 4.6s ease-in-out infinite; animation-delay: calc(var(--i) * 0.05s); }
 .gridhead__h:nth-child(2) { background: linear-gradient(135deg, rgb(var(--c-violet) / 0.9), rgb(var(--c-indigo-500) / 0.8)); }
 .gridhead__h:nth-child(3) { background: linear-gradient(135deg, rgb(var(--c-accent) / 0.9), rgb(var(--c-accent-sky) / 0.8)); }
 .gridhead__h:nth-child(4) { background: linear-gradient(135deg, rgb(var(--c-blue) / 0.9), rgb(var(--c-violet) / 0.8)); }
 .gridhead__h:nth-child(5) { background: linear-gradient(135deg, rgb(var(--c-accent-sky) / 0.9), rgb(var(--c-accent) / 0.8)); }
-.grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; width: 186px; }
+.grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; width: 100%; }
 .grid__c { height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; font-weight: 800; color: rgb(var(--c-indigo-100)); background: rgb(var(--c-bg) / 0.5); border: 1px solid rgb(var(--c-accent-sky) / 0.25); opacity: 0; animation: tilein 4.6s ease-in-out infinite; animation-delay: calc(var(--d) * 0.045s + 0.1s); }
 .gridlabel { color: rgb(var(--c-accent-soft)); font-weight: 800; font-size: 1.05rem; opacity: 0; animation: labelin 4.6s ease-in-out infinite; }
 @keyframes boardfade { 0%,42%{opacity:0} 52%,92%{opacity:1} 100%{opacity:0} }
@@ -431,7 +440,8 @@ const gridCells = Array.from({ length: 25 }, (_, i) => ({ k: i, c: i % 5, r: Mat
 @keyframes labelin { 0%,58%{opacity:0;transform:translateY(4px)} 70%,90%{opacity:1;transform:translateY(0)} 100%{opacity:0} }
 
 /* FILL */
-.qmodal { width: 250px; border-radius: 16px; background: rgb(var(--c-bg) / 0.7); border: 1px solid rgb(var(--c-accent-sky) / 0.25); box-shadow: 0 16px 34px rgb(var(--c-bg-deep) / 0.45); overflow: hidden; }
+.scene--fill { width: 100%; max-width: 100%; padding: 0 0.5rem; box-sizing: border-box; }
+.qmodal { width: min(250px, 92vw); border-radius: 16px; background: rgb(var(--c-bg) / 0.7); border: 1px solid rgb(var(--c-accent-sky) / 0.25); box-shadow: 0 16px 34px rgb(var(--c-bg-deep) / 0.45); overflow: hidden; }
 .qmodal__head { display: flex; align-items: center; justify-content: space-between; padding: 0.6rem 0.8rem; border-bottom: 1px solid rgb(var(--c-accent-sky) / 0.15); }
 .qmodal__title { font-weight: 700; color: rgb(var(--c-text)); font-size: 0.85rem; }
 .qmodal__x { color: rgb(var(--c-text-soft) / 0.5); font-size: 0.75rem; }
@@ -474,7 +484,7 @@ const gridCells = Array.from({ length: 25 }, (_, i) => ({ k: i, c: i % 5, r: Mat
 @keyframes sparkle { 0%,50%{opacity:0;transform:scale(0.4)} 60%{opacity:1;transform:scale(1.2)} 78%,100%{opacity:0;transform:scale(0.6)} }
 @keyframes glow { 0%,40%,100%{border-color:rgb(var(--c-accent-sky)/0.5);background:rgb(var(--c-accent-sky)/0.05)} 55%{border-color:rgb(var(--c-accent-sky)/0.85);background:rgb(var(--c-accent-sky)/0.13)} }
 @keyframes spinplus { 0%,40%,100%{transform:scale(1)} 55%{transform:scale(1.14)} }
-@keyframes typing { 0%,10%{width:0} 45%,92%{width:150px} 100%{width:150px} }
+@keyframes typing { 0%,10%{width:0} 45%,92%{width:min(150px,58vw)} 100%{width:min(150px,58vw)} }
 @keyframes rot { to{transform:rotate(360deg)} }
 @keyframes hidespin { 0%,45%{opacity:1} 55%,100%{opacity:0} }
 @keyframes showcheck { 0%,50%{opacity:0;transform:scale(0.5)} 62%,92%{opacity:1;transform:scale(1)} 100%{opacity:0} }
@@ -482,25 +492,39 @@ const gridCells = Array.from({ length: 25 }, (_, i) => ({ k: i, c: i % 5, r: Mat
 /* Респонсив: масштабируем сцену целиком под размер экрана,
    чтобы иллюстрация не вылезала за пределы stage и не обрезалась. */
 @media (max-width: 820px) {
-  .illu > .scene { transform: scale(1.1); }
+  .illu > .scene { transform: scale(1.05); }
+  .scene--new .qcard__newlabel { font-size: 0.82rem; }
 }
 @media (max-width: 600px) {
-  .illu > .scene { transform: scale(1.02); }
-  .scene--row { gap: 1.6rem; }
-  .scene--buzz { gap: 1.8rem; }
+  .illu > .scene { transform: scale(0.98); }
+  .scene--row { gap: 1.4rem; }
+  .scene--buzz { gap: 1.6rem; }
+  .scene--new { padding: 0 0.15rem; }
+  .scene--new .questlist { gap: 0.55rem; }
+  .scene--new .qcard { width: min(118px, 38vw); min-height: 120px; }
+  .scene--new .qcard__plus { width: 2.4rem; height: 2.4rem; font-size: 1.45rem; }
+  .scene--new .qcard__newlabel { font-size: 0.74rem; }
+  .scene--board .boardstage { width: min(186px, 88vw); }
+  .scene--board .gridlabel { font-size: 0.92rem; }
 }
 @media (max-width: 430px) {
-  .illu > .scene { transform: scale(0.92); }
-  .scene--row { gap: 1.3rem; }
-  .scene--buzz { gap: 1.4rem; }
-  .scene--score { gap: 1.2rem; }
+  .illu > .scene { transform: scale(0.9); }
+  .scene--row { gap: 1.1rem; }
+  .scene--buzz { gap: 1.2rem; }
+  .scene--score { gap: 1.1rem; }
+  .scene--new .qcard { width: min(104px, 36vw); min-height: 108px; }
+  .scene--new .qcard__cover { font-size: 1.55rem; }
+  .scene--new .qcard__title { font-size: 0.68rem; }
+  .scene--new .qcard__sub { font-size: 0.52rem; }
+  .qmodal__media { flex-wrap: wrap; }
 }
 @media (max-width: 370px) {
   .illu > .scene { transform: scale(0.82); }
-  .scene--row { gap: 1rem; }
-  .scene--buzz { gap: 1.1rem; }
+  .scene--row { gap: 0.85rem; }
+  .scene--buzz { gap: 0.95rem; }
+  .scene--new .questlist { gap: 0.4rem; }
 }
 @media (max-width: 330px) {
-  .illu > .scene { transform: scale(0.72); }
+  .illu > .scene { transform: scale(0.74); }
 }
 </style>

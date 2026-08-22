@@ -11,7 +11,9 @@
     "confirm": "Confirmer",
     "gameCode": "Code de la partie",
     "avatarPicker": "Choisir un avatar",
-    "refreshAvatar": "Changer d'avatar"
+    "refreshAvatar": "Changer d'avatar",
+    "soundOn": "Activer le son",
+    "soundOff": "Désactiver le son"
   },
   "landing": {
     "checkingAuth": "Vérification de l'autorisation…",
@@ -71,6 +73,9 @@
     "descriptionPlaceholder": "Une courte note sur le quiz",
     "emoji": "Icône du quiz",
     "emojiAria": "Choisir un emoji pour le quiz",
+    "emojiMore": "Autres icônes",
+    "emojiMoreAria": "Ouvrir la liste complète d'emoji",
+    "emojiPickerTitle": "Choisir une icône",
     "startFrom": "Par où commencer",
     "boardSize": "Taille du tableau",
     "grid": "Grille prête",
