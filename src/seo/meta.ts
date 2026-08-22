@@ -7,7 +7,7 @@ export function getSiteUrl(): string {
   if (typeof window !== 'undefined' && window.location?.origin) {
     return window.location.origin
   }
-  return 'https://quizquest.app'
+  return 'https://quizzes.website'
 }
 
 export type SeoPageId = 'home' | 'howto' | 'movie-night' | 'hit-parade' | 'about'
