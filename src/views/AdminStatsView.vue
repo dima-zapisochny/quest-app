@@ -1,12 +1,5 @@
 <template>
   <div class="stats-page" data-analytics-ignore>
-    <AppHeader
-      button-variant="home"
-      :button-label="tUk('common.toHome')"
-      :show-sound-toggle="false"
-      @button-click="goHome"
-    />
-
     <main class="stats-page__main">
       <h1 class="stats-page__title">Site analytics</h1>
       <p v-if="!unlocked" class="stats-page__lead">{{ tUk('stats.lead') }}</p>
@@ -195,8 +188,7 @@
 <script setup lang="ts">
 import { computed, onMounted, onBeforeUnmount, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useRoute, useRouter } from 'vue-router'
-import AppHeader from '@/components/common/AppHeader.vue'
+import { useRoute } from 'vue-router'
 import {
   fetchSiteAnalytics,
   type SiteAnalyticsSummary
@@ -204,7 +196,6 @@ import {
 
 const { t } = useI18n()
 const route = useRoute()
-const router = useRouter()
 
 /** Сторінка статистики завжди українською; заголовок — англійський Site analytics. */
 function tUk(key: string) {
@@ -376,10 +367,6 @@ function refresh() {
   if (token) void load(token, true)
 }
 
-function goHome() {
-  router.push('/')
-}
-
 onMounted(() => {
   applyNoIndex()
   const fromQuery = typeof route.query.t === 'string' ? route.query.t : ''
@@ -428,7 +415,7 @@ onBeforeUnmount(() => {
   width: 100%;
   max-width: 56rem;
   margin: 0 auto;
-  padding: 0.35rem 1.15rem 0.75rem;
+  padding: 1rem 1.15rem 0.75rem;
   overflow: hidden;
   display: flex;
   flex-direction: column;
