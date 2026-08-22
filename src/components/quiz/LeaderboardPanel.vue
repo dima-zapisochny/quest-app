@@ -196,7 +196,7 @@ function isPlayerAnswered(playerId: string): boolean {
   align-items: center;
   justify-content: center;
   margin: 0;
-  min-height: 8.75rem;
+  min-height: 9.5rem;
   padding: 0.85rem 1rem;
   text-align: center;
   font-size: 0.85rem;
@@ -208,8 +208,8 @@ function isPlayerAnswered(playerId: string): boolean {
 }
 
 .leaderboard-body {
-  margin-top: 1rem;
-  min-height: 8.75rem;
+  margin-top: 0;
+  min-height: 0;
   display: flex;
   align-items: stretch;
   width: 100%;
@@ -219,6 +219,7 @@ function isPlayerAnswered(playerId: string): boolean {
 .leaderboard-card {
   width: 100%;
   overflow: visible;
+  gap: 0.35rem;
 }
 
 .leaderboard-list {
@@ -227,7 +228,7 @@ function isPlayerAnswered(playerId: string): boolean {
   display: flex;
   gap: 0.5rem;
   overflow-x: auto;
-  padding: 1.15rem 0.25rem 1rem 0.25rem;
+  padding: 0.35rem 0.25rem 0.45rem;
   scrollbar-width: thin;
   scrollbar-color: rgb(var(--c-accent-sky) / 0.4) transparent;
   width: 100%;
@@ -235,6 +236,7 @@ function isPlayerAnswered(playerId: string): boolean {
   max-height: none;
   flex-wrap: nowrap;
   box-sizing: border-box;
+  align-items: stretch;
 }
 
 .leaderboard-list::after {
@@ -316,9 +318,11 @@ function isPlayerAnswered(playerId: string): boolean {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.45rem;
+  justify-content: center;
+  gap: 0.5rem;
   width: 100%;
-  padding: 0.65rem 0.4rem;
+  min-height: 9.25rem;
+  padding: 0.85rem 0.45rem 0.9rem;
   border-radius: 16px;
   border: 1px solid rgb(var(--c-accent-sky) / 0.18);
   background: rgb(var(--c-bg) / 0.7);
@@ -493,24 +497,26 @@ function isPlayerAnswered(playerId: string): boolean {
 }
 
 .leaderboard-rank {
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   font-weight: 700;
   color: rgb(var(--c-text-soft) / 0.8);
+  line-height: 1;
 }
 
 .leaderboard-avatar {
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   border: 2px solid rgb(var(--c-accent-sky) / 0.4);
   background: rgb(var(--c-bg-deep) / 0.8);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.2rem;
+  font-size: 1.35rem;
   color: rgb(var(--c-text));
   position: relative;
   z-index: 1;
+  flex-shrink: 0;
   box-shadow:
     inset 0 1px 2px rgb(var(--c-white) / 0.1),
     0 2px 4px rgb(var(--c-black) / 0.3);
@@ -525,14 +531,16 @@ function isPlayerAnswered(playerId: string): boolean {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.25rem;
+  gap: 0.3rem;
   position: relative;
   z-index: 1;
 }
 
 .leaderboard-name {
-  font-size: 0.82rem;
+  font-size: 0.85rem;
   font-weight: 600;
+  line-height: 1.2;
+  text-align: center;
 }
 
 .leaderboard-score {
