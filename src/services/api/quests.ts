@@ -6,7 +6,7 @@ const QUEST_MEDIA_BUCKET = 'quest-media'
 export async function getQuestList(userId: string): Promise<Quest[]> {
   const { data, error } = await supabase
     .from('quest_list_view')
-    .select('id, title, description, rounds_count, questions_count')
+    .select('id, title, description, rounds_count, questions_count, emoji')
     .eq('user_id', userId)
     .order('created_at', { ascending: false })
 
@@ -15,10 +15,11 @@ export async function getQuestList(userId: string): Promise<Quest[]> {
     return getQuestListFallback(userId)
   }
 
-  return (data || []).map((row: { id: string; title: string; description?: string | null; rounds_count?: number; questions_count?: number }) => ({
+  return (data || []).map((row: { id: string; title: string; description?: string | null; rounds_count?: number; questions_count?: number; emoji?: string | null }) => ({
     id: row.id,
     title: row.title,
     description: row.description ?? undefined,
+    emoji: row.emoji ?? undefined,
     rounds: [], // структура подгрузится через loadQuestFull
     roundsCount: row.rounds_count ?? 0,
     questionsCount: row.questions_count ?? 0
@@ -46,6 +47,7 @@ async function getQuestListFallback(userId: string): Promise<Quest[]> {
       id: row.id,
       title: row.title ?? q?.title ?? '',
       description: row.description ?? q?.description ?? undefined,
+      emoji: q?.emoji ?? undefined,
       rounds,
       roundsCount: rounds.length,
       questionsCount

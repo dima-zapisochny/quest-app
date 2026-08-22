@@ -48,6 +48,8 @@ export type Quest = {
   id: string
   title: string
   description?: string
+  /** Иконка на карточке квеста (emoji). */
+  emoji?: string
   /** Відсутній або порожній — квест завантажений лише для списку; повний квест підвантажується через loadQuestFull */
   rounds?: Round[]
   /** Лёгкие счётчики из quest_list_view (#16); есть только у элементов списка, не у полного квеста */

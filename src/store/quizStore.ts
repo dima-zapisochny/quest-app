@@ -298,7 +298,7 @@ export const useQuizStore = defineStore('quiz', () => {
   })
 
   // Quest actions -------------------------------------------------------------
-  async function createQuest(title: string, description = ''): Promise<string> {
+  async function createQuest(title: string, description = '', emoji?: string): Promise<string> {
     const sessionStore = useGameSessionStore()
     const userId = sessionStore.userProfile?.id
     if (!userId) {
@@ -309,6 +309,7 @@ export const useQuizStore = defineStore('quiz', () => {
       id: generateId('quest'),
       title,
       description,
+      ...(emoji ? { emoji } : {}),
       rounds: []
     }
     quests.value.push(newQuest)
@@ -518,9 +519,10 @@ export const useQuizStore = defineStore('quiz', () => {
     description: string,
     categories: number,
     questions: number,
-    rounds = 1
+    rounds = 1,
+    emoji?: string
   ): Promise<string> {
-    const questId = await createQuest(title, description)
+    const questId = await createQuest(title, description, emoji)
     const roundCount = Math.max(1, Math.min(5, rounds))
     for (let r = 0; r < roundCount; r++) {
       const roundId = await addRound(questId, defaultRoundTitle(r))

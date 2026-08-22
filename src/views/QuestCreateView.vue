@@ -38,6 +38,9 @@
             :placeholder="t('create.descriptionPlaceholder')"
           ></textarea>
 
+          <span class="field-label">{{ t('create.emoji') }}</span>
+          <QuestEmojiPicker v-model="emoji" :aria-label="t('create.emojiAria')" />
+
           <span class="field-label">{{ t('create.boardSize') }}</span>
           <div class="grid-size">
             <div class="grid-size__rounds">
@@ -81,6 +84,8 @@ import { usePlural } from '@/i18n/plural'
 import AppHeader from '@/components/common/AppHeader.vue'
 import BaseCard from '@/components/common/BaseCard.vue'
 import GridSizePicker from '@/components/common/GridSizePicker.vue'
+import QuestEmojiPicker from '@/components/common/QuestEmojiPicker.vue'
+import { DEFAULT_QUEST_EMOJI, questThemeEmoji } from '@/utils/questCardTheme'
 
 const { t } = useI18n()
 const { count } = usePlural()
@@ -92,6 +97,7 @@ const userProfile = computed(() => sessionStore.userProfile)
 
 const title = ref('')
 const description = ref('')
+const emoji = ref(DEFAULT_QUEST_EMOJI)
 const rounds = ref(1)
 const categories = ref(1)
 const questions = ref(1)
@@ -134,7 +140,8 @@ async function submit() {
       desc,
       categories.value,
       questions.value,
-      rounds.value
+      rounds.value,
+      emoji.value || questThemeEmoji(name)
     )
     router.replace({ name: 'admin-quest', params: { questId } })
   } catch (e: any) {

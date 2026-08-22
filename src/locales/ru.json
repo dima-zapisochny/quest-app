@@ -69,6 +69,8 @@
     "namePlaceholder": "Название квеста",
     "description": "Описание (необязательно)",
     "descriptionPlaceholder": "Коротко о квесте",
+    "emoji": "Иконка квеста",
+    "emojiAria": "Выберите emoji для квеста",
     "startFrom": "С чего начать",
     "boardSize": "Размер доски",
     "grid": "Готовая сетка",

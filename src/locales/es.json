@@ -69,6 +69,8 @@
     "namePlaceholder": "Nombre del cuestionario",
     "description": "Descripción (opcional)",
     "descriptionPlaceholder": "Una nota breve sobre el cuestionario",
+    "emoji": "Icono del cuestionario",
+    "emojiAria": "Elige un emoji para el cuestionario",
     "startFrom": "Por dónde empezar",
     "boardSize": "Tamaño del tablero",
     "grid": "Tablero listo",

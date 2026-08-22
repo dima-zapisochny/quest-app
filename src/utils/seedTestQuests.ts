@@ -6,6 +6,7 @@ export const TEST_QUEST_PREFIX = '[Тест] '
 type TestQuestDef = {
   title: string
   description: string
+  emoji: string
   categories: number
   questions: number
   rounds?: number
@@ -16,6 +17,7 @@ const TEST_QUEST_DEFS: TestQuestDef[] = [
   {
     title: `${TEST_QUEST_PREFIX}Історія`,
     description: 'Події, особистості та цікаві факти з минулого.',
+    emoji: '🏛',
     categories: 3,
     questions: 3,
     samples: [
@@ -33,6 +35,7 @@ const TEST_QUEST_DEFS: TestQuestDef[] = [
   {
     title: `${TEST_QUEST_PREFIX}Наука`,
     description: 'Фізика, біологія, космос — для любителів експериментів.',
+    emoji: '🔬',
     categories: 3,
     questions: 3,
     samples: [
@@ -50,6 +53,7 @@ const TEST_QUEST_DEFS: TestQuestDef[] = [
   {
     title: `${TEST_QUEST_PREFIX}Кіно`,
     description: 'Фільми, актори та культові цитати.',
+    emoji: '🎬',
     categories: 2,
     questions: 4,
     samples: [
@@ -66,6 +70,7 @@ const TEST_QUEST_DEFS: TestQuestDef[] = [
   {
     title: `${TEST_QUEST_PREFIX}Спорт`,
     description: 'Чемпіонати, рекорди та легенди спорту.',
+    emoji: '⚽',
     categories: 2,
     questions: 4,
     samples: [
@@ -120,7 +125,8 @@ export async function seedTestQuests(store: QuizStore): Promise<number> {
       def.description,
       def.categories,
       def.questions,
-      def.rounds ?? 1
+      def.rounds ?? 1,
+      def.emoji
     )
     await fillSampleQuestions(store, questId, def.samples)
     await store.flushSave()

@@ -36,24 +36,8 @@
                 <path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/>
               </svg>
             </div>
-            <div
-              class="quest-card__cover"
-              :style="{ '--cover-hue': questAccentHue(quest.title) }"
-            >
-              <div
-                class="quest-card__board"
-                :style="{
-                  '--board-cols': questBoardGrid(quest).cols,
-                  '--board-rows': questBoardGrid(quest).rows
-                }"
-              >
-                <span
-                  v-for="cell in questBoardGrid(quest).cells"
-                  :key="cell"
-                  class="quest-card__cell"
-                />
-              </div>
-              <span class="quest-card__emoji" aria-hidden="true">{{ questThemeEmoji(quest.title) }}</span>
+            <div class="quest-card__cover">
+              <span class="quest-card__emoji" aria-hidden="true">{{ questDisplayEmoji(quest) }}</span>
               <div class="quest-actions" @click.stop @mousedown.stop>
                 <button
                   type="button"
@@ -94,8 +78,9 @@
               <h2 class="quest-title">{{ displayQuestTitle(quest.title) }}</h2>
               <p v-if="quest.description?.trim()" class="quest-desc">{{ quest.description }}</p>
               <div class="quest-meta">
-                <span class="quest-meta__pill">{{ t('host.rounds', { count: quest.roundsCount ?? (quest.rounds?.length ?? 0) }) }}</span>
-                <span class="quest-meta__pill">{{ t('host.questions', { count: questQuestions(quest) }) }}</span>
+                <span>{{ t('host.rounds', { count: quest.roundsCount ?? (quest.rounds?.length ?? 0) }) }}</span>
+                <span class="quest-meta__sep">·</span>
+                <span>{{ t('host.questions', { count: questQuestions(quest) }) }}</span>
                 <span v-if="questQuestions(quest) === 0" class="quest-empty-badge">
                   <i aria-hidden="true">⚠</i> {{ t('host.noQuestions') }}
                 </span>
@@ -197,7 +182,7 @@ import { useGameSessionStore } from '@/store/gameSessionStore'
 import AppHeader from '@/components/common/AppHeader.vue'
 import { useIsMobileViewport } from '@/composables/useIsMobileViewport'
 import { seedTestQuests } from '@/utils/seedTestQuests'
-import { displayQuestTitle, questAccentHue, questBoardGrid, questThemeEmoji } from '@/utils/questCardTheme'
+import { displayQuestTitle, questDisplayEmoji } from '@/utils/questCardTheme'
 
 const { t } = useI18n()
 const importingQuest = ref(false)
@@ -604,8 +589,7 @@ async function onImportQuestFile(event: Event) {
   display: flex;
   align-items: center;
   justify-content: center;
-  background:
-    linear-gradient(145deg, hsl(var(--cover-hue, 250) 55% 42%), hsl(calc(var(--cover-hue, 250) + 35) 60% 28%));
+  background: linear-gradient(145deg, rgb(var(--c-accent-sky) / 0.42), rgb(var(--c-indigo-500) / 0.52));
 }
 
 .quest-card--cta .quest-card__cover {
@@ -616,45 +600,16 @@ async function onImportQuestFile(event: Event) {
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at 28% 18%, rgb(var(--c-white) / 0.22), transparent 52%);
+  background: radial-gradient(circle at 30% 22%, rgb(var(--c-white) / 0.2), transparent 55%);
   pointer-events: none;
 }
 
-.quest-card__board {
+.quest-card__emoji {
   position: relative;
   z-index: 1;
-  width: 72%;
-  aspect-ratio: var(--board-cols, 3) / var(--board-rows, 2);
-  display: grid;
-  grid-template-columns: repeat(var(--board-cols, 3), 1fr);
-  grid-template-rows: repeat(var(--board-rows, 2), 1fr);
-  gap: 3px;
-  padding: 4px;
-  border-radius: 0.45rem;
-  background: rgb(var(--c-bg-deep) / 0.35);
-  border: 1px solid rgb(var(--c-white) / 0.15);
-  box-shadow: 0 8px 20px rgb(var(--c-bg-deep) / 0.35);
-}
-
-.quest-card__cell {
-  border-radius: 0.2rem;
-  background: rgb(var(--c-white) / 0.14);
-  border: 1px solid rgb(var(--c-white) / 0.12);
-  box-shadow: inset 0 1px 0 rgb(var(--c-white) / 0.08);
-}
-
-.quest-card__cell:nth-child(3n + 1) {
-  background: rgb(var(--c-white) / 0.22);
-}
-
-.quest-card__emoji {
-  position: absolute;
-  left: 0.55rem;
-  bottom: 0.55rem;
-  z-index: 2;
-  font-size: 1.35rem;
+  font-size: clamp(2.5rem, 8vw, 3.25rem);
   line-height: 1;
-  filter: drop-shadow(0 2px 6px rgb(var(--c-bg-deep) / 0.55));
+  filter: drop-shadow(0 4px 14px rgb(var(--c-bg-deep) / 0.45));
 }
 
 .quest-card__body {
@@ -806,19 +761,15 @@ async function onImportQuestFile(event: Event) {
 
 .quest-meta {
   display: flex;
-  gap: 0.35rem;
   align-items: center;
   flex-wrap: wrap;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  color: rgb(var(--c-text-muted) / 0.9);
 }
 
-.quest-meta__pill {
-  font-size: 0.68rem;
-  font-weight: 600;
-  padding: 0.2rem 0.55rem;
-  border-radius: 999px;
-  background: rgb(var(--c-bg) / 0.55);
-  border: 1px solid rgb(var(--c-accent-sky) / 0.18);
-  color: rgb(var(--c-text-muted) / 0.95);
+.quest-meta__sep {
+  opacity: 0.45;
 }
 
 .quest-empty-badge {

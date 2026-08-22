@@ -69,6 +69,8 @@
     "namePlaceholder": "Назва квесту",
     "description": "Опис (необов'язково)",
     "descriptionPlaceholder": "Коротко про квест",
+    "emoji": "Іконка квесту",
+    "emojiAria": "Оберіть emoji для квесту",
     "startFrom": "З чого почати",
     "boardSize": "Розмір дошки",
     "grid": "Готова сітка",

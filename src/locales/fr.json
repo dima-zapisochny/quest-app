@@ -69,6 +69,8 @@
     "namePlaceholder": "Nom du quiz",
     "description": "Description (facultatif)",
     "descriptionPlaceholder": "Une courte note sur le quiz",
+    "emoji": "Icône du quiz",
+    "emojiAria": "Choisir un emoji pour le quiz",
     "startFrom": "Par où commencer",
     "boardSize": "Taille du tableau",
     "grid": "Grille prête",

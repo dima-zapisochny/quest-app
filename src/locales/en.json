@@ -69,6 +69,8 @@
     "namePlaceholder": "Quest name",
     "description": "Description (optional)",
     "descriptionPlaceholder": "A short note about the quest",
+    "emoji": "Quest icon",
+    "emojiAria": "Choose an emoji for the quest",
     "startFrom": "Where to start",
     "boardSize": "Board size",
     "grid": "Ready-made grid",
