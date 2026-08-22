@@ -86,6 +86,7 @@
       <RouterLink to="/how-to-play">{{ t('seo.linkHowTo') }}</RouterLink>
       <RouterLink to="/quests/movie-night">{{ t('seo.linkMovieNight') }}</RouterLink>
       <RouterLink to="/quests/hit-parade">{{ t('seo.linkHitParade') }}</RouterLink>
+      <RouterLink to="/about">{{ t('seo.linkAbout') }}</RouterLink>
     </nav>
   </div>
 </template>

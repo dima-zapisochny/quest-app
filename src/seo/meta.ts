@@ -10,7 +10,7 @@ export function getSiteUrl(): string {
   return 'https://quizquest.app'
 }
 
-export type SeoPageId = 'home' | 'howto' | 'movie-night' | 'hit-parade'
+export type SeoPageId = 'home' | 'howto' | 'movie-night' | 'hit-parade' | 'about'
 
 export type SeoPageCopy = {
   title: string
@@ -195,6 +195,47 @@ export const SEO_COPY: Record<SeoPageId, Record<AppLocale, SeoPageCopy>> = {
         'Cuestionario musical listo: Beatles, Queen, pop, rock, hip-hop. Letras incompletas, álbumes, colaboraciones. 75 preguntas para la fiesta.',
       keywords: 'quiz de música, trivia canciones, hit parade, quiz letras, music quiz'
     }
+  },
+  about: {
+    uk: {
+      title: 'Про Quiz Quest — онлайн-вікторина для компанії, правила та для кого',
+      description:
+        'Що таке Quiz Quest: командна вікторина онлайн у стилі шоу. Правила гри, кому підійде, як створити гру та грати з телефона. Безкоштовно.',
+      keywords:
+        'про quiz quest, що таке вікторина онлайн, правила вікторини, вікторина для компанії, джепарді онлайн, гра з друзями'
+    },
+    ru: {
+      title: 'О Quiz Quest — онлайн-викторина для компании, правила и для кого',
+      description:
+        'Что такое Quiz Quest: командная викторина онлайн в стиле шоу. Правила, кому подойдёт, как создать игру и играть с телефона. Бесплатно.',
+      keywords:
+        'о quiz quest, что такое викторина онлайн, правила викторины, викторина для компании, джепарди онлайн'
+    },
+    en: {
+      title: 'About Quiz Quest — online party quiz, rules & who it’s for',
+      description:
+        'What Quiz Quest is: a free team quiz online with a game-show vibe. Rules, who it’s for, how to host a game and play from phones.',
+      keywords:
+        'about quiz quest, what is online quiz, quiz rules, party quiz, team quiz, jeopardy-style quiz'
+    },
+    de: {
+      title: 'Über Quiz Quest — Online-Quiz für die Gruppe, Regeln & Zielgruppe',
+      description:
+        'Was Quiz Quest ist: kostenloses Team-Quiz online im Show-Stil. Regeln, für wen es passt, Spiel starten und per Handy mitspielen.',
+      keywords: 'über quiz quest, online quiz regeln, quiz für freunde, team quiz, jeopardy online'
+    },
+    fr: {
+      title: 'À propos de Quiz Quest — quiz en ligne, règles et pour qui',
+      description:
+        'Qu’est-ce que Quiz Quest : quiz d’équipe gratuit en ligne façon show. Règles, public, créer une partie et jouer sur téléphone.',
+      keywords: 'à propos quiz quest, règles quiz en ligne, quiz entre amis, quiz buzz'
+    },
+    es: {
+      title: 'Sobre Quiz Quest — quiz online, reglas y para quién',
+      description:
+        'Qué es Quiz Quest: quiz en equipo gratis online con estilo de concurso. Reglas, a quién va dirigido, crear partida y jugar desde el móvil.',
+      keywords: 'sobre quiz quest, reglas trivia online, quiz con amigos, quiz tipo concurso'
+    }
   }
 }
 
@@ -202,7 +243,8 @@ export const SEO_PATHS: Record<SeoPageId, string> = {
   home: '/',
   howto: '/how-to-play',
   'movie-night': '/quests/movie-night',
-  'hit-parade': '/quests/hit-parade'
+  'hit-parade': '/quests/hit-parade',
+  about: '/about'
 }
 
 export const HREFLANG_LOCALES: { locale: AppLocale; hreflang: string }[] = [

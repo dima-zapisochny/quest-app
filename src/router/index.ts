@@ -31,6 +31,11 @@ const router = createRouter({
       component: () => import('@/views/SeoHitParadeView.vue')
     },
     {
+      path: '/about',
+      name: 'seo-about',
+      component: () => import('@/views/SeoAboutView.vue')
+    },
+    {
       path: '/quest/:questId',
       name: 'quest-root',
       component: QuestView,
@@ -150,7 +155,7 @@ router.beforeEach(async (to, _from, next) => {
     // Если активной сессии нет, но мы на странице с сессией, продолжаем проверку ниже
   } else if (activeSession) {
     // Публічні SEO-сторінки не форсимо в активну сесію
-    const publicSeo = ['seo-howto', 'seo-movie-night', 'seo-hit-parade']
+    const publicSeo = ['seo-howto', 'seo-movie-night', 'seo-hit-parade', 'seo-about']
     if (publicSeo.includes(to.name as string)) {
       next()
       return

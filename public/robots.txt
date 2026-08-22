@@ -3,6 +3,7 @@ Allow: /
 Allow: /how-to-play
 Allow: /quests/movie-night
 Allow: /quests/hit-parade
+Allow: /about
 Disallow: /host/
 Disallow: /admin/
 Disallow: /session/
