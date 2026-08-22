@@ -4,6 +4,7 @@ import App from './App.vue'
 import router from './router'
 import { i18n } from './i18n'
 import './style.css'
+import './styles/seoPage.css'
 
 if (typeof window !== 'undefined') {
   const passiveEvents = new Set(['touchstart', 'touchmove', 'wheel'])

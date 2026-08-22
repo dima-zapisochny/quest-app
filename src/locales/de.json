@@ -248,5 +248,25 @@
     "prev": "Zurück",
     "next": "Weiter",
     "titleCreate": "Wie erstellt man?"
+  },
+  "seo": {
+    "howtoH1": "Wie spielt man Quiz Quest?",
+    "howtoLead": "Kurzanleitung für Moderator und Spieler: vom Spielstart bis zur Punktevergabe.",
+    "movieH1": "Movie Night — Filmquiz",
+    "movieLead": "Fertiges Pack zu Kultfilmen und Serien ohne Magie: Poster, Zitate, Rollen und Soundtracks.",
+    "movieBullet1": "3 Runden, 5 Kategorien, 5 Schwierigkeitsstufen — 75 Fragen",
+    "movieBullet2": "IMDb-Hits: von Shawshank und Titanic bis Breaking Bad und Oppenheimer",
+    "movieBullet3": "Erscheint automatisch in der Host-Lobby — sofort spielbar",
+    "musicH1": "Hit Parade — Musikquiz",
+    "musicLead": "Chart-Hits und Klassiker: Lückentexte, Artists, Alben und Features.",
+    "musicBullet1": "Beatles, Queen, Pop, Rock, Hip-Hop und Dance in einem Pack",
+    "musicBullet2": "75 Fragen: von fehlenden Wörtern bis tiefer Trivia",
+    "musicBullet3": "Ideal für die Party — Freunde joinen per Handy",
+    "linkHowTo": "Wie spielt man?",
+    "linkMovieNight": "Movie Night — Filmquest",
+    "linkHitParade": "Hit Parade — Musikquest",
+    "linkPlay": "Jetzt spielen",
+    "relatedNav": "Weiterführende Links",
+    "footerNav": "Schnelllinks"
   }
 }

@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Allow: /how-to-play
+Allow: /quests/movie-night
+Allow: /quests/hit-parade
+Disallow: /host/
+Disallow: /admin/
+Disallow: /session/
+Disallow: /quest/
+
+Sitemap: https://quizquest.app/sitemap.xml

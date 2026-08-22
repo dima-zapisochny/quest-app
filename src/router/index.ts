@@ -16,6 +16,21 @@ const router = createRouter({
       component: LandingView
     },
     {
+      path: '/how-to-play',
+      name: 'seo-howto',
+      component: () => import('@/views/SeoHowToView.vue')
+    },
+    {
+      path: '/quests/movie-night',
+      name: 'seo-movie-night',
+      component: () => import('@/views/SeoMovieNightView.vue')
+    },
+    {
+      path: '/quests/hit-parade',
+      name: 'seo-hit-parade',
+      component: () => import('@/views/SeoHitParadeView.vue')
+    },
+    {
       path: '/quest/:questId',
       name: 'quest-root',
       component: QuestView,
@@ -134,6 +149,12 @@ router.beforeEach(async (to, _from, next) => {
     }
     // Если активной сессии нет, но мы на странице с сессией, продолжаем проверку ниже
   } else if (activeSession) {
+    // Публічні SEO-сторінки не форсимо в активну сесію
+    const publicSeo = ['seo-howto', 'seo-movie-night', 'seo-hit-parade']
+    if (publicSeo.includes(to.name as string)) {
+      next()
+      return
+    }
     // Если есть активная сессия, но мы не на странице с сессией, редиректим
     if (activeSession.role === 'host') {
       // Редиректим на страницу хоста
