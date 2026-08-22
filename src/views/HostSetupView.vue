@@ -501,6 +501,7 @@ async function onImportQuestFile(event: Event) {
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 1.1rem;
   align-content: start;
+  align-items: start;
   overflow-y: auto;
   padding: 0.25rem 0.5rem 1rem;
   scrollbar-width: thin;
@@ -521,9 +522,11 @@ async function onImportQuestFile(event: Event) {
   position: relative;
   width: 100%;
   min-width: 0;
+  height: auto;
+  container-type: inline-size;
   background: linear-gradient(165deg, rgb(var(--c-surface) / 0.92), rgb(var(--c-bg) / 0.75));
   border-radius: 1.15rem;
-  padding: 0.85rem;
+  padding: 0.75rem;
   border: 1px solid rgb(var(--c-accent-sky) / 0.16);
   color: rgb(var(--c-text));
   display: flex;
@@ -535,7 +538,8 @@ async function onImportQuestFile(event: Event) {
 }
 
 .quest-card:hover {
-  transform: translateY(-4px);
+  transform: translateY(-3px);
+  z-index: 1;
   border-color: rgb(var(--c-accent-sky) / 0.38);
   box-shadow: 0 18px 40px rgb(var(--c-bg-deep) / 0.5);
 }
@@ -565,6 +569,8 @@ async function onImportQuestFile(event: Event) {
 
 .quest-card__cover {
   position: relative;
+  flex-shrink: 0;
+  width: 100%;
   aspect-ratio: 1;
   border-radius: 0.75rem;
   overflow: hidden;
@@ -589,23 +595,24 @@ async function onImportQuestFile(event: Event) {
 .quest-card__emoji {
   position: relative;
   z-index: 1;
-  font-size: clamp(2.5rem, 8vw, 3.25rem);
+  font-size: clamp(1.65rem, 24cqi, 2.25rem);
   line-height: 1;
   filter: drop-shadow(0 4px 14px rgb(var(--c-bg-deep) / 0.45));
 }
 
 .quest-card__body {
-  padding: 0.85rem 0.25rem 0.35rem;
+  flex-shrink: 0;
+  padding: 0.65rem 0.1rem 0.15rem;
   display: flex;
   flex-direction: column;
-  gap: 0.55rem;
+  gap: 0.4rem;
 }
 
 .quest-title {
   margin: 0;
-  font-size: 1rem;
+  font-size: 0.92rem;
   font-weight: 800;
-  line-height: 1.25;
+  line-height: 1.3;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -614,8 +621,8 @@ async function onImportQuestFile(event: Event) {
 
 .quest-desc {
   margin: 0;
-  font-size: 0.72rem;
-  line-height: 1.4;
+  font-size: 0.68rem;
+  line-height: 1.35;
   color: rgb(var(--c-text-muted) / 0.88);
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -690,32 +697,39 @@ async function onImportQuestFile(event: Event) {
 }
 
 .quest-card__body--cta {
-  flex: 1;
+  flex-shrink: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   text-align: center;
-  gap: 0.25rem;
-  padding: 0.5rem 0.25rem;
-  min-height: 0;
+  gap: 0.2rem;
+  padding: 0.55rem 0.1rem 0.1rem;
 }
 
 .quest-card__ctalabel {
-  font-size: 1rem;
+  font-size: 0.88rem;
   font-weight: 700;
+  line-height: 1.3;
   color: rgb(var(--c-text-soft) / 0.95);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .quest-card__ctahint {
-  font-size: 0.72rem;
+  font-size: 0.65rem;
   color: rgb(var(--c-text-muted) / 0.8);
-  line-height: 1.35;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .new-quest-circle {
-  width: 3.75rem;
-  height: 3.75rem;
+  width: 3rem;
+  height: 3rem;
   border-radius: 50%;
   border: 1px dashed rgb(var(--c-accent-sky) / 0.55);
   background: rgb(var(--c-bg) / 0.45);
@@ -723,13 +737,14 @@ async function onImportQuestFile(event: Event) {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.75rem;
+  font-size: 1.5rem;
   line-height: 1;
+  flex-shrink: 0;
 }
 
 .new-quest-circle svg {
-  width: 1.5rem;
-  height: 1.5rem;
+  width: 1.35rem;
+  height: 1.35rem;
 }
 
 .quest-import-input {
@@ -752,8 +767,9 @@ async function onImportQuestFile(event: Event) {
   align-items: center;
   flex-wrap: wrap;
   gap: 0.35rem;
-  font-size: 0.75rem;
+  font-size: 0.68rem;
   color: rgb(var(--c-text-muted) / 0.9);
+  margin-top: 0.1rem;
 }
 
 .quest-meta__sep {
@@ -986,8 +1002,9 @@ async function onImportQuestFile(event: Event) {
     text-align: center;
   }
 
-  .quest-card {
-    width: min(100%, 200px);
+  .quests-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.85rem;
   }
 }
 
@@ -998,11 +1015,6 @@ async function onImportQuestFile(event: Event) {
 
   .quests-grid {
     gap: 0.75rem;
-  }
-
-  .quest-card {
-    width: calc(50% - 0.5rem);
-    min-width: 140px;
   }
 
   .quest-title {
