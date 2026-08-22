@@ -1,11 +1,5 @@
 <template>
   <div class="host-setup">
-    <div class="host-setup__ambient" aria-hidden="true">
-      <span class="host-setup__orb host-setup__orb--1" />
-      <span class="host-setup__orb host-setup__orb--2" />
-      <span class="host-setup__orb host-setup__orb--3" />
-    </div>
-
     <AppHeader
       button-variant="back"
       :button-label="t('common.back')"
@@ -23,7 +17,6 @@
 
     <main v-else class="host-main">
       <header class="host-hero">
-        <span class="host-hero__badge" aria-hidden="true">🎮</span>
         <p class="host-hero__eyebrow">{{ t('host.chooseQuest') }}</p>
         <h1 class="host-hero__title">{{ t('host.title') }}</h1>
         <p class="host-hero__subtitle">{{ t('host.subtitle') }}</p>
@@ -451,49 +444,10 @@ async function onImportQuestFile(event: Event) {
   position: relative;
   height: 100dvh;
   overflow: hidden;
-  background: rgb(var(--c-bg-deep));
+  background: linear-gradient(135deg, rgb(var(--c-bg)) 0%, rgb(var(--c-surface)) 100%);
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
-}
-
-.host-setup__ambient {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  overflow: hidden;
-}
-
-.host-setup__orb {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(80px);
-  opacity: 0.45;
-}
-
-.host-setup__orb--1 {
-  width: 420px;
-  height: 420px;
-  top: -120px;
-  left: -80px;
-  background: rgb(var(--c-violet) / 0.35);
-}
-
-.host-setup__orb--2 {
-  width: 360px;
-  height: 360px;
-  top: 20%;
-  right: -100px;
-  background: rgb(var(--c-accent-sky) / 0.28);
-}
-
-.host-setup__orb--3 {
-  width: 300px;
-  height: 300px;
-  bottom: -60px;
-  left: 35%;
-  background: rgb(var(--c-teal) / 0.35);
 }
 
 .host-main {
@@ -515,20 +469,6 @@ async function onImportQuestFile(event: Event) {
   flex-shrink: 0;
   text-align: center;
   padding: 0.5rem 0 1.25rem;
-}
-
-.host-hero__badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.75rem;
-  height: 2.75rem;
-  margin-bottom: 0.65rem;
-  border-radius: 0.85rem;
-  font-size: 1.35rem;
-  background: rgb(var(--c-surface) / 0.65);
-  border: 1px solid rgb(var(--c-accent-sky) / 0.25);
-  box-shadow: 0 8px 24px rgb(var(--c-bg-deep) / 0.45);
 }
 
 .host-hero__eyebrow {
@@ -978,7 +918,7 @@ async function onImportQuestFile(event: Event) {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgb(var(--c-bg-deep));
+  background: linear-gradient(135deg, rgb(var(--c-bg)) 0%, rgb(var(--c-surface)) 100%);
   z-index: 1000;
 }
 
