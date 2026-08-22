@@ -65,7 +65,6 @@
                   </svg>
                 </button>
                 <button
-                  v-if="!isStandardQuestTitle(quest.title)"
                   type="button"
                   class="quest-action-button quest-action-button--danger"
                   @click="deleteQuest(quest.id)"
@@ -180,7 +179,7 @@ import { useGameSessionStore } from '@/store/gameSessionStore'
 import AppHeader from '@/components/common/AppHeader.vue'
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
 import { useIsMobileViewport } from '@/composables/useIsMobileViewport'
-import { seedStandardQuests, isStandardQuestTitle, sortQuestsWithStandardsFirst } from '@/utils/seedStandardQuests'
+import { seedStandardQuests, sortQuestsWithStandardsFirst } from '@/utils/seedStandardQuests'
 import { displayQuestTitle, questDisplayEmoji } from '@/utils/questCardTheme'
 import { playQuestDeselectSound, playQuestSelectSound } from '@/utils/uiSound'
 import { mapAppError } from '@/utils/mapAppError'
@@ -472,7 +471,7 @@ async function exportQuest(questId: string) {
 
 function deleteQuest(questId: string) {
   const quest = quizStore.getQuestById(questId)
-  if (!quest || isStandardQuestTitle(quest.title)) return
+  if (!quest) return
   confirmDeleteModal.value = {
     visible: true,
     questId,
