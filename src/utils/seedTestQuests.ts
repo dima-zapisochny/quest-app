@@ -16,7 +16,7 @@ type TestQuestDef = {
 const TEST_QUEST_DEFS: TestQuestDef[] = [
   {
     title: `${TEST_QUEST_PREFIX}Історія`,
-    description: 'Події, особистості та цікаві факти з минулого.',
+    description: 'Події, особистості та цікаві факти з минулого',
     emoji: '🏛',
     categories: 3,
     questions: 3,
@@ -34,7 +34,7 @@ const TEST_QUEST_DEFS: TestQuestDef[] = [
   },
   {
     title: `${TEST_QUEST_PREFIX}Наука`,
-    description: 'Фізика, біологія, космос — для любителів експериментів.',
+    description: 'Фізика, біологія, космос — для любителів експериментів',
     emoji: '🔬',
     categories: 3,
     questions: 3,
@@ -52,7 +52,7 @@ const TEST_QUEST_DEFS: TestQuestDef[] = [
   },
   {
     title: `${TEST_QUEST_PREFIX}Кіно`,
-    description: 'Фільми, актори та культові цитати.',
+    description: 'Фільми, актори та культові цитати',
     emoji: '🎬',
     categories: 2,
     questions: 4,
@@ -61,7 +61,7 @@ const TEST_QUEST_DEFS: TestQuestDef[] = [
       ['Хто зіграв Джокера у «The Dark Knight»?', 'Хіт Леджер'],
       ['Фільм про Нео та червону таблетку?', 'Матриця'],
       ['«May the Force be with you» — з якого фільму?', 'Зоряні війни'],
-      ['Актор Iron Man у MCU?', 'Роберт Дауні-мл.'],
+      ['Актор Iron Man у MCU?', 'Роберт Дауні-мл'],
       ['Мультфільм про короля лева?', 'Король Лев'],
       ['Рік виходу «Аватара»?', '2009'],
       ['Хто режисував «Паразити»?', 'Bong Joon-ho']
@@ -69,7 +69,7 @@ const TEST_QUEST_DEFS: TestQuestDef[] = [
   },
   {
     title: `${TEST_QUEST_PREFIX}Спорт`,
-    description: 'Чемпіонати, рекорди та легенди спорту.',
+    description: 'Чемпіонати, рекорди та легенди спорту',
     emoji: '⚽',
     categories: 2,
     questions: 4,
@@ -86,7 +86,7 @@ const TEST_QUEST_DEFS: TestQuestDef[] = [
   },
   {
     title: `${TEST_QUEST_PREFIX}Музика`,
-    description: 'Жанри, виконавці та культові альбоми.',
+    description: 'Жанри, виконавці та культові альбоми',
     emoji: '🎵',
     categories: 3,
     questions: 3,
@@ -104,7 +104,7 @@ const TEST_QUEST_DEFS: TestQuestDef[] = [
   },
   {
     title: `${TEST_QUEST_PREFIX}Географія`,
-    description: 'Країни, столиці та цікаві місця на мапі.',
+    description: 'Країни, столиці та цікаві місця на мапі',
     emoji: '🌍',
     categories: 2,
     questions: 4,

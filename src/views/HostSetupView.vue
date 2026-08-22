@@ -79,7 +79,7 @@
             </div>
             <div class="quest-card__body">
               <h2 class="quest-title">{{ displayQuestTitle(quest.title) }}</h2>
-              <p v-if="quest.description?.trim()" class="quest-desc">{{ quest.description }}</p>
+              <p class="quest-desc">{{ quest.description?.trim() || '' }}</p>
               <div class="quest-meta">
                 <span>{{ t('host.rounds', { count: quest.roundsCount ?? (quest.rounds?.length ?? 0) }) }}</span>
                 <span class="quest-meta__sep">·</span>
@@ -179,9 +179,10 @@ import { useGameSessionStore } from '@/store/gameSessionStore'
 import AppHeader from '@/components/common/AppHeader.vue'
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
 import { useIsMobileViewport } from '@/composables/useIsMobileViewport'
-import { seedTestQuests } from '@/utils/seedTestQuests'
+import { seedStandardQuests, sortQuestsWithStandardsFirst } from '@/utils/seedStandardQuests'
 import { displayQuestTitle, questDisplayEmoji } from '@/utils/questCardTheme'
 import { playQuestDeselectSound, playQuestSelectSound } from '@/utils/uiSound'
+import { notifyDeleted } from '@/utils/notifyDeleted'
 import { mapAppError } from '@/utils/mapAppError'
 
 const { t } = useI18n()
@@ -194,7 +195,7 @@ const quizStore = useQuizStore()
 const sessionStore = useGameSessionStore()
 const { isMobileViewport } = useIsMobileViewport()
 
-const quests = computed(() => quizStore.quests)
+const quests = computed(() => sortQuestsWithStandardsFirst(quizStore.quests))
 const selectedQuestId = ref<string | null>(null)
 const selectedQuest = computed(() =>
   selectedQuestId.value ? quests.value.find(q => q.id === selectedQuestId.value) ?? null : null
@@ -323,11 +324,11 @@ async function checkProfileAndLoad() {
     return
   }
 
-  if (!quests.value.length) {
+  if (!quizStore.quests.length) {
     await quizStore.loadFromStorage()
   }
 
-  await seedTestQuests(quizStore)
+  await seedStandardQuests(quizStore)
 
   const restoreId = route.query.restore_quest as string | undefined
   if (restoreId) {
@@ -492,6 +493,7 @@ async function confirmDeleteQuest() {
     }
     confirmDeleteModal.value = { visible: false, questId: null, questTitle: '' }
     errorMessage.value = ''
+    notifyDeleted()
   } catch (err) {
     errorMessage.value = (err as Error)?.message ?? t('host.errDeleteQuest')
   }
@@ -723,7 +725,9 @@ async function onImportQuestFile(event: Event) {
 
 .quest-card__cover {
   position: relative;
+  box-sizing: border-box;
   aspect-ratio: 1;
+  flex-shrink: 0;
   border-radius: 0.75rem;
   overflow: hidden;
   display: flex;
@@ -758,17 +762,40 @@ async function onImportQuestFile(event: Event) {
 }
 
 .quest-card__body {
-  padding: 0.85rem 0.25rem 0.35rem;
+  /* Однакова висота: щільно title→desc, помірний відступ до meta, залишок знизу */
+  --q-title-size: 1rem;
+  --q-title-lh: 1.25;
+  --q-desc-size: 0.72rem;
+  --q-desc-lh: 1.4;
+  --q-gap-title-desc: 0.35rem;
+  --q-gap-desc-meta: 0.55rem;
+  --q-meta-h: 1.15rem;
+  --q-pad-top: 0.85rem;
+  --q-pad-bottom: 0.35rem;
+
+  flex: 0 0 auto;
+  box-sizing: border-box;
+  padding: var(--q-pad-top) 0.25rem var(--q-pad-bottom);
   display: flex;
   flex-direction: column;
-  gap: 0.55rem;
+  gap: 0;
+  height: calc(
+    var(--q-pad-top) + var(--q-pad-bottom)
+    + (var(--q-title-size) * var(--q-title-lh) * 2)
+    + var(--q-gap-title-desc)
+    + (var(--q-desc-size) * var(--q-desc-lh) * 2)
+    + var(--q-gap-desc-meta)
+    + var(--q-meta-h)
+  );
 }
 
 .quest-title {
   margin: 0;
-  font-size: 1rem;
+  flex: 0 0 auto;
+  max-height: calc(var(--q-title-size) * var(--q-title-lh) * 2);
+  font-size: var(--q-title-size);
   font-weight: 800;
-  line-height: 1.25;
+  line-height: var(--q-title-lh);
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -776,9 +803,11 @@ async function onImportQuestFile(event: Event) {
 }
 
 .quest-desc {
-  margin: 0;
-  font-size: 0.72rem;
-  line-height: 1.4;
+  margin: var(--q-gap-title-desc) 0 0;
+  flex: 0 0 auto;
+  max-height: calc(var(--q-desc-size) * var(--q-desc-lh) * 2);
+  font-size: var(--q-desc-size);
+  line-height: var(--q-desc-lh);
   color: rgb(var(--c-text-muted) / 0.88);
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -854,8 +883,9 @@ async function onImportQuestFile(event: Event) {
 
 .quest-card__body--cta {
   align-items: center;
+  justify-content: center;
   text-align: center;
-  gap: 0.25rem;
+  gap: 0.35rem;
 }
 
 .quest-card__ctalabel {
@@ -909,6 +939,9 @@ async function onImportQuestFile(event: Event) {
   align-items: center;
   flex-wrap: wrap;
   gap: 0.35rem;
+  flex: 0 0 auto;
+  margin-top: var(--q-gap-desc-meta, 0.55rem);
+  min-height: var(--q-meta-h, 1.15rem);
   font-size: 0.75rem;
   color: rgb(var(--c-text-muted) / 0.9);
 }
@@ -1215,12 +1248,10 @@ async function onImportQuestFile(event: Event) {
   }
 
   .quest-card__body {
-    padding: 0.65rem 0.15rem 0.2rem;
-    gap: 0.4rem;
-  }
-
-  .quest-title {
-    font-size: 0.85rem;
+    --q-title-size: 0.85rem;
+    --q-pad-top: 0.65rem;
+    --q-pad-bottom: 0.2rem;
+    padding-inline: 0.15rem;
   }
 
   .host-dock {

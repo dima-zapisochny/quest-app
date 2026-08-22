@@ -1,0 +1,398 @@
+{
+  "description": "Хиты последних десятилетий и вечная классика: тексты, исполнители, жанры, коллаборации",
+  "rounds": [
+    {
+      "title": "Legends & Classics",
+      "description": "Beatles, Queen, Elvis, ABBA, Michael Jackson и другие иконы",
+      "categories": [
+        {
+          "title": "Фото легенд",
+          "questions": [
+            {
+              "question": "Кто на фото? Британский квартет 1960-х, авторы «Hey Jude»",
+              "answer": "The Beatles"
+            },
+            {
+              "question": "Кто на фото? Фредди Меркьюри — фронтмен этой группы",
+              "answer": "Queen"
+            },
+            {
+              "question": "Кто на фото? «King of Rock and Roll», Jailhouse Rock",
+              "answer": "Elvis Presley"
+            },
+            {
+              "question": "Кто на фото? Шведский квартет, хит «Dancing Queen»",
+              "answer": "ABBA"
+            },
+            {
+              "question": "Кто на фото? King of Pop, альбом Thriller",
+              "answer": "Michael Jackson"
+            }
+          ]
+        },
+        {
+          "title": "Пропущенное слово",
+          "questions": [
+            {
+              "question": "Назовите пропущенное слово (The Beatles):\n\n«Yesterday, all my … seemed so far away»",
+              "answer": "troubles"
+            },
+            {
+              "question": "Назовите пропущенное слово (Queen):\n\n«Is this the real life? Is this just …?»",
+              "answer": "fantasy"
+            },
+            {
+              "question": "Назовите пропущенное слово (Elvis Presley):\n\n«You ain’t nothin’ but a … dog»",
+              "answer": "hound"
+            },
+            {
+              "question": "Назовите пропущенное слово (ABBA):\n\n«You can dance, you can jive, having the time of your …»",
+              "answer": "life"
+            },
+            {
+              "question": "Назовите пропущенное слово (Michael Jackson — «Smooth Criminal»):\n\n«Annie, are you …?»",
+              "answer": "OK"
+            }
+          ]
+        },
+        {
+          "title": "Докончите строку",
+          "questions": [
+            {
+              "question": "Докончите строку (The Beatles — «Hey Jude»):\n\n«Hey Jude, don’t make it …»",
+              "answer": "bad"
+            },
+            {
+              "question": "Докончите строку (Queen — «We Will Rock You»):\n\n«We will, we will … you»",
+              "answer": "rock"
+            },
+            {
+              "question": "Докончите строку (Madonna — «Like a Virgin»):\n\n«Like a virgin, touched for the very first …»",
+              "answer": "time"
+            },
+            {
+              "question": "Докончите строку (Whitney Houston — «I Will Always Love You»):\n\n«And I will always love …»",
+              "answer": "you"
+            },
+            {
+              "question": "Докончите строку (Pink Floyd — «Wish You Were Here»):\n\n«How I wish, how I wish you were …»",
+              "answer": "here"
+            }
+          ]
+        },
+        {
+          "title": "Альбомы и эпохи",
+          "questions": [
+            {
+              "question": "Какой альбом The Beatles 1967 года часто называют одним из первых концептуальных?",
+              "answer": "Sgt. Pepper’s Lonely Hearts Club Band"
+            },
+            {
+              "question": "Какой альбом Queen 1975 года содержит «Bohemian Rhapsody»?",
+              "answer": "A Night at the Opera"
+            },
+            {
+              "question": "В каком году вышел этот альбом Майкла Джексона?",
+              "answer": "1982"
+            },
+            {
+              "question": "Какой альбом Madonna 1984 года сделал её мировой звездой pop?",
+              "answer": "Like a Virgin"
+            },
+            {
+              "question": "Какой альбом Pink Floyd 1973 года с этой обложкой (призма)?",
+              "answer": "The Dark Side of the Moon"
+            }
+          ]
+        },
+        {
+          "title": "Оригинал или кавер",
+          "questions": [
+            {
+              "question": "Кто исполнил оригинал «I Will Always Love You» до хита Whitney Houston?",
+              "answer": "Dolly Parton"
+            },
+            {
+              "question": "Кто пел оригинал «Respect», который позже прославила Aretha Franklin?",
+              "answer": "Otis Redding"
+            },
+            {
+              "question": "Кто записал оригинал «All Along the Watchtower», который каверил Jimi Hendrix?",
+              "answer": "Bob Dylan"
+            },
+            {
+              "question": "Кто исполнил оригинал «Nothing Compares 2 U» до версии Sinéad O’Connor?",
+              "answer": "Prince (The Family)"
+            },
+            {
+              "question": "Кто записал оригинал «Hallelujah», который позже популяризировали Jeff Buckley и другие?",
+              "answer": "Leonard Cohen"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Charts & Genres",
+      "description": "Pop, rock, hip-hop, dance и баллады 1990–2020",
+      "categories": [
+        {
+          "title": "Pop-хиты",
+          "questions": [
+            {
+              "question": "Кто на фото? Авторка «Hello» и «Rolling in the Deep»",
+              "answer": "Adele"
+            },
+            {
+              "question": "Докончите строку (Taylor Swift — «Shake It Off»):\n\n«The players gonna play, play, play, play, …»",
+              "answer": "play"
+            },
+            {
+              "question": "Назовите пропущенное слово (Lady Gaga — «Bad Romance»):\n\n«I want your …, I want your revenge»",
+              "answer": "love"
+            },
+            {
+              "question": "Какой хит Bruno Mars 2010 года начинается со слов про «grenade»?",
+              "answer": "Grenade"
+            },
+            {
+              "question": "В каком году The Weeknd выпустил глобальный хит «Blinding Lights»?",
+              "answer": "2019"
+            }
+          ]
+        },
+        {
+          "title": "Rock & Alternative",
+          "questions": [
+            {
+              "question": "Кто на фото? Гранж-трио с «Smells Like Teen Spirit»",
+              "answer": "Nirvana"
+            },
+            {
+              "question": "Кто на фото? Австралийский hard rock, «Highway to Hell»",
+              "answer": "AC/DC"
+            },
+            {
+              "question": "Назовите пропущенное слово (Linkin Park — «In the End»):\n\n«I tried so hard and got so …»",
+              "answer": "far"
+            },
+            {
+              "question": "Докончите строку (Oasis — «Wonderwall»):\n\n«Because maybe, you’re gonna be the one that … me»",
+              "answer": "saves"
+            },
+            {
+              "question": "Какой жанр точнее всего описывает Coldplay начала 2000-х (Parachutes, A Rush of Blood to the Head)?",
+              "answer": "Alternative rock / Britpop-influenced rock"
+            }
+          ]
+        },
+        {
+          "title": "Hip-Hop",
+          "questions": [
+            {
+              "question": "Кто на фото? Slim Shady, хит «Lose Yourself»",
+              "answer": "Eminem"
+            },
+            {
+              "question": "Кто на фото? Канадский рэпер, хиты «Hotline Bling», «God’s Plan»",
+              "answer": "Drake"
+            },
+            {
+              "question": "Назовите пропущенное слово (Eminem — «Lose Yourself»):\n\n«You better lose yourself in the …»",
+              "answer": "music"
+            },
+            {
+              "question": "Докончите строку (Drake — «Hotline Bling»):\n\n«You used to call me on my …»",
+              "answer": "cell phone"
+            },
+            {
+              "question": "В каком году Eminem выпустил The Marshall Mathers LP?",
+              "answer": "2000"
+            }
+          ]
+        },
+        {
+          "title": "Dance & Electronic",
+          "questions": [
+            {
+              "question": "Кто на фото? Французский дуэт в шлемах, «Get Lucky»",
+              "answer": "Daft Punk"
+            },
+            {
+              "question": "Назовите пропущенное слово (Daft Punk — «Get Lucky»):\n\n«We’re up all night to get …»",
+              "answer": "lucky"
+            },
+            {
+              "question": "Какой жанр лучше всего описывает Daft Punk и трек «One More Time»?",
+              "answer": "French house / electronic dance"
+            },
+            {
+              "question": "Кто на фото? Авторка «bad guy» и «Therefore I Am»",
+              "answer": "Billie Eilish"
+            },
+            {
+              "question": "Докончите строку (Billie Eilish — «bad guy»):\n\n«So you’re a tough guy, like it really rough …»",
+              "answer": "guy"
+            }
+          ]
+        },
+        {
+          "title": "Баллады и вокал",
+          "questions": [
+            {
+              "question": "Кто на фото? «I Will Always Love You», The Bodyguard",
+              "answer": "Whitney Houston"
+            },
+            {
+              "question": "Кто на фото? «Shape of You», «Perfect»",
+              "answer": "Ed Sheeran"
+            },
+            {
+              "question": "Докончите строку (Adele — «Someone Like You»):\n\n«Never mind, I’ll find someone like …»",
+              "answer": "you"
+            },
+            {
+              "question": "Назовите пропущенное слово (Ed Sheeran — «Perfect»):\n\n«Darling, just hold my …»",
+              "answer": "hand"
+            },
+            {
+              "question": "Какой альбом Adele 2011 года содержит «Someone Like You» и «Rolling in the Deep»?",
+              "answer": "21"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Deep Cuts",
+      "description": "Коллаборации, годы, альбомы и более сложные тексты",
+      "categories": [
+        {
+          "title": "Коллаборации",
+          "questions": [
+            {
+              "question": "Кто на фото? Барбадосская звезда хита «Umbrella»",
+              "answer": "Rihanna"
+            },
+            {
+              "question": "Кто был приглашённым артистом (feat.) на «Umbrella» Rihanna?",
+              "answer": "Jay-Z"
+            },
+            {
+              "question": "Кто на фото? Солистка Destiny’s Child и хита «Crazy in Love»",
+              "answer": "Beyoncé"
+            },
+            {
+              "question": "Кто пел с Daft Punk в хите «Get Lucky» (основной вокал)?",
+              "answer": "Pharrell Williams"
+            },
+            {
+              "question": "Кто на фото записал «Hips Don’t Lie» вместе с Wyclef Jean?",
+              "answer": "Shakira"
+            }
+          ]
+        },
+        {
+          "title": "Годы и чарты",
+          "questions": [
+            {
+              "question": "В каком году Nirvana выпустила Nevermind?",
+              "answer": "1991"
+            },
+            {
+              "question": "В каком году Lady Gaga выпустила дебютный альбом The Fame?",
+              "answer": "2008"
+            },
+            {
+              "question": "В каком году Taylor Swift выпустила 1989?",
+              "answer": "2014"
+            },
+            {
+              "question": "В каком году The Weeknd выпустил After Hours?",
+              "answer": "2020"
+            },
+            {
+              "question": "В каком году Billie Eilish выпустила When We All Fall Asleep, Where Do We Go?",
+              "answer": "2019"
+            }
+          ]
+        },
+        {
+          "title": "Альбомы deep cut",
+          "questions": [
+            {
+              "question": "Какой альбом Linkin Park 2000 года открывает трек «Papercut»?",
+              "answer": "Hybrid Theory"
+            },
+            {
+              "question": "Какой альбом Oasis 1995 года содержит «Wonderwall» и «Don’t Look Back in Anger»?",
+              "answer": "(What’s the Story) Morning Glory?"
+            },
+            {
+              "question": "Какой альбом AC/DC 1980 года с Брайаном Джонсоном стал их бестселлером?",
+              "answer": "Back in Black"
+            },
+            {
+              "question": "Какой альбом Madonna 1998 года с электронным звучанием включает «Frozen»?",
+              "answer": "Ray of Light"
+            },
+            {
+              "question": "Какой альбом Daft Punk 2013 года содержит «Get Lucky» и «Instant Crush»?",
+              "answer": "Random Access Memories"
+            }
+          ]
+        },
+        {
+          "title": "Жёсткие тексты",
+          "questions": [
+            {
+              "question": "Назовите пропущенное слово (Rihanna — «Umbrella»):\n\n«You can stand under my …»",
+              "answer": "umbrella"
+            },
+            {
+              "question": "Докончите строку (Beyoncé — «Single Ladies»):\n\n«If you liked it then you shoulda put a … on it»",
+              "answer": "ring"
+            },
+            {
+              "question": "Назовите пропущенное слово (Shakira — «Hips Don’t Lie»):\n\n«I never really knew that she could … like this»",
+              "answer": "dance"
+            },
+            {
+              "question": "Докончите строку (The Weeknd — «Blinding Lights»):\n\n«I can’t sleep until I feel your …»",
+              "answer": "touch"
+            },
+            {
+              "question": "Назовите пропущенное слово (Coldplay — «Viva La Vida»):\n\n«I used to rule the …»",
+              "answer": "world"
+            }
+          ]
+        },
+        {
+          "title": "Кто пел?",
+          "questions": [
+            {
+              "question": "Кто поёт оригинал хита «Smells Like Teen Spirit»?",
+              "answer": "Nirvana"
+            },
+            {
+              "question": "Кто поёт оригинал «Bohemian Rhapsody»?",
+              "answer": "Queen"
+            },
+            {
+              "question": "Кто записал оригинал «Shape of You»?",
+              "answer": "Ed Sheeran"
+            },
+            {
+              "question": "Кто записал оригинал «bad guy»?",
+              "answer": "Billie Eilish"
+            },
+            {
+              "question": "Кто на фото? Британская группа альбома The Dark Side of the Moon",
+              "answer": "Pink Floyd"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

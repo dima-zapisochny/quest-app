@@ -1,0 +1,398 @@
+{
+  "description": "Hits IMDb : films et séries sans magie ni surnaturel. Affiches, citations, bandes originales, rôles",
+  "rounds": [
+    {
+      "title": "Échauffement",
+      "description": "Affiches, citations faciles, rôles célèbres et polar",
+      "categories": [
+        {
+          "title": "Affiches",
+          "questions": [
+            {
+              "question": "Quel film cette affiche fait-elle la promo ?",
+              "answer": "The Shawshank Redemption"
+            },
+            {
+              "question": "Quel film figure sur cette affiche ?",
+              "answer": "Forrest Gump"
+            },
+            {
+              "question": "Quel film est représenté sur cette affiche ?",
+              "answer": "Pulp Fiction"
+            },
+            {
+              "question": "Quel film de Christopher Nolan figure sur cette affiche ?",
+              "answer": "Inception"
+            },
+            {
+              "question": "Quel film sud-coréen oscarisé figure sur cette affiche ?",
+              "answer": "Parasite"
+            }
+          ]
+        },
+        {
+          "title": "Citations célèbres",
+          "questions": [
+            {
+              "question": "«Life is like a box of chocolates…» — de quel film ?",
+              "answer": "Forrest Gump"
+            },
+            {
+              "question": "«I'm gonna make him an offer he can't refuse» — qui a dit ça ?",
+              "answer": "Vito Corleone / The Godfather"
+            },
+            {
+              "question": "«Why so serious?» — qui prononce cette réplique ?",
+              "answer": "The Joker (The Dark Knight)"
+            },
+            {
+              "question": "«Get busy living, or get busy dying» — de quel film ?",
+              "answer": "The Shawshank Redemption"
+            },
+            {
+              "question": "«What's in the box?» — de quel thriller de David Fincher ?",
+              "answer": "Se7en"
+            }
+          ]
+        },
+        {
+          "title": "Qui a joué ?",
+          "questions": [
+            {
+              "question": "Qui a joué Forrest Gump ?",
+              "answer": "Tom Hanks"
+            },
+            {
+              "question": "Qui a joué Jack Dawson dans Titanic ?",
+              "answer": "Leonardo DiCaprio"
+            },
+            {
+              "question": "Qui a joué Bruce Wayne / Batman dans The Dark Knight ?",
+              "answer": "Christian Bale"
+            },
+            {
+              "question": "Qui a joué Maximus dans Gladiator ?",
+              "answer": "Russell Crowe"
+            },
+            {
+              "question": "Qui a joué Arthur Fleck / le Joker dans le film de 2019 ?",
+              "answer": "Joaquin Phoenix"
+            }
+          ]
+        },
+        {
+          "title": "Classiques du cinéma",
+          "questions": [
+            {
+              "question": "Quel film de Coppola est souvent considéré comme le meilleur de l'histoire du cinéma ?",
+              "answer": "The Godfather"
+            },
+            {
+              "question": "Dans quel film le héros court-il avec une boîte de chocolats dans ses souvenirs ?",
+              "answer": "Forrest Gump"
+            },
+            {
+              "question": "Quel film sur un paquebot océanique coulé est sorti en 1997 ?",
+              "answer": "Titanic"
+            },
+            {
+              "question": "Quel film de Ridley Scott sur un général romain a remporté l'Oscar du meilleur film ?",
+              "answer": "Gladiator"
+            },
+            {
+              "question": "Quel film de Martin Scorsese sur la mafia irlandaise à Boston est sorti en 2006 ?",
+              "answer": "The Departed"
+            }
+          ]
+        },
+        {
+          "title": "Polar",
+          "questions": [
+            {
+              "question": "Quel film de gangsters de Scorsese avec Ray Liotta et Robert De Niro ?",
+              "answer": "Goodfellas"
+            },
+            {
+              "question": "Quel thriller sur les sept péchés capitaux David Fincher a-t-il réalisé ?",
+              "answer": "Se7en"
+            },
+            {
+              "question": "Quel film de Tarantino parle de deux tueurs et d'une valise au contenu inconnu ?",
+              "answer": "Pulp Fiction"
+            },
+            {
+              "question": "Dans quel film un flic s'infiltre dans la mafia pendant qu'un mafieux s'infiltre dans la police (Boston) ?",
+              "answer": "The Departed"
+            },
+            {
+              "question": "Quel film de Tarantino parle d'un ancien esclave en quête de vengeance ?",
+              "answer": "Django Unchained"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Niveau intermédiaire",
+      "description": "Réalisateurs, séries, bandes originales et détails d'intrigue",
+      "categories": [
+        {
+          "title": "Réalisateurs",
+          "questions": [
+            {
+              "question": "Qui a réalisé Inception et Interstellar ?",
+              "answer": "Christopher Nolan"
+            },
+            {
+              "question": "Qui a réalisé Pulp Fiction et Django Unchained ?",
+              "answer": "Quentin Tarantino"
+            },
+            {
+              "question": "Qui a réalisé Parasite ?",
+              "answer": "Bong Joon-ho"
+            },
+            {
+              "question": "Qui a réalisé The Social Network ?",
+              "answer": "David Fincher"
+            },
+            {
+              "question": "Qui a réalisé Whiplash et La La Land ?",
+              "answer": "Damien Chazelle"
+            }
+          ]
+        },
+        {
+          "title": "Séries",
+          "questions": [
+            {
+              "question": "Quelle série parle d'un prof de chimie devenu baron de la drogue ?",
+              "answer": "Breaking Bad"
+            },
+            {
+              "question": "Quelle série britannique parle d'un détective de Baker Street ?",
+              "answer": "Sherlock"
+            },
+            {
+              "question": "Quelle série parle d'un entraîneur de foot américain en Angleterre ?",
+              "answer": "Ted Lasso"
+            },
+            {
+              "question": "Quelle série coréenne parle de jeux mortels pour de l'argent ?",
+              "answer": "Squid Game"
+            },
+            {
+              "question": "Quel spin-off de Breaking Bad parle de l'avocat Jimmy McGill ?",
+              "answer": "Better Call Saul"
+            }
+          ]
+        },
+        {
+          "title": "Bandes originales",
+          "questions": [
+            {
+              "question": "Qui chante le thème principal «My Heart Will Go On» de Titanic ?",
+              "answer": "Céline Dion"
+            },
+            {
+              "question": "Qui a écrit et interprété «Lose Yourself» — la BO oscarisé de 8 Mile ?",
+              "answer": "Eminem"
+            },
+            {
+              "question": "Qui a composé la bande originale épique d'Interstellar (notamment «Cornfield Chase») ?",
+              "answer": "Hans Zimmer"
+            },
+            {
+              "question": "Dans quelle comédie musicale de Damien Chazelle entend-on le duo «City of Stars» ?",
+              "answer": "La La Land"
+            },
+            {
+              "question": "Qui interprète la chanson-titre «Skyfall» du film Bond du même nom ?",
+              "answer": "Adele"
+            }
+          ]
+        },
+        {
+          "title": "Intrigue sans spoilers",
+          "questions": [
+            {
+              "question": "Dans quel film un homme raconte sa vie assis sur un banc avec une boîte de chocolats ?",
+              "answer": "Forrest Gump"
+            },
+            {
+              "question": "Dans quel film deux amoureux se rencontrent à bord d'un navire en voyage inaugural ?",
+              "answer": "Titanic"
+            },
+            {
+              "question": "Dans quel film des voleurs pénètrent dans les rêves pour voler ou planter une idée ?",
+              "answer": "Inception"
+            },
+            {
+              "question": "Dans quel film une famille pauvre et une famille riche à Séoul entremêlent progressivement leurs vies ?",
+              "answer": "Parasite"
+            },
+            {
+              "question": "Dans quel film une équipe de chercheurs traverse un trou de ver pour trouver un nouveau foyer à l'humanité ?",
+              "answer": "Interstellar"
+            }
+          ]
+        },
+        {
+          "title": "À l'écran",
+          "questions": [
+            {
+              "question": "Quel logo appartient à la série sur Baltimore et le trafic de drogue ?",
+              "answer": "The Wire"
+            },
+            {
+              "question": "Quelle mini-série HBO parle d'une catastrophe dans une centrale nucléaire ?",
+              "answer": "Chernobyl"
+            },
+            {
+              "question": "Quel film de guerre de Spielberg s'ouvre sur le débarquement en Normandie ?",
+              "answer": "Saving Private Ryan"
+            },
+            {
+              "question": "Quel film sur la création de Facebook avec Jesse Eisenberg ?",
+              "answer": "The Social Network"
+            },
+            {
+              "question": "Quel film d'action post-apocalyptique de George Miller avec Charlize Theron au volant ?",
+              "answer": "Mad Max: Fury Road"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Experts",
+      "description": "Années, seconds rôles, trivia et détails pointus",
+      "categories": [
+        {
+          "title": "Année et récompenses",
+          "questions": [
+            {
+              "question": "En quelle année est sorti Titanic de James Cameron ?",
+              "answer": "1997"
+            },
+            {
+              "question": "En quelle année est sorti The Dark Knight ?",
+              "answer": "2008"
+            },
+            {
+              "question": "En quelle année Parasite a-t-il remporté l'Oscar du meilleur film ?",
+              "answer": "2020 (cérémonie pour 2019)"
+            },
+            {
+              "question": "En quelle année est sorti le biopic Oppenheimer de Nolan ?",
+              "answer": "2023"
+            },
+            {
+              "question": "Combien d'Oscars Titanic a-t-il remportés ?",
+              "answer": "11"
+            }
+          ]
+        },
+        {
+          "title": "Seconds rôles",
+          "questions": [
+            {
+              "question": "Qui a joué le lieutenant Dan dans Forrest Gump ?",
+              "answer": "Gary Sinise"
+            },
+            {
+              "question": "Qui a joué Red dans The Shawshank Redemption ?",
+              "answer": "Morgan Freeman"
+            },
+            {
+              "question": "Qui a joué Harvey Dent dans The Dark Knight ?",
+              "answer": "Aaron Eckhart"
+            },
+            {
+              "question": "Qui a joué le Dr King Schultz dans Django Unchained ?",
+              "answer": "Christoph Waltz"
+            },
+            {
+              "question": "Qui a joué Terence Fletcher — le professeur de jazz impitoyable dans Whiplash ?",
+              "answer": "J.K. Simmons"
+            }
+          ]
+        },
+        {
+          "title": "Détails et trivia",
+          "questions": [
+            {
+              "question": "Quel surnom Walter White avait-il dans Breaking Bad ?",
+              "answer": "Heisenberg"
+            },
+            {
+              "question": "Quelle couleur domine sur le costume d'Arthur Fleck sur l'affiche de Joker (2019) ?",
+              "answer": "Rouge / red"
+            },
+            {
+              "question": "Comment s'appelle la prison dont Andy Dufresne s'échappe ?",
+              "answer": "Shawshank"
+            },
+            {
+              "question": "Quel totem Cobb utilise-t-il dans Inception pour vérifier la réalité ?",
+              "answer": "Toupie / spinning top"
+            },
+            {
+              "question": "Sous quelle marque de rue / couleur le produit du labo de White est-il connu dans Breaking Bad ?",
+              "answer": "Blue Sky / blue meth"
+            }
+          ]
+        },
+        {
+          "title": "Épisodes et séries",
+          "questions": [
+            {
+              "question": "Comment s'appelle le héros de Better Call Saul avant de changer de nom ?",
+              "answer": "Jimmy McGill"
+            },
+            {
+              "question": "Qui joue Sherlock Holmes dans Sherlock de la BBC ?",
+              "answer": "Benedict Cumberbatch"
+            },
+            {
+              "question": "Comment s'appelle l'entraîneur de Ted Lasso (nom complet du personnage) ?",
+              "answer": "Ted Lasso"
+            },
+            {
+              "question": "Quel numéro de joueur / costume associe-t-on souvent au héros de Squid Game (Gi-hun) ?",
+              "answer": "456"
+            },
+            {
+              "question": "Qui a joué Valeri Legassov dans la mini-série Chernobyl ?",
+              "answer": "Jared Harris"
+            }
+          ]
+        },
+        {
+          "title": "Deep cut",
+          "questions": [
+            {
+              "question": "Quel film sur un voyage à travers le temps et l'espace avec Matthew McConaughey ?",
+              "answer": "Interstellar"
+            },
+            {
+              "question": "Quel est le vrai nom du Joker Arthur Fleck ? (nom du personnage)",
+              "answer": "Arthur Fleck"
+            },
+            {
+              "question": "Dans quelle ville se déroule l'action principale de The Wire ?",
+              "answer": "Baltimore"
+            },
+            {
+              "question": "Quel personnage de The Godfather dit la phrase sur une offre qu'on ne peut refuser ?",
+              "answer": "Vito Corleone (Don Corleone)"
+            },
+            {
+              "question": "Quel rôle Cillian Murphy a-t-il joué dans Oppenheimer ?",
+              "answer": "J. Robert Oppenheimer"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -139,6 +139,7 @@ import BackLink from '@/components/common/BackLink.vue'
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
 import QuestEmojiPicker from '@/components/common/QuestEmojiPicker.vue'
 import { questDisplayEmoji } from '@/utils/questCardTheme'
+import { notifyDeleted } from '@/utils/notifyDeleted'
 
 interface Props {
   questId: string
@@ -364,6 +365,7 @@ function confirmModalAction() {
   if (editingRoundId.value === roundId) {
     editingRoundId.value = quest.value.rounds?.[0]?.id ?? null
   }
+  notifyDeleted()
 }
 
 function handleDeleteCurrentRound() {

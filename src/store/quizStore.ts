@@ -434,7 +434,7 @@ export const useQuizStore = defineStore('quiz', () => {
       // Если бэкенд (триггер/RLS) запрещает удаление глобального квеста — подсказываем, что делать
       if (/глобаль|удалять нельзя|нельзя удалить/i.test(msg)) {
         throw new Error(
-          'Удаление заблокировано настройками Supabase. В Dashboard: Database → Triggers отключите триггер на таблице quests, запрещающий удаление.'
+          'Удаление заблокировано настройками Supabase. В Dashboard: Database → Triggers отключите триггер на таблице quests, запрещающий удаление'
         )
       }
       throw error

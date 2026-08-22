@@ -8,10 +8,10 @@
   <div v-else-if="!shouldRedirect" class="landing">
     <button type="button" class="landing-howto" @click="showHowTo = true">
       <span class="landing-howto__icon" aria-hidden="true">?</span>
-      <span class="landing-howto__label">{{ t('howto.title') }}?</span>
+      <span class="landing-howto__label">{{ t('howto.title') }}</span>
     </button>
     <LanguageSwitcher class="landing-lang" />
-    <HowToPlayModal :show="showHowTo" @close="showHowTo = false" />
+    <HowToPlayModal :show="showHowTo" @close="closeHowTo" />
     <div class="landing-card">
       <div class="landing-brand">
         <h1
@@ -81,6 +81,12 @@
 
       <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
     </div>
+
+    <nav class="landing-seo-links" :aria-label="t('seo.footerNav')">
+      <RouterLink to="/how-to-play">{{ t('seo.linkHowTo') }}</RouterLink>
+      <RouterLink to="/quests/movie-night">{{ t('seo.linkMovieNight') }}</RouterLink>
+      <RouterLink to="/quests/hit-parade">{{ t('seo.linkHitParade') }}</RouterLink>
+    </nav>
   </div>
 </template>
 
@@ -94,8 +100,10 @@ import HowToPlayModal from '@/components/common/HowToPlayModal.vue'
 import { useGameSessionStore } from '@/store/gameSessionStore'
 import { useIsMobileViewport } from '@/composables/useIsMobileViewport'
 import { mapAppError } from '@/utils/mapAppError'
+import { useSeo } from '@/composables/useSeo'
 
 const { t } = useI18n()
+useSeo('home')
 const router = useRouter()
 const { isMobileViewport } = useIsMobileViewport()
 const route = useRoute()
@@ -112,6 +120,41 @@ const errorMessage = ref('')
 const shouldRedirect = ref(false)
 const isCheckingAuth = ref(true)
 const showHowTo = ref(false)
+
+const HOWTO_SEEN_KEY = 'quest-app:howto-seen'
+
+function hasSeenHowTo(): boolean {
+  try {
+    return localStorage.getItem(HOWTO_SEEN_KEY) === '1'
+  } catch {
+    return true
+  }
+}
+
+function markHowToSeen() {
+  try {
+    localStorage.setItem(HOWTO_SEEN_KEY, '1')
+  } catch {
+    /* ignore */
+  }
+}
+
+function closeHowTo() {
+  showHowTo.value = false
+  markHowToSeen()
+}
+
+function maybeOpenHowToOnFirstVisit() {
+  if (shouldRedirect.value || isCheckingAuth.value) return
+  if (hasSeenHowTo()) return
+  showHowTo.value = true
+}
+
+watch(isCheckingAuth, (loading) => {
+  if (!loading) {
+    void nextTick(() => maybeOpenHowToOnFirstVisit())
+  }
+})
 
 // Быстрая проверка localStorage перед рендерингом
 async function checkLocalStorageProfile() {
@@ -596,12 +639,40 @@ watch(() => route.path, (newPath) => {
   height: 100dvh;
   max-height: 100dvh;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 0 1.5rem;
+  padding: 0 1.5rem 4.5rem;
   background: linear-gradient(135deg, rgb(var(--c-bg)) 0%, rgb(var(--c-surface)) 100%);
   color: rgb(var(--c-bg));
   overflow: hidden;
+}
+
+.landing-seo-links {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(0.85rem, 3vw, 1.4rem);
+  transform: translateX(-50%);
+  z-index: 15;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.55rem 1.1rem;
+  max-width: min(92vw, 40rem);
+  padding: 0.35rem 0.75rem;
+}
+
+.landing-seo-links a {
+  color: rgb(var(--c-text-soft) / 0.78);
+  font-size: 0.82rem;
+  font-weight: 650;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.landing-seo-links a:hover {
+  color: rgb(var(--c-accent-soft));
+  text-decoration: underline;
 }
 
 .landing-lang {

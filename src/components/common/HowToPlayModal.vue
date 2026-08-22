@@ -2,10 +2,10 @@
   <teleport to="body">
     <transition name="howto">
       <div v-if="show" class="howto-overlay" @click.self="close">
-        <div class="howto" role="dialog" aria-modal="true" :aria-label="t('howto.title')">
+        <div class="howto" role="dialog" aria-modal="true" :aria-label="headerTitle">
           <header class="howto__head">
             <div class="howto__title-wrap">
-              <h2 class="howto__title">{{ t('howto.title') }}</h2>
+              <h2 class="howto__title">{{ headerTitle }}</h2>
               <p class="howto__subtitle">{{ t('howto.subtitle') }}</p>
             </div>
             <button type="button" class="howto__close" :aria-label="t('common.close')" @click="close">✕</button>
@@ -113,6 +113,9 @@ const dir = ref<1 | -1>(1)
 
 const steps = computed(() => (tab.value === 'play' ? playSteps : createSteps))
 const current = computed(() => steps.value[step.value])
+const headerTitle = computed(() =>
+  tab.value === 'create' ? t('howto.titleCreate') : t('howto.title')
+)
 const isLast = computed(() => step.value === steps.value.length - 1)
 // Самый последний шаг всего гида — последний шаг вкладки «Создать квест»
 const isFinal = computed(() => tab.value === 'create' && isLast.value)

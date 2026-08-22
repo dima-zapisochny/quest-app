@@ -61,6 +61,20 @@ const currentName = computed(() => LOCALE_NAMES[current.value] ?? current.value)
 function choose(loc: AppLocale) {
   setLocale(loc)
   open.value = false
+  void syncQuestsToLocale()
+}
+
+async function syncQuestsToLocale() {
+  try {
+    const { useQuizStore } = await import('@/store/quizStore')
+    const { syncStandardQuestLocales } = await import('@/utils/seedStandardQuests')
+    const store = useQuizStore()
+    if (store.quests.length) {
+      await syncStandardQuestLocales(store)
+    }
+  } catch (e) {
+    console.warn('[i18n] standard quest locale sync failed', e)
+  }
 }
 
 function onClickOutside(event: MouseEvent) {
