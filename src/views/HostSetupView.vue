@@ -87,11 +87,11 @@
           </article>
 
           <article class="quest-card quest-card--cta" @click="createNewQuest">
-            <div class="quest-card__cover quest-card__cover--dashed">
-              <span class="new-quest-circle">+</span>
-            </div>
-            <div class="quest-card__body quest-card__body--cta">
-              <span class="quest-card__ctalabel">{{ t('host.createNewQuest') }}</span>
+            <div class="quest-card__cta">
+              <div class="quest-card__cta-icon">
+                <span class="new-quest-circle">+</span>
+                <span class="quest-card__ctalabel">{{ t('host.createNewQuest') }}</span>
+              </div>
               <span class="quest-card__ctahint">{{ t('host.createNewQuestHint') }}</span>
             </div>
           </article>
@@ -105,15 +105,15 @@
               :disabled="importingQuest"
               @change="onImportQuestFile"
             />
-            <div class="quest-card__cover quest-card__cover--dashed">
-              <span class="new-quest-circle import-icon">
-                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <path d="M12 15V3"/><path d="m7 8 5-5 5 5"/><path d="M20 15v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-4"/>
-                </svg>
-              </span>
-            </div>
-            <div class="quest-card__body quest-card__body--cta">
-              <span class="quest-card__ctalabel">{{ importingQuest ? t('host.importing') : t('host.importQuest') }}</span>
+            <div class="quest-card__cta">
+              <div class="quest-card__cta-icon">
+                <span class="new-quest-circle import-icon">
+                  <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M12 15V3"/><path d="m7 8 5-5 5 5"/><path d="M20 15v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-4"/>
+                  </svg>
+                </span>
+                <span class="quest-card__ctalabel">{{ importingQuest ? t('host.importing') : t('host.importQuest') }}</span>
+              </div>
               <span class="quest-card__ctahint">{{ t('host.importQuestHint') }}</span>
             </div>
           </article>
@@ -682,17 +682,40 @@ async function onImportQuestFile(event: Event) {
   color: rgb(var(--c-danger-soft));
 }
 
-.quest-card__cover--dashed {
-  background: rgb(var(--c-accent-sky) / 0.04);
+.quest-card--cta {
+  justify-content: center;
+  padding: 0.85rem;
+}
+
+.quest-card__cta {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 0.55rem;
+  min-height: 100%;
+}
+
+.quest-card__cta-icon {
+  width: 100%;
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  text-align: center;
+  padding: 0.75rem;
+  box-sizing: border-box;
+  border-radius: 0.75rem;
   border: 1.5px dashed rgb(var(--c-accent-sky) / 0.35);
+  background: rgb(var(--c-accent-sky) / 0.04);
   transition: border-color 0.2s ease, background 0.2s ease;
 }
 
-.quest-card__cover--dashed::after {
-  content: none;
-}
-
-.quest-card--cta:hover .quest-card__cover--dashed {
+.quest-card--cta:hover .quest-card__cta-icon {
   border-color: rgb(var(--c-accent-sky) / 0.65);
   background: rgb(var(--c-accent-sky) / 0.08);
 }
@@ -716,16 +739,12 @@ async function onImportQuestFile(event: Event) {
   height: 1.5rem;
 }
 
-.quest-card__body--cta {
-  align-items: center;
-  text-align: center;
-  gap: 0.25rem;
-}
-
 .quest-card__ctalabel {
-  font-size: 1rem;
+  font-size: 0.88rem;
   font-weight: 700;
+  line-height: 1.25;
   color: rgb(var(--c-text-soft) / 0.95);
+  max-width: 100%;
 }
 
 .quest-card__ctahint {
