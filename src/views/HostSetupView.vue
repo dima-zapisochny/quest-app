@@ -180,6 +180,7 @@ import AppHeader from '@/components/common/AppHeader.vue'
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
 import { useIsMobileViewport } from '@/composables/useIsMobileViewport'
 import { seedTestQuests } from '@/utils/seedTestQuests'
+import { seedStandardQuests } from '@/utils/seedStandardQuests'
 import { displayQuestTitle, questDisplayEmoji } from '@/utils/questCardTheme'
 import { playQuestDeselectSound, playQuestSelectSound } from '@/utils/uiSound'
 import { mapAppError } from '@/utils/mapAppError'
@@ -328,6 +329,7 @@ async function checkProfileAndLoad() {
   }
 
   await seedTestQuests(quizStore)
+  await seedStandardQuests(quizStore)
 
   const restoreId = route.query.restore_quest as string | undefined
   if (restoreId) {
