@@ -563,7 +563,7 @@ async function onImportQuestFile(event: Event) {
 .host-hero {
   flex-shrink: 0;
   text-align: center;
-  padding: 0.5rem 0 0.65rem;
+  padding: 0.5rem 0 1.1rem;
 }
 
 .host-hero__title {
@@ -1128,7 +1128,7 @@ async function onImportQuestFile(event: Event) {
   }
 
   .host-hero {
-    padding: 0.3rem 0 0.55rem;
+    padding: 0.3rem 0 0.85rem;
   }
 
   .host-hero__title {
@@ -1193,7 +1193,7 @@ async function onImportQuestFile(event: Event) {
   }
 
   .host-hero {
-    padding: 0.15rem 0 0.4rem;
+    padding: 0.15rem 0 0.75rem;
   }
 
   .host-hero__subtitle {
