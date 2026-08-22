@@ -16,7 +16,10 @@
     "soundOff": "Turn sound off",
     "unknownError": "Something went wrong. Please try again",
     "deleted": "Deleted",
-    "toHome": "Home"
+    "toHome": "Home",
+    "copyCodeHint": "Click to copy code",
+    "codeCopied": "Code copied",
+    "copyFailed": "Could not copy"
   },
   "landing": {
     "checkingAuth": "Checking authorization…",

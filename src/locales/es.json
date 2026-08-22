@@ -16,7 +16,10 @@
     "soundOff": "Desactivar sonido",
     "unknownError": "Algo salió mal. Inténtalo de nuevo",
     "deleted": "Eliminado",
-    "toHome": "Inicio"
+    "toHome": "Inicio",
+    "copyCodeHint": "Pulsa para copiar el código",
+    "codeCopied": "Código copiado",
+    "copyFailed": "No se pudo copiar"
   },
   "landing": {
     "checkingAuth": "Comprobando autorización…",

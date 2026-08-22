@@ -16,7 +16,10 @@
     "soundOff": "Ton ausschalten",
     "unknownError": "Etwas ist schiefgelaufen. Bitte erneut versuchen",
     "deleted": "Gelöscht",
-    "toHome": "Zur Startseite"
+    "toHome": "Zur Startseite",
+    "copyCodeHint": "Klicken zum Kopieren",
+    "codeCopied": "Code kopiert",
+    "copyFailed": "Kopieren fehlgeschlagen"
   },
   "landing": {
     "checkingAuth": "Autorisierung wird geprüft…",
