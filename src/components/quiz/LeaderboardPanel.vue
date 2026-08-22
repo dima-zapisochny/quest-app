@@ -39,6 +39,13 @@
               </span>
             </div>
           </div>
+          <span
+            v-for="f in floatsFor(player.id)"
+            :key="f.key"
+            class="score-float"
+            :class="f.delta > 0 ? 'score-float--plus' : 'score-float--minus'"
+            aria-hidden="true"
+          >{{ f.delta > 0 ? '+' : '' }}{{ f.delta }}</span>
         </li>
       </TransitionGroup>
         <p v-else class="leaderboard-empty">{{ t('game.waitingForPlayers') }}</p>
@@ -127,6 +134,7 @@ const props = defineProps<{
 
 const {
   leaderboardEntries,
+  scoreFloats,
   hoveredPlayer,
   popoverAnchor,
   manualScoreInput,
@@ -142,6 +150,10 @@ const {
 
 /** Панель видна всегда в игре; без сессии — только если есть демо-участники (dev). */
 const showPanel = computed(() => !!props.session || leaderboardEntries.value.length > 0)
+
+function floatsFor(playerId: string) {
+  return scoreFloats.value.filter(f => f.id === playerId)
+}
 
 /** Игрок «ответил» — подсветка карточки (нажал кнопку/в очереди/текущий отвечающий). */
 function isPlayerAnswered(playerId: string): boolean {
@@ -215,7 +227,7 @@ function isPlayerAnswered(playerId: string): boolean {
   display: flex;
   gap: 0.5rem;
   overflow-x: auto;
-  padding: 0.25rem 0.25rem 1rem 0.25rem;
+  padding: 1.15rem 0.25rem 1rem 0.25rem;
   scrollbar-width: thin;
   scrollbar-color: rgb(var(--c-accent-sky) / 0.4) transparent;
   width: 100%;
@@ -256,6 +268,48 @@ function isPlayerAnswered(playerId: string): boolean {
   min-width: 0;
   flex-shrink: 0;
   list-style: none;
+  overflow: visible;
+}
+
+.score-float {
+  position: absolute;
+  left: 50%;
+  top: 22%;
+  z-index: 6;
+  pointer-events: none;
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-shadow: 0 1px 2px rgb(var(--c-black) / 0.45);
+  animation: scoreFloatUp 1.35s ease-out forwards;
+  white-space: nowrap;
+}
+
+.score-float--plus {
+  color: rgb(var(--c-success-light));
+}
+
+.score-float--minus {
+  color: #fecaca;
+}
+
+@keyframes scoreFloatUp {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 0.45rem) scale(0.86);
+  }
+  14% {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1.1);
+  }
+  60% {
+    opacity: 1;
+    transform: translate(-50%, -1.35rem) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -2.35rem) scale(0.96);
+  }
 }
 
 .leaderboard-item {

@@ -10,6 +10,15 @@ export interface LeaderboardEntry {
   score: number
 }
 
+/** Плаваючий +/− над карткою учасника після зміни рахунку. */
+export interface ScoreFloat {
+  id: string
+  delta: number
+  key: number
+}
+
+const FLOAT_MS = 1400
+
 /** Шаги ручной корректировки очков ведущим. */
 export const STEP_OPTIONS = [5, 10, 15, 20] as const
 
@@ -47,11 +56,41 @@ export function useLeaderboard(getSession: () => GameSession | undefined) {
   const store = useGameSessionStore()
 
   const leaderboardState = ref<LeaderboardEntry[]>([])
+  const scoreFloats = ref<ScoreFloat[]>([])
   const hoveredPlayerId = ref<string | null>(null)
   const manualScoreInput = ref(0)
   const selectedStep = ref(5)
   const popoverAnchor = ref<{ left: number; top: number } | null>(null)
   let leavePopoverTimeout: ReturnType<typeof setTimeout> | null = null
+  let floatKey = 0
+  const prevScores = new Map<string, number>()
+  let scoresReady = false
+
+  function pushScoreFloat(playerId: string, delta: number) {
+    if (!delta) return
+    const key = ++floatKey
+    scoreFloats.value = [...scoreFloats.value, { id: playerId, delta, key }]
+    window.setTimeout(() => {
+      scoreFloats.value = scoreFloats.value.filter(f => f.key !== key)
+    }, FLOAT_MS)
+  }
+
+  /** Порівнює новий стан зі старим: з’являються плаваючі дельти, без анімації на першому завантаженні. */
+  function syncScoreFloats(entries: LeaderboardEntry[]) {
+    const seen = new Set<string>()
+    for (const entry of entries) {
+      seen.add(entry.id)
+      const prev = prevScores.get(entry.id)
+      if (scoresReady && prev !== undefined && prev !== entry.score) {
+        pushScoreFloat(entry.id, entry.score - prev)
+      }
+      prevScores.set(entry.id, entry.score)
+    }
+    for (const id of [...prevScores.keys()]) {
+      if (!seen.has(id)) prevScores.delete(id)
+    }
+    scoresReady = true
+  }
 
   // Участники (без ведущего) и признак «нет реальной сессии» (превью доски)
   const sessionParticipants = computed(() => {
@@ -169,6 +208,12 @@ export function useLeaderboard(getSession: () => GameSession | undefined) {
   const skipMockRebuild = () => isMockSession.value && leaderboardState.value.length > 0
 
   watch(
+    leaderboardState,
+    (entries) => { syncScoreFloats(entries) },
+    { deep: true }
+  )
+
+  watch(
     () => getSession()?.players ?? [],
     () => { if (!skipMockRebuild()) build() },
     { immediate: true, deep: true }
@@ -216,6 +261,7 @@ export function useLeaderboard(getSession: () => GameSession | undefined) {
 
   return {
     leaderboardEntries,
+    scoreFloats,
     hoveredPlayer,
     popoverAnchor,
     manualScoreInput,
