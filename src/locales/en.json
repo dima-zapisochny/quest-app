@@ -340,7 +340,7 @@
     "topCountries": "Countries",
     "topRegions": "Regions",
     "empty": "No data yet — browse the site as a normal visitor.",
-    "emptyGeo": "Geo data will appear after new visits (migration 010 required).",
+    "emptyGeo": "No geo data yet.",
     "refreshed": "Updated",
     "lastUpdated": "Last updated:"
   }
