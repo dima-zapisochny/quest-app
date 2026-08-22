@@ -273,6 +273,7 @@ router.beforeEach(async (to, _from, next) => {
 })
 
 router.afterEach(to => {
+  if (to.name === 'admin-stats') return
   // Лінивий імпорт, щоб не тягнути analytics у критичний шлях guard'ів
   void import('@/services/api/analytics').then(({ trackPageView }) => {
     trackPageView(to.fullPath)
