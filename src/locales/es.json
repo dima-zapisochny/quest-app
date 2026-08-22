@@ -221,7 +221,7 @@
     "waitForQuestion": "Esperando pregunta"
   },
   "howto": {
-    "title": "Cómo jugar",
+    "title": "¿Cómo jugar?",
     "subtitle": "Guía rápida para jugar y crear cuestionarios",
     "tabPlay": "Jugar",
     "tabCreate": "Crear cuestionario",
@@ -245,6 +245,7 @@
     "create4Title": "¡Listo!",
     "create4Text": "Todo se guarda automáticamente: vuelve y empieza la partida",
     "prev": "Atrás",
-    "next": "Siguiente"
+    "next": "Siguiente",
+    "titleCreate": "¿Cómo crear?"
   }
 }

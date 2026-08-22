@@ -221,7 +221,7 @@
     "waitForQuestion": "Waiting for question"
   },
   "howto": {
-    "title": "How to play",
+    "title": "How to play?",
     "subtitle": "Quick guide to playing and creating quests",
     "tabPlay": "Play",
     "tabCreate": "Create quest",
@@ -245,6 +245,7 @@
     "create4Title": "Done!",
     "create4Text": "Everything saves automatically — come back and start the game",
     "prev": "Back",
-    "next": "Next"
+    "next": "Next",
+    "titleCreate": "How to create?"
   }
 }

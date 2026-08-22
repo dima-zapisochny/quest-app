@@ -221,7 +221,7 @@
     "waitForQuestion": "En attente d'une question"
   },
   "howto": {
-    "title": "Comment jouer",
+    "title": "Comment jouer ?",
     "subtitle": "Guide rapide pour jouer et créer un quiz",
     "tabPlay": "Jouer",
     "tabCreate": "Créer un quiz",
@@ -245,6 +245,7 @@
     "create4Title": "Terminé !",
     "create4Text": "Tout est enregistré automatiquement — revenez et lancez la partie",
     "prev": "Précédent",
-    "next": "Suivant"
+    "next": "Suivant",
+    "titleCreate": "Comment créer ?"
   }
 }

@@ -8,10 +8,10 @@
   <div v-else-if="!shouldRedirect" class="landing">
     <button type="button" class="landing-howto" @click="showHowTo = true">
       <span class="landing-howto__icon" aria-hidden="true">?</span>
-      <span class="landing-howto__label">{{ t('howto.title') }}?</span>
+      <span class="landing-howto__label">{{ t('howto.title') }}</span>
     </button>
     <LanguageSwitcher class="landing-lang" />
-    <HowToPlayModal :show="showHowTo" @close="showHowTo = false" />
+    <HowToPlayModal :show="showHowTo" @close="closeHowTo" />
     <div class="landing-card">
       <div class="landing-brand">
         <h1
@@ -112,6 +112,41 @@ const errorMessage = ref('')
 const shouldRedirect = ref(false)
 const isCheckingAuth = ref(true)
 const showHowTo = ref(false)
+
+const HOWTO_SEEN_KEY = 'quest-app:howto-seen'
+
+function hasSeenHowTo(): boolean {
+  try {
+    return localStorage.getItem(HOWTO_SEEN_KEY) === '1'
+  } catch {
+    return true
+  }
+}
+
+function markHowToSeen() {
+  try {
+    localStorage.setItem(HOWTO_SEEN_KEY, '1')
+  } catch {
+    /* ignore */
+  }
+}
+
+function closeHowTo() {
+  showHowTo.value = false
+  markHowToSeen()
+}
+
+function maybeOpenHowToOnFirstVisit() {
+  if (shouldRedirect.value || isCheckingAuth.value) return
+  if (hasSeenHowTo()) return
+  showHowTo.value = true
+}
+
+watch(isCheckingAuth, (loading) => {
+  if (!loading) {
+    void nextTick(() => maybeOpenHowToOnFirstVisit())
+  }
+})
 
 // Быстрая проверка localStorage перед рендерингом
 async function checkLocalStorageProfile() {
