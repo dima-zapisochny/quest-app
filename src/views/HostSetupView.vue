@@ -699,9 +699,15 @@ async function onImportQuestFile(event: Event) {
 }
 
 .quest-card__body--cta {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   align-items: center;
+  justify-content: center;
   text-align: center;
   gap: 0.25rem;
+  padding: 0.5rem 0.25rem;
+  min-height: 0;
 }
 
 .quest-card__ctalabel {
