@@ -60,17 +60,49 @@ export const useQuizStore = defineStore('quiz', () => {
   let saveTimeoutId: ReturnType<typeof setTimeout> | null = null
   // Квесты, изменённые с прошлого сохранения — сохраняем только их, а не все (#15)
   const dirtyQuestIds = new Set<string>()
+  /** Квести, які зараз пишуться в БД — Realtime їх не перезаписує. */
+  const savingQuestIds = new Set<string>()
+  /** Локальна ревізія правок vs остання успішно збережена (анти-stale Realtime). */
+  const questRev = new Map<string, number>()
+  const savedRev = new Map<string, number>()
+  /** Коротке «вікно тиші» після власного save — глушить запізнілі echo. */
+  const realtimeMuteUntil = new Map<string, number>()
+  let saveInFlight = false
+  let saveQueued = false
+
+  function bumpQuestRev(questId: string) {
+    questRev.set(questId, (questRev.get(questId) ?? 0) + 1)
+  }
+
+  function muteRealtime(questId: string, ms = 4000) {
+    const until = Date.now() + ms
+    realtimeMuteUntil.set(questId, Math.max(realtimeMuteUntil.get(questId) ?? 0, until))
+  }
+
+  function hasLocalEdits(questId: string) {
+    if (dirtyQuestIds.has(questId) || savingQuestIds.has(questId)) return true
+    if ((questRev.get(questId) ?? 0) > (savedRev.get(questId) ?? 0)) return true
+    const muteUntil = realtimeMuteUntil.get(questId)
+    return !!muteUntil && Date.now() < muteUntil
+  }
 
   /** Відкладає збереження на SAVE_DEBOUNCE_MS; зберігає лише змінені квести (#15). */
   function scheduleSave(questId?: string) {
     if (!isSupabaseConfigured) return
-    if (questId) dirtyQuestIds.add(questId)
-    else quests.value.forEach(q => dirtyQuestIds.add(q.id)) // fallback: пометить все
+    if (questId) {
+      dirtyQuestIds.add(questId)
+      bumpQuestRev(questId)
+    } else {
+      quests.value.forEach(q => {
+        dirtyQuestIds.add(q.id)
+        bumpQuestRev(q.id)
+      })
+    }
     saveState.value = 'saving'
     if (saveTimeoutId) clearTimeout(saveTimeoutId)
     saveTimeoutId = setTimeout(() => {
       saveTimeoutId = null
-      saveToStorage()
+      void saveToStorage()
     }, SAVE_DEBOUNCE_MS)
   }
 
@@ -86,41 +118,75 @@ export const useQuizStore = defineStore('quiz', () => {
   // Helpers ------------------------------------------------------------------
   async function saveToStorage() {
     if (!isSupabaseConfigured) return
-    const sessionStore = useGameSessionStore()
-    const userId = sessionStore.userProfile?.id
-    if (!userId) {
-      console.warn('Cannot save quests: user not authenticated')
-      dirtyQuestIds.clear()
-      saveState.value = 'idle'
+    // Одна «черга» збережень: паралельні flush/debounce не пишуть одночасно
+    if (saveInFlight) {
+      saveQueued = true
       return
     }
-    // Сохраняем только изменённые квесты (#15), а не весь список
-    const ids = Array.from(dirtyQuestIds)
-    dirtyQuestIds.clear()
-    if (ids.length === 0) {
-      saveState.value = 'saved'
-      return
-    }
-    saveState.value = 'saving'
-    let failed = false
-    for (const id of ids) {
-      const quest = quests.value.find(q => q.id === id)
-      if (!quest) continue
-      try {
-        const existing = await getQuestByIdFromDb(quest.id, userId)
-        if (existing) {
-          await updateQuestInDb(quest, userId)
-        } else {
-          await createQuestInDb(quest, userId)
+    saveInFlight = true
+    saveQueued = false
+
+    try {
+      const sessionStore = useGameSessionStore()
+      const userId = sessionStore.userProfile?.id
+      if (!userId) {
+        console.warn('Cannot save quests: user not authenticated')
+        dirtyQuestIds.clear()
+        saveState.value = 'idle'
+        return
+      }
+
+      // Повторюємо, поки під час запису знову з’явились dirty (швидкі правки)
+      while (dirtyQuestIds.size > 0 || saveQueued) {
+        saveQueued = false
+        const ids = Array.from(dirtyQuestIds)
+        dirtyQuestIds.clear()
+        if (ids.length === 0) break
+
+        saveState.value = 'saving'
+        let failed = false
+        for (const id of ids) savingQuestIds.add(id)
+
+        try {
+          for (const id of ids) {
+            const quest = quests.value.find(q => q.id === id)
+            if (!quest) continue
+            // Знімок + ревізія ДО await — інакше Realtime/інша правка підмінить об’єкт під час GET
+            const snapshot = JSON.parse(JSON.stringify(quest)) as Quest
+            const revAtSnapshot = questRev.get(id) ?? 0
+            try {
+              const existing = await getQuestByIdFromDb(snapshot.id, userId)
+              if (existing) {
+                await updateQuestInDb(snapshot, userId)
+              } else {
+                await createQuestInDb(snapshot, userId)
+              }
+              // Якщо під час запису не було новіших правок — фіксуємо збережену ревізію
+              if ((questRev.get(id) ?? 0) === revAtSnapshot) {
+                savedRev.set(id, revAtSnapshot)
+              }
+              muteRealtime(id)
+            } catch (error) {
+              console.error('Failed to save quest to Supabase:', error)
+              dirtyQuestIds.add(id)
+              failed = true
+            }
+          }
+        } finally {
+          for (const id of ids) savingQuestIds.delete(id)
         }
-      } catch (error) {
-        console.error('Failed to save quest to Supabase:', error)
-        dirtyQuestIds.add(id) // вернуть в очередь, чтобы повторить позже
-        failed = true
+
+        saveState.value = failed || dirtyQuestIds.size > 0 ? 'saving' : 'saved'
+      }
+
+      if (dirtyQuestIds.size === 0) saveState.value = 'saved'
+    } finally {
+      saveInFlight = false
+      if (saveQueued || dirtyQuestIds.size > 0) {
+        saveQueued = false
+        await saveToStorage()
       }
     }
-    // saved, только если очередь пуста (ничего не откатилось на повтор)
-    saveState.value = failed || dirtyQuestIds.size > 0 ? 'saving' : 'saved'
   }
 
   async function loadFromStorage() {
@@ -186,6 +252,10 @@ export const useQuizStore = defineStore('quiz', () => {
     }
 
     const idx = quests.value.findIndex(q => q.id === questId)
+    // Не затираємо локальні незбережені правки застарілим знімком з БД
+    if (hasLocalEdits(questId)) {
+      return quests.value.find(q => q.id === questId) ?? quest
+    }
     if (idx >= 0) quests.value[idx] = quest
     else quests.value.push(quest)
     return quest
@@ -226,6 +296,12 @@ export const useQuizStore = defineStore('quiz', () => {
     
     // Подписываемся на изменения квестов текущего пользователя через real-time
     unsubscribeQuests = subscribeToQuests(userId, (quest) => {
+      // Поки є локальні правки / іде запис — не підставляємо echo з Realtime
+      // (інакше видалена категорія «повертається» на долю секунди)
+      if (hasLocalEdits(quest.id)) {
+        console.log('📡 [Quest] Realtime skipped (local edits):', quest.id)
+        return
+      }
       const existingIndex = quests.value.findIndex(q => q.id === quest.id)
       if (existingIndex >= 0) {
         quests.value[existingIndex] = quest

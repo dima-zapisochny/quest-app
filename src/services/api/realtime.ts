@@ -44,6 +44,9 @@ export function subscribeToQuests(
   userId: string,
   callback: (quest: Quest) => void
 ): () => void {
+  /** Відкидає застарілі відповіді getQuestById, якщо події прийшли швидше за відповіді. */
+  const fetchSeqByQuest = new Map<string, number>()
+
   const channel = supabase
     .channel('quests_changes')
     .on(
@@ -56,8 +59,14 @@ export function subscribeToQuests(
       },
       async (payload) => {
         if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
-          const quest = await getQuestById(payload.new.id, userId)
-          if (quest) callback(quest)
+          const questId = (payload.new as { id?: string } | null)?.id
+          if (!questId) return
+          const seq = (fetchSeqByQuest.get(questId) ?? 0) + 1
+          fetchSeqByQuest.set(questId, seq)
+          const quest = await getQuestById(questId, userId)
+          if (!quest) return
+          if (fetchSeqByQuest.get(questId) !== seq) return // застарілий GET
+          callback(quest)
         }
       }
     )
