@@ -62,12 +62,21 @@ function normalizePath(path: string): string {
   return clean.length > 300 ? clean.slice(0, 300) : clean
 }
 
-function shouldSkipTracking(path: string): boolean {
+/** Приватна аналітика — не пишемо ні перегляди, ні кліки. */
+function isExcludedAnalyticsPath(path: string): boolean {
+  const p = normalizePath(path).toLowerCase()
+  return p === '/admin/stats' || p.startsWith('/admin/stats/')
+}
+
+function shouldSkipTracking(path?: string): boolean {
   if (typeof navigator !== 'undefined' && (navigator as Navigator & { webdriver?: boolean }).webdriver) {
     return true
   }
-  const p = normalizePath(path)
-  return p.startsWith('/admin/stats')
+  if (path && isExcludedAnalyticsPath(path)) return true
+  if (typeof window !== 'undefined' && isExcludedAnalyticsPath(window.location.pathname)) {
+    return true
+  }
+  return false
 }
 
 /** Країна/регіон за IP (geojs), кеш на сесію. IP не зберігаємо. */
@@ -182,8 +191,13 @@ export function trackPageView(path: string): void {
 
 /** Клік по CTA / посиланню. */
 export function trackClick(name: string, path?: string, meta?: Record<string, unknown>): void {
+  if (shouldSkipTracking()) return
+  const href = typeof meta?.href === 'string' ? meta.href : ''
+  if (href && isExcludedAnalyticsPath(href)) return
+
   const current =
     path ?? (typeof window !== 'undefined' ? window.location.pathname : '/')
+  if (shouldSkipTracking(current)) return
   void insertEvent('click', current, name || 'click', meta)
 }
 
@@ -215,6 +229,7 @@ export function installClickTracking(): () => void {
   const onClick = (event: MouseEvent) => {
     const target = event.target as HTMLElement | null
     if (!target) return
+    if (shouldSkipTracking()) return
     const el = target.closest<HTMLElement>('a, button, [data-track], [role="button"]')
     if (!el) return
     if (el.closest('[data-analytics-ignore]')) return
@@ -228,6 +243,7 @@ export function installClickTracking(): () => void {
     // Лише явні data-track на інтерактивних елементах SEO/landing, щоб не шуміти
     if (el.tagName === 'A') {
       const href = el.getAttribute('href') || ''
+      if (isExcludedAnalyticsPath(href)) return
       if (
         href === '/' ||
         href.startsWith('/how-to-play') ||
