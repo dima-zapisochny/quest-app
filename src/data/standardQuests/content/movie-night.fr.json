@@ -34,24 +34,24 @@
           "title": "Citations célèbres",
           "questions": [
             {
-              "question": "«Life is like a box of chocolates…» — de quel film ?",
+              "question": "«La vie, c'est comme une boîte de chocolats…» — de quel film ?",
               "answer": "Forrest Gump"
             },
             {
-              "question": "«I'm gonna make him an offer he can't refuse» — qui a dit ça ?",
-              "answer": "Vito Corleone / The Godfather"
+              "question": "«Je vais lui faire une offre qu'il ne pourra pas refuser» — qui a dit ça ?",
+              "answer": "Vito Corleone / Le Parrain"
             },
             {
-              "question": "«Why so serious?» — qui prononce cette réplique ?",
-              "answer": "The Joker (The Dark Knight)"
+              "question": "«Pourquoi si sérieux ?» — qui prononce cette réplique ?",
+              "answer": "Le Joker (The Dark Knight)"
             },
             {
-              "question": "«Get busy living, or get busy dying» — de quel film ?",
-              "answer": "The Shawshank Redemption"
+              "question": "«Occupe-toi de vivre ou occupe-toi de mourir» — de quel film ?",
+              "answer": "Les Évadés"
             },
             {
-              "question": "«What's in the box?» — de quel thriller de David Fincher ?",
-              "answer": "Se7en"
+              "question": "«Qu'y a-t-il dans la boîte ?» — de quel thriller de David Fincher ?",
+              "answer": "Seven"
             }
           ]
         },
