@@ -3,12 +3,24 @@ import { i18n } from '@/i18n'
 
 const SESSION_KEY = 'quest-app:analytics-sid'
 const LAST_VIEW_KEY = 'quest-app:analytics-last-view'
+const GEO_KEY = 'quest-app:analytics-geo'
 
 export type AnalyticsDailyPoint = {
   day: string
   views: number
   clicks: number
   sessions: number
+}
+
+export type AnalyticsCountryRow = {
+  country_code: string
+  views: number
+}
+
+export type AnalyticsRegionRow = {
+  country_code: string
+  region: string
+  views: number
 }
 
 export type SiteAnalyticsSummary = {
@@ -20,7 +32,16 @@ export type SiteAnalyticsSummary = {
   daily: AnalyticsDailyPoint[]
   top_paths: { path: string; views: number }[]
   top_clicks: { name: string; clicks: number }[]
+  top_countries: AnalyticsCountryRow[]
+  top_regions: AnalyticsRegionRow[]
 }
+
+type GeoInfo = {
+  country_code: string
+  region: string | null
+}
+
+let geoPromise: Promise<GeoInfo | null> | null = null
 
 function getSessionId(): string {
   if (typeof window === 'undefined') return 'ssr'
@@ -49,6 +70,62 @@ function shouldSkipTracking(path: string): boolean {
   return p.startsWith('/admin/stats')
 }
 
+/** Країна/регіон за IP (geojs), кеш на сесію. IP не зберігаємо. */
+function resolveGeo(): Promise<GeoInfo | null> {
+  if (typeof window === 'undefined') return Promise.resolve(null)
+  if (geoPromise) return geoPromise
+
+  geoPromise = (async () => {
+    try {
+      const cached = sessionStorage.getItem(GEO_KEY)
+      if (cached) {
+        const parsed = JSON.parse(cached) as GeoInfo
+        if (parsed?.country_code) return parsed
+      }
+    } catch {
+      /* ignore */
+    }
+
+    try {
+      const ctrl = typeof AbortSignal !== 'undefined' && 'timeout' in AbortSignal
+        ? AbortSignal.timeout(2800)
+        : undefined
+      const res = await fetch('https://get.geojs.io/v1/ip/geo.json', {
+        signal: ctrl,
+        credentials: 'omit'
+      })
+      if (!res.ok) return null
+      const raw = (await res.json()) as {
+        country_code?: string
+        region?: string
+        city?: string
+      }
+      const code = String(raw.country_code || '')
+        .trim()
+        .toUpperCase()
+        .slice(0, 8)
+      if (code.length < 2) return null
+      const region = String(raw.region || raw.city || '')
+        .trim()
+        .slice(0, 120)
+      const info: GeoInfo = {
+        country_code: code,
+        region: region || null
+      }
+      try {
+        sessionStorage.setItem(GEO_KEY, JSON.stringify(info))
+      } catch {
+        /* ignore */
+      }
+      return info
+    } catch {
+      return null
+    }
+  })()
+
+  return geoPromise
+}
+
 async function insertEvent(
   eventType: 'page_view' | 'click',
   path: string,
@@ -65,6 +142,8 @@ async function insertEvent(
         ? String(i18n.global.locale.value)
         : String(i18n.global.locale)
 
+    const geo = await resolveGeo()
+
     await supabase.from('site_analytics_events').insert({
       event_type: eventType,
       path: normalized,
@@ -72,6 +151,8 @@ async function insertEvent(
       locale: locale.slice(0, 16),
       referrer: typeof document !== 'undefined' ? (document.referrer || '').slice(0, 300) || null : null,
       session_id: getSessionId(),
+      country_code: geo?.country_code ?? null,
+      region: geo?.region ?? null,
       meta: meta ?? {}
     })
   } catch {
@@ -121,7 +202,9 @@ export async function fetchSiteAnalytics(token: string): Promise<SiteAnalyticsSu
     unique_sessions_7d: Number(raw.unique_sessions_7d ?? 0),
     daily: Array.isArray(raw.daily) ? raw.daily : [],
     top_paths: Array.isArray(raw.top_paths) ? raw.top_paths : [],
-    top_clicks: Array.isArray(raw.top_clicks) ? raw.top_clicks : []
+    top_clicks: Array.isArray(raw.top_clicks) ? raw.top_clicks : [],
+    top_countries: Array.isArray(raw.top_countries) ? raw.top_countries : [],
+    top_regions: Array.isArray(raw.top_regions) ? raw.top_regions : []
   }
 }
 

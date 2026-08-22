@@ -326,7 +326,7 @@
     "loading": "Cargando…",
     "refresh": "Actualizar",
     "privateHint": "página noindex · guarda la URL solo para ti",
-    "error": "Token inválido o sin analytics. Revisa la migración 009 y UPDATE site_analytics_secrets.",
+    "error": "Token inválido o sin analytics. Revisa las migraciones 009–010 y UPDATE site_analytics_secrets.",
     "kpiViews7d": "Vistas / 7 días",
     "kpiSessions7d": "Sesiones / 7 días",
     "kpiClicks7d": "Clics / 7 días",
@@ -337,7 +337,10 @@
     "topPagesLead": "Últimos 30 días",
     "topClicks": "Dónde hacen clic",
     "topClicksLead": "CTA y navegación (30 días)",
+    "topCountries": "Países",
+    "topRegions": "Regiones",
     "empty": "Aún no hay datos — entra al sitio como visitante normal.",
+    "emptyGeo": "Los datos geo aparecerán tras nuevas visitas (migración 010 requerida).",
     "refreshed": "Actualizado",
     "lastUpdated": "Última actualización:"
   }
