@@ -65,6 +65,7 @@ export function useSeo(pageId: SeoPageId) {
     const site = getSiteUrl()
     const path = SEO_PATHS[pageId]
     const url = `${site}${path === '/' ? '' : path}`
+    const ogImage = `${site}/og-cover.png`
 
     document.title = copy.title
     document.documentElement.lang = loc
@@ -75,18 +76,28 @@ export function useSeo(pageId: SeoPageId) {
     upsertMeta('name', 'author', 'Quiz Quest')
     upsertMeta('name', 'theme-color', '#0b1220')
 
+    const gsc = import.meta.env.VITE_GOOGLE_SITE_VERIFICATION as string | undefined
+    if (gsc) upsertMeta('name', 'google-site-verification', gsc)
+
     upsertMeta('property', 'og:type', 'website')
     upsertMeta('property', 'og:site_name', 'Quiz Quest')
     upsertMeta('property', 'og:title', copy.ogTitle ?? copy.title)
     upsertMeta('property', 'og:description', copy.ogDescription ?? copy.description)
     upsertMeta('property', 'og:url', url)
-    upsertMeta('property', 'og:locale', loc === 'uk' ? 'uk_UA' : loc === 'en' ? 'en_US' : `${loc}_${loc.toUpperCase()}`)
-    upsertMeta('property', 'og:image', `${site}/og-cover.svg`)
+    upsertMeta(
+      'property',
+      'og:locale',
+      loc === 'uk' ? 'uk_UA' : loc === 'en' ? 'en_US' : `${loc}_${loc.toUpperCase()}`
+    )
+    upsertMeta('property', 'og:image', ogImage)
+    upsertMeta('property', 'og:image:width', '1200')
+    upsertMeta('property', 'og:image:height', '630')
+    upsertMeta('property', 'og:image:type', 'image/png')
 
     upsertMeta('name', 'twitter:card', 'summary_large_image')
     upsertMeta('name', 'twitter:title', copy.ogTitle ?? copy.title)
     upsertMeta('name', 'twitter:description', copy.ogDescription ?? copy.description)
-    upsertMeta('name', 'twitter:image', `${site}/og-cover.svg`)
+    upsertMeta('name', 'twitter:image', ogImage)
 
     upsertLink('canonical', url)
 
@@ -95,6 +106,13 @@ export function useSeo(pageId: SeoPageId) {
       upsertLink('alternate', url, hreflang)
     }
     upsertLink('alternate', url, 'x-default')
+
+    const organization = {
+      '@type': 'Organization',
+      name: 'Quiz Quest',
+      url: site,
+      logo: ogImage
+    }
 
     const webApp = {
       '@context': 'https://schema.org',
@@ -105,11 +123,17 @@ export function useSeo(pageId: SeoPageId) {
       operatingSystem: 'Web',
       description: copy.description,
       inLanguage: loc,
-      offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' }
+      image: ogImage,
+      offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+      publisher: organization
     }
     upsertJsonLd('seo-jsonld-app', webApp)
 
     if (pageId === 'home') {
+      upsertJsonLd('seo-jsonld-org', {
+        '@context': 'https://schema.org',
+        ...organization
+      })
       upsertJsonLd('seo-jsonld-sitelinks', {
         '@context': 'https://schema.org',
         '@type': 'ItemList',
@@ -140,8 +164,46 @@ export function useSeo(pageId: SeoPageId) {
           }
         ]
       })
+      document.getElementById('seo-jsonld-breadcrumb')?.remove()
     } else {
+      document.getElementById('seo-jsonld-org')?.remove()
       document.getElementById('seo-jsonld-sitelinks')?.remove()
+      upsertJsonLd('seo-jsonld-breadcrumb', {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: 'Quiz Quest',
+            item: site
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: copy.ogTitle ?? copy.title,
+            item: url
+          }
+        ]
+      })
+    }
+
+    if (pageId === 'howto') {
+      upsertJsonLd('seo-jsonld-howto', {
+        '@context': 'https://schema.org',
+        '@type': 'HowTo',
+        name: t('seo.howtoH1'),
+        description: t('seo.howtoLead'),
+        inLanguage: loc,
+        step: [1, 2, 3, 4, 5].map(n => ({
+          '@type': 'HowToStep',
+          position: n,
+          name: t(`howto.play${n}Title`),
+          text: t(`howto.play${n}Text`)
+        }))
+      })
+    } else {
+      document.getElementById('seo-jsonld-howto')?.remove()
     }
 
     if (pageId === 'about') {

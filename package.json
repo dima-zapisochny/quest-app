@@ -6,7 +6,8 @@
   "main": "index.js",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && node scripts/prerender-seo.mjs",
+    "prerender": "node scripts/prerender-seo.mjs",
     "preview": "vite preview",
     "test": "vitest",
     "typecheck": "vue-tsc --noEmit"
