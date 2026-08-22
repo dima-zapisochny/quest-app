@@ -34,24 +34,24 @@
           "title": "Berühmte Zitate",
           "questions": [
             {
-              "question": "«Life is like a box of chocolates…» — aus welchem Film?",
+              "question": "«Das Leben ist wie eine Schachtel Pralinen…» — aus welchem Film?",
               "answer": "Forrest Gump"
             },
             {
-              "question": "«I'm gonna make him an offer he can't refuse» — wer hat das gesagt?",
-              "answer": "Vito Corleone / The Godfather"
+              "question": "«Ich mache ihm ein Angebot, das er nicht ablehnen kann» — wer sagte das?",
+              "answer": "Vito Corleone / Der Pate"
             },
             {
-              "question": "«Why so serious?» — wer spricht diesen Satz?",
-              "answer": "The Joker (The Dark Knight)"
+              "question": "«Warum so ernst?» — wer sagt diesen Satz?",
+              "answer": "Der Joker (The Dark Knight)"
             },
             {
-              "question": "«Get busy living, or get busy dying» — aus welchem Film?",
-              "answer": "The Shawshank Redemption"
+              "question": "«Beschäftige dich mit dem Leben oder mit dem Sterben» — aus welchem Film?",
+              "answer": "Die Verurteilten"
             },
             {
-              "question": "«What's in the box?» — aus welchem Thriller von David Fincher?",
-              "answer": "Se7en"
+              "question": "«Was ist in der Schachtel?» — aus welchem Thriller von David Fincher?",
+              "answer": "Sieben"
             }
           ]
         },

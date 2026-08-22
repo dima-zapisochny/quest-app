@@ -34,24 +34,24 @@
           "title": "Известные цитаты",
           "questions": [
             {
-              "question": "«Life is like a box of chocolates…» — из какого фильма?",
-              "answer": "Forrest Gump"
+              "question": "«Жизнь как коробка шоколадных конфет…» — из какого фильма?",
+              "answer": "Форрест Гамп"
             },
             {
-              "question": "«I'm gonna make him an offer he can't refuse» — кто это сказал?",
-              "answer": "Vito Corleone / The Godfather"
+              "question": "«Я сделаю ему предложение, от которого он не сможет отказаться» — кто это сказал?",
+              "answer": "Вито Корлеоне / Крёстный отец"
             },
             {
-              "question": "«Why so serious?» — кто произносит эту фразу?",
-              "answer": "The Joker (The Dark Knight)"
+              "question": "«Почему так серьёзно?» — кто произносит эту фразу?",
+              "answer": "Джокер (Тёмный рыцарь)"
             },
             {
-              "question": "«Get busy living, or get busy dying» — из какого фильма?",
-              "answer": "The Shawshank Redemption"
+              "question": "«Займись жизнью или займись смертью» — из какого фильма?",
+              "answer": "Побег из Шоушенка"
             },
             {
-              "question": "«What's in the box?» — из какого триллера Дэвида Финчера?",
-              "answer": "Se7en"
+              "question": "«Что в коробке?» — из какого триллера Дэвида Финчера?",
+              "answer": "Семь"
             }
           ]
         },

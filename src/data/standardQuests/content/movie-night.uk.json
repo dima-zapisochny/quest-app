@@ -34,24 +34,24 @@
           "title": "Відомі цитати",
           "questions": [
             {
-              "question": "«Life is like a box of chocolates…» — з якого фільму?",
-              "answer": "Forrest Gump"
+              "question": "«Життя як коробка шоколадних цукерок…» — з якого фільму?",
+              "answer": "Форрест Ґамп"
             },
             {
-              "question": "«I'm gonna make him an offer he can't refuse» — хто це сказав?",
-              "answer": "Vito Corleone / The Godfather"
+              "question": "«Я зроблю йому пропозицію, від якої він не зможе відмовитися» — хто це сказав?",
+              "answer": "Віто Корлеоне / Хрещений батько"
             },
             {
-              "question": "«Why so serious?» — хто вимовляє цю фразу?",
-              "answer": "The Joker (The Dark Knight)"
+              "question": "«Чому так серйозно?» — хто вимовляє цю фразу?",
+              "answer": "Джокер (Темний лицар)"
             },
             {
-              "question": "«Get busy living, or get busy dying» — з якого фільму?",
-              "answer": "The Shawshank Redemption"
+              "question": "«Займися життям або займися смертю» — з якого фільму?",
+              "answer": "Втеча з Шоушенка"
             },
             {
-              "question": "«What's in the box?» — з якого трилера Девіда Фінчера?",
-              "answer": "Se7en"
+              "question": "«Що в коробці?» — з якого трилера Девіда Фінчера?",
+              "answer": "Сім"
             }
           ]
         },
