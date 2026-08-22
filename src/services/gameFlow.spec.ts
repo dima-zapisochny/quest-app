@@ -176,5 +176,6 @@ describe('applyTimeoutResponderFallback', () => {
     expect(aq.currentResponderId).toBeNull()
     expect(aq.responderStartedAt).toBeNull()
     expect(aq.timerPaused).toBe(false)
+    expect(aq.buzzedOrder).toEqual([])
   })
 })

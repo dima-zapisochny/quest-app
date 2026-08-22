@@ -604,7 +604,9 @@ export const useGameSessionStore = defineStore('game-session', () => {
 
       // Значение вопроса для начисления + отметка «кто ответил» в квесте
       let awardDelta = 0
-      const question = findQuestion(quizStore.getQuestById(session.questId), roundId, categoryId, questionId)
+      const questForAward =
+        session.quest ?? quizStore.getQuestById(session.questId)
+      const question = findQuestion(questForAward, roundId, categoryId, questionId)
       if (responder && question) {
         awardDelta = question.value
         question.answeredBy = answeredBy
@@ -684,7 +686,7 @@ export const useGameSessionStore = defineStore('game-session', () => {
       return
     }
 
-    // Fallback (RPC не задеплоен): старый путь. Сохраняем buzzedOrder, возобновляем общий таймер.
+    // Fallback (RPC не задеплоен): очищаем buzzedOrder, возобновляем общий таймер.
     applyTimeoutResponderFallback(session, failedPlayerId)
     session.updatedAt = now()
     await persistSession(session)

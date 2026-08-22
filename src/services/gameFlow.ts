@@ -113,6 +113,7 @@ export function applyTimeoutResponderFallback(session: GameSession, failedPlayer
   const player = session.players.find(p => p.id === failedPlayerId)
   if (player) player.status = 'locked'
 
+  aq.buzzedOrder = []
   aq.currentResponderId = null
   aq.responderStartedAt = null
   aq.timerPaused = false

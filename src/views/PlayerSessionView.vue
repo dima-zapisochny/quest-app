@@ -42,9 +42,43 @@
         <div v-else class="question-content">
           <template v-if="activeQuestion.showAnswer">
             <h2 class="answer-only" v-html="currentQuestion?.answer ?? '—'"></h2>
+            <div v-if="answerMediaImages.length" class="player-media-grid">
+              <QuestionMediaPreview
+                v-for="media in answerMediaImages"
+                :key="media.id"
+                :media="media"
+              />
+            </div>
+            <div
+              v-else-if="answerMediaAudio.length"
+              class="player-media-audio"
+            >
+              <QuestionMediaPreview
+                v-for="media in answerMediaAudio"
+                :key="media.id"
+                :media="media"
+              />
+            </div>
           </template>
           <template v-else>
             <h2 v-html="currentQuestion?.question ?? t('player.questionHidden')"></h2>
+            <div v-if="visibleQuestionImages.length" class="player-media-grid">
+              <QuestionMediaPreview
+                v-for="media in visibleQuestionImages"
+                :key="media.id"
+                :media="media"
+              />
+            </div>
+            <div
+              v-else-if="hasQuestionAudio"
+              class="player-media-audio"
+            >
+              <QuestionMediaPreview
+                v-for="media in questionMediaAudio"
+                :key="media.id"
+                :media="media"
+              />
+            </div>
           </template>
         </div>
       </section>
@@ -94,8 +128,11 @@ import { computed, onMounted, onBeforeUnmount, ref, watch, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import TimerCircle from '@/components/quiz/TimerCircle.vue'
+import QuestionMediaPreview from '@/components/quiz/QuestionMediaPreview.vue'
 import { useGameSessionStore } from '@/store/gameSessionStore'
 import { useQuizStore } from '@/store/quizStore'
+import { useQuestionMedia } from '@/composables/useQuestionMedia'
+import { useQuestionElapsed } from '@/composables/useQuestionElapsed'
 import AppHeader from '@/components/common/AppHeader.vue'
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
 import { usePresenceHeartbeat } from '@/composables/usePresenceHeartbeat'
@@ -133,6 +170,15 @@ const currentQuestion = computed(() => {
     .find(question => question.id === activeQuestion.value?.questionId)
 })
 
+const { elapsedSec } = useQuestionElapsed(activeQuestion)
+const {
+  visibleQuestionImages,
+  questionMediaAudio,
+  answerMediaImages,
+  answerMediaAudio,
+  hasQuestionAudio
+} = useQuestionMedia(currentQuestion, elapsedSec)
+
 const canBuzz = computed(() => {
   if (!player.value || !activeQuestion.value) return false
   if (activeQuestion.value.showAnswer) return false // таймер вичерпано або відповідь вже показано
@@ -169,9 +215,12 @@ const buzzerClasses = computed(() => {
 
 const playerRank = computed(() => {
   if (!session.value || !player.value) return '-'
-  // Исключаем хоста из списка участников для расчета места
   const participants = session.value.players.filter(p => p.id !== session.value!.hostId)
-  const sortedPlayers = [...participants].sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
+  const sortedPlayers = [...participants].sort((a, b) => {
+    const byScore = (b.score ?? 0) - (a.score ?? 0)
+    if (byScore !== 0) return byScore
+    return (a.joinedAt ?? 0) - (b.joinedAt ?? 0)
+  })
   const rank = sortedPlayers.findIndex(p => p.id === player.value?.id) + 1
   return rank || '-'
 })
@@ -669,6 +718,31 @@ onBeforeUnmount(() => {
 .question-content h2.answer-only {
   color: rgb(var(--c-gold));
   font-weight: 700;
+}
+
+.player-media-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+  max-width: 100%;
+  flex-shrink: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+.player-media-grid :deep(.media-card) {
+  max-width: min(100%, 280px);
+}
+
+.player-media-audio {
+  width: 100%;
+  max-width: 320px;
+  flex-shrink: 0;
+}
+
+.player-media-audio :deep(.media-card) {
+  width: 100%;
 }
 
 .responder-container {
