@@ -453,7 +453,7 @@ async function onImportQuestFile(event: Event) {
   min-height: 0;
   display: flex;
   flex-direction: column;
-  max-width: 1280px;
+  max-width: calc(4 * 240px + 3 * 1.1rem + 4rem);
   width: 100%;
   margin: 0 auto;
   padding: 0 clamp(1rem, 3vw, 2rem);
@@ -497,11 +497,12 @@ async function onImportQuestFile(event: Event) {
 .quests-grid {
   flex: 1;
   min-height: 0;
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-content: flex-start;
+  align-items: stretch;
   gap: 1.1rem;
-  align-content: start;
-  align-items: start;
   overflow-y: auto;
   padding: 0.25rem 0.5rem 1rem;
   scrollbar-width: thin;
@@ -520,9 +521,8 @@ async function onImportQuestFile(event: Event) {
 /* ── Quest cards ── */
 .quest-card {
   position: relative;
-  width: 100%;
-  min-width: 0;
-  height: auto;
+  width: min(100%, 240px);
+  flex: 0 0 auto;
   background: linear-gradient(165deg, rgb(var(--c-surface) / 0.92), rgb(var(--c-bg) / 0.75));
   border-radius: 1.15rem;
   padding: 0.85rem;
@@ -537,8 +537,7 @@ async function onImportQuestFile(event: Event) {
 }
 
 .quest-card:hover {
-  transform: translateY(-3px);
-  z-index: 1;
+  transform: translateY(-4px);
   border-color: rgb(var(--c-accent-sky) / 0.38);
   box-shadow: 0 18px 40px rgb(var(--c-bg-deep) / 0.5);
 }
@@ -568,8 +567,6 @@ async function onImportQuestFile(event: Event) {
 
 .quest-card__cover {
   position: relative;
-  flex-shrink: 0;
-  width: 100%;
   aspect-ratio: 1;
   border-radius: 0.75rem;
   overflow: hidden;
@@ -600,7 +597,6 @@ async function onImportQuestFile(event: Event) {
 }
 
 .quest-card__body {
-  flex-shrink: 0;
   padding: 0.85rem 0.25rem 0.35rem;
   display: flex;
   flex-direction: column;
@@ -696,13 +692,9 @@ async function onImportQuestFile(event: Event) {
 }
 
 .quest-card__body--cta {
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
   align-items: center;
   text-align: center;
   gap: 0.25rem;
-  padding: 0.5rem 0.25rem;
 }
 
 .quest-card__ctalabel {
@@ -729,7 +721,6 @@ async function onImportQuestFile(event: Event) {
   justify-content: center;
   font-size: 1.75rem;
   line-height: 1;
-  flex-shrink: 0;
 }
 
 .new-quest-circle svg {
@@ -960,12 +951,6 @@ async function onImportQuestFile(event: Event) {
 }
 
 /* ── Responsive ── */
-@media (max-width: 1024px) {
-  .quests-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-
 @media (max-width: 768px) {
   .host-hero__title {
     font-size: clamp(0.95rem, 4.5vw, 1.35rem);
@@ -991,9 +976,8 @@ async function onImportQuestFile(event: Event) {
     text-align: center;
   }
 
-  .quests-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.85rem;
+  .quest-card {
+    width: min(100%, 200px);
   }
 }
 
@@ -1004,6 +988,11 @@ async function onImportQuestFile(event: Event) {
 
   .quests-grid {
     gap: 0.75rem;
+  }
+
+  .quest-card {
+    width: calc(50% - 0.5rem);
+    min-width: 140px;
   }
 
   .quest-title {
