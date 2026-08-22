@@ -332,6 +332,8 @@
     "error": "Token inválido o sin analytics.",
     "kpiViews7d": "Vistas / 7 días",
     "kpiSessions7d": "Sesiones / 7 días",
+    "kpiUnique7d": "Únicos / 7 días",
+    "kpiUniqueTotal": "Únicos total",
     "kpiClicks7d": "Clics / 7 días",
     "kpiViewsTotal": "Vistas totales",
     "chartTitle": "Visitantes de la semana",

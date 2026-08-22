@@ -332,6 +332,8 @@
     "error": "Invalid token or analytics unavailable.",
     "kpiViews7d": "Views / 7 days",
     "kpiSessions7d": "Sessions / 7 days",
+    "kpiUnique7d": "Unique / 7 days",
+    "kpiUniqueTotal": "Unique total",
     "kpiClicks7d": "Clicks / 7 days",
     "kpiViewsTotal": "Views total",
     "chartTitle": "Visitors this week",

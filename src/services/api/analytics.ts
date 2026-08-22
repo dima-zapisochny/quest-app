@@ -2,6 +2,7 @@ import { supabase, isSupabaseConfigured } from '@/config/supabase'
 import { i18n } from '@/i18n'
 
 const SESSION_KEY = 'quest-app:analytics-sid'
+const VISITOR_KEY = 'quest-app:analytics-vid'
 const LAST_VIEW_KEY = 'quest-app:analytics-last-view'
 const GEO_KEY = 'quest-app:analytics-geo'
 
@@ -10,6 +11,7 @@ export type AnalyticsDailyPoint = {
   views: number
   clicks: number
   sessions: number
+  visitors: number
 }
 
 export type AnalyticsCountryRow = {
@@ -29,6 +31,8 @@ export type SiteAnalyticsSummary = {
   views_7d: number
   clicks_7d: number
   unique_sessions_7d: number
+  unique_visitors_7d: number
+  unique_visitors_total: number
   daily: AnalyticsDailyPoint[]
   top_paths: { path: string; views: number }[]
   top_clicks: { name: string; clicks: number }[]
@@ -43,17 +47,39 @@ type GeoInfo = {
 
 let geoPromise: Promise<GeoInfo | null> | null = null
 
+function newId(prefix: string): string {
+  return (
+    crypto.randomUUID?.() ??
+    `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
+  ).slice(0, 64)
+}
+
 function getSessionId(): string {
   if (typeof window === 'undefined') return 'ssr'
   try {
     let id = sessionStorage.getItem(SESSION_KEY)
     if (!id) {
-      id = crypto.randomUUID?.() ?? `s-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
+      id = newId('s')
       sessionStorage.setItem(SESSION_KEY, id)
     }
     return id.slice(0, 64)
   } catch {
-    return `s-${Date.now()}`
+    return newId('s')
+  }
+}
+
+/** Стійкий ID браузера/пристрою (localStorage) для унікальних відвідувачів. */
+function getVisitorId(): string {
+  if (typeof window === 'undefined') return 'ssr'
+  try {
+    let id = localStorage.getItem(VISITOR_KEY)
+    if (!id) {
+      id = newId('v')
+      localStorage.setItem(VISITOR_KEY, id)
+    }
+    return id.slice(0, 64)
+  } catch {
+    return getSessionId()
   }
 }
 
@@ -160,6 +186,7 @@ async function insertEvent(
       locale: locale.slice(0, 16),
       referrer: typeof document !== 'undefined' ? (document.referrer || '').slice(0, 300) || null : null,
       session_id: getSessionId(),
+      visitor_id: getVisitorId(),
       country_code: geo?.country_code ?? null,
       region: geo?.region ?? null,
       meta: meta ?? {}
@@ -214,6 +241,8 @@ export async function fetchSiteAnalytics(token: string): Promise<SiteAnalyticsSu
     views_7d: Number(raw.views_7d ?? 0),
     clicks_7d: Number(raw.clicks_7d ?? 0),
     unique_sessions_7d: Number(raw.unique_sessions_7d ?? 0),
+    unique_visitors_7d: Number(raw.unique_visitors_7d ?? 0),
+    unique_visitors_total: Number(raw.unique_visitors_total ?? 0),
     daily: Array.isArray(raw.daily) ? raw.daily : [],
     top_paths: Array.isArray(raw.top_paths) ? raw.top_paths : [],
     top_clicks: Array.isArray(raw.top_clicks) ? raw.top_clicks : [],

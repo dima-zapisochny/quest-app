@@ -332,6 +332,8 @@
     "error": "Jeton invalide ou analytics indisponible.",
     "kpiViews7d": "Vues / 7 jours",
     "kpiSessions7d": "Sessions / 7 jours",
+    "kpiUnique7d": "Uniques / 7 jours",
+    "kpiUniqueTotal": "Uniques total",
     "kpiClicks7d": "Clics / 7 jours",
     "kpiViewsTotal": "Vues totales",
     "chartTitle": "Visiteurs de la semaine",
