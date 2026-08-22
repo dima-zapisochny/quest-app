@@ -4,8 +4,16 @@ let audioCtx: AudioContext | null = null
 
 function getAudioContext(): AudioContext | null {
   if (typeof window === 'undefined') return null
+  const AC =
+    window.AudioContext ||
+    (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext
+  if (!AC) return null
   if (!audioCtx || audioCtx.state === 'closed') {
-    audioCtx = new AudioContext()
+    try {
+      audioCtx = new AC()
+    } catch {
+      return null
+    }
   }
   return audioCtx
 }
@@ -83,4 +91,16 @@ export async function playGridTileClickSound(): Promise<void> {
   const t = ctx.currentTime
   playTone(ctx, 311, t, 0.055, 0.05, 'triangle')
   playTone(ctx, 466, t + 0.035, 0.07, 0.038, 'sine')
+}
+
+/** Короткий «хтось» при видаленні */
+export async function playDeleteSound(): Promise<void> {
+  if (!isUiSoundEnabled()) return
+  const ctx = getAudioContext()
+  if (!ctx || !(await ensureRunning(ctx))) return
+
+  const t = ctx.currentTime
+  playTone(ctx, 392, t, 0.06, 0.07, 'triangle')
+  playTone(ctx, 277, t + 0.05, 0.08, 0.06, 'sine')
+  playTone(ctx, 196, t + 0.11, 0.1, 0.045, 'sine')
 }

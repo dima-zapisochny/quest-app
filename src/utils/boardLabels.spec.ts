@@ -13,9 +13,9 @@ const t = (key: string, params?: Record<string, unknown>) => {
 }
 
 describe('boardLabels', () => {
-  it('returns default titles for store creation', () => {
-    expect(defaultRoundTitle(0)).toBe('Раунд 1')
-    expect(defaultCategoryTitle(2)).toBe('Категория 3')
+  it('stores empty defaults for creation', () => {
+    expect(defaultRoundTitle(0)).toBe('')
+    expect(defaultCategoryTitle(2)).toBe('')
   })
 
   it('falls back to i18n when title is empty', () => {
@@ -24,7 +24,14 @@ describe('boardLabels', () => {
     expect(displayCategoryTitle(undefined, 0, t)).toBe('Category 1')
   })
 
-  it('keeps non-empty stored titles', () => {
+  it('treats legacy English/localized defaults as placeholders', () => {
+    expect(displayRoundTitle('Round 1', 0, t)).toBe('Round 1')
+    expect(displayRoundTitle('Раунд 2', 1, t)).toBe('Round 2')
+    expect(displayCategoryTitle('Category 3', 2, t)).toBe('Category 3')
+    expect(displayCategoryTitle('Категория 1', 0, t)).toBe('Category 1')
+  })
+
+  it('keeps custom stored titles', () => {
     expect(displayRoundTitle('Final', 0, t)).toBe('Final')
     expect(displayCategoryTitle('History', 2, t)).toBe('History')
   })

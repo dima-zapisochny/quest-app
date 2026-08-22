@@ -14,7 +14,8 @@
     "refreshAvatar": "Refresh avatar",
     "soundOn": "Turn sound on",
     "soundOff": "Turn sound off",
-    "unknownError": "Something went wrong. Please try again"
+    "unknownError": "Something went wrong. Please try again",
+    "deleted": "Deleted"
   },
   "landing": {
     "checkingAuth": "Checking authorization…",

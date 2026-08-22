@@ -14,7 +14,8 @@
     "refreshAvatar": "Changer d'avatar",
     "soundOn": "Activer le son",
     "soundOff": "Désactiver le son",
-    "unknownError": "Une erreur s'est produite. Réessayez"
+    "unknownError": "Une erreur s'est produite. Réessayez",
+    "deleted": "Supprimé"
   },
   "landing": {
     "checkingAuth": "Vérification de l'autorisation…",

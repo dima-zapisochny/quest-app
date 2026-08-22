@@ -144,11 +144,12 @@
 import { computed, ref, watch, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useQuizStore } from '@/store/quizStore'
-import { defaultCategoryTitle } from '@/utils/boardLabels'
+import { defaultCategoryTitle, displayCategoryTitle } from '@/utils/boardLabels'
 import AdminQuestionRow from './AdminQuestionRow.vue'
 import GridSizePicker from '@/components/common/GridSizePicker.vue'
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
 import type { Round, Question } from '@/types'
+import { notifyDeleted } from '@/utils/notifyDeleted'
 
 interface Props {
   questId: string
@@ -187,6 +188,7 @@ function confirmDeleteCategory() {
   if (!categoryId) return
   store.deleteCategory(props.questId, props.round.id, categoryId)
   if (editingCategoryId.value === categoryId) closeModal()
+  notifyDeleted()
 }
 
 function cancelDeleteCategory() {
@@ -250,6 +252,7 @@ const pendingDeleteQuestion = ref(false)
 function confirmDeleteQuestion() {
   pendingDeleteQuestion.value = false
   questionRowRef.value?.handleDelete()
+  notifyDeleted()
 }
 
 const editingCategory = computed(() => {
@@ -261,7 +264,7 @@ const editingCategoryTitle = computed(() => {
   const cat = editingCategory.value
   if (!cat) return ''
   const idx = categories.value.findIndex(c => c.id === cat.id)
-  return cat.title?.trim() || `Категория ${idx + 1}`
+  return displayCategoryTitle(cat.title, Math.max(0, idx), t)
 })
 
 const editingQuestion = computed(() => {

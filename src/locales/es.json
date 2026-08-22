@@ -14,7 +14,8 @@
     "refreshAvatar": "Cambiar avatar",
     "soundOn": "Activar sonido",
     "soundOff": "Desactivar sonido",
-    "unknownError": "Algo salió mal. Inténtalo de nuevo"
+    "unknownError": "Algo salió mal. Inténtalo de nuevo",
+    "deleted": "Eliminado"
   },
   "landing": {
     "checkingAuth": "Comprobando autorización…",

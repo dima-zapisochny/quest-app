@@ -182,6 +182,7 @@ import { useIsMobileViewport } from '@/composables/useIsMobileViewport'
 import { seedStandardQuests, sortQuestsWithStandardsFirst } from '@/utils/seedStandardQuests'
 import { displayQuestTitle, questDisplayEmoji } from '@/utils/questCardTheme'
 import { playQuestDeselectSound, playQuestSelectSound } from '@/utils/uiSound'
+import { notifyDeleted } from '@/utils/notifyDeleted'
 import { mapAppError } from '@/utils/mapAppError'
 
 const { t } = useI18n()
@@ -492,6 +493,7 @@ async function confirmDeleteQuest() {
     }
     confirmDeleteModal.value = { visible: false, questId: null, questTitle: '' }
     errorMessage.value = ''
+    notifyDeleted()
   } catch (err) {
     errorMessage.value = (err as Error)?.message ?? t('host.errDeleteQuest')
   }

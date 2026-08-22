@@ -14,7 +14,8 @@
     "refreshAvatar": "Avatar neu laden",
     "soundOn": "Ton einschalten",
     "soundOff": "Ton ausschalten",
-    "unknownError": "Etwas ist schiefgelaufen. Bitte erneut versuchen"
+    "unknownError": "Etwas ist schiefgelaufen. Bitte erneut versuchen",
+    "deleted": "Gelöscht"
   },
   "landing": {
     "checkingAuth": "Autorisierung wird geprüft…",
