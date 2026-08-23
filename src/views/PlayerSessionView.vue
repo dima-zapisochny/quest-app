@@ -523,6 +523,7 @@ onBeforeUnmount(() => {
   overflow: hidden;
   box-sizing: border-box;
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  padding-inline: var(--page-gutter-x);
   --player-header-capsule-h: 72px;
 }
 

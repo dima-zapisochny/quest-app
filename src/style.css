@@ -73,6 +73,12 @@
   --radius-xl: 20px;
   --radius-pill: 999px;
 
+  /* Горизонтальні відступи сторінок і шапки (еталон — редагування квесту) */
+  --page-gutter-x: clamp(1.25rem, 4vw, 3.5rem);
+  --app-header-pt: 1.2rem;
+  --app-header-px: 1.5rem;
+  --app-header-pb: 0.75rem;
+
   /* Размытие (glassmorphism) */
   --blur-sm: 10px;
   --blur-md: 12px;
@@ -83,6 +89,33 @@
   --color-bg: rgb(var(--c-bg));
   --color-text: rgb(var(--c-text));
   --color-accent: rgb(var(--c-accent));
+}
+
+@media (max-width: 768px) {
+  :root {
+    --page-gutter-x: 1rem;
+    --app-header-pt: 1rem;
+    --app-header-px: 1rem;
+    --app-header-pb: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --page-gutter-x: 0.75rem;
+    --app-header-pt: 0.85rem;
+    --app-header-px: 0.75rem;
+    --app-header-pb: 0.4rem;
+  }
+}
+
+@media (max-width: 360px) {
+  :root {
+    --page-gutter-x: 0.5rem;
+    --app-header-pt: 0.75rem;
+    --app-header-px: 0.5rem;
+    --app-header-pb: 0.35rem;
+  }
 }
 
 html {

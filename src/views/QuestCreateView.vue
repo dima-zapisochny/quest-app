@@ -175,6 +175,7 @@ async function submit() {
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
+  padding-inline: var(--page-gutter-x);
   background: linear-gradient(135deg, rgb(var(--c-bg)) 0%, rgb(var(--c-surface)) 100%);
 }
 

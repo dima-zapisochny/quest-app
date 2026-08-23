@@ -1,5 +1,7 @@
 .seo-page {
   min-height: 100vh;
+  box-sizing: border-box;
+  padding-inline: var(--page-gutter-x);
   background:
     radial-gradient(ellipse 80% 50% at 50% -10%, rgb(var(--c-accent-sky) / 0.14), transparent),
     rgb(var(--c-bg-deep));
