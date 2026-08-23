@@ -113,12 +113,12 @@
                   {{ pt.label }}
                 </text>
                 <text
-                  v-if="pt.views > 0"
+                  v-if="pt.visitors > 0"
                   :x="pt.x"
                   :y="pt.lineY - 8"
                   class="stats-chart__value"
                 >
-                  {{ pt.views }}
+                  {{ pt.visitors }}
                 </text>
                 <circle
                   :cx="pt.x"
@@ -366,7 +366,7 @@ const weekSeries = computed(() => {
   })
 })
 
-const maxViews = computed(() => Math.max(1, ...weekSeries.value.map(d => d.views)))
+const maxVisitors = computed(() => Math.max(1, ...weekSeries.value.map(d => d.visitors)))
 
 const chartPoints = computed(() => {
   const n = weekSeries.value.length
@@ -375,7 +375,7 @@ const chartPoints = computed(() => {
   const step = n > 1 ? inner / (n - 1) : 0
   return weekSeries.value.map((d, i) => {
     const x = n > 1 ? padL + i * step : padL + inner / 2
-    const lineY = padT + (plotH - (d.views / maxViews.value) * plotH)
+    const lineY = padT + (plotH - (d.visitors / maxVisitors.value) * plotH)
     return {
       ...d,
       x,
