@@ -69,6 +69,47 @@ function loadAboutFaq(locale) {
   }
 }
 
+function loadHowToFaq(locale) {
+  try {
+    const raw = readFileSync(join(root, 'src/locales', `${locale}.json`), 'utf8')
+    const seo = JSON.parse(raw).seo ?? {}
+    return [1, 2, 3]
+      .map(n => ({
+        '@type': 'Question',
+        name: seo[`howtoFaq${n}Q`] ?? '',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: seo[`howtoFaq${n}A`] ?? ''
+        }
+      }))
+      .filter(q => q.name && q.acceptedAnswer.text)
+  } catch {
+    return []
+  }
+}
+
+function loadHowToSteps(locale) {
+  try {
+    const raw = readFileSync(join(root, 'src/locales', `${locale}.json`), 'utf8')
+    const howto = JSON.parse(raw).howto ?? {}
+    const play = [1, 2, 3, 4, 5].map(n => ({
+      '@type': 'HowToStep',
+      position: n,
+      name: howto[`play${n}Title`] ?? '',
+      text: howto[`play${n}Text`] ?? ''
+    }))
+    const create = [1, 2, 3, 4].map(n => ({
+      '@type': 'HowToStep',
+      position: n + 5,
+      name: howto[`create${n}Title`] ?? '',
+      text: howto[`create${n}Text`] ?? ''
+    }))
+    return [...play, ...create].filter(s => s.name && s.text)
+  } catch {
+    return []
+  }
+}
+
 function buildJsonLdBlocks(page) {
   const organization = {
     '@type': 'Organization',
@@ -122,6 +163,34 @@ function buildJsonLdBlocks(page) {
 
   if (page.id === 'about') {
     const faq = loadAboutFaq(page.locale)
+    if (faq.length) {
+      blocks.push({
+        id: 'seo-jsonld-faq',
+        data: {
+          '@context': 'https://schema.org',
+          '@type': 'FAQPage',
+          mainEntity: faq
+        }
+      })
+    }
+  }
+
+  if (page.id === 'howto') {
+    const steps = loadHowToSteps(page.locale)
+    if (steps.length) {
+      blocks.push({
+        id: 'seo-jsonld-howto',
+        data: {
+          '@context': 'https://schema.org',
+          '@type': 'HowTo',
+          name: page.h1 ?? page.title,
+          description: page.description,
+          inLanguage: page.locale,
+          step: steps
+        }
+      })
+    }
+    const faq = loadHowToFaq(page.locale)
     if (faq.length) {
       blocks.push({
         id: 'seo-jsonld-faq',

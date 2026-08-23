@@ -72,47 +72,57 @@ export const SEO_COPY: Record<SeoPageId, Record<AppLocale, SeoPageCopy>> = {
   howto: {
     uk: {
       title: 'Як грати в Quiz Quest · Інструкція для ведучого та гравців',
+      ogTitle: 'інструкція для ведучого та гравців',
       h1: 'Як грати в Quiz Quest?',
       description:
-        'Покроково: створити гру, поділитися кодом, відкривати питання на дошці, відповідати з телефона та рахувати бали. Також як зібрати власний квест.',
+        'Повна інструкція Quiz Quest: як ведучому створити гру, відкривати питання на дошці, а гравцям підключитися з телефона, натиснути «Відповісти» і збирати бали. Плюс створення власного квесту.',
       keywords:
-        'як грати вікторину, інструкція вікторина онлайн, як створити вікторину, quiz quest як грати'
+        'як грати вікторину, інструкція вікторина онлайн, як створити вікторину, quiz quest як грати, ведучий вікторина, гра з телефона, buzz вікторина, jeopardy українською, онлайн вікторина для компанії'
     },
     ru: {
       title: 'Как играть в Quiz Quest · Инструкция для ведущего и игроков',
+      ogTitle: 'инструкция для ведущего и игроков',
       h1: 'Как играть в Quiz Quest?',
       description:
-        'По шагам: создать игру, поделиться кодом, открывать вопросы на доске, отвечать с телефона и считать очки. Также как собрать свой квест.',
+        'Полная инструкция Quiz Quest: как ведущему создать игру и открывать вопросы на доске, а игрокам подключиться с телефона, нажать «Ответить» и набирать очки. Плюс создание своего квеста.',
       keywords:
-        'как играть в викторину, инструкция викторина онлайн, как создать викторину, quiz quest как играть'
+        'как играть в викторину, инструкция викторина онлайн, как создать викторину, quiz quest как играть, ведущий викторина, игра с телефона, buzz викторина, jeopardy онлайн, викторина для компании'
     },
     en: {
       title: 'How to play Quiz Quest · Host & player guide',
+      ogTitle: 'host & player guide',
       h1: 'How to play Quiz Quest?',
       description:
-        'Step by step: create a game, share the code, open board questions, buzz in on phones and keep score. Plus how to build your own quest.',
-      keywords: 'how to play quiz, online quiz guide, create quiz board, quiz quest howto'
+        'Full Quiz Quest guide: host creates a game and opens board tiles; players join on phones, buzz in and score points. Plus how to build your own quest with photos and audio.',
+      keywords:
+        'how to play quiz, online quiz guide, create quiz board, quiz quest howto, host quiz game, phone buzz quiz, jeopardy style quiz, team trivia guide, party quiz instructions'
     },
     de: {
       title: 'Quiz Quest spielen · Anleitung für Moderator und Spieler',
-      h1: 'Quiz Quest spielen',
+      ogTitle: 'Anleitung für Moderator und Spieler',
+      h1: 'Wie spielt man Quiz Quest?',
       description:
-        'Schritt für Schritt: Spiel erstellen, Code teilen, Fragen öffnen, per Handy antworten und Punkte zählen. Plus eigenes Quiz bauen.',
-      keywords: 'quiz anleitung, online quiz spielen, quiz erstellen, quiz quest'
+        'Komplette Quiz-Quest-Anleitung: Moderator erstellt ein Spiel und öffnet Felder; Spieler joinen per Handy, buzzern und sammeln Punkte. Plus eigenes Quiz mit Fotos und Audio bauen.',
+      keywords:
+        'quiz anleitung, online quiz spielen, quiz erstellen, quiz quest, moderator quiz, handy buzz, jeopardy online, team quiz guide, party quiz anleitung'
     },
     fr: {
       title: 'Comment jouer à Quiz Quest · Guide animateur et joueurs',
+      ogTitle: 'guide animateur et joueurs',
       h1: 'Comment jouer à Quiz Quest ?',
       description:
-        'Étape par étape : créer une partie, partager le code, ouvrir les questions, buzzer sur téléphone et compter les points. Et créer votre propre quiz.',
-      keywords: 'comment jouer quiz, guide quiz en ligne, créer un quiz, quiz quest'
+        'Guide complet Quiz Quest : l’animateur crée une partie et ouvre les cases ; les joueurs rejoignent sur téléphone, buzzent et marquent des points. Et créer votre propre quiz avec photos et audio.',
+      keywords:
+        'comment jouer quiz, guide quiz en ligne, créer un quiz, quiz quest, animateur quiz, buzz téléphone, jeopardy en ligne, quiz équipe, instructions trivia'
     },
     es: {
       title: 'Cómo jugar a Quiz Quest · Guía para anfitrión y jugadores',
-      h1: 'Cómo jugar a Quiz Quest',
+      ogTitle: 'guía para anfitrión y jugadores',
+      h1: '¿Cómo jugar a Quiz Quest?',
       description:
-        'Paso a paso: crear partida, compartir código, abrir preguntas, responder desde el móvil y sumar puntos. También cómo crear tu propio cuestionario.',
-      keywords: 'cómo jugar quiz, guía trivia online, crear quiz, quiz quest'
+        'Guía completa de Quiz Quest: el anfitrión crea la partida y abre casillas; los jugadores entran con el móvil, pulsan responder y suman puntos. Además, cómo crear tu propio cuestionario con fotos y audio.',
+      keywords:
+        'cómo jugar quiz, guía trivia online, crear quiz, quiz quest, anfitrión quiz, buzz móvil, jeopardy online, quiz equipo, instrucciones trivia'
     }
   },
   'movie-night': {
