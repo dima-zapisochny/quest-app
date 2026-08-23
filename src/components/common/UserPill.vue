@@ -1,6 +1,6 @@
 <template>
-  <div class="user-pill" spellcheck="false" translate="no">
-    <span class="user-name" spellcheck="false" translate="no" autocorrect="off" autocapitalize="off">{{ displayName }}</span>
+  <div class="user-pill notranslate" spellcheck="false" translate="no" lang="uk">
+    <span class="user-name player-ui-text" spellcheck="false" translate="no" autocorrect="off" autocapitalize="off">{{ displayName }}</span>
     <div 
       class="user-avatar" 
       :class="{ 'user-avatar--placeholder': !hasAvatar }" 

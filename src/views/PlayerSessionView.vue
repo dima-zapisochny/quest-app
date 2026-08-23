@@ -1,6 +1,15 @@
 <template>
-  <div v-if="session" class="player-view" spellcheck="false" translate="no" autocorrect="off" autocapitalize="off">
+  <div
+    v-if="session"
+    class="player-view notranslate"
+    lang="uk"
+    spellcheck="false"
+    translate="no"
+    autocorrect="off"
+    autocapitalize="off"
+  >
     <AppHeader
+      class="player-view__header notranslate"
       button-variant="exit"
       :button-label="isExiting ? t('game.exitBusy') : t('game.exitConfirm')"
       :button-disabled="isExiting"
@@ -11,12 +20,12 @@
     />
 
     <main class="player-main">
-      <section v-if="player" class="player-stats">
+      <section v-if="player" class="player-stats notranslate">
         <div class="stats-item">
           <div class="stats-row">
             <div class="stats-col">
-              <span class="stats-label" spellcheck="false" translate="no">{{ t('player.rank') }}</span>
-              <span class="stats-value" spellcheck="false" translate="no">{{ playerRank }}</span>
+              <span class="stats-label player-ui-text" spellcheck="false" translate="no">{{ t('player.rank') }}</span>
+              <span class="stats-value player-ui-text" spellcheck="false" translate="no">{{ playerRank }}</span>
             </div>
             <div class="stats-timer" :class="{ 'stats-timer--inactive': !shouldShowResponderTimer }" :aria-label="t('player.answerTimer')">
               <!-- Лише відображення: таймаут знімає хост (useResponderTimeout). Інакше зсув годинника на телефоні → finished → self-lock за ~1с. -->
@@ -27,8 +36,8 @@
               />
             </div>
             <div class="stats-col">
-              <span class="stats-label" spellcheck="false" translate="no">{{ t('player.points') }}</span>
-              <span class="stats-value" spellcheck="false" translate="no">{{ player.score ?? 0 }}</span>
+              <span class="stats-label player-ui-text" spellcheck="false" translate="no">{{ t('player.points') }}</span>
+              <span class="stats-value player-ui-text" spellcheck="false" translate="no">{{ player.score ?? 0 }}</span>
             </div>
           </div>
         </div>
@@ -537,19 +546,40 @@ onBeforeUnmount(() => {
   box-sizing: border-box;
 }
 
-/* Safari iOS: пунктир spellcheck/translate під UI-текстом */
+/* Chrome Translate + spellcheck: пунктир під UI-текстом */
 .player-view :deep(.user-name),
-.player-view .stats-label,
-.player-view .stats-value {
+.player-view :deep(.nav-button),
+.player-view :deep(.nav-button span),
+.player-view :deep(.timer-text),
+.player-view .player-ui-text {
   text-decoration: none !important;
   -webkit-text-decoration: none !important;
-  -webkit-text-decoration-line: none !important;
   text-decoration-line: none !important;
-  -webkit-text-decoration-color: transparent !important;
+  -webkit-text-decoration-line: none !important;
+  text-decoration-style: solid !important;
+  -webkit-text-decoration-style: solid !important;
   text-decoration-color: transparent !important;
+  -webkit-text-decoration-color: transparent !important;
+  text-underline-offset: unset !important;
   -webkit-user-select: none;
   user-select: none;
   -webkit-touch-callout: none;
+}
+
+@supports selector(::spelling-error) {
+  .player-view :deep(.user-name)::spelling-error,
+  .player-view :deep(.nav-button)::spelling-error,
+  .player-view .player-ui-text::spelling-error {
+    text-decoration: none !important;
+  }
+}
+
+@supports selector(::grammar-error) {
+  .player-view :deep(.user-name)::grammar-error,
+  .player-view :deep(.nav-button)::grammar-error,
+  .player-view .player-ui-text::grammar-error {
+    text-decoration: none !important;
+  }
 }
 
 .player-stats {
