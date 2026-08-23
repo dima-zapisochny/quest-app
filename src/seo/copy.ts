@@ -15,7 +15,7 @@ export type SeoPageCopy = {
 export const SEO_COPY: Record<SeoPageId, Record<AppLocale, SeoPageCopy>> = {
   home: {
     uk: {
-      title: 'Quiz Quest · вікторина для компанії',
+      title: 'Quiz Quest · Вікторина для компанії',
       ogTitle: 'вікторина для компанії',
       h1: 'Quiz Quest',
       description:
@@ -24,7 +24,7 @@ export const SEO_COPY: Record<SeoPageId, Record<AppLocale, SeoPageCopy>> = {
         'гра для компанії, гра для компанії онлайн, вікторина для компанії, онлайн гра для команди, тімбілдинг вікторина, вікторина онлайн, джепарді онлайн, кіно вікторина, музична вікторина, quiz quest, гра з друзями'
     },
     ru: {
-      title: 'Quiz Quest · викторина для компании',
+      title: 'Quiz Quest · Викторина для компании',
       ogTitle: 'викторина для компании',
       h1: 'Quiz Quest',
       description:
@@ -33,7 +33,7 @@ export const SEO_COPY: Record<SeoPageId, Record<AppLocale, SeoPageCopy>> = {
         'игра для компании, игра для компании онлайн, викторина для компании, онлайн игра для команды, тимбилдинг викторина, викторина онлайн, джепарди онлайн, кино викторина, quiz quest'
     },
     en: {
-      title: 'Quiz Quest · online party quiz',
+      title: 'Quiz Quest · Online party quiz',
       ogTitle: 'online party quiz',
       h1: 'Quiz Quest',
       description:
@@ -51,7 +51,7 @@ export const SEO_COPY: Record<SeoPageId, Record<AppLocale, SeoPageCopy>> = {
         'online quiz, firmenevent quiz, quiz für unternehmen, team quiz, teamevent quiz, filmquiz, musikquiz, quiz quest, jeopardy online'
     },
     fr: {
-      title: 'Quiz Quest · quiz en ligne',
+      title: 'Quiz Quest · Quiz en ligne',
       ogTitle: 'quiz en ligne',
       h1: 'Quiz Quest',
       description:
@@ -60,7 +60,7 @@ export const SEO_COPY: Record<SeoPageId, Record<AppLocale, SeoPageCopy>> = {
         'quiz entreprise, quiz team building, jeu quiz équipe, quiz en ligne, quiz entre amis, quiz cinéma, quiz quest, jeu buzz'
     },
     es: {
-      title: 'Quiz Quest · quiz online',
+      title: 'Quiz Quest · Quiz online',
       ogTitle: 'quiz online',
       h1: 'Quiz Quest',
       description:
@@ -71,7 +71,7 @@ export const SEO_COPY: Record<SeoPageId, Record<AppLocale, SeoPageCopy>> = {
   },
   howto: {
     uk: {
-      title: 'Як грати в Quiz Quest · інструкція для ведучого та гравців',
+      title: 'Як грати в Quiz Quest · Інструкція для ведучого та гравців',
       h1: 'Як грати в Quiz Quest?',
       description:
         'Покроково: створити гру, поділитися кодом, відкривати питання на дошці, відповідати з телефона та рахувати бали. Також як зібрати власний квест.',
@@ -79,7 +79,7 @@ export const SEO_COPY: Record<SeoPageId, Record<AppLocale, SeoPageCopy>> = {
         'як грати вікторину, інструкція вікторина онлайн, як створити вікторину, quiz quest як грати'
     },
     ru: {
-      title: 'Как играть в Quiz Quest · инструкция для ведущего и игроков',
+      title: 'Как играть в Quiz Quest · Инструкция для ведущего и игроков',
       h1: 'Как играть в Quiz Quest?',
       description:
         'По шагам: создать игру, поделиться кодом, открывать вопросы на доске, отвечать с телефона и считать очки. Также как собрать свой квест.',
@@ -87,7 +87,7 @@ export const SEO_COPY: Record<SeoPageId, Record<AppLocale, SeoPageCopy>> = {
         'как играть в викторину, инструкция викторина онлайн, как создать викторину, quiz quest как играть'
     },
     en: {
-      title: 'How to play Quiz Quest · host & player guide',
+      title: 'How to play Quiz Quest · Host & player guide',
       h1: 'How to play Quiz Quest?',
       description:
         'Step by step: create a game, share the code, open board questions, buzz in on phones and keep score. Plus how to build your own quest.',
@@ -101,14 +101,14 @@ export const SEO_COPY: Record<SeoPageId, Record<AppLocale, SeoPageCopy>> = {
       keywords: 'quiz anleitung, online quiz spielen, quiz erstellen, quiz quest'
     },
     fr: {
-      title: 'Comment jouer à Quiz Quest · guide animateur et joueurs',
+      title: 'Comment jouer à Quiz Quest · Guide animateur et joueurs',
       h1: 'Comment jouer à Quiz Quest ?',
       description:
         'Étape par étape : créer une partie, partager le code, ouvrir les questions, buzzer sur téléphone et compter les points. Et créer votre propre quiz.',
       keywords: 'comment jouer quiz, guide quiz en ligne, créer un quiz, quiz quest'
     },
     es: {
-      title: 'Cómo jugar a Quiz Quest · guía para anfitrión y jugadores',
+      title: 'Cómo jugar a Quiz Quest · Guía para anfitrión y jugadores',
       h1: 'Cómo jugar a Quiz Quest',
       description:
         'Paso a paso: crear partida, compartir código, abrir preguntas, responder desde el móvil y sumar puntos. También cómo crear tu propio cuestionario.',
@@ -209,7 +209,7 @@ export const SEO_COPY: Record<SeoPageId, Record<AppLocale, SeoPageCopy>> = {
   },
   about: {
     uk: {
-      title: 'Про Quiz Quest · онлайн-гра для компанії, правила та для кого',
+      title: 'Про Quiz Quest · Онлайн-гра для компанії, правила та для кого',
       ogTitle: 'онлайн-гра для компанії',
       h1: 'Про Quiz Quest — онлайн-гра для компанії',
       description:
@@ -218,7 +218,7 @@ export const SEO_COPY: Record<SeoPageId, Record<AppLocale, SeoPageCopy>> = {
         'гра для компанії, гра для компанії онлайн, вікторина для компанії, тімбілдинг вікторина, корпоративна гра, онлайн гра для команди, quiz quest, правила вікторини'
     },
     ru: {
-      title: 'О Quiz Quest · игра для компании онлайн, правила и для кого',
+      title: 'О Quiz Quest · Игра для компании онлайн, правила и для кого',
       ogTitle: 'игра для компании онлайн',
       h1: 'О Quiz Quest — игра для компании',
       description:
@@ -227,7 +227,7 @@ export const SEO_COPY: Record<SeoPageId, Record<AppLocale, SeoPageCopy>> = {
         'игра для компании, игра для компании онлайн, викторина для компании, тимбилдинг викторина, корпоративная игра, quiz quest, правила викторины'
     },
     en: {
-      title: 'About Quiz Quest · online game for teams & companies',
+      title: 'About Quiz Quest · Online game for teams & companies',
       ogTitle: 'online game for teams',
       h1: 'About Quiz Quest',
       description:
@@ -244,7 +244,7 @@ export const SEO_COPY: Record<SeoPageId, Record<AppLocale, SeoPageCopy>> = {
       keywords: 'über quiz quest, online quiz regeln, quiz für freunde, team quiz, jeopardy online'
     },
     fr: {
-      title: 'À propos de Quiz Quest · quiz en ligne, règles et pour qui',
+      title: 'À propos de Quiz Quest · Quiz en ligne, règles et pour qui',
       ogTitle: 'quiz en ligne',
       h1: 'À propos de Quiz Quest',
       description:
@@ -252,7 +252,7 @@ export const SEO_COPY: Record<SeoPageId, Record<AppLocale, SeoPageCopy>> = {
       keywords: 'à propos quiz quest, règles quiz en ligne, quiz entre amis, quiz buzz'
     },
     es: {
-      title: 'Sobre Quiz Quest · quiz online, reglas y para quién',
+      title: 'Sobre Quiz Quest · Quiz online, reglas y para quién',
       ogTitle: 'quiz online para equipos',
       h1: 'Sobre Quiz Quest',
       description:
