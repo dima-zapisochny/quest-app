@@ -1,38 +1,52 @@
 <template>
-  <div class="seo-pack-showcase" :class="`seo-pack-showcase--focus-${focus}`" aria-hidden="true">
-    <article
+  <div class="seo-pack-showcase" :class="`seo-pack-showcase--focus-${focus}`">
+    <RouterLink
       class="seo-pack-card"
       :class="{ 'seo-pack-card--active': focus === 'movie' }"
+      :to="link('movie-night')"
+      :aria-current="focus === 'movie' ? 'page' : undefined"
+      :aria-label="t('seo.linkMovieNight')"
+      data-track="nav:pack-movie-night"
     >
       <div class="seo-pack-card__cover seo-pack-card__cover--movie">
-        <span class="seo-pack-card__emoji">🎬</span>
+        <span class="seo-pack-card__emoji" aria-hidden="true">🎬</span>
       </div>
       <div class="seo-pack-card__body">
         <strong class="seo-pack-card__title">Movie Night</strong>
         <p class="seo-pack-card__meta">{{ t('seo.packMovieMeta') }}</p>
       </div>
-    </article>
+    </RouterLink>
 
-    <article
+    <RouterLink
       class="seo-pack-card"
       :class="{ 'seo-pack-card--active': focus === 'music' }"
+      :to="link('hit-parade')"
+      :aria-current="focus === 'music' ? 'page' : undefined"
+      :aria-label="t('seo.linkHitParade')"
+      data-track="nav:pack-hit-parade"
     >
       <div class="seo-pack-card__cover seo-pack-card__cover--music">
-        <span class="seo-pack-card__emoji">🎵</span>
-        <div class="seo-pack-card__notes">
-          <span /><span /><span /><span />
+        <span class="seo-pack-card__emoji" aria-hidden="true">🎵</span>
+        <div class="seo-pack-card__stars" aria-hidden="true">
+          <span
+            v-for="(star, i) in stars"
+            :key="i"
+            class="seo-pack-card__star"
+            :style="starStyle(star)"
+          />
         </div>
       </div>
       <div class="seo-pack-card__body">
         <strong class="seo-pack-card__title">Hit Parade</strong>
         <p class="seo-pack-card__meta">{{ t('seo.packMusicMeta') }}</p>
       </div>
-    </article>
+    </RouterLink>
   </div>
 </template>
 
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
+import { useSeoLinks } from '@/composables/useSeoLinks'
 
 withDefaults(
   defineProps<{
@@ -42,6 +56,46 @@ withDefaults(
 )
 
 const { t } = useI18n()
+const { to: link } = useSeoLinks()
+
+type Star = {
+  top: string
+  left: string
+  size: string
+  delay: string
+  duration: string
+  opacity: number
+}
+
+const stars: Star[] = [
+  { top: '8%', left: '12%', size: '2px', delay: '0s', duration: '2.4s', opacity: 0.95 },
+  { top: '14%', left: '78%', size: '3px', delay: '0.35s', duration: '3.1s', opacity: 0.85 },
+  { top: '22%', left: '41%', size: '2px', delay: '0.7s', duration: '2.7s', opacity: 1 },
+  { top: '31%', left: '88%', size: '2px', delay: '0.15s', duration: '3.4s', opacity: 0.75 },
+  { top: '36%', left: '18%', size: '3px', delay: '1.1s', duration: '2.9s', opacity: 0.9 },
+  { top: '48%', left: '63%', size: '2px', delay: '0.55s', duration: '2.2s', opacity: 0.8 },
+  { top: '55%', left: '9%', size: '2px', delay: '1.4s', duration: '3.6s', opacity: 0.7 },
+  { top: '61%', left: '52%', size: '3px', delay: '0.9s', duration: '2.5s', opacity: 0.95 },
+  { top: '68%', left: '83%', size: '2px', delay: '1.7s', duration: '3s', opacity: 0.85 },
+  { top: '74%', left: '27%', size: '2px', delay: '0.25s', duration: '2.8s', opacity: 0.75 },
+  { top: '81%', left: '71%', size: '3px', delay: '1.2s', duration: '3.3s', opacity: 0.9 },
+  { top: '87%', left: '44%', size: '2px', delay: '0.45s', duration: '2.6s', opacity: 0.8 },
+  { top: '19%', left: '58%', size: '2px', delay: '1.55s', duration: '3.5s', opacity: 1 },
+  { top: '42%', left: '34%', size: '2px', delay: '0.8s', duration: '2.3s', opacity: 0.7 },
+  { top: '11%', left: '29%', size: '3px', delay: '1.9s', duration: '3.2s', opacity: 0.85 }
+]
+
+function starStyle(star: Star) {
+  return {
+    top: star.top,
+    left: star.left,
+    width: star.size,
+    height: star.size,
+    opacity: star.opacity,
+    animationDelay: star.delay,
+    animationDuration: star.duration
+  }
+}
 </script>
 
 <style scoped>
@@ -61,14 +115,33 @@ const { t } = useI18n()
   overflow: hidden;
   opacity: 0.62;
   transform: scale(0.96);
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
   transition: opacity 0.25s ease, transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
-.seo-pack-card--active {
+.seo-pack-card:hover {
+  opacity: 0.88;
+  transform: scale(0.98) translateY(-2px);
+  border-color: rgb(var(--c-accent-sky) / 0.3);
+}
+
+.seo-pack-card--active,
+.seo-pack-card--active:hover {
   opacity: 1;
   transform: scale(1);
   border-color: rgb(var(--c-accent-sky) / 0.38);
   box-shadow: 0 14px 32px rgb(var(--c-bg-deep) / 0.38);
+}
+
+.seo-pack-card:focus {
+  outline: none;
+}
+
+.seo-pack-card:focus-visible {
+  outline: 2px solid rgb(var(--c-accent-sky) / 0.65);
+  outline-offset: 3px;
 }
 
 .seo-pack-card__cover {
@@ -95,36 +168,38 @@ const { t } = useI18n()
 .seo-pack-card__emoji {
   position: relative;
   z-index: 2;
-  font-size: clamp(2.4rem, 8vw, 3.1rem);
+  font-size: clamp(3.6rem, 12vw, 5rem);
   line-height: 1;
-  filter: drop-shadow(0 6px 16px rgb(0 0 0 / 0.4));
+  filter: drop-shadow(0 8px 18px rgb(0 0 0 / 0.45));
 }
 
-.seo-pack-card__notes {
+.seo-pack-card__stars {
   position: absolute;
   inset: 0;
   pointer-events: none;
+  z-index: 1;
 }
 
-.seo-pack-card__notes span {
+.seo-pack-card__star {
   position: absolute;
-  width: 0.45rem;
-  height: 0.45rem;
   border-radius: 50%;
-  background: rgb(186 230 253 / 0.55);
-  box-shadow: 0 0 0 2px rgb(56 189 248 / 0.15);
-  animation: seo-note-float 3.2s ease-in-out infinite;
+  background: #f0f9ff;
+  box-shadow:
+    0 0 4px rgb(255 255 255 / 0.95),
+    0 0 8px rgb(125 211 252 / 0.85);
+  animation: seo-star-twinkle ease-in-out infinite;
 }
 
-.seo-pack-card__notes span:nth-child(1) { top: 18%; left: 16%; animation-delay: 0s; }
-.seo-pack-card__notes span:nth-child(2) { top: 28%; right: 18%; animation-delay: 0.4s; }
-.seo-pack-card__notes span:nth-child(3) { bottom: 26%; left: 22%; animation-delay: 0.8s; }
-.seo-pack-card__notes span:nth-child(4) { bottom: 18%; right: 24%; animation-delay: 1.2s; }
-
-@keyframes seo-note-float {
+@keyframes seo-star-twinkle {
   0%,
-  100% { transform: translateY(0); opacity: 0.45; }
-  50% { transform: translateY(-6px); opacity: 0.9; }
+  100% {
+    transform: scale(0.7);
+    filter: brightness(0.85);
+  }
+  50% {
+    transform: scale(1.25);
+    filter: brightness(1.35);
+  }
 }
 
 .seo-pack-card__body {
@@ -159,10 +234,14 @@ const { t } = useI18n()
   .seo-pack-card__title {
     font-size: 0.85rem;
   }
+
+  .seo-pack-card__emoji {
+    font-size: clamp(3rem, 16vw, 3.8rem);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .seo-pack-card__notes span {
+  .seo-pack-card__star {
     animation: none;
   }
 }
