@@ -113,12 +113,12 @@
                   {{ pt.label }}
                 </text>
                 <text
-                  v-if="pt.views > 0"
+                  v-if="pt.visitors > 0"
                   :x="pt.x"
                   :y="pt.lineY - 8"
                   class="stats-chart__value"
                 >
-                  {{ pt.views }}
+                  {{ pt.visitors }}
                 </text>
                 <circle
                   :cx="pt.x"
@@ -133,6 +133,21 @@
           </div>
         </section>
 
+        <details class="stats-block-collapse">
+          <summary class="stats-block-collapse__summary">
+            <span class="stats-block-collapse__title">{{ tUk('stats.pagesClicksSummary') }}</span>
+            <span class="stats-block-collapse__hint">{{ tUk('stats.topPagesLead') }}</span>
+            <svg class="stats-block-collapse__chevron" viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M6 9l6 6 6-6"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </summary>
         <div class="stats-grids">
           <section class="stats-panel">
             <header class="stats-panel__head">
@@ -169,6 +184,7 @@
             <p v-else class="stats-empty">{{ tUk('stats.empty') }}</p>
           </section>
         </div>
+        </details>
 
         <div class="stats-grids stats-grids--geo">
           <section class="stats-panel">
@@ -366,7 +382,7 @@ const weekSeries = computed(() => {
   })
 })
 
-const maxViews = computed(() => Math.max(1, ...weekSeries.value.map(d => d.views)))
+const maxVisitors = computed(() => Math.max(1, ...weekSeries.value.map(d => d.visitors)))
 
 const chartPoints = computed(() => {
   const n = weekSeries.value.length
@@ -375,7 +391,7 @@ const chartPoints = computed(() => {
   const step = n > 1 ? inner / (n - 1) : 0
   return weekSeries.value.map((d, i) => {
     const x = n > 1 ? padL + i * step : padL + inner / 2
-    const lineY = padT + (plotH - (d.views / maxViews.value) * plotH)
+    const lineY = padT + (plotH - (d.visitors / maxVisitors.value) * plotH)
     return {
       ...d,
       x,
@@ -927,6 +943,65 @@ onBeforeUnmount(() => {
   width: 100%;
   max-width: 100%;
   min-width: 0;
+}
+
+.stats-block-collapse {
+  margin: 0;
+  padding: 0;
+  border: none;
+  min-width: 0;
+}
+
+.stats-block-collapse__summary {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin: 0 0 0.75rem;
+  padding: 0.72rem 0.9rem;
+  list-style: none;
+  cursor: pointer;
+  border-radius: 0.9rem;
+  background: rgb(var(--c-surface) / 0.42);
+  border: 1px solid rgb(var(--c-accent-sky) / 0.14);
+  box-shadow: 0 10px 28px rgb(var(--c-bg-deep) / 0.18);
+  user-select: none;
+}
+
+.stats-block-collapse__summary::-webkit-details-marker {
+  display: none;
+}
+
+.stats-block-collapse__title {
+  font-size: 0.98rem;
+  font-weight: 800;
+  color: rgb(var(--c-text));
+}
+
+.stats-block-collapse__hint {
+  margin-left: auto;
+  font-size: 0.72rem;
+  font-weight: 650;
+  color: rgb(var(--c-text-muted));
+}
+
+.stats-block-collapse__chevron {
+  flex-shrink: 0;
+  width: 1.1rem;
+  height: 1.1rem;
+  color: rgb(var(--c-text-muted));
+  transition: transform 0.2s ease;
+}
+
+.stats-block-collapse[open] .stats-block-collapse__chevron {
+  transform: rotate(180deg);
+}
+
+.stats-block-collapse[open] .stats-block-collapse__summary {
+  margin-bottom: 0.75rem;
+}
+
+.stats-block-collapse:not([open]) .stats-block-collapse__summary {
+  margin-bottom: 0;
 }
 
 .stats-grids--geo {
