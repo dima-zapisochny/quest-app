@@ -2,11 +2,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Quiz Quest">
   <defs>
     <linearGradient id="bg" x1="32" y1="0" x2="32" y2="64" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#121f3d"/>
+      <stop offset="0%" stop-color="#152647"/>
       <stop offset="100%" stop-color="#0d172e"/>
     </linearGradient>
-    <radialGradient id="floor" cx="0.5" cy="0.92" r="0.42">
-      <stop offset="0%" stop-color="#6366f1" stop-opacity="0.28"/>
+    <radialGradient id="floor" cx="0.5" cy="0.88" r="0.48">
+      <stop offset="0%" stop-color="#6366f1" stop-opacity="0.22"/>
       <stop offset="100%" stop-color="#6366f1" stop-opacity="0"/>
     </radialGradient>
     <linearGradient id="indigo-fill" gradientUnits="objectBoundingBox" x1="0" y1="0" x2="1" y2="1">
@@ -50,19 +50,19 @@
   <rect width="64" height="64" rx="14" fill="url(#bg)"/>
   <rect width="64" height="64" rx="14" fill="url(#floor)"/>
 
-  <g filter="url(#shadow-back)" transform="rotate(-10 27 31)">
-    <rect x="7" y="10" width="40" height="40" rx="10" fill="url(#indigo-fill)"/>
-    <rect x="7" y="10" width="40" height="40" rx="10" fill="url(#indigo-shine)"/>
-    <rect x="7" y="10" width="40" height="40" rx="10" fill="none" stroke="#a5b4fc" stroke-opacity="0.45" stroke-width="0.85"/>
+  <g filter="url(#shadow-back)" transform="rotate(-10 28 32)">
+    <rect x="10" y="13" width="36" height="36" rx="9" fill="url(#indigo-fill)"/>
+    <rect x="10" y="13" width="36" height="36" rx="9" fill="url(#indigo-shine)"/>
+    <rect x="10" y="13" width="36" height="36" rx="9" fill="none" stroke="#a5b4fc" stroke-opacity="0.45" stroke-width="0.85"/>
   </g>
 
-  <g filter="url(#shadow-front)" transform="rotate(8 41 46)">
-    <rect x="20" y="22" width="40" height="40" rx="10" fill="#050a14" opacity="0.55"/>
-    <rect x="17" y="19" width="40" height="40" rx="10" fill="url(#gold-fill)"/>
-    <rect x="17" y="19" width="40" height="40" rx="10" fill="url(#gold-hot)"/>
-    <rect x="17" y="19" width="40" height="40" rx="10" fill="url(#gold-shine)"/>
-    <rect x="17" y="19" width="40" height="40" rx="10" fill="url(#gold-edge)"/>
-    <rect x="17" y="19" width="40" height="40" rx="10" fill="none" stroke="#fff" stroke-opacity="0.28" stroke-width="0.75"/>
-    <ellipse cx="26" cy="27" rx="8" ry="5.5" fill="#ffffff" opacity="0.34"/>
+  <g filter="url(#shadow-front)" transform="rotate(8 40 45)">
+    <rect x="21" y="23" width="36" height="36" rx="9" fill="#050a14" opacity="0.55"/>
+    <rect x="18" y="20" width="36" height="36" rx="9" fill="url(#gold-fill)"/>
+    <rect x="18" y="20" width="36" height="36" rx="9" fill="url(#gold-hot)"/>
+    <rect x="18" y="20" width="36" height="36" rx="9" fill="url(#gold-shine)"/>
+    <rect x="18" y="20" width="36" height="36" rx="9" fill="url(#gold-edge)"/>
+    <rect x="18" y="20" width="36" height="36" rx="9" fill="none" stroke="#fff" stroke-opacity="0.28" stroke-width="0.75"/>
+    <ellipse cx="27" cy="28" rx="7.5" ry="5" fill="#ffffff" opacity="0.34"/>
   </g>
 </svg>
