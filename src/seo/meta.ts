@@ -35,7 +35,7 @@ export type SeoPageCopy = {
 export const SEO_COPY: Record<SeoPageId, Record<AppLocale, SeoPageCopy>> = {
   home: {
     uk: {
-      title: 'Quiz Quest · вікторина для компанії',
+      title: 'Quiz Quest - вікторина для компанії',
       ogTitle: 'вікторина для компанії',
       description:
         'Безкоштовна гра для компанії онлайн: командна вікторина у стилі шоу. Створіть гру, поділіться кодом, грайте з телефона.',
@@ -43,7 +43,7 @@ export const SEO_COPY: Record<SeoPageId, Record<AppLocale, SeoPageCopy>> = {
         'гра для компанії, гра для компанії онлайн, вікторина для компанії, онлайн гра для команди, тімбілдинг вікторина, вікторина онлайн, джепарді онлайн, кіно вікторина, музична вікторина, quiz quest, гра з друзями'
     },
     ru: {
-      title: 'Quiz Quest · викторина для компании',
+      title: 'Quiz Quest - викторина для компании',
       ogTitle: 'викторина для компании',
       description:
         'Бесплатная игра для компании онлайн: командная викторина в стиле шоу. Создайте игру, поделитесь кодом, играйте с телефона.',
@@ -51,7 +51,7 @@ export const SEO_COPY: Record<SeoPageId, Record<AppLocale, SeoPageCopy>> = {
         'игра для компании, игра для компании онлайн, викторина для компании, онлайн игра для команды, тимбилдинг викторина, викторина онлайн, джепарди онлайн, кино викторина, quiz quest'
     },
     en: {
-      title: 'Quiz Quest · online party quiz',
+      title: 'Quiz Quest - online party quiz',
       ogTitle: 'online party quiz',
       description:
         'Free online game for teams and companies: host a quiz board, share a code, play from phones.',
@@ -59,7 +59,7 @@ export const SEO_COPY: Record<SeoPageId, Record<AppLocale, SeoPageCopy>> = {
         'company team game, office quiz game, team building quiz online, corporate trivia game, online quiz, party quiz, team quiz, jeopardy online, movie quiz, quiz quest, buzz-in quiz'
     },
     de: {
-      title: 'Quiz Quest · Online-Quiz für die Gruppe',
+      title: 'Quiz Quest - Online-Quiz für die Gruppe',
       ogTitle: 'Online-Quiz für die Gruppe',
       description:
         'Kostenloses Team-Quiz online im Show-Stil: Spiel erstellen, Code teilen, vom Handy mitspielen.',
@@ -67,7 +67,7 @@ export const SEO_COPY: Record<SeoPageId, Record<AppLocale, SeoPageCopy>> = {
         'online quiz, firmenevent quiz, quiz für unternehmen, team quiz, teamevent quiz, filmquiz, musikquiz, quiz quest, jeopardy online'
     },
     fr: {
-      title: 'Quiz Quest · quiz en ligne',
+      title: 'Quiz Quest - quiz en ligne',
       ogTitle: 'quiz en ligne',
       description:
         'Quiz d’équipe gratuit en ligne façon show : créez une partie, partagez le code, jouez sur téléphone.',
@@ -75,7 +75,7 @@ export const SEO_COPY: Record<SeoPageId, Record<AppLocale, SeoPageCopy>> = {
         'quiz entreprise, quiz team building, jeu quiz équipe, quiz en ligne, quiz entre amis, quiz cinéma, quiz quest, jeu buzz'
     },
     es: {
-      title: 'Quiz Quest · quiz online',
+      title: 'Quiz Quest - quiz online',
       ogTitle: 'quiz online',
       description:
         'Quiz en equipo gratis online con estilo de concurso: crea la partida, comparte el código, juega desde el móvil.',

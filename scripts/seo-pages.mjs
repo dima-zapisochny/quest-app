@@ -9,7 +9,7 @@ export const PUBLIC_SEO_PAGES = [
     id: 'home',
     path: '/',
     file: 'index.html',
-    title: 'Quiz Quest · вікторина для компанії',
+    title: 'Quiz Quest - вікторина для компанії',
     ogTitle: 'вікторина для компанії',
     description:
       'Безкоштовна гра для компанії онлайн: командна вікторина у стилі шоу. Створіть гру, поділіться кодом, грайте з телефона.',
