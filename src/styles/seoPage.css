@@ -297,16 +297,16 @@ html:has(.seo-page) {
 }
 
 .about-cta-block .seo-page__cta {
-  min-width: min(12.5rem, 100%);
-  padding: 0.62rem 1.55rem;
+  min-width: min(13.75rem, 100%);
+  padding: 0.72rem 1.85rem;
   border-radius: 999px;
-  font-size: 0.95rem;
+  font-size: 1rem;
   letter-spacing: 0.03em;
   color: rgb(var(--c-bg));
   background:
     radial-gradient(circle at 25% 25%, rgba(253, 224, 71, 0.6), transparent 55%),
     linear-gradient(135deg, rgb(var(--c-orange-500)), rgb(var(--c-gold)));
-  box-shadow: 0 10px 22px rgb(var(--c-orange-500) / 0.3);
+  box-shadow: 0 11px 24px rgb(var(--c-orange-500) / 0.32);
   transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
