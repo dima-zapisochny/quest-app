@@ -1,34 +1,68 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Quiz Quest">
   <defs>
-    <linearGradient id="indigo" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#818cf8"/>
-      <stop offset="100%" stop-color="#4338ca"/>
+    <linearGradient id="bg" x1="32" y1="0" x2="32" y2="64" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#121f3d"/>
+      <stop offset="100%" stop-color="#0d172e"/>
     </linearGradient>
-    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#fde047"/>
-      <stop offset="55%" stop-color="#fbbf24"/>
-      <stop offset="100%" stop-color="#ea580c"/>
-    </linearGradient>
-    <radialGradient id="glow" cx="0.5" cy="0.85" r="0.55">
-      <stop offset="0%" stop-color="#6366f1" stop-opacity="0.35"/>
+    <radialGradient id="floor" cx="0.5" cy="0.92" r="0.42">
+      <stop offset="0%" stop-color="#6366f1" stop-opacity="0.28"/>
       <stop offset="100%" stop-color="#6366f1" stop-opacity="0"/>
     </radialGradient>
-    <linearGradient id="shine" x1="0.2" y1="0" x2="0.8" y2="1">
-      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.45"/>
+    <linearGradient id="indigo-fill" x1="12" y1="16" x2="44" y2="48" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#60a5fa"/>
+      <stop offset="38%" stop-color="#6366f1"/>
+      <stop offset="100%" stop-color="#6d28d9"/>
+    </linearGradient>
+    <linearGradient id="indigo-shine" x1="12" y1="16" x2="12" y2="48" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.22"/>
+      <stop offset="45%" stop-color="#ffffff" stop-opacity="0.04"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0.18"/>
+    </linearGradient>
+    <linearGradient id="gold-fill" x1="19" y1="22" x2="53" y2="56" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#fb923c"/>
+      <stop offset="42%" stop-color="#fbbf24"/>
+      <stop offset="100%" stop-color="#eab308"/>
+    </linearGradient>
+    <radialGradient id="gold-hot" cx="0.26" cy="0.2" r="0.62">
+      <stop offset="0%" stop-color="#fff7cc" stop-opacity="0.95"/>
+      <stop offset="45%" stop-color="#fde68a" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#fde047" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="gold-shine" x1="19" y1="22" x2="34" y2="56" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.42"/>
+      <stop offset="35%" stop-color="#ffffff" stop-opacity="0.1"/>
       <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
     </linearGradient>
+    <linearGradient id="gold-edge" x1="19" y1="22" x2="19" y2="56" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#92400e" stop-opacity="0.35"/>
+    </linearGradient>
+    <filter id="shadow-back" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="2.5" stdDeviation="2.2" flood-color="#020617" flood-opacity="0.55"/>
+    </filter>
+    <filter id="shadow-front" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="4" stdDeviation="3.5" flood-color="#020617" flood-opacity="0.6"/>
+      <feDropShadow dx="0" dy="1" stdDeviation="1.2" flood-color="#fbbf24" flood-opacity="0.22"/>
+    </filter>
   </defs>
-  <rect width="64" height="64" rx="14" fill="#0d172e"/>
-  <rect width="64" height="64" rx="14" fill="url(#glow)"/>
-  <g transform="rotate(-11 26 31)">
-    <rect x="11" y="17" width="32" height="32" rx="9" fill="url(#indigo)"/>
-    <rect x="11" y="17" width="32" height="32" rx="9" fill="#000" opacity="0.12"/>
+
+  <rect width="64" height="64" rx="14" fill="url(#bg)"/>
+  <rect width="64" height="64" rx="14" fill="url(#floor)"/>
+
+  <g filter="url(#shadow-back)" transform="rotate(-11 28 32)">
+    <rect x="12" y="16" width="32" height="32" rx="9" fill="url(#indigo-fill)"/>
+    <rect x="12" y="16" width="32" height="32" rx="9" fill="url(#indigo-shine)"/>
+    <rect x="12" y="16" width="32" height="32" rx="9" fill="none" stroke="#a5b4fc" stroke-opacity="0.45" stroke-width="0.85"/>
   </g>
-  <g transform="rotate(9 38 43)">
-    <rect x="21" y="24" width="32" height="32" rx="9" fill="#0a1020" opacity="0.45"/>
-    <rect x="20" y="23" width="32" height="32" rx="9" fill="url(#gold)"/>
-    <rect x="20" y="23" width="32" height="32" rx="9" fill="url(#shine)"/>
-    <rect x="20" y="23" width="32" height="32" rx="9" fill="none" stroke="#fff" stroke-opacity="0.22" stroke-width="1"/>
+
+  <g filter="url(#shadow-front)" transform="rotate(9 38 44)">
+    <rect x="22" y="24" width="32" height="32" rx="9" fill="#050a14" opacity="0.55"/>
+    <rect x="19" y="22" width="32" height="32" rx="9" fill="url(#gold-fill)"/>
+    <rect x="19" y="22" width="32" height="32" rx="9" fill="url(#gold-hot)"/>
+    <rect x="19" y="22" width="32" height="32" rx="9" fill="url(#gold-shine)"/>
+    <rect x="19" y="22" width="32" height="32" rx="9" fill="url(#gold-edge)"/>
+    <rect x="19" y="22" width="32" height="32" rx="9" fill="none" stroke="#fff" stroke-opacity="0.28" stroke-width="0.75"/>
+    <ellipse cx="27" cy="30" rx="7" ry="5" fill="#ffffff" opacity="0.34"/>
   </g>
 </svg>
