@@ -4,9 +4,6 @@
       <header class="howto-header">
         <h1 class="seo-page__title">{{ t('seo.howtoH1') }}</h1>
         <p class="seo-page__lead">{{ t('seo.howtoLead') }}</p>
-        <ul class="howto-overview">
-          <li v-for="n in 3" :key="`bullet-${n}`">{{ t(`seo.howtoBullet${n}`) }}</li>
-        </ul>
       </header>
 
       <section class="seo-page__section howto-slider-section">
