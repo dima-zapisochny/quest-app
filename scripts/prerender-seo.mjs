@@ -59,12 +59,13 @@ function injectPage(html, page) {
 
   replaceMeta('name', 'description', page.description)
   const ogTitle = page.ogTitle ?? page.title
+  const ogDescription = page.ogDescription ?? page.description
   replaceMeta('property', 'og:title', ogTitle)
-  replaceMeta('property', 'og:description', page.description)
+  replaceMeta('property', 'og:description', ogDescription)
   replaceMeta('property', 'og:url', url)
   replaceMeta('property', 'og:image', ogImage)
   replaceMeta('name', 'twitter:title', ogTitle)
-  replaceMeta('name', 'twitter:description', page.description)
+  replaceMeta('name', 'twitter:description', ogDescription)
   replaceMeta('name', 'twitter:image', ogImage)
   replaceMeta('property', 'og:image:width', '1200')
   replaceMeta('property', 'og:image:height', '630')
