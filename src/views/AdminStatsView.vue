@@ -240,7 +240,7 @@
                   </tbody>
                 </table>
               </div>
-              <p v-else class="stats-empty">{{ tUk('stats.emptyVisitors') }}</p>
+              <p v-else class="stats-empty stats-visitors__empty">{{ tUk('stats.emptyVisitors') }}</p>
             </section>
           </aside>
         </div>
@@ -563,9 +563,9 @@ onBeforeUnmount(() => {
 
 .stats-dashboard__layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(16rem, 22rem);
+  grid-template-columns: minmax(0, 1fr) minmax(22rem, 30rem);
   gap: 0.75rem;
-  align-items: start;
+  align-items: stretch;
   width: 100%;
   max-width: 100%;
   min-width: 0;
@@ -582,21 +582,19 @@ onBeforeUnmount(() => {
 .stats-visitors {
   display: flex;
   flex-direction: column;
-  min-height: 0;
+  min-height: 100%;
   min-width: 0;
   max-width: 100%;
-  position: sticky;
-  top: 0.75rem;
-  max-height: calc(100dvh - 2rem);
-  align-self: start;
+  align-self: stretch;
 }
 
 .stats-panel--visitors {
   flex: 1 1 auto;
-  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
   min-width: 0;
   max-width: 100%;
-  max-height: calc(100dvh - 2rem);
   overflow: hidden;
 }
 
@@ -605,6 +603,11 @@ onBeforeUnmount(() => {
   min-height: 0;
   overflow: auto;
   overscroll-behavior: contain;
+}
+
+.stats-visitors__empty {
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 .stats-visitors-table {
@@ -646,7 +649,7 @@ onBeforeUnmount(() => {
 .stats-visitors-table__name {
   font-weight: 750;
   color: rgb(var(--c-text));
-  max-width: 6.5rem;
+  max-width: 7rem;
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -660,9 +663,8 @@ onBeforeUnmount(() => {
 .stats-visitors-table__country {
   color: rgb(var(--c-text-soft) / 0.9);
   font-weight: 650;
-  max-width: 7rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  min-width: 9rem;
+  white-space: normal;
 }
 
 .stats-gate {
@@ -1014,12 +1016,16 @@ onBeforeUnmount(() => {
   }
 
   .stats-visitors {
-    position: static;
-    max-height: none;
+    min-height: auto;
   }
 
   .stats-panel--visitors {
     max-height: 22rem;
+    min-height: auto;
+  }
+
+  .stats-visitors__empty {
+    flex: 0 0 auto;
   }
 }
 
