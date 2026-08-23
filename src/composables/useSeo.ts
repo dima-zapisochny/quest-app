@@ -198,18 +198,25 @@ export function useSeo(pageId: SeoPageId) {
     }
 
     if (pageId === 'howto') {
+      const playSteps = [1, 2, 3, 4, 5].map(n => ({
+        '@type': 'HowToStep',
+        position: n,
+        name: t(`howto.play${n}Title`),
+        text: t(`howto.play${n}Text`)
+      }))
+      const createSteps = [1, 2, 3, 4].map(n => ({
+        '@type': 'HowToStep',
+        position: n + 5,
+        name: t(`howto.create${n}Title`),
+        text: t(`howto.create${n}Text`)
+      }))
       upsertJsonLd('seo-jsonld-howto', {
         '@context': 'https://schema.org',
         '@type': 'HowTo',
-        name: t('seo.howtoH1'),
-        description: t('seo.howtoLead'),
+        name: copy.h1 ?? t('seo.howtoH1'),
+        description: copy.description,
         inLanguage: loc,
-        step: [1, 2, 3, 4, 5].map(n => ({
-          '@type': 'HowToStep',
-          position: n,
-          name: t(`howto.play${n}Title`),
-          text: t(`howto.play${n}Text`)
-        }))
+        step: [...playSteps, ...createSteps]
       })
     } else {
       document.getElementById('seo-jsonld-howto')?.remove()
@@ -225,6 +232,19 @@ export function useSeo(pageId: SeoPageId) {
           acceptedAnswer: {
             '@type': 'Answer',
             text: t(`about.faq${n}A`)
+          }
+        }))
+      })
+    } else if (pageId === 'howto') {
+      upsertJsonLd('seo-jsonld-faq', {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: [1, 2, 3].map(n => ({
+          '@type': 'Question',
+          name: t(`seo.howtoFaq${n}Q`),
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: t(`seo.howtoFaq${n}A`)
           }
         }))
       })
