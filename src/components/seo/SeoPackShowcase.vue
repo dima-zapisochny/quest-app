@@ -10,6 +10,14 @@
     >
       <div class="seo-pack-card__cover seo-pack-card__cover--movie">
         <span class="seo-pack-card__emoji" aria-hidden="true">🎬</span>
+        <div class="seo-pack-card__stars seo-pack-card__stars--warm" aria-hidden="true">
+          <span
+            v-for="(star, i) in movieStars"
+            :key="`m-${i}`"
+            class="seo-pack-card__star"
+            :style="starStyle(star)"
+          />
+        </div>
       </div>
       <div class="seo-pack-card__body">
         <strong class="seo-pack-card__title">Movie Night</strong>
@@ -29,8 +37,8 @@
         <span class="seo-pack-card__emoji" aria-hidden="true">🎵</span>
         <div class="seo-pack-card__stars" aria-hidden="true">
           <span
-            v-for="(star, i) in stars"
-            :key="i"
+            v-for="(star, i) in musicStars"
+            :key="`h-${i}`"
             class="seo-pack-card__star"
             :style="starStyle(star)"
           />
@@ -67,7 +75,7 @@ type Star = {
   opacity: number
 }
 
-const stars: Star[] = [
+const musicStars: Star[] = [
   { top: '8%', left: '12%', size: '2px', delay: '0s', duration: '2.4s', opacity: 0.95 },
   { top: '14%', left: '78%', size: '3px', delay: '0.35s', duration: '3.1s', opacity: 0.85 },
   { top: '22%', left: '41%', size: '2px', delay: '0.7s', duration: '2.7s', opacity: 1 },
@@ -83,6 +91,24 @@ const stars: Star[] = [
   { top: '19%', left: '58%', size: '2px', delay: '1.55s', duration: '3.5s', opacity: 1 },
   { top: '42%', left: '34%', size: '2px', delay: '0.8s', duration: '2.3s', opacity: 0.7 },
   { top: '11%', left: '29%', size: '3px', delay: '1.9s', duration: '3.2s', opacity: 0.85 }
+]
+
+const movieStars: Star[] = [
+  { top: '7%', left: '71%', size: '2px', delay: '0.2s', duration: '2.6s', opacity: 0.95 },
+  { top: '12%', left: '22%', size: '3px', delay: '0.6s', duration: '3.2s', opacity: 0.85 },
+  { top: '18%', left: '86%', size: '2px', delay: '1.1s', duration: '2.4s', opacity: 1 },
+  { top: '25%', left: '48%', size: '2px', delay: '0.4s', duration: '3.5s', opacity: 0.8 },
+  { top: '33%', left: '11%', size: '3px', delay: '1.5s', duration: '2.8s', opacity: 0.9 },
+  { top: '39%', left: '66%', size: '2px', delay: '0.05s', duration: '3s', opacity: 0.75 },
+  { top: '46%', left: '31%', size: '2px', delay: '0.95s', duration: '2.3s', opacity: 0.95 },
+  { top: '53%', left: '82%', size: '3px', delay: '1.3s', duration: '3.4s', opacity: 0.85 },
+  { top: '59%', left: '17%', size: '2px', delay: '0.75s', duration: '2.7s', opacity: 0.7 },
+  { top: '67%', left: '55%', size: '2px', delay: '1.8s', duration: '3.1s', opacity: 0.9 },
+  { top: '73%', left: '39%', size: '3px', delay: '0.3s', duration: '2.5s', opacity: 0.8 },
+  { top: '79%', left: '74%', size: '2px', delay: '1.05s', duration: '3.6s', opacity: 1 },
+  { top: '85%', left: '24%', size: '2px', delay: '0.5s', duration: '2.9s', opacity: 0.75 },
+  { top: '16%', left: '61%', size: '2px', delay: '1.65s', duration: '2.2s', opacity: 0.85 },
+  { top: '44%', left: '91%', size: '3px', delay: '0.85s', duration: '3.3s', opacity: 0.9 }
 ]
 
 function starStyle(star: Star) {
@@ -188,6 +214,13 @@ function starStyle(star: Star) {
     0 0 4px rgb(255 255 255 / 0.95),
     0 0 8px rgb(125 211 252 / 0.85);
   animation: seo-star-twinkle ease-in-out infinite;
+}
+
+.seo-pack-card__stars--warm .seo-pack-card__star {
+  background: #fff7ed;
+  box-shadow:
+    0 0 4px rgb(255 251 235 / 0.95),
+    0 0 8px rgb(250 204 21 / 0.75);
 }
 
 @keyframes seo-star-twinkle {
