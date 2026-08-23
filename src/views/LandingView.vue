@@ -1300,6 +1300,10 @@ watch(() => route.path, (newPath) => {
     -webkit-overflow-scrolling: touch;
   }
 
+  .landing-about {
+    display: none;
+  }
+
   /* SEO-ссылки скрыты на всех ширинах (см. .landing-seo-links выше) */
   .landing-card {
     padding: 2rem 1.75rem;
