@@ -489,6 +489,9 @@ onBeforeUnmount(() => {
 .stats-page {
   min-height: 100dvh;
   box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: clip;
   font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   background:
     radial-gradient(ellipse 70% 45% at 18% -8%, rgb(var(--c-accent-sky) / 0.2), transparent 55%),
@@ -505,13 +508,15 @@ onBeforeUnmount(() => {
 
 .stats-page__main {
   width: 100%;
-  max-width: 90rem;
+  max-width: min(90rem, 100%);
   margin: 0 auto;
   padding: clamp(1.5rem, 4vh, 2.75rem) clamp(1.15rem, 3vw, 2rem) clamp(1.75rem, 5vh, 3rem);
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   gap: 1.15rem;
+  min-width: 0;
+  overflow-x: clip;
 }
 
 .stats-page__header {
@@ -544,13 +549,18 @@ onBeforeUnmount(() => {
   flex-direction: column;
   gap: 0.85rem;
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
 }
 
 .stats-dashboard__layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(17.5rem, 21rem);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 18.5rem);
   gap: 0.75rem;
   align-items: stretch;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   min-height: 0;
 }
 
@@ -566,11 +576,15 @@ onBeforeUnmount(() => {
   flex-direction: column;
   min-height: 0;
   min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .stats-panel--visitors {
   flex: 1;
   min-height: 0;
+  min-width: 0;
+  max-width: 100%;
   max-height: none;
 }
 
@@ -834,6 +848,9 @@ onBeforeUnmount(() => {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 0.7rem;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
 }
 
 .stats-kpi {
@@ -884,6 +901,9 @@ onBeforeUnmount(() => {
 
 .stats-chart {
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .stats-chart__svg {
@@ -916,6 +936,9 @@ onBeforeUnmount(() => {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.75rem;
   align-items: stretch;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
 }
 
 .stats-grids--geo {
@@ -999,7 +1022,7 @@ onBeforeUnmount(() => {
   flex: 1;
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 1200px) {
   .stats-dashboard__layout {
     grid-template-columns: 1fr;
   }
