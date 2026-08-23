@@ -367,7 +367,7 @@ async function confirmReset() {
   color: rgb(var(--c-text-soft));
   position: relative;
   overflow: hidden;
-  padding: 0 clamp(1rem, 4vw, 3rem) 0;
+  padding: 0 var(--page-gutter-x) 0;
   box-sizing: border-box;
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
 }
@@ -866,10 +866,6 @@ async function confirmReset() {
 }
 
 @media (max-width: 768px) {
-  .quest-view {
-    padding: 0 1rem 0;
-  }
-
   .quest-layout {
     flex-direction: column;
     padding: 0 0.75rem 1rem;
@@ -895,10 +891,6 @@ async function confirmReset() {
 }
 
 @media (max-width: 640px) {
-  .quest-view {
-    padding: 0 0.75rem 0;
-  }
-
   .quest-layout {
     padding: 0 0.5rem 0.75rem;
     gap: 1.25rem;
@@ -913,10 +905,6 @@ async function confirmReset() {
 }
 
 @media (max-width: 480px) {
-  .quest-view {
-    padding: 0 0.5rem 0;
-  }
-
   .quest-layout {
     padding: 0 0.375rem 0.625rem;
     gap: 1rem;
@@ -941,10 +929,6 @@ async function confirmReset() {
 }
 
 @media (max-width: 360px) {
-  .quest-view {
-    padding: 0 0.375rem 0;
-  }
-
   .quest-layout {
     padding: 0 0.25rem 0.5rem;
     gap: 0.875rem;
@@ -964,10 +948,6 @@ async function confirmReset() {
 }
 
 @media (max-width: 320px) {
-  .quest-view {
-    padding: 0 0.25rem 0;
-  }
-
   .quest-layout {
     padding: 0 0.2rem 0.45rem;
     gap: 0.75rem;

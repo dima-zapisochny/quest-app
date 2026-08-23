@@ -115,7 +115,7 @@ onBeforeUnmount(() => {
   align-items: flex-start;
   justify-content: space-between;
   gap: 1.5rem;
-  padding: 1.2rem 1.5rem 0.75rem;
+  padding: var(--app-header-pt) var(--app-header-px) var(--app-header-pb);
   margin: 0;
   position: relative;
   z-index: 1;
@@ -194,7 +194,6 @@ onBeforeUnmount(() => {
 
 @media (max-width: 768px) {
   .app-header {
-    padding: 1rem 1rem 0.5rem;
     gap: 0.5rem;
   }
 
@@ -210,7 +209,6 @@ onBeforeUnmount(() => {
 
 @media (max-width: 480px) {
   .app-header {
-    padding: 0.85rem 0.75rem 0.4rem;
     gap: 0.4rem;
   }
 
@@ -226,7 +224,6 @@ onBeforeUnmount(() => {
 
 @media (max-width: 360px) {
   .app-header {
-    padding: 0.75rem 0.5rem 0.35rem;
     gap: 0.35rem;
   }
 

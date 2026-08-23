@@ -546,6 +546,7 @@ async function onImportQuestFile(event: Event) {
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
+  padding-inline: var(--page-gutter-x);
 }
 
 .host-main {

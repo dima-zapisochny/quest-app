@@ -452,7 +452,7 @@ function goBack() {
   overflow-x: hidden;
   box-sizing: border-box;
   background: linear-gradient(135deg, rgb(var(--c-bg)) 0%, rgb(var(--c-surface)) 100%);
-  padding: 0 clamp(1.25rem, 4vw, 3.5rem) 1rem;
+  padding: 0 var(--page-gutter-x) 1rem;
   display: flex;
   flex-direction: column;
   gap: 0.85rem;
@@ -819,7 +819,7 @@ function goBack() {
     max-height: none;
     overflow: auto;
     gap: 1rem;
-    padding: 0 1rem 1.5rem;
+    padding-bottom: 1.5rem;
   }
 
   .quest-toolbar {
@@ -843,7 +843,7 @@ function goBack() {
 @media (max-width: 480px) {
   .admin-quest-view {
     gap: 0.75rem;
-    padding: 0 0.75rem 1rem;
+    padding-bottom: 1rem;
   }
 
   .quest-toolbar {
@@ -883,7 +883,7 @@ function goBack() {
 @media (max-width: 360px) {
   .admin-quest-view {
     gap: 0.6rem;
-    padding: 0 0.5rem 0.75rem;
+    padding-bottom: 0.75rem;
   }
 
   .quest-toolbar {
