@@ -24,7 +24,8 @@ export type SeoPageCopy = {
  * Цільові запити (аналіз):
  * — вікторина онлайн / онлайн викторина / online quiz party
  * — джепарді онлайн / jeopardy-style quiz / гра з кнопкою відповіді
- * — вікторина для компанії / team quiz / quiz with friends
+ * — вікторина для компанії / гра для компанії / team quiz / quiz with friends
+ * — тімбілдинг вікторина / team building quiz / office quiz game
  * — кіно вікторина / movie quiz / викторина по фильмам IMDb
  * — музична вікторина / music quiz / hit parade quiz
  * — створити вікторину / create quiz board / quiz host
@@ -36,44 +37,44 @@ export const SEO_COPY: Record<SeoPageId, Record<AppLocale, SeoPageCopy>> = {
     uk: {
       title: 'Quiz Quest — онлайн-вікторина для компанії | Кіно та музика',
       description:
-        'Безкоштовна командна вікторина онлайн у стилі шоу: створіть гру, поділіться кодом, грайте з телефона. Готові квести Movie Night і Hit Parade — кіно й хіти.',
+        'Безкоштовна гра для компанії онлайн: командна вікторина у стилі шоу. Створіть гру, поділіться кодом, грайте з телефона. Movie Night і Hit Parade — кіно й хіти.',
       keywords:
-        'вікторина онлайн, онлайн вікторина, вікторина для компанії, джепарді онлайн, кіно вікторина, музична вікторина, quiz quest, створити вікторину, гра з друзями'
+        'гра для компанії, гра для компанії онлайн, вікторина для компанії, онлайн гра для команди, тімбілдинг вікторина, вікторина онлайн, джепарді онлайн, кіно вікторина, музична вікторина, quiz quest, гра з друзями'
     },
     ru: {
       title: 'Quiz Quest — онлайн-викторина для компании | Кино и музыка',
       description:
-        'Бесплатная командная викторина онлайн в стиле шоу: создайте игру, поделитесь кодом, играйте с телефона. Готовые квесты Movie Night и Hit Parade — кино и хиты.',
+        'Бесплатная игра для компании онлайн: командная викторина в стиле шоу. Создайте игру, поделитесь кодом, играйте с телефона. Movie Night и Hit Parade — кино и хиты.',
       keywords:
-        'викторина онлайн, онлайн викторина, викторина для компании, джепарди онлайн, кино викторина, музыкальная викторина, quiz quest, создать викторину, игра с друзьями'
+        'игра для компании, игра для компании онлайн, викторина для компании, онлайн игра для команды, тимбилдинг викторина, викторина онлайн, джепарди онлайн, кино викторина, quiz quest'
     },
     en: {
       title: 'Quiz Quest — online party quiz | Movie Night & Hit Parade',
       description:
-        'Free team quiz online with a game-show vibe: host a board, share a code, play from phones. Ready-made Movie Night and Hit Parade packs — films and chart hits.',
+        'Free online game for teams and companies: host a quiz board, share a code, play from phones. Ready-made Movie Night and Hit Parade — films and chart hits.',
       keywords:
-        'online quiz, party quiz, team quiz, jeopardy online, movie quiz, music quiz, quiz quest, create quiz, quiz with friends, buzz-in quiz'
+        'company team game, office quiz game, team building quiz online, corporate trivia game, online quiz, party quiz, team quiz, jeopardy online, movie quiz, quiz quest, buzz-in quiz'
     },
     de: {
       title: 'Quiz Quest — Online-Quiz für die Gruppe | Film & Musik',
       description:
         'Kostenloses Team-Quiz online im Show-Stil: Spiel erstellen, Code teilen, vom Handy mitspielen. Fertige Packs Movie Night und Hit Parade.',
       keywords:
-        'online quiz, quiz für freunde, team quiz, filmquiz, musikquiz, quiz quest, quiz erstellen, jeopardy online'
+        'online quiz, firmenevent quiz, quiz für unternehmen, team quiz, teamevent quiz, filmquiz, musikquiz, quiz quest, jeopardy online'
     },
     fr: {
       title: 'Quiz Quest — quiz en ligne entre amis | Cinéma et musique',
       description:
         'Quiz d’équipe gratuit en ligne façon show : créez une partie, partagez le code, jouez sur téléphone. Packs Movie Night et Hit Parade prêts à l’emploi.',
       keywords:
-        'quiz en ligne, quiz entre amis, quiz cinéma, quiz musique, quiz quest, créer un quiz, jeu buzz'
+        'quiz entreprise, quiz team building, jeu quiz équipe, quiz en ligne, quiz entre amis, quiz cinéma, quiz quest, jeu buzz'
     },
     es: {
       title: 'Quiz Quest — quiz online para amigos | Cine y música',
       description:
         'Quiz en equipo gratis online con estilo de concurso: crea la partida, comparte el código, juega desde el móvil. Packs listos Movie Night y Hit Parade.',
       keywords:
-        'quiz online, trivia online, quiz con amigos, quiz de cine, quiz de música, quiz quest, crear quiz'
+        'juego quiz empresa, quiz team building, quiz online, quiz con amigos, quiz de cine, quiz de música, quiz quest, trivia online'
     }
   },
   howto: {
@@ -198,25 +199,25 @@ export const SEO_COPY: Record<SeoPageId, Record<AppLocale, SeoPageCopy>> = {
   },
   about: {
     uk: {
-      title: 'Про Quiz Quest — онлайн-вікторина для компанії, правила та для кого',
+      title: 'Про Quiz Quest — гра для компанії онлайн, правила та для кого',
       description:
-        'Що таке Quiz Quest: командна вікторина онлайн у стилі шоу. Правила гри, кому підійде, як створити гру та грати з телефона. Безкоштовно.',
+        'Quiz Quest — безкоштовна гра для компанії та команди онлайн: вікторина у стилі шоу, тімбілдинг, офіс. Правила, кому підійде, як грати з телефона.',
       keywords:
-        'про quiz quest, що таке вікторина онлайн, правила вікторини, вікторина для компанії, джепарді онлайн, гра з друзями'
+        'гра для компанії, гра для компанії онлайн, вікторина для компанії, тімбілдинг вікторина, корпоративна гра, онлайн гра для команди, quiz quest, правила вікторини'
     },
     ru: {
-      title: 'О Quiz Quest — онлайн-викторина для компании, правила и для кого',
+      title: 'О Quiz Quest — игра для компании онлайн, правила и для кого',
       description:
-        'Что такое Quiz Quest: командная викторина онлайн в стиле шоу. Правила, кому подойдёт, как создать игру и играть с телефона. Бесплатно.',
+        'Quiz Quest — бесплатная игра для компании и команды онлайн: викторина в стиле шоу, тимбилдинг, офис. Правила, кому подойдёт, как играть с телефона.',
       keywords:
-        'о quiz quest, что такое викторина онлайн, правила викторины, викторина для компании, джепарди онлайн'
+        'игра для компании, игра для компании онлайн, викторина для компании, тимбилдинг викторина, корпоративная игра, quiz quest, правила викторины'
     },
     en: {
-      title: 'About Quiz Quest — online party quiz, rules & who it’s for',
+      title: 'About Quiz Quest — online game for teams & companies',
       description:
-        'What Quiz Quest is: a free team quiz online with a game-show vibe. Rules, who it’s for, how to host a game and play from phones.',
+        'Quiz Quest is a free online game for companies and teams: game-show quiz, team building, office parties. Rules, who it’s for, how to host and play from phones.',
       keywords:
-        'about quiz quest, what is online quiz, quiz rules, party quiz, team quiz, jeopardy-style quiz'
+        'company team game, office quiz game, team building quiz, corporate trivia, about quiz quest, team quiz, party quiz, jeopardy-style quiz'
     },
     de: {
       title: 'Über Quiz Quest — Online-Quiz für die Gruppe, Regeln & Zielgruppe',

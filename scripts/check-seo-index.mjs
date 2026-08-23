@@ -87,7 +87,7 @@ async function main() {
   console.log(`Google: "${site.replace(/^https:\/\//, '')}"`)
   console.log('\nЯкщо 0 результатів — сайт ще не в індексі; виконайте npm run seo:submit і кроки GSC.\n')
 
-  console.log('--- Топ-10 запитів для GSC ---\n')
+  console.log('--- Цільові запити для GSC ---\n')
   for (const q of SEO_PRIORITY_QUERIES) {
     console.log(`${q.rank}. [${q.locale}] «${q.query}» → ${q.page}`)
   }
