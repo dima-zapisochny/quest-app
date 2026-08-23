@@ -61,6 +61,7 @@ export function useQuestionMedia(
   const hasQuestionAudio = computed(() => questionMediaAudio.value.length > 0)
 
   return {
+    questionMediaImages,
     visibleQuestionImages,
     questionMediaAudio,
     answerMediaImages,

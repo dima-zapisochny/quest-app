@@ -1,6 +1,15 @@
 <template>
-  <div v-if="session" class="player-view" spellcheck="false" translate="no">
+  <div
+    v-if="session"
+    class="player-view notranslate"
+    lang="uk"
+    spellcheck="false"
+    translate="no"
+    autocorrect="off"
+    autocapitalize="off"
+  >
     <AppHeader
+      class="player-view__header notranslate"
       button-variant="exit"
       :button-label="isExiting ? t('game.exitBusy') : t('game.exitConfirm')"
       :button-disabled="isExiting"
@@ -11,12 +20,12 @@
     />
 
     <main class="player-main">
-      <section v-if="player" class="player-stats">
+      <section v-if="player" class="player-stats notranslate">
         <div class="stats-item">
           <div class="stats-row">
             <div class="stats-col">
-              <span class="stats-label">{{ t('player.rank') }}</span>
-              <span class="stats-value">{{ playerRank }}</span>
+              <span class="stats-label player-ui-text" spellcheck="false" translate="no">{{ t('player.rank') }}</span>
+              <span class="stats-value player-ui-text" spellcheck="false" translate="no">{{ playerRank }}</span>
             </div>
             <div class="stats-timer" :class="{ 'stats-timer--inactive': !shouldShowResponderTimer }" :aria-label="t('player.answerTimer')">
               <!-- Лише відображення: таймаут знімає хост (useResponderTimeout). Інакше зсув годинника на телефоні → finished → self-lock за ~1с. -->
@@ -27,17 +36,20 @@
               />
             </div>
             <div class="stats-col">
-              <span class="stats-label">{{ t('player.points') }}</span>
-              <span class="stats-value">{{ player.score ?? 0 }}</span>
+              <span class="stats-label player-ui-text" spellcheck="false" translate="no">{{ t('player.points') }}</span>
+              <span class="stats-value player-ui-text" spellcheck="false" translate="no">{{ player.score ?? 0 }}</span>
             </div>
           </div>
         </div>
       </section>
 
-      <section class="question-panel">
+      <section class="question-panel" :class="{ 'question-panel--waiting': !activeQuestion }">
         <p v-if="!activeQuestion" class="question-placeholder">
           {{ t('player.waitingQuestion') }}
         </p>
+        <div v-else-if="!showQuestionContent" class="question-panel-loading" aria-live="polite">
+          <div class="question-panel-loading__spinner" aria-hidden="true"></div>
+        </div>
         <div v-else class="question-content">
           <template v-if="activeQuestion.showAnswer">
             <h2 class="answer-only" v-html="currentQuestion?.answer ?? '—'"></h2>
@@ -132,6 +144,7 @@ import { useGameSessionStore } from '@/store/gameSessionStore'
 import { useQuizStore } from '@/store/quizStore'
 import { useQuestionMedia } from '@/composables/useQuestionMedia'
 import { useQuestionElapsed } from '@/composables/useQuestionElapsed'
+import { useQuestionContentReady } from '@/composables/useQuestionContentReady'
 import AppHeader from '@/components/common/AppHeader.vue'
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
 import { usePresenceHeartbeat } from '@/composables/usePresenceHeartbeat'
@@ -171,12 +184,39 @@ const currentQuestion = computed(() => {
 
 const { elapsedSec } = useQuestionElapsed(activeQuestion)
 const {
+  questionMediaImages,
   visibleQuestionImages,
   questionMediaAudio,
   answerMediaImages,
   answerMediaAudio,
   hasQuestionAudio
 } = useQuestionMedia(currentQuestion, elapsedSec)
+
+const questionRevealKey = computed(() => {
+  const aq = activeQuestion.value
+  if (!aq) return null
+  return `${aq.questionId}:${aq.showAnswer ? 'answer' : 'question'}`
+})
+
+const imagesForPreload = computed(() => {
+  if (!activeQuestion.value) return []
+  return activeQuestion.value.showAnswer ? answerMediaImages.value : questionMediaImages.value
+})
+
+const { ready: questionMediaReady } = useQuestionContentReady(questionRevealKey, imagesForPreload)
+
+const showQuestionContent = computed(() => {
+  if (!activeQuestion.value) return false
+  if (!questionMediaReady.value) return false
+  if (activeQuestion.value.showAnswer) {
+    return Boolean(currentQuestion.value?.answer || answerMediaImages.value.length || answerMediaAudio.value.length)
+  }
+  return Boolean(
+    currentQuestion.value?.question ||
+      questionMediaImages.value.length ||
+      hasQuestionAudio.value
+  )
+})
 
 const canBuzz = computed(() => {
   if (!player.value || !activeQuestion.value) return false
@@ -498,12 +538,48 @@ onBeforeUnmount(() => {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 1.15rem;
   padding: 1.25rem 1.5rem 1rem;
   margin: 0;
   min-height: 0;
   overflow: hidden;
   box-sizing: border-box;
+}
+
+/* Chrome Translate + spellcheck: пунктир під UI-текстом */
+.player-view :deep(.user-name),
+.player-view :deep(.nav-button),
+.player-view :deep(.nav-button span),
+.player-view :deep(.timer-text),
+.player-view .player-ui-text {
+  text-decoration: none !important;
+  -webkit-text-decoration: none !important;
+  text-decoration-line: none !important;
+  -webkit-text-decoration-line: none !important;
+  text-decoration-style: solid !important;
+  -webkit-text-decoration-style: solid !important;
+  text-decoration-color: transparent !important;
+  -webkit-text-decoration-color: transparent !important;
+  text-underline-offset: unset !important;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+@supports selector(::spelling-error) {
+  .player-view :deep(.user-name)::spelling-error,
+  .player-view :deep(.nav-button)::spelling-error,
+  .player-view .player-ui-text::spelling-error {
+    text-decoration: none !important;
+  }
+}
+
+@supports selector(::grammar-error) {
+  .player-view :deep(.user-name)::grammar-error,
+  .player-view :deep(.nav-button)::grammar-error,
+  .player-view .player-ui-text::grammar-error {
+    text-decoration: none !important;
+  }
 }
 
 .player-stats {
@@ -601,8 +677,6 @@ onBeforeUnmount(() => {
   letter-spacing: 0.05em;
   position: relative;
   z-index: 1;
-  text-decoration: none;
-  -webkit-text-decoration-line: none;
 }
 
 .stats-value {
@@ -611,8 +685,6 @@ onBeforeUnmount(() => {
   font-weight: 700;
   position: relative;
   z-index: 1;
-  text-decoration: none;
-  -webkit-text-decoration-line: none;
 }
 
 .question-panel {
@@ -656,13 +728,46 @@ onBeforeUnmount(() => {
   opacity: 0.6;
 }
 
+.question-panel--waiting {
+  justify-content: center;
+  align-items: center;
+}
+
 .question-placeholder {
   margin: 0;
+  width: 100%;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   text-align: center;
   color: rgb(var(--c-text-muted));
-  font-size: clamp(1.2rem, 3.5vw, 1.45rem);
+  font-size: clamp(1.45rem, 4.8vw, 1.85rem);
+  line-height: 1.45;
+  padding: 1.25rem 1rem;
   position: relative;
   z-index: 1;
+}
+
+.question-panel-loading {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.question-panel-loading__spinner {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  border: 3px solid rgb(var(--c-text-muted) / 0.25);
+  border-top-color: rgb(var(--c-accent-sky));
+  animation: player-question-spin 0.75s linear infinite;
+}
+
+@keyframes player-question-spin {
+  to { transform: rotate(360deg); }
 }
 
 .question-content {
@@ -903,8 +1008,8 @@ onBeforeUnmount(() => {
   flex-direction: column;
   align-items: center;
   gap: 0.5rem;
-  margin: 0;
-  padding: 0.25rem 0 0.5rem;
+  margin: 0.15rem 0 0;
+  padding: 0.5rem 0 0.65rem;
   flex-shrink: 0;
   box-sizing: border-box;
 }
@@ -1203,7 +1308,7 @@ onBeforeUnmount(() => {
 
   .player-main {
     padding: 1.25rem 1.25rem 0.625rem;
-    gap: 0.65rem;
+    gap: 1rem;
     flex: 1;
     min-height: 0;
     overflow: hidden;
@@ -1380,7 +1485,7 @@ onBeforeUnmount(() => {
 
   .player-main {
     padding: 1rem 1rem 0.5rem;
-    gap: 0.5rem;
+    gap: 0.9rem;
     flex: 1;
     min-height: 0;
     overflow: hidden;
@@ -1629,7 +1734,8 @@ onBeforeUnmount(() => {
   }
 
   .question-placeholder {
-    font-size: clamp(1rem, 3.5vw, 1.15rem);
+    font-size: clamp(1.35rem, 4.5vw, 1.65rem);
+    padding: 1rem 0.75rem;
   }
 
   .answer-reveal {
@@ -1762,7 +1868,8 @@ onBeforeUnmount(() => {
   }
 
   .question-placeholder {
-    font-size: clamp(0.95rem, 3.2vw, 1.05rem);
+    font-size: clamp(1.25rem, 4.2vw, 1.5rem);
+    padding: 0.85rem 0.65rem;
   }
 
   .answer-reveal {
