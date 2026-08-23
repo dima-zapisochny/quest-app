@@ -1,5 +1,5 @@
 <template>
-  <div class="illu">
+  <div class="illu" :class="{ 'illu--compact': compact }">
     <!-- ЗАПУСК ИГРЫ -->
     <div v-if="scene === 'start'" class="scene scene--start">
       <div class="panel panel--start">
@@ -213,13 +213,16 @@
 <script setup lang="ts">
 import HowToPointer from './HowToPointer.vue'
 
-defineProps<{ scene: string }>()
+defineProps<{ scene: string; compact?: boolean }>()
 const gridCells = Array.from({ length: 25 }, (_, i) => ({ k: i, c: i % 5, r: Math.floor(i / 5), n: Math.max(i % 5, Math.floor(i / 5)) }))
 </script>
 
 <style scoped>
 .illu { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
 .illu > .scene { transform: scale(1.15); }
+.illu--compact > .scene { transform: scale(0.88); }
+.illu--compact > .scene.scene--start { transform: scale(0.82); }
+.illu--compact > .scene.scene--row { transform: scale(0.9); }
 .scene { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.1rem; width: 100%; }
 .scene--row { flex-direction: row; gap: 2.2rem; }
 .scene--start { gap: 0.6rem; }
