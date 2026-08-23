@@ -1,5 +1,5 @@
 <template>
-  <div v-if="session" class="player-view">
+  <div v-if="session" class="player-view" spellcheck="false" translate="no">
     <AppHeader
       button-variant="exit"
       :button-label="isExiting ? t('game.exitBusy') : t('game.exitConfirm')"
@@ -19,12 +19,11 @@
               <span class="stats-value">{{ playerRank }}</span>
             </div>
             <div class="stats-timer" :class="{ 'stats-timer--inactive': !shouldShowResponderTimer }" :aria-label="t('player.answerTimer')">
+              <!-- Лише відображення: таймаут знімає хост (useResponderTimeout). Інакше зсув годинника на телефоні → finished → self-lock за ~1с. -->
               <TimerCircle
                 :duration-sec="10"
                 :auto-start="shouldShowResponderTimer"
-                :started-at="activeQuestion?.responderStartedAt ?? null"
                 ref="responderTimerRef"
-                @finished="handleResponderTimeout"
               />
             </div>
             <div class="stats-col">
@@ -238,51 +237,18 @@ const shouldShowResponderTimer = computed(() => {
   return isCurrentResponder.value && !!activeQuestion.value?.responderStartedAt && !activeQuestion.value?.showAnswer
 })
 
-function handleResponderTimeout() {
-  if (!session.value || !activeQuestion.value?.currentResponderId) return
-  console.log('⏰ Responder timeout, calling timeoutResponder')
-  sessionStore.timeoutResponder(session.value.id)
-}
-
-// Сброс таймера при смене отвечающего или когда ответ уже дан
+// Локальний відлік для UI: рестарт коли стаємо відповідачами / знімають право / показують відповідь
 watch(
-  () => activeQuestion.value?.currentResponderId,
-  (newResponderId, oldResponderId) => {
-    if (newResponderId !== oldResponderId) {
-      nextTick(() => {
-        if (responderTimerRef.value) {
-          responderTimerRef.value.reset()
-        }
-      })
-    }
-  }
-)
-
-// Когда ответ показан (правильно/неправильно или время вышло) — обнуляем таймер до начального
-watch(
-  () => activeQuestion.value?.showAnswer,
-  (showAnswer) => {
-    if (showAnswer) {
-      nextTick(() => {
-        if (responderTimerRef.value) {
-          responderTimerRef.value.reset()
-        }
-      })
-    }
-  }
-)
-
-// Отслеживаем изменения responderStartedAt для запуска таймера
-watch(
-  () => activeQuestion.value?.responderStartedAt,
-  (newStartedAt) => {
-    if (newStartedAt && shouldShowResponderTimer.value) {
-      nextTick(() => {
-        if (responderTimerRef.value) {
-          responderTimerRef.value.reset()
-        }
-      })
-    }
+  shouldShowResponderTimer,
+  (active, wasActive) => {
+    nextTick(() => {
+      if (!responderTimerRef.value) return
+      if (active && !wasActive) {
+        responderTimerRef.value.reset()
+      } else if (!active) {
+        responderTimerRef.value.reset()
+      }
+    })
   }
 )
 
@@ -532,8 +498,8 @@ onBeforeUnmount(() => {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 5.5rem;
-  padding: 3rem 1.5rem 1.5rem;
+  gap: 0.75rem;
+  padding: 1.25rem 1.5rem 1rem;
   margin: 0;
   min-height: 0;
   overflow: hidden;
@@ -635,6 +601,8 @@ onBeforeUnmount(() => {
   letter-spacing: 0.05em;
   position: relative;
   z-index: 1;
+  text-decoration: none;
+  -webkit-text-decoration-line: none;
 }
 
 .stats-value {
@@ -643,6 +611,8 @@ onBeforeUnmount(() => {
   font-weight: 700;
   position: relative;
   z-index: 1;
+  text-decoration: none;
+  -webkit-text-decoration-line: none;
 }
 
 .question-panel {
@@ -650,11 +620,11 @@ onBeforeUnmount(() => {
   background: rgb(var(--c-bg) / 0.25);
   border-radius: 1.5rem;
   border: 1px solid rgb(var(--c-text-muted) / 0.2);
-  padding: 2rem;
-  margin: 2rem 0 0;
+  padding: 1.25rem;
+  margin: 0;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 0.75rem;
   backdrop-filter: blur(12px);
   position: relative;
@@ -704,8 +674,8 @@ onBeforeUnmount(() => {
   flex-direction: column;
   overflow: hidden;
   align-items: center;
-  justify-content: center;
-  gap: 1.5rem;
+  justify-content: flex-start;
+  gap: 0.75rem;
 }
 
 .question-content h2 {
@@ -725,16 +695,54 @@ onBeforeUnmount(() => {
 .player-media-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
+  gap: 0.5rem;
   justify-content: center;
-  max-width: 100%;
-  flex-shrink: 1;
+  align-content: center;
+  width: 100%;
+  flex: 1 1 auto;
   min-height: 0;
-  overflow: auto;
+  overflow: hidden;
 }
 
 .player-media-grid :deep(.media-card) {
-  max-width: min(100%, 280px);
+  max-width: min(100%, 420px);
+  width: 100%;
+  flex: 1 1 auto;
+  align-self: stretch;
+  height: auto;
+  max-height: 100%;
+  min-height: 0;
+  padding: 0.35rem;
+  gap: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.player-media-grid :deep(.image-wrapper) {
+  width: 100%;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.player-media-grid :deep(.image-wrapper img) {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+
+.player-media-grid :deep(.media-name) {
+  display: none;
 }
 
 .player-media-audio {
@@ -895,9 +903,9 @@ onBeforeUnmount(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.75rem;
-  margin: 2rem 0 0;
-  padding: 3rem 0;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0.25rem 0 0.5rem;
   flex-shrink: 0;
   box-sizing: border-box;
 }
@@ -1152,8 +1160,8 @@ onBeforeUnmount(() => {
 @media (max-width: 1024px) and (min-width: 769px) {
 
   .player-main {
-    padding: 2rem 1.75rem 1.25rem;
-    gap: 1.875rem;
+    padding: 1.25rem 1.75rem 1rem;
+    gap: 0.75rem;
   }
 
   .player-stats {
@@ -1196,7 +1204,7 @@ onBeforeUnmount(() => {
 
   .player-main {
     padding: 1.25rem 1.25rem 0.625rem;
-    gap: 0.9375rem;
+    gap: 0.65rem;
     flex: 1;
     min-height: 0;
     overflow: hidden;
@@ -1259,7 +1267,8 @@ onBeforeUnmount(() => {
   }
 
   .question-panel {
-    padding: 0.875rem;
+    padding: 0.75rem;
+    margin: 0;
     flex: 1;
     min-height: 0;
     display: flex;
@@ -1268,7 +1277,7 @@ onBeforeUnmount(() => {
   }
 
   .question-content {
-    gap: 1rem;
+    gap: 0.65rem;
     flex: 1;
     min-height: 0;
     overflow: hidden;
@@ -1330,7 +1339,8 @@ onBeforeUnmount(() => {
   }
 
   .buzzer-section {
-    padding: 2.5rem 0.625rem;
+    padding: 0.35rem 0.625rem 0.5rem;
+    margin: 0;
     flex-shrink: 0;
   }
 
@@ -1370,8 +1380,8 @@ onBeforeUnmount(() => {
 
 
   .player-main {
-    padding: 1.25rem 1rem 0.5rem;
-    gap: 0.375rem;
+    padding: 1rem 1rem 0.5rem;
+    gap: 0.5rem;
     flex: 1;
     min-height: 0;
     overflow: hidden;
@@ -1425,8 +1435,8 @@ onBeforeUnmount(() => {
   }
 
   .question-panel {
-    padding: 0.4rem;
-    margin: 1.5rem 0 0;
+    padding: 0.5rem;
+    margin: 0;
     flex: 1;
     min-height: 0;
     display: flex;
@@ -1496,8 +1506,8 @@ onBeforeUnmount(() => {
   }
 
   .buzzer-section {
-    padding: 2rem 0.25rem;
-    margin: 1.5rem 0 0;
+    padding: 0.25rem 0.25rem 0.4rem;
+    margin: 0;
     flex-shrink: 0;
     box-sizing: border-box;
   }
@@ -1693,8 +1703,8 @@ onBeforeUnmount(() => {
   }
 
   .question-panel {
-    padding: 0.3rem;
-    margin: 1.25rem 0 0;
+    padding: 0.35rem;
+    margin: 0;
     flex: 1;
     min-height: 0;
     display: flex;
@@ -1762,8 +1772,8 @@ onBeforeUnmount(() => {
   }
 
   .buzzer-section {
-    padding: 1.75rem 0.2rem;
-    margin: 1.25rem 0 0;
+    padding: 0.2rem 0.2rem 0.35rem;
+    margin: 0;
     flex-shrink: 0;
     box-sizing: border-box;
   }

@@ -1,5 +1,5 @@
 <template>
-  <div class="user-pill">
+  <div class="user-pill" spellcheck="false" translate="no">
     <span class="user-name">{{ displayName }}</span>
     <div 
       class="user-avatar" 
@@ -83,6 +83,8 @@ const avatarInitial = computed(() => displayName.value.charAt(0).toUpperCase())
   font-size: 1.05rem;
   font-weight: 700;
   letter-spacing: 0.02em;
+  text-decoration: none;
+  -webkit-text-decoration-line: none;
 }
 
 .user-avatar {
