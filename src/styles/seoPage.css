@@ -29,7 +29,8 @@ html:has(.seo-page) {
 }
 
 .seo-page--about .seo-page__main,
-.seo-page--howto .seo-page__main {
+.seo-page--howto .seo-page__main,
+.seo-page--pack .seo-page__main {
   padding-top: clamp(1.5rem, 4vh, 2.5rem);
 }
 
@@ -282,6 +283,8 @@ html:has(.seo-page) {
 .about-cta-block h2 {
   margin: 0 0 0.45rem;
   font-size: 1.2rem;
+  border-bottom: none;
+  padding-bottom: 0;
 }
 
 .about-cta-block > p {
@@ -318,14 +321,19 @@ html:has(.seo-page) {
 
 .seo-page--about,
 .seo-page--howto,
+.seo-page--pack,
 .seo-page--about h1,
 .seo-page--howto h1,
+.seo-page--pack h1,
 .seo-page--about h2,
 .seo-page--howto h2,
+.seo-page--pack h2,
 .seo-page--about h3,
 .seo-page--howto h3,
+.seo-page--pack h3,
 .seo-page--about strong,
 .seo-page--howto strong,
+.seo-page--pack strong,
 .seo-page--about summary,
 .seo-page--howto summary {
   font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -333,19 +341,34 @@ html:has(.seo-page) {
 }
 
 .seo-page--about h1,
-.seo-page--howto h1 {
+.seo-page--howto h1,
+.seo-page--pack h1 {
   font-weight: 800;
   letter-spacing: -0.02em;
 }
 
 .seo-page--about h2,
-.seo-page--howto h2 {
+.seo-page--howto h2,
+.seo-page--pack h2 {
   font-weight: 800;
   letter-spacing: -0.01em;
   font-size: clamp(1.2rem, 3vw, 1.4rem);
   margin-bottom: 0.75rem;
   padding-bottom: 0.55rem;
   border-bottom: 1px solid rgb(var(--c-accent-sky) / 0.2);
+}
+
+.seo-page__prose {
+  margin: 0 0 1rem;
+  color: rgb(var(--c-text-soft) / 0.92);
+  line-height: 1.55;
+}
+
+.seo-pack-caption {
+  margin: -1.15rem 0 1.75rem;
+  font-size: 0.85rem;
+  color: rgb(var(--c-text-muted) / 0.9);
+  text-align: center;
 }
 
 .seo-page--howto .seo-page__section {
