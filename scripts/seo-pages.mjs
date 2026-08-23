@@ -9,7 +9,7 @@ export const PUBLIC_SEO_PAGES = [
     id: 'home',
     path: '/',
     file: 'index.html',
-    title: 'Quiz Quest — онлайн-вікторина для компанії | Кіно та музика',
+    title: 'Quiz Quest · вікторина для компанії',
     description:
       'Безкоштовна гра для компанії онлайн: командна вікторина у стилі шоу. Створіть гру, поділіться кодом, грайте з телефона. Movie Night і Hit Parade — кіно й хіти.',
     h1: 'Quiz Quest'
