@@ -96,6 +96,36 @@ function injectPage(html, page) {
       </ul>
     </noscript>`
 
+  const jsonLdApp = {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: 'Quiz Quest',
+    url: SITE_URL,
+    applicationCategory: 'GameApplication',
+    operatingSystem: 'Web',
+    description: page.description,
+    inLanguage: 'uk',
+    image: ogImage,
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    publisher: { '@type': 'Organization', name: 'Quiz Quest', url: SITE_URL, logo: ogImage }
+  }
+
+  const jsonLdBlock = `    <script type="application/ld+json">${JSON.stringify(jsonLdApp)}</script>`
+
+  if (/<script\s+type="application\/ld\+json"[^>]*>[\s\S]*?<\/script>/i.test(out)) {
+    out = out.replace(
+      /<script\s+type="application\/ld\+json"[^>]*>[\s\S]*?<\/script>/i,
+      jsonLdBlock.trim()
+    )
+  } else {
+    out = out.replace('</head>', `${jsonLdBlock}\n  </head>`)
+  }
+
+  const gsc = process.env.VITE_GOOGLE_SITE_VERIFICATION
+  if (gsc) {
+    replaceMeta('name', 'google-site-verification', gsc)
+  }
+
   if (/<noscript>[\s\S]*?<\/noscript>/i.test(out)) {
     out = out.replace(/<noscript>[\s\S]*?<\/noscript>/i, noscriptBlock)
   } else {
