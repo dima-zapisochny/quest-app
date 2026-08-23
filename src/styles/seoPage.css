@@ -1,11 +1,21 @@
 .seo-page {
-  min-height: 100vh;
+  min-height: 100dvh;
   box-sizing: border-box;
   padding-inline: var(--page-gutter-x);
-  background:
-    radial-gradient(ellipse 80% 50% at 50% -10%, rgb(var(--c-accent-sky) / 0.14), transparent),
-    rgb(var(--c-bg-deep));
+  /* Фон на html (див. нижче) — один шар без «підкладки» при скролі */
+  background: transparent;
   color: rgb(var(--c-text));
+}
+
+/* Той самий фон, що й .seo-page раніше — на html, fixed, щоб не було двох шарів */
+html:has(.seo-page) {
+  background-color: rgb(var(--c-bg-deep));
+  background-image: radial-gradient(
+    ellipse 80% 50% at 50% -10%,
+    rgb(var(--c-accent-sky) / 0.14),
+    transparent
+  );
+  background-attachment: fixed;
 }
 
 .seo-page__main {
