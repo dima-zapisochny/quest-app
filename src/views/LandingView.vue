@@ -637,17 +637,26 @@ watch(() => route.path, (newPath) => {
 <style scoped>
 .landing {
   position: relative;
+  isolation: isolate;
   min-height: 100dvh;
-  height: 100dvh;
-  max-height: 100dvh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 0 1.5rem 4.5rem;
   background: linear-gradient(135deg, rgb(var(--c-bg)) 0%, rgb(var(--c-surface)) 100%);
+  background-attachment: fixed;
   color: rgb(var(--c-bg));
-  overflow: hidden;
+  overflow-x: hidden;
+}
+
+.landing::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(135deg, rgb(var(--c-bg)) 0%, rgb(var(--c-surface)) 100%);
 }
 
 .landing-seo-links {
@@ -738,6 +747,8 @@ watch(() => route.path, (newPath) => {
 }
 
 .landing-card {
+  position: relative;
+  z-index: 1;
   width: min(700px, 100%);
   max-width: 100%;
   background: rgba(12, 19, 36, 0.65);
@@ -1216,10 +1227,15 @@ watch(() => route.path, (newPath) => {
 /* Мобильные устройства (до 768px) */
 @media (max-width: 768px) {
   .landing {
-    padding: 0 1rem;
+    min-height: 100dvh;
+    height: auto;
+    max-height: none;
+    padding: clamp(0.75rem, 2.5vw, 1rem) 1rem max(1.25rem, env(safe-area-inset-bottom, 0px));
     align-items: center;
     justify-content: center;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   /* SEO-ссылки остаются в DOM для индексации, но не ломают мобильный лейаут */
@@ -1234,8 +1250,8 @@ watch(() => route.path, (newPath) => {
     transform: translateY(0);
     width: 100%;
     max-width: 100%;
-    max-height: 100dvh;
-    overflow: hidden;
+    max-height: none;
+    overflow: visible;
     box-sizing: border-box;
   }
 
@@ -1317,10 +1333,11 @@ watch(() => route.path, (newPath) => {
 /* Маленькие мобильные (до 480px) */
 @media (max-width: 480px) {
   .landing {
-    padding: 0 0.75rem;
+    padding: clamp(0.65rem, 2vw, 0.85rem) 0.75rem max(1rem, env(safe-area-inset-bottom, 0px));
     align-items: center;
     justify-content: center;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
   }
 
   .landing-card {
@@ -1331,8 +1348,8 @@ watch(() => route.path, (newPath) => {
     width: 100%;
     max-width: 100%;
     margin: 0;
-    max-height: 100dvh;
-    overflow: hidden;
+    max-height: none;
+    overflow: visible;
     box-sizing: border-box;
   }
 
@@ -1396,10 +1413,11 @@ watch(() => route.path, (newPath) => {
 /* Очень маленькие экраны (до 360px) */
 @media (max-width: 360px) {
   .landing {
-    padding: 0 0.5rem;
+    padding: 0.5rem 0.5rem max(0.85rem, env(safe-area-inset-bottom, 0px));
     align-items: center;
     justify-content: center;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
   }
 
   .landing-card {
@@ -1467,16 +1485,17 @@ watch(() => route.path, (newPath) => {
 /* Экстремально маленькие экраны (до 320px) */
 @media (max-width: 320px) {
   .landing {
-    padding: 0 0.375rem;
-    overflow: hidden;
+    padding: 0.375rem 0.375rem max(0.75rem, env(safe-area-inset-bottom, 0px));
+    overflow-x: hidden;
+    overflow-y: auto;
   }
 
   .landing-card {
     padding: 1rem 0.75rem;
     gap: 0.625rem;
     border-radius: 1rem;
-    max-height: 100dvh;
-    overflow: hidden;
+    max-height: none;
+    overflow: visible;
     box-sizing: border-box;
   }
 

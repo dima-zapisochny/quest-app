@@ -121,6 +121,9 @@
 html {
   /* Вимикає double-tap zoom на мобільних (швидкі тапи на кнопках/екрані гравця). */
   touch-action: manipulation;
+  background-color: rgb(var(--c-surface));
+  background-image: linear-gradient(135deg, rgb(var(--c-bg)) 0%, rgb(var(--c-surface)) 100%);
+  background-attachment: fixed;
 }
 
 body {
@@ -130,7 +133,7 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: rgb(var(--c-bg));
+  background: transparent;
   color: rgb(var(--c-text));
   touch-action: manipulation;
 }
@@ -147,6 +150,7 @@ strong {
 #app {
   min-height: 100dvh;
   touch-action: manipulation;
+  background: transparent;
 }
 
 button,
