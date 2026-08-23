@@ -47,6 +47,26 @@ function now() {
   return Date.now()
 }
 
+/** Знімок квеста без зіграних клітинок (якщо store ще не має повного квеста). */
+function clearQuestProgressSnapshot(quest?: Quest): Quest | undefined {
+  if (!quest?.rounds) return quest
+  return {
+    ...quest,
+    rounds: quest.rounds.map(round => ({
+      ...round,
+      categories: round.categories.map(category => ({
+        ...category,
+        questions: category.questions.map(question => ({
+          ...question,
+          played: false,
+          timedOut: false,
+          answeredBy: undefined
+        }))
+      }))
+    }))
+  }
+}
+
 /** Максимум участников в одной сессии (включая ведущего). */
 const MAX_SESSION_PLAYERS = 20
 
@@ -232,12 +252,23 @@ export const useGameSessionStore = defineStore('game-session', () => {
   }
 
   async function createSession(questId: string, questSnapshot?: Quest) {
+    const quizStore = useQuizStore()
+    // Нова партія — завжди чисте поле (прогрес попередньої гри з цим квестом не переноситься)
+    if (quizStore.getQuestById(questId)) {
+      try {
+        await quizStore.resetQuestProgress(questId)
+      } catch (error) {
+        console.warn('Could not reset quest progress for new session:', error)
+      }
+    }
+    const cleanQuest = quizStore.getQuestById(questId) ?? clearQuestProgressSnapshot(questSnapshot)
+
     const profile = profileStore.ensureProfile()
     const session: GameSession = {
       id: generateId('session'),
       code: generateCode(),
       questId,
-      quest: questSnapshot,
+      quest: cleanQuest,
       hostId: profile.id,
       hostName: profile.name,
       hostAvatar: profile.avatar,
