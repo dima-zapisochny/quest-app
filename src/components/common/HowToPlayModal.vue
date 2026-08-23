@@ -11,70 +11,7 @@
             <button type="button" class="howto__close" :aria-label="t('common.close')" @click="close">✕</button>
           </header>
 
-          <div class="howto__tabs" role="tablist">
-            <button
-              type="button"
-              class="howto__tab"
-              :class="{ 'howto__tab--active': tab === 'play' }"
-              role="tab"
-              :aria-selected="tab === 'play'"
-              @click="switchTab('play')"
-            >{{ t('howto.tabPlay') }}</button>
-            <button
-              type="button"
-              class="howto__tab"
-              :class="{ 'howto__tab--active': tab === 'create' }"
-              role="tab"
-              :aria-selected="tab === 'create'"
-              @click="switchTab('create')"
-            >{{ t('howto.tabCreate') }}</button>
-          </div>
-
-          <!-- Верх: анимированный пример -->
-          <div class="howto__stage">
-            <transition :name="dir === 1 ? 'stage-next' : 'stage-prev'" mode="out-in">
-              <HowToIllustration :key="current.scene" :scene="current.scene" class="howto__illu" />
-            </transition>
-          </div>
-
-          <!-- Низ: текст и описание -->
-          <div class="howto__content">
-            <transition :name="dir === 1 ? 'text-next' : 'text-prev'" mode="out-in">
-              <div :key="current.scene" class="howto__text">
-                <span class="howto__step-num">{{ step + 1 }} / {{ steps.length }}</span>
-                <h3 class="howto__step-title">{{ t(current.title) }}</h3>
-                <p class="howto__step-desc">{{ t(current.text) }}</p>
-              </div>
-            </transition>
-          </div>
-
-          <!-- Пошаговый переключатель -->
-          <footer class="howto__nav">
-            <button
-              type="button"
-              class="howto__prev"
-              :class="{ 'howto__prev--hidden': isFirstStep }"
-              @click="prev"
-            >{{ t('howto.prev') }}</button>
-
-            <div class="howto__dots" role="tablist">
-              <button
-                v-for="(s, i) in steps"
-                :key="s.scene"
-                type="button"
-                class="howto__dot"
-                :class="{ 'howto__dot--active': i === step }"
-                :aria-label="`${i + 1}`"
-                @click="goTo(i)"
-              ></button>
-            </div>
-
-            <button
-              type="button"
-              class="howto__next"
-              @click="next"
-            >{{ isFinal ? t('howto.gotIt') : t('howto.next') }}</button>
-          </footer>
+          <HowToPlaySlider ref="sliderRef" class="howto__slider" @complete="close" />
         </div>
       </div>
     </transition>
@@ -82,77 +19,19 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch, onMounted, onBeforeUnmount } from 'vue'
+import { computed, ref, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
-import HowToIllustration from './howto/HowToIllustration.vue'
+import HowToPlaySlider from './howto/HowToPlaySlider.vue'
 
 const { t } = useI18n()
 
 const props = defineProps<{ show: boolean }>()
 const emit = defineEmits<{ close: [] }>()
 
-interface Step { scene: string; title: string; text: string }
+const sliderRef = ref<InstanceType<typeof HowToPlaySlider> | null>(null)
 
-const playSteps: Step[] = [
-  { scene: 'start', title: 'howto.play1Title', text: 'howto.play1Text' },
-  { scene: 'join', title: 'howto.play2Title', text: 'howto.play2Text' },
-  { scene: 'open', title: 'howto.play3Title', text: 'howto.play3Text' },
-  { scene: 'buzz', title: 'howto.play4Title', text: 'howto.play4Text' },
-  { scene: 'score', title: 'howto.play5Title', text: 'howto.play5Text' }
-]
-const createSteps: Step[] = [
-  { scene: 'new', title: 'howto.create1Title', text: 'howto.create1Text' },
-  { scene: 'board', title: 'howto.create2Title', text: 'howto.create2Text' },
-  { scene: 'fill', title: 'howto.create3Title', text: 'howto.create3Text' },
-  { scene: 'done', title: 'howto.create4Title', text: 'howto.create4Text' }
-]
+const headerTitle = computed(() => t('howto.title'))
 
-const tab = ref<'play' | 'create'>('play')
-const step = ref(0)
-const dir = ref<1 | -1>(1)
-
-const steps = computed(() => (tab.value === 'play' ? playSteps : createSteps))
-const current = computed(() => steps.value[step.value])
-const headerTitle = computed(() =>
-  tab.value === 'create' ? t('howto.titleCreate') : t('howto.title')
-)
-const isLast = computed(() => step.value === steps.value.length - 1)
-// Самый последний шаг всего гида — последний шаг вкладки «Создать квест»
-const isFinal = computed(() => tab.value === 'create' && isLast.value)
-// Самый первый шаг всего гида — кнопку «Назад» здесь не показываем
-const isFirstStep = computed(() => tab.value === 'play' && step.value === 0)
-
-function switchTab(value: 'play' | 'create') {
-  if (tab.value === value) return
-  dir.value = 1
-  tab.value = value
-  step.value = 0
-}
-function prev() {
-  if (step.value > 0) { dir.value = -1; step.value--; return }
-  // с начала «Создать квест» — назад в конец «Играть»
-  if (tab.value === 'create') {
-    dir.value = -1
-    tab.value = 'play'
-    step.value = playSteps.length - 1
-  }
-}
-function next() {
-  if (isFinal.value) { close(); return }
-  // конец вкладки «Играть» → переходим в «Создать квест»
-  if (isLast.value && tab.value === 'play') {
-    dir.value = 1
-    tab.value = 'create'
-    step.value = 0
-    return
-  }
-  dir.value = 1
-  step.value++
-}
-function goTo(i: number) {
-  dir.value = i > step.value ? 1 : -1
-  step.value = i
-}
 function close() {
   emit('close')
 }
@@ -160,14 +39,17 @@ function close() {
 function onKey(e: KeyboardEvent) {
   if (!props.show) return
   if (e.key === 'Escape') close()
-  else if (e.key === 'ArrowRight') next()
-  else if (e.key === 'ArrowLeft') prev()
 }
 
-// Сброс при каждом открытии
-watch(() => props.show, open => {
-  if (open) { tab.value = 'play'; step.value = 0; dir.value = 1 }
-})
+watch(
+  () => props.show,
+  async open => {
+    if (open) {
+      await nextTick()
+      sliderRef.value?.reset()
+    }
+  }
+)
 
 onMounted(() => window.addEventListener('keydown', onKey))
 onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
@@ -186,6 +68,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   background: rgb(var(--c-bg-deep) / 0.8);
   backdrop-filter: blur(10px);
 }
+
 .howto {
   position: relative;
   width: min(920px, 96vw);
@@ -206,9 +89,16 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   align-items: flex-start;
   justify-content: space-between;
   gap: 1rem;
-  padding: 1.6rem 1.8rem 0.9rem;
+  padding: 1.6rem 1.8rem 0.4rem;
+  flex-shrink: 0;
 }
-.howto__title-wrap { display: flex; flex-direction: column; gap: 0.2rem; }
+
+.howto__title-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
 .howto__title {
   margin: 0;
   font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -217,150 +107,68 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   letter-spacing: 0.01em;
   color: rgb(var(--c-text));
 }
-.howto__subtitle { margin: 0; font-size: 0.92rem; color: rgb(var(--c-text-soft) / 0.7); }
-.howto__close {
-  flex-shrink: 0; width: 2.3rem; height: 2.3rem; border-radius: 12px;
-  border: 1px solid rgb(var(--c-accent-sky) / 0.25);
-  background: rgb(var(--c-bg) / 0.5); color: rgb(var(--c-text-soft));
-  cursor: pointer; transition: background 0.2s ease, color 0.2s ease;
-}
-.howto__close:hover { background: rgb(var(--c-danger) / 0.16); color: rgb(var(--c-danger-soft)); }
 
-.howto__tabs {
-  display: inline-flex; gap: 0.4rem; align-self: center;
-  margin: 0.9rem auto 0.35rem; padding: 0.4rem;
-  border-radius: var(--radius-pill);
-  border: 1px solid rgb(var(--c-accent-sky) / 0.2);
-  background: rgb(var(--c-bg) / 0.55);
+.howto__subtitle {
+  margin: 0;
+  font-size: 0.92rem;
+  color: rgb(var(--c-text-soft) / 0.7);
 }
-.howto__tab {
-  border: none; background: transparent; color: rgb(var(--c-text-soft) / 0.75);
-  padding: 0.6rem 1.9rem; border-radius: var(--radius-pill);
-  font-size: 0.95rem; font-weight: 600; cursor: pointer;
+
+.howto__close {
+  flex-shrink: 0;
+  width: 2.3rem;
+  height: 2.3rem;
+  border-radius: 12px;
+  border: 1px solid rgb(var(--c-accent-sky) / 0.25);
+  background: rgb(var(--c-bg) / 0.5);
+  color: rgb(var(--c-text-soft));
+  cursor: pointer;
   transition: background 0.2s ease, color 0.2s ease;
 }
-.howto__tab:hover:not(.howto__tab--active) { color: rgb(var(--c-text)); }
-.howto__tab--active {
-  background: rgb(var(--c-accent-sky) / 0.18);
-  color: rgb(var(--c-accent-soft));
+
+.howto__close:hover {
+  background: rgb(var(--c-danger) / 0.16);
+  color: rgb(var(--c-danger-soft));
 }
 
-/* Сцена с анимацией — верхняя, большая */
-.howto__stage {
-  position: relative;
-  flex: 1 1 auto;
-  min-height: 0;
-  margin: 0.75rem 1.5rem 0;
-  border-radius: 20px;
-  border: 1px solid rgb(var(--c-accent-sky) / 0.14);
-  background: rgb(var(--c-bg-deep) / 0.3);
-  overflow: hidden;
-  display: flex;
-}
-.howto__illu { flex: 1 1 auto; min-width: 0; display: flex; align-items: center; justify-content: center; padding: 0.6rem; }
-
-/* Текст снизу */
-.howto__content {
-  flex-shrink: 0;
-  /* Фиксированная высота: текст (1–3 строки) не двигает верхний блок-сцену при переходах */
-  height: 128px;
-  padding: 0.5rem 1.6rem;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-.howto__step-num {
-  font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em;
-  color: rgb(var(--c-accent-soft) / 0.8); text-transform: uppercase;
-}
-.howto__step-title {
-  margin: 0.25rem 0 0.35rem;
-  font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
-  font-size: 1.35rem;
-  font-weight: 800;
-  color: rgb(var(--c-text));
-}
-.howto__step-desc {
-  margin: 0 auto; max-width: 46ch;
-  font-size: 0.95rem; line-height: 1.5; color: rgb(var(--c-text-soft) / 0.85);
+.howto__close:focus {
+  outline: none;
 }
 
-/* Навигация */
-.howto__nav {
-  flex-shrink: 0;
-  display: flex; align-items: center; justify-content: space-between;
-  gap: 1rem; padding: 0.75rem 1.6rem 1.3rem;
-}
-.howto__prev {
-  min-width: 110px; padding: 0.7rem 1.5rem;
-  border-radius: var(--radius-pill);
-  border: 1px solid rgb(var(--c-accent-sky) / 0.3);
-  background: rgb(var(--c-accent-sky) / 0.08);
-  color: rgb(var(--c-accent-soft));
-  font-size: 0.95rem; font-weight: 600; cursor: pointer;
-  transition: background 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
-}
-.howto__prev:hover:not(:disabled) {
-  background: rgb(var(--c-accent-sky) / 0.16);
-  border-color: rgb(var(--c-accent-sky) / 0.55);
-}
-.howto__prev:disabled { opacity: 0.3; cursor: not-allowed; }
-/* На самом первом шаге кнопку не показываем, но место сохраняем (точки по центру) */
-.howto__prev--hidden { visibility: hidden; pointer-events: none; }
-.howto__dots { display: flex; gap: 0.5rem; align-items: center; }
-.howto__dot {
-  width: 0.55rem; height: 0.55rem; border-radius: 50%; border: none; padding: 0;
-  background: rgb(var(--c-text-soft) / 0.25); cursor: pointer;
-  transition: background 0.2s ease, width 0.2s ease;
-}
-.howto__dot--active { background: rgb(var(--c-accent-sky)); width: 1.5rem; border-radius: 4px; }
-.howto__next {
-  min-width: 130px; padding: 0.7rem 1.7rem;
-  border-radius: var(--radius-pill);
-  border: 1px solid rgb(var(--c-accent) / 0.5);
-  background: rgb(var(--c-accent) / 0.18);
-  color: rgb(var(--c-accent-soft));
-  font-size: 0.95rem; font-weight: 600; cursor: pointer;
-  transition: background 0.2s ease, border-color 0.2s ease;
-}
-.howto__next:hover { background: rgb(var(--c-accent) / 0.3); border-color: rgb(var(--c-accent) / 0.7); }
-
-/* Убираем жёлтую обводку фокуса, аккуратный ring только для клавиатуры */
-.howto__tab:focus,
-.howto__next:focus,
-.howto__prev:focus,
-.howto__close:focus,
-.howto__dot:focus { outline: none; }
-.howto__tab:focus-visible,
-.howto__next:focus-visible,
-.howto__prev:focus-visible,
-.howto__close:focus-visible,
-.howto__dot:focus-visible {
+.howto__close:focus-visible {
   outline: 2px solid rgb(var(--c-accent-sky) / 0.6);
   outline-offset: 2px;
 }
 
-
-/* Переходы между шагами */
-.stage-next-enter-active, .stage-next-leave-active,
-.stage-prev-enter-active, .stage-prev-leave-active,
-.text-next-enter-active, .text-next-leave-active,
-.text-prev-enter-active, .text-prev-leave-active {
-  transition: opacity 0.25s ease, transform 0.25s ease;
+.howto__slider {
+  flex: 1 1 auto;
+  min-height: 0;
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
+  background: transparent;
 }
-.stage-next-enter-from, .text-next-enter-from { opacity: 0; transform: translateX(40px); }
-.stage-next-leave-to, .text-next-leave-to { opacity: 0; transform: translateX(-40px); }
-.stage-prev-enter-from, .text-prev-enter-from { opacity: 0; transform: translateX(-40px); }
-.stage-prev-leave-to, .text-prev-leave-to { opacity: 0; transform: translateX(40px); }
 
-/* Появление модалки */
-.howto-enter-active, .howto-leave-active { transition: opacity 0.25s ease; }
-.howto-enter-active .howto, .howto-leave-active .howto {
+.howto-enter-active,
+.howto-leave-active {
+  transition: opacity 0.25s ease;
+}
+
+.howto-enter-active .howto,
+.howto-leave-active .howto {
   transition: transform 0.25s cubic-bezier(0.34, 1.4, 0.64, 1), opacity 0.25s ease;
 }
-.howto-enter-from, .howto-leave-to { opacity: 0; }
-.howto-enter-from .howto, .howto-leave-to .howto { opacity: 0; transform: translateY(16px) scale(0.96); }
+
+.howto-enter-from,
+.howto-leave-to {
+  opacity: 0;
+}
+
+.howto-enter-from .howto,
+.howto-leave-to .howto {
+  opacity: 0;
+  transform: translateY(16px) scale(0.96);
+}
 
 @media (max-width: 768px) {
   .howto-overlay {
@@ -376,79 +184,25 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   }
 
   .howto__head {
-    padding: 1.15rem 1.15rem 0.65rem;
-    gap: 0.75rem;
+    padding: 1.15rem 1.15rem 0.35rem;
   }
 
   .howto__title {
     font-size: 1.45rem;
   }
-
-  .howto__subtitle {
-    font-size: 0.85rem;
-  }
-
-  .howto__tabs {
-    margin-top: 0.65rem;
-    max-width: calc(100% - 1.5rem);
-  }
-
-  .howto__tab {
-    padding: 0.55rem 1.15rem;
-    font-size: 0.88rem;
-  }
-
-  .howto__stage {
-    margin: 0.55rem 0.85rem 0;
-    border-radius: 16px;
-    min-height: 220px;
-  }
-
-  .howto__illu {
-    padding: 0.45rem;
-  }
-
-  .howto__content {
-    height: auto;
-    min-height: 108px;
-    padding: 0.45rem 1rem;
-  }
-
-  .howto__step-title {
-    font-size: 1.15rem;
-  }
-
-  .howto__step-desc {
-    font-size: 0.88rem;
-    line-height: 1.45;
-  }
-
-  .howto__nav {
-    padding: 0.65rem 0.85rem 1rem;
-    gap: 0.65rem;
-  }
 }
 
 @media (max-width: 560px) {
-  .howto { height: min(92vh, 100%); }
-  .howto__stage { margin: 0.5rem 0.65rem 0; min-height: 200px; }
-  .howto__head { padding: 1rem 0.9rem 0.55rem; }
-  .howto__title { font-size: 1.28rem; }
-  .howto__tabs { padding: 0.32rem; gap: 0.25rem; }
-  .howto__tab { padding: 0.5rem 0.85rem; font-size: 0.82rem; }
-  /* Компактная навигация, чтобы «Далее» не вылезал за край */
-  .howto__nav { padding: 0.7rem 0.9rem 1.1rem; gap: 0.5rem; }
-  .howto__prev { min-width: 84px; padding: 0.6rem 0.9rem; font-size: 0.9rem; }
-  .howto__next { min-width: 84px; padding: 0.6rem 0.9rem; font-size: 0.9rem; }
-  .howto__dots { gap: 0.35rem; }
-  .howto__content { min-height: 96px; padding: 0.4rem 0.75rem; }
-  .howto__step-title { font-size: 1.05rem; }
-  .howto__step-desc { font-size: 0.84rem; }
-}
-@media (max-width: 380px) {
-  .howto__nav { padding: 0.7rem 0.7rem 1rem; }
-  .howto__prev,
-  .howto__next { min-width: 74px; padding: 0.55rem 0.75rem; font-size: 0.85rem; }
-  .howto__stage { min-height: 180px; }
+  .howto {
+    height: min(92vh, 100%);
+  }
+
+  .howto__head {
+    padding: 1rem 0.9rem 0.3rem;
+  }
+
+  .howto__title {
+    font-size: 1.28rem;
+  }
 }
 </style>
