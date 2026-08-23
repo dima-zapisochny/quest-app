@@ -199,7 +199,7 @@ export const SEO_COPY: Record<SeoPageId, Record<AppLocale, SeoPageCopy>> = {
   },
   about: {
     uk: {
-      title: 'Про Quiz Quest — гра для компанії онлайн, правила та для кого',
+      title: 'Про Quiz Quest — онлайн-гра для компанії, правила та для кого',
       description:
         'Quiz Quest — безкоштовна гра для компанії та команди онлайн: вікторина у стилі шоу, тімбілдинг, офіс. Правила, кому підійде, як грати з телефона.',
       keywords:
