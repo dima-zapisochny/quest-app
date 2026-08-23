@@ -56,6 +56,8 @@
           <p v-if="error" class="stats-gate__error stats-toolbar__error">{{ error }}</p>
         </div>
 
+        <div class="stats-dashboard__layout">
+          <div class="stats-dashboard__primary">
         <section class="stats-kpis" aria-label="KPI">
           <article class="stats-kpi">
             <p class="stats-kpi__label">{{ tUk('stats.kpiViews7d') }}</p>
@@ -203,6 +205,37 @@
             <p v-else class="stats-empty">{{ tUk('stats.emptyGeo') }}</p>
           </section>
         </div>
+          </div>
+
+          <aside class="stats-visitors" :aria-label="tUk('stats.recentVisitors')">
+            <section class="stats-panel stats-panel--visitors">
+              <header class="stats-panel__head">
+                <h2>{{ tUk('stats.recentVisitors') }}</h2>
+              </header>
+              <ul v-if="recentVisitors.length" class="stats-visitors__list">
+                <li v-for="row in recentVisitors" :key="row.visitor_id" class="stats-visitor">
+                  <span
+                    class="stats-visitor__avatar"
+                    :class="{ 'stats-visitor__avatar--placeholder': !visitorAvatar(row) }"
+                    aria-hidden="true"
+                  >{{ visitorAvatar(row) }}</span>
+                  <div class="stats-visitor__body">
+                    <span class="stats-visitor__name">{{ row.display_name }}</span>
+                    <time class="stats-visitor__time" :datetime="row.last_seen">
+                      {{ formatVisitorTime(row.last_seen) }}
+                    </time>
+                    <span v-if="row.country_code" class="stats-visitor__geo">
+                      <span class="stats-visitor__flag" aria-hidden="true">{{ countryFlag(row.country_code) }}</span>
+                      <span class="stats-visitor__country">{{ countryLabel(row.country_code) }}</span>
+                    </span>
+                    <span v-else class="stats-visitor__geo stats-visitor__geo--muted">—</span>
+                  </div>
+                </li>
+              </ul>
+              <p v-else class="stats-empty">{{ tUk('stats.emptyVisitors') }}</p>
+            </section>
+          </aside>
+        </div>
       </div>
     </main>
   </div>
@@ -215,8 +248,10 @@ import { useRoute } from 'vue-router'
 import {
   fetchSiteAnalytics,
   siteAnalyticsLast7DayKeys,
+  SITE_ANALYTICS_TIMEZONE,
   type SiteAnalyticsSummary
 } from '@/services/api/analytics'
+import { avatarEmoji } from '@/utils/avatar'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -270,6 +305,24 @@ function formatUpdatedAt(d: Date) {
     hour: '2-digit',
     minute: '2-digit'
   }).format(d)
+}
+
+function formatVisitorTime(iso: string) {
+  if (!iso) return '—'
+  const date = new Date(iso)
+  if (Number.isNaN(date.getTime())) return '—'
+  return new Intl.DateTimeFormat('uk-UA', {
+    timeZone: SITE_ANALYTICS_TIMEZONE,
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  }).format(date)
+}
+
+function visitorAvatar(row: { display_name: string; avatar: string | null }) {
+  return avatarEmoji(row.avatar, row.display_name.charAt(0).toUpperCase() || '?')
 }
 
 function countryFlag(code: string) {
@@ -346,6 +399,7 @@ const topPaths = computed(() => (data.value?.top_paths ?? []).slice(0, 8))
 const topClicks = computed(() => (data.value?.top_clicks ?? []).slice(0, 8))
 const topCountries = computed(() => (data.value?.top_countries ?? []).slice(0, 8))
 const topRegions = computed(() => (data.value?.top_regions ?? []).slice(0, 8))
+const recentVisitors = computed(() => data.value?.recent_visitors ?? [])
 
 function pathBarWidth(views: number) {
   const max = Math.max(1, ...topPaths.value.map(p => p.views))
@@ -451,7 +505,7 @@ onBeforeUnmount(() => {
 
 .stats-page__main {
   width: 100%;
-  max-width: 72rem;
+  max-width: 90rem;
   margin: 0 auto;
   padding: clamp(1.5rem, 4vh, 2.75rem) clamp(1.15rem, 3vw, 2rem) clamp(1.75rem, 5vh, 3rem);
   box-sizing: border-box;
@@ -490,6 +544,130 @@ onBeforeUnmount(() => {
   flex-direction: column;
   gap: 0.85rem;
   width: 100%;
+}
+
+.stats-dashboard__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(17.5rem, 21rem);
+  gap: 0.75rem;
+  align-items: stretch;
+  min-height: 0;
+}
+
+.stats-dashboard__primary {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  min-width: 0;
+}
+
+.stats-visitors {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+}
+
+.stats-panel--visitors {
+  flex: 1;
+  min-height: 0;
+  max-height: none;
+}
+
+.stats-visitors__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.stats-visitor {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  padding: 0.55rem 0.5rem;
+  border-radius: 0.75rem;
+  background: rgb(var(--c-bg-deep) / 0.35);
+  border: 1px solid rgb(var(--c-accent-sky) / 0.1);
+}
+
+.stats-visitor__avatar {
+  flex-shrink: 0;
+  width: 2.35rem;
+  height: 2.35rem;
+  border-radius: 50%;
+  border: 1px solid rgb(var(--c-accent-sky) / 0.35);
+  background: rgb(var(--c-sky-deep) / 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.stats-visitor__avatar--placeholder {
+  border-style: dashed;
+  color: rgb(var(--c-accent-soft));
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+.stats-visitor__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.12rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.stats-visitor__name {
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: rgb(var(--c-text));
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stats-visitor__time {
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: rgb(var(--c-text-muted));
+  font-variant-numeric: tabular-nums;
+}
+
+.stats-visitor__geo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.1rem;
+  min-width: 0;
+}
+
+.stats-visitor__geo--muted {
+  color: rgb(var(--c-text-muted));
+  font-size: 0.76rem;
+}
+
+.stats-visitor__flag {
+  flex-shrink: 0;
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
+.stats-visitor__country {
+  font-size: 0.76rem;
+  font-weight: 650;
+  color: rgb(var(--c-text-soft) / 0.88);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .stats-gate {
@@ -819,6 +997,16 @@ onBeforeUnmount(() => {
   font-size: 0.84rem;
   line-height: 1.35;
   flex: 1;
+}
+
+@media (max-width: 1100px) {
+  .stats-dashboard__layout {
+    grid-template-columns: 1fr;
+  }
+
+  .stats-panel--visitors {
+    max-height: 22rem;
+  }
 }
 
 @media (max-width: 900px) {

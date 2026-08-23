@@ -28,6 +28,14 @@ export type AnalyticsRegionRow = {
   views: number
 }
 
+export type AnalyticsRecentVisitor = {
+  visitor_id: string
+  display_name: string
+  avatar: string | null
+  country_code: string | null
+  last_seen: string
+}
+
 export type SiteAnalyticsSummary = {
   total_views: number
   total_clicks: number
@@ -41,6 +49,7 @@ export type SiteAnalyticsSummary = {
   top_clicks: { name: string; clicks: number }[]
   top_countries: AnalyticsCountryRow[]
   top_regions: AnalyticsRegionRow[]
+  recent_visitors: AnalyticsRecentVisitor[]
 }
 
 type GeoInfo = {
@@ -164,6 +173,25 @@ function resolveGeo(): Promise<GeoInfo | null> {
   return geoPromise
 }
 
+const PROFILE_KEY = 'quiz-app-user-profile'
+
+function readVisitorProfile(): { display_name?: string; avatar?: string } {
+  if (typeof window === 'undefined') return {}
+  try {
+    const raw = localStorage.getItem(PROFILE_KEY)
+    if (!raw) return {}
+    const profile = JSON.parse(raw) as { name?: string; avatar?: string | null }
+    const display_name = String(profile?.name ?? '').trim().slice(0, 120)
+    const avatar = String(profile?.avatar ?? '').trim().slice(0, 32)
+    return {
+      ...(display_name ? { display_name } : {}),
+      ...(avatar ? { avatar } : {})
+    }
+  } catch {
+    return {}
+  }
+}
+
 async function insertEvent(
   eventType: 'page_view' | 'click',
   path: string,
@@ -181,6 +209,8 @@ async function insertEvent(
         : String(i18n.global.locale)
 
     const geo = await resolveGeo()
+    const profileMeta = eventType === 'page_view' ? readVisitorProfile() : {}
+    const eventMeta = { ...(meta ?? {}), ...profileMeta }
 
     await supabase.from('site_analytics_events').insert({
       event_type: eventType,
@@ -192,7 +222,7 @@ async function insertEvent(
       visitor_id: getVisitorId(),
       country_code: geo?.country_code ?? null,
       region: geo?.region ?? null,
-      meta: meta ?? {}
+      meta: eventMeta
     })
   } catch {
     // телеметрія не повинна ламати UX
@@ -272,7 +302,16 @@ export async function fetchSiteAnalytics(token: string): Promise<SiteAnalyticsSu
     top_paths: Array.isArray(raw.top_paths) ? raw.top_paths : [],
     top_clicks: Array.isArray(raw.top_clicks) ? raw.top_clicks : [],
     top_countries: Array.isArray(raw.top_countries) ? raw.top_countries : [],
-    top_regions: Array.isArray(raw.top_regions) ? raw.top_regions : []
+    top_regions: Array.isArray(raw.top_regions) ? raw.top_regions : [],
+    recent_visitors: Array.isArray(raw.recent_visitors)
+      ? raw.recent_visitors.map(row => ({
+          visitor_id: String(row.visitor_id ?? ''),
+          display_name: String(row.display_name ?? 'Гість'),
+          avatar: row.avatar ? String(row.avatar) : null,
+          country_code: row.country_code ? String(row.country_code) : null,
+          last_seen: String(row.last_seen ?? '')
+        }))
+      : []
   }
 }
 
