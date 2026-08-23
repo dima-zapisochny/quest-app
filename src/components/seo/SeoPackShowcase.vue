@@ -1,14 +1,8 @@
 <template>
-  <div class="seo-pack-showcase" :class="`seo-pack-showcase--focus-${focus}`" aria-hidden="true">
-    <article
-      class="seo-pack-card"
-      :class="{ 'seo-pack-card--active': focus === 'movie' }"
-    >
+  <div class="seo-pack-showcase" aria-hidden="true">
+    <article v-if="focus === 'movie'" class="seo-pack-card seo-pack-card--active">
       <div class="seo-pack-card__cover seo-pack-card__cover--movie">
         <span class="seo-pack-card__emoji">🎬</span>
-        <div class="seo-pack-card__tiles" aria-hidden="true">
-          <span v-for="n in 9" :key="`m-${n}`" class="seo-pack-card__tile" />
-        </div>
       </div>
       <div class="seo-pack-card__body">
         <strong class="seo-pack-card__title">Movie Night</strong>
@@ -16,13 +10,10 @@
       </div>
     </article>
 
-    <article
-      class="seo-pack-card"
-      :class="{ 'seo-pack-card--active': focus === 'music' }"
-    >
+    <article v-else class="seo-pack-card seo-pack-card--active">
       <div class="seo-pack-card__cover seo-pack-card__cover--music">
         <span class="seo-pack-card__emoji">🎵</span>
-        <div class="seo-pack-card__notes" aria-hidden="true">
+        <div class="seo-pack-card__notes">
           <span /><span /><span /><span />
         </div>
       </div>
@@ -49,28 +40,19 @@ const { t } = useI18n()
 
 <style scoped>
 .seo-pack-showcase {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.85rem;
+  display: flex;
+  justify-content: center;
   margin: 0 0 1.75rem;
 }
 
 .seo-pack-card {
+  width: min(100%, 15.5rem);
   display: flex;
   flex-direction: column;
   border-radius: 1rem;
-  border: 1px solid rgb(var(--c-accent-sky) / 0.16);
+  border: 1px solid rgb(var(--c-accent-sky) / 0.28);
   background: rgb(var(--c-surface) / 0.55);
   overflow: hidden;
-  opacity: 0.72;
-  transform: scale(0.97);
-  transition: opacity 0.25s ease, transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
-}
-
-.seo-pack-card--active {
-  opacity: 1;
-  transform: scale(1);
-  border-color: rgb(var(--c-accent-sky) / 0.35);
   box-shadow: 0 14px 32px rgb(var(--c-bg-deep) / 0.35);
 }
 
@@ -98,23 +80,9 @@ const { t } = useI18n()
 .seo-pack-card__emoji {
   position: relative;
   z-index: 2;
-  font-size: clamp(2.4rem, 8vw, 3.1rem);
+  font-size: clamp(2.6rem, 9vw, 3.4rem);
   line-height: 1;
   filter: drop-shadow(0 6px 16px rgb(0 0 0 / 0.4));
-}
-
-.seo-pack-card__tiles {
-  position: absolute;
-  inset: 18% 14% 22%;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0.28rem;
-  opacity: 0.35;
-}
-
-.seo-pack-card__tile {
-  border-radius: 0.28rem;
-  background: linear-gradient(180deg, #38bdf8, #22d3ee);
 }
 
 .seo-pack-card__notes {
@@ -146,6 +114,7 @@ const { t } = useI18n()
 
 .seo-pack-card__body {
   padding: 0.75rem 0.8rem 0.85rem;
+  text-align: center;
 }
 
 .seo-pack-card__title {
@@ -162,20 +131,6 @@ const { t } = useI18n()
   font-size: 0.75rem;
   line-height: 1.35;
   color: rgb(var(--c-text-soft) / 0.85);
-}
-
-@media (max-width: 520px) {
-  .seo-pack-showcase {
-    gap: 0.65rem;
-  }
-
-  .seo-pack-card__body {
-    padding: 0.6rem 0.65rem 0.7rem;
-  }
-
-  .seo-pack-card__title {
-    font-size: 0.85rem;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
