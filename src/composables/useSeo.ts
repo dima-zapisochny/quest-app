@@ -1,11 +1,14 @@
 import { watch, onMounted, onBeforeUnmount } from 'vue'
+import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import type { AppLocale } from '@/i18n'
 import {
   SEO_COPY,
-  SEO_PATHS,
   HREFLANG_LOCALES,
   getSiteUrl,
+  seoUrl,
+  DEFAULT_SEO_LOCALE,
+  isSeoLocale,
   type SeoPageId
 } from '@/seo/meta'
 
@@ -58,13 +61,19 @@ function clearHreflang() {
 /** Оновлює title/description/OG/Twitter/hreflang/JSON-LD для SEO-сторінки. */
 export function useSeo(pageId: SeoPageId) {
   const { locale, t } = useI18n()
+  const route = useRoute()
+
+  function pageLocale(): AppLocale {
+    const param = route.params.locale as string | undefined
+    if (isSeoLocale(param)) return param
+    return locale.value as AppLocale
+  }
 
   function apply() {
-    const loc = locale.value as AppLocale
+    const loc = pageLocale()
     const copy = SEO_COPY[pageId][loc] ?? SEO_COPY[pageId].en
     const site = getSiteUrl()
-    const path = SEO_PATHS[pageId]
-    const url = `${site}${path === '/' ? '' : path}`
+    const url = seoUrl(site, loc, pageId)
     const ogImage = `${site}/og-cover.png`
 
     document.title = copy.title
@@ -102,10 +111,10 @@ export function useSeo(pageId: SeoPageId) {
     upsertLink('canonical', url)
 
     clearHreflang()
-    for (const { hreflang } of HREFLANG_LOCALES) {
-      upsertLink('alternate', url, hreflang)
+    for (const { locale: hrefLocale, hreflang } of HREFLANG_LOCALES) {
+      upsertLink('alternate', seoUrl(site, hrefLocale, pageId), hreflang)
     }
-    upsertLink('alternate', url, 'x-default')
+    upsertLink('alternate', seoUrl(site, DEFAULT_SEO_LOCALE, pageId), 'x-default')
 
     const organization = {
       '@type': 'Organization',
@@ -142,25 +151,25 @@ export function useSeo(pageId: SeoPageId) {
             '@type': 'ListItem',
             position: 1,
             name: SEO_COPY.howto[loc].title,
-            url: `${site}${SEO_PATHS.howto}`
+            url: seoUrl(site, loc, 'howto')
           },
           {
             '@type': 'ListItem',
             position: 2,
             name: SEO_COPY['movie-night'][loc].title,
-            url: `${site}${SEO_PATHS['movie-night']}`
+            url: seoUrl(site, loc, 'movie-night')
           },
           {
             '@type': 'ListItem',
             position: 3,
             name: SEO_COPY['hit-parade'][loc].title,
-            url: `${site}${SEO_PATHS['hit-parade']}`
+            url: seoUrl(site, loc, 'hit-parade')
           },
           {
             '@type': 'ListItem',
             position: 4,
             name: SEO_COPY.about[loc].title,
-            url: `${site}${SEO_PATHS.about}`
+            url: seoUrl(site, loc, 'about')
           }
         ]
       })
@@ -176,7 +185,7 @@ export function useSeo(pageId: SeoPageId) {
             '@type': 'ListItem',
             position: 1,
             name: 'Quiz Quest',
-            item: site
+            item: seoUrl(site, loc, 'home')
           },
           {
             '@type': 'ListItem',
@@ -227,7 +236,7 @@ export function useSeo(pageId: SeoPageId) {
   let stop = () => {}
   onMounted(() => {
     apply()
-    stop = watch(locale, apply)
+    stop = watch([locale, () => route.params.locale], apply)
   })
   onBeforeUnmount(() => stop())
 

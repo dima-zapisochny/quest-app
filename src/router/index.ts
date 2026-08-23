@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useGameSessionStore } from '@/store/gameSessionStore'
+import { isSupported, setLocale } from '@/i18n'
 import LandingView from '@/views/LandingView.vue'
 import QuestView from '@/views/QuestView.vue'
 import PlayerSessionView from '@/views/PlayerSessionView.vue'
@@ -7,33 +8,45 @@ import HostSetupView from '@/views/HostSetupView.vue'
 import QuestCreateView from '@/views/QuestCreateView.vue'
 import AdminQuestView from '@/views/AdminQuestView.vue'
 
+const LOCALE = 'uk|en|ru|de|fr|es'
+
 const router = createRouter({
   history: createWebHistory(),
   routes: [
+    { path: '/', redirect: '/uk/' },
+    { path: '/how-to-play', redirect: '/uk/how-to-play' },
+    { path: '/quests/movie-night', redirect: '/uk/quests/movie-night' },
+    { path: '/quests/hit-parade', redirect: '/uk/quests/hit-parade' },
+    { path: '/about', redirect: '/uk/about' },
     {
-      path: '/',
-      name: 'landing',
-      component: LandingView
+      path: `/:locale(${LOCALE})`,
+      name: 'landing-locale',
+      component: LandingView,
+      meta: { publicSeo: true }
     },
     {
-      path: '/how-to-play',
+      path: `/:locale(${LOCALE})/how-to-play`,
       name: 'seo-howto',
-      component: () => import('@/views/SeoHowToView.vue')
+      component: () => import('@/views/SeoHowToView.vue'),
+      meta: { publicSeo: true }
     },
     {
-      path: '/quests/movie-night',
+      path: `/:locale(${LOCALE})/quests/movie-night`,
       name: 'seo-movie-night',
-      component: () => import('@/views/SeoMovieNightView.vue')
+      component: () => import('@/views/SeoMovieNightView.vue'),
+      meta: { publicSeo: true }
     },
     {
-      path: '/quests/hit-parade',
+      path: `/:locale(${LOCALE})/quests/hit-parade`,
       name: 'seo-hit-parade',
-      component: () => import('@/views/SeoHitParadeView.vue')
+      component: () => import('@/views/SeoHitParadeView.vue'),
+      meta: { publicSeo: true }
     },
     {
-      path: '/about',
+      path: `/:locale(${LOCALE})/about`,
       name: 'seo-about',
-      component: () => import('@/views/SeoAboutView.vue')
+      component: () => import('@/views/SeoAboutView.vue'),
+      meta: { publicSeo: true }
     },
     {
       path: '/quest/:questId',
@@ -91,6 +104,11 @@ const router = createRouter({
 
 // Router guard для проверки активной сессии при загрузке
 router.beforeEach(async (to, _from, next) => {
+  const localeParam = to.params.locale as string | undefined
+  if (localeParam && isSupported(localeParam)) {
+    setLocale(localeParam)
+  }
+
   const sessionStore = useGameSessionStore()
   
   // Ждём готовности store без busy-wait (#35)
@@ -160,8 +178,7 @@ router.beforeEach(async (to, _from, next) => {
     // Если активной сессии нет, но мы на странице с сессией, продолжаем проверку ниже
   } else if (activeSession) {
     // Публічні SEO-сторінки не форсимо в активну сесію
-    const publicSeo = ['seo-howto', 'seo-movie-night', 'seo-hit-parade', 'seo-about', 'admin-stats']
-    if (publicSeo.includes(to.name as string)) {
+    if (to.meta.publicSeo || to.name === 'admin-stats') {
       next()
       return
     }
@@ -264,7 +281,7 @@ router.beforeEach(async (to, _from, next) => {
     
     // Если сессия не найдена нигде, редиректим на главную
     console.warn('⚠️ Session not found, redirecting to landing')
-    next({ name: 'landing' })
+    next({ path: '/uk/' })
     return
   }
   
@@ -281,4 +298,3 @@ router.afterEach(to => {
 })
 
 export default router
-

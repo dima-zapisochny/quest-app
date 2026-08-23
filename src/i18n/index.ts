@@ -22,17 +22,19 @@ export const LOCALE_NAMES: Record<AppLocale, string> = {
 const STORAGE_KEY = 'quiz-app-locale'
 const DEFAULT_LOCALE: AppLocale = 'ru'
 
-function isSupported(value: string | null | undefined): value is AppLocale {
+export function isSupported(value: string | null | undefined): value is AppLocale {
   return !!value && (SUPPORTED_LOCALES as readonly string[]).includes(value)
 }
 
 /**
- * Определяем язык: ручной выбор из localStorage → язык браузера (по локации
- * системы) → дефолт. IP-геолокация не используется намеренно — язык браузера
- * надёжнее и приватнее.
+ * Определяем язык: префикс URL (/uk/, /en/, …) → localStorage → язык браузера → дефолт.
  */
 export function detectLocale(): AppLocale {
   if (typeof window === 'undefined') return DEFAULT_LOCALE
+
+  const fromPath = window.location.pathname.match(/^\/(uk|en|ru|de|fr|es)(?:\/|$)/)?.[1]
+  if (isSupported(fromPath)) return fromPath
+
   const saved = localStorage.getItem(STORAGE_KEY)
   if (isSupported(saved)) return saved
 

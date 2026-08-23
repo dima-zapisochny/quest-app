@@ -439,7 +439,7 @@ async function handleStart() {
 }
 
 function goBack() {
-  router.push('/')
+  router.push('/uk/')
 }
 
 function createNewQuest() {

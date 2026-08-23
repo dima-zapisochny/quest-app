@@ -84,10 +84,10 @@
     </div>
 
     <nav class="landing-seo-links" :aria-label="t('seo.footerNav')">
-      <RouterLink to="/how-to-play">{{ t('seo.linkHowTo') }}</RouterLink>
-      <RouterLink to="/quests/movie-night">{{ t('seo.linkMovieNight') }}</RouterLink>
-      <RouterLink to="/quests/hit-parade">{{ t('seo.linkHitParade') }}</RouterLink>
-      <RouterLink to="/about">{{ t('seo.linkAbout') }}</RouterLink>
+      <RouterLink :to="seoLink('howto')">{{ t('seo.linkHowTo') }}</RouterLink>
+      <RouterLink :to="seoLink('movie-night')">{{ t('seo.linkMovieNight') }}</RouterLink>
+      <RouterLink :to="seoLink('hit-parade')">{{ t('seo.linkHitParade') }}</RouterLink>
+      <RouterLink :to="seoLink('about')">{{ t('seo.linkAbout') }}</RouterLink>
     </nav>
   </div>
 </template>
@@ -103,9 +103,11 @@ import { useGameSessionStore } from '@/store/gameSessionStore'
 import { useIsMobileViewport, useIsPhoneViewport } from '@/composables/useIsMobileViewport'
 import { mapAppError } from '@/utils/mapAppError'
 import { useSeo } from '@/composables/useSeo'
+import { useSeoLinks } from '@/composables/useSeoLinks'
 
 const { t } = useI18n()
 useSeo('home')
+const { to: seoLink } = useSeoLinks()
 const router = useRouter()
 const { isMobileViewport } = useIsMobileViewport()
 const { isPhoneViewport } = useIsPhoneViewport()

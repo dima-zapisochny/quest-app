@@ -37,10 +37,14 @@
 
 <script setup lang="ts">
 import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { SUPPORTED_LOCALES, LOCALE_NAMES, setLocale, type AppLocale } from '@/i18n'
+import { seoPageIdFromRouteName, seoPath } from '@/seo/localeUrls'
 
 const { t, locale } = useI18n()
+const route = useRoute()
+const router = useRouter()
 
 const locales = SUPPORTED_LOCALES
 const names = LOCALE_NAMES
@@ -59,8 +63,13 @@ const current = computed(() => locale.value as AppLocale)
 const currentName = computed(() => LOCALE_NAMES[current.value] ?? current.value)
 
 function choose(loc: AppLocale) {
-  setLocale(loc)
   open.value = false
+  const pageId = seoPageIdFromRouteName(route.name)
+  if (pageId) {
+    router.push(seoPath(loc, pageId))
+    return
+  }
+  setLocale(loc)
   void syncQuestsToLocale()
 }
 
