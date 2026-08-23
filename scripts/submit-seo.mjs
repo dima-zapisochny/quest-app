@@ -6,7 +6,7 @@
  *   npm run seo:submit
  *   SITE_URL=https://quizzes.website npm run seo:submit
  */
-import { PUBLIC_SEO_PAGES, SITE_URL } from './seo-pages.mjs'
+import { SITE_URL, initSeoPages } from './seo-pages.mjs'
 import { printPriorityQueries } from './seo-priority-queries.mjs'
 
 const site = (process.env.SITE_URL || SITE_URL).replace(/\/$/, '')
@@ -14,7 +14,7 @@ const sitemapUrl = `${site}/sitemap.xml`
 const indexNowKey = process.env.INDEXNOW_KEY || 'quizquestindexnow2026'
 
 function absoluteUrl(path) {
-  return path === '/' ? `${site}/` : `${site}${path}`
+  return path.endsWith('/') ? `${site}${path}` : `${site}${path}`
 }
 
 async function ping(url, label) {
@@ -29,8 +29,8 @@ async function ping(url, label) {
   }
 }
 
-async function submitIndexNow() {
-  const urlList = PUBLIC_SEO_PAGES.map(p => absoluteUrl(p.path))
+async function submitIndexNow(pages) {
+  const urlList = pages.map(p => absoluteUrl(p.path))
   const host = new URL(site).host
 
   const body = {
@@ -69,16 +69,18 @@ function printGscChecklist() {
   console.log('   • АБО meta-тег: задайте VITE_GOOGLE_SITE_VERIFICATION у .env і перебілдіть')
   console.log('4. Sitemap → «Додати нову карту сайту» → вставте:')
   console.log(`   ${sitemapUrl}`)
-  console.log('5. Перевірка URL → вставте головну → «Запросити індексування»')
-  console.log('   Повторіть для /how-to-play, /quests/movie-night, /quests/hit-parade, /about')
+  console.log('5. Перевірка URL → запросіть індексування для /uk/, /en/, /ru/, … (див. sitemap.xml)')
+  console.log('   Приклад: /uk/how-to-play, /en/about, /de/quests/movie-night')
   console.log('6. Через 3–7 днів: Ефективність → перевірте запити зі списку нижче')
   console.log('7. Індекс → «Сторінки» — скільки URL проіндексовано')
   console.log('\nДодатково (Bing): https://www.bing.com/webmasters → додати сайт + sitemap\n')
 }
 
 async function main() {
+  const pages = await initSeoPages()
   console.log('[seo:submit] site =', site)
   console.log('[seo:submit] sitemap =', sitemapUrl)
+  console.log('[seo:submit] urls =', pages.length)
   console.log('[seo:submit] Google/Bing sitemap ping deprecated — use GSC / Bing Webmaster (see checklist)\n')
 
   await ping(
@@ -97,7 +99,7 @@ async function main() {
       const text = (await keyRes.text()).trim()
       if (text === indexNowKey) {
         console.log('[indexnow] key file on site: OK')
-        await submitIndexNow()
+        await submitIndexNow(pages)
       } else {
         console.warn('[indexnow] key file mismatch — deploy public/*.txt first, then re-run')
       }

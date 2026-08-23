@@ -338,10 +338,11 @@ export function installClickTracking(): () => void {
       const href = el.getAttribute('href') || ''
       if (isExcludedAnalyticsPath(href)) return
       if (
-        href === '/' ||
-        href.startsWith('/how-to-play') ||
-        href.startsWith('/about') ||
-        href.startsWith('/quests/')
+        /^\/(uk|en|ru|de|fr|es)(\/|$)/.test(href) &&
+        (/\/how-to-play(\/|$)/.test(href) ||
+          /\/about(\/|$)/.test(href) ||
+          /\/quests\//.test(href) ||
+          /^\/(uk|en|ru|de|fr|es)\/?$/.test(href))
       ) {
         trackClick(`nav:${href}`, undefined, { href })
       }

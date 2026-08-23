@@ -1,72 +1,79 @@
 /**
- * Статичні SEO-оболонки для публічних URL (пререндер після vite build).
- * Мова за замовчуванням — uk (як у index.html); клієнт підхопить i18n після гідрації.
+ * Список публічних SEO-сторінок для prerender / IndexNow / sitemap.
+ * Генерується з SEO_COPY × SEO_LOCALES.
  */
+import { loadSeoBundle } from './load-seo-copy.mjs'
+
 export const SITE_URL = (process.env.VITE_PUBLIC_SITE_URL || 'https://quizzes.website').replace(/\/$/, '')
 
-export const PUBLIC_SEO_PAGES = [
-  {
-    id: 'home',
-    path: '/',
-    file: 'index.html',
-    title: 'Quiz Quest - вікторина для компанії',
-    ogTitle: 'вікторина для компанії',
-    description:
-      'Безкоштовна гра для компанії онлайн: командна вікторина у стилі шоу. Створіть гру, поділіться кодом, грайте з телефона.',
-    h1: 'Quiz Quest'
-  },
-  {
-    id: 'howto',
-    path: '/how-to-play',
-    file: 'how-to-play/index.html',
-    title: 'Як грати в Quiz Quest — інструкція для ведучого та гравців',
-    description:
-      'Покроково: створити гру, поділитися кодом, відкривати питання на дошці, відповідати з телефона та рахувати бали. Також як зібрати власний квест.',
-    h1: 'Як грати в Quiz Quest?'
-  },
-  {
-    id: 'movie-night',
-    path: '/quests/movie-night',
-    file: 'quests/movie-night/index.html',
-    title: 'Movie Night — кіно-вікторина онлайн | Quiz Quest',
-    description:
-      'Готовий квест про популярні фільми й серіали IMDb: постери, цитати, ролі, саундтреки. 3 раунди × 5 категорій × 5 питань — для вечора з друзями.',
-    h1: 'Movie Night — кіно-вікторина'
-  },
-  {
-    id: 'hit-parade',
-    path: '/quests/hit-parade',
-    file: 'quests/hit-parade/index.html',
-    title: 'Hit Parade — музична вікторина онлайн | Quiz Quest',
-    description:
-      'Готовий музичний квест: Beatles, Queen, поп, рок, хіп-хоп. Пропущені слова, альбоми, колаборації. 75 питань для вечірки з хітами.',
-    h1: 'Hit Parade — музична вікторина'
-  },
-  {
-    id: 'about',
-    path: '/about',
-    file: 'about/index.html',
-    title: 'Про Quiz Quest — онлайн-гра для компанії, правила та для кого',
-    description:
-      'Quiz Quest — безкоштовна гра для компанії та команди онлайн: вікторина у стилі шоу, тімбілдинг, офіс. Правила, кому підійде, як грати з телефона.',
-    h1: 'Про Quiz Quest — онлайн-гра для компанії'
-  }
+export const HREFLANGS = [
+  { locale: 'uk', hreflang: 'uk' },
+  { locale: 'uk', hreflang: 'uk-UA' },
+  { locale: 'ru', hreflang: 'ru' },
+  { locale: 'ru', hreflang: 'ru-RU' },
+  { locale: 'en', hreflang: 'en' },
+  { locale: 'en', hreflang: 'en-US' },
+  { locale: 'en', hreflang: 'en-GB' },
+  { locale: 'de', hreflang: 'de' },
+  { locale: 'de', hreflang: 'de-DE' },
+  { locale: 'fr', hreflang: 'fr' },
+  { locale: 'fr', hreflang: 'fr-FR' },
+  { locale: 'es', hreflang: 'es' },
+  { locale: 'es', hreflang: 'es-ES' },
+  { locale: 'es', hreflang: 'es-MX' }
 ]
 
-export const HREFLANGS = [
-  'uk',
-  'uk-UA',
-  'ru',
-  'ru-RU',
-  'en',
-  'en-US',
-  'en-GB',
-  'de',
-  'de-DE',
-  'fr',
-  'fr-FR',
-  'es',
-  'es-ES',
-  'es-MX',
-  'x-default'
+let _pagesPromise
+
+/** @returns {Promise<Array<{ id: string, locale: string, path: string, file: string, title: string, ogTitle?: string, description: string, h1: string }>>} */
+export async function getPublicSeoPages() {
+  if (!_pagesPromise) {
+    _pagesPromise = buildPages()
+  }
+  return _pagesPromise
+}
+
+/** Синхронний список після await initSeoPages(). */
+export let PUBLIC_SEO_PAGES = []
+
+export async function initSeoPages() {
+  PUBLIC_SEO_PAGES = await getPublicSeoPages()
+  return PUBLIC_SEO_PAGES
+}
+
+async function buildPages() {
+  const { SEO_COPY, SEO_PAGE_IDS, SEO_LOCALES, seoPath, seoDistFile } = await loadSeoBundle()
+  const pages = []
+
+  for (const locale of SEO_LOCALES) {
+    for (const id of SEO_PAGE_IDS) {
+      const copy = SEO_COPY[id][locale]
+      const path = seoPath(locale, id)
+      pages.push({
+        id,
+        locale,
+        path,
+        file: seoDistFile(locale, id),
+        title: copy.title,
+        ogTitle: copy.ogTitle,
+        description: copy.description,
+        keywords: copy.keywords,
+        h1: copy.h1 ?? copy.title.split('|')[0].trim()
+      })
+    }
+  }
+
+  return pages
+}
+
+/** @type {'uk'} */
+export const DEFAULT_SEO_LOCALE = 'uk'
+
+/** Легасі-редirectи (uk) для vercel / GSC. */
+export const LEGACY_REDIRECTS = [
+  { from: '/', to: '/uk/' },
+  { from: '/how-to-play', to: '/uk/how-to-play' },
+  { from: '/quests/movie-night', to: '/uk/quests/movie-night' },
+  { from: '/quests/hit-parade', to: '/uk/quests/hit-parade' },
+  { from: '/about', to: '/uk/about' }
 ]

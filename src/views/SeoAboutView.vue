@@ -144,11 +144,11 @@
         <p class="about-prose">{{ t('about.packsText') }}</p>
         <ul class="seo-page__bullets">
           <li>
-            <RouterLink to="/quests/movie-night">{{ t('seo.linkMovieNight') }}</RouterLink>
+            <RouterLink :to="link('movie-night')">{{ t('seo.linkMovieNight') }}</RouterLink>
             — {{ t('about.packsMovie') }}
           </li>
           <li>
-            <RouterLink to="/quests/hit-parade">{{ t('seo.linkHitParade') }}</RouterLink>
+            <RouterLink :to="link('hit-parade')">{{ t('seo.linkHitParade') }}</RouterLink>
             — {{ t('about.packsMusic') }}
           </li>
         </ul>
@@ -168,15 +168,15 @@
         <h2 id="about-cta-title">{{ t('about.ctaTitle') }}</h2>
         <p>{{ t('about.ctaText') }}</p>
         <p class="seo-page__cta-wrap">
-          <RouterLink class="seo-page__cta" to="/" data-track="cta:create-game-about">{{ t('landing.createGame') }}</RouterLink>
+          <RouterLink class="seo-page__cta" :to="home()" data-track="cta:create-game-about">{{ t('landing.createGame') }}</RouterLink>
         </p>
       </section>
 
       <nav class="seo-page__nav" :aria-label="t('seo.relatedNav')">
-        <RouterLink to="/how-to-play">{{ t('seo.linkHowTo') }}</RouterLink>
-        <RouterLink to="/quests/movie-night">{{ t('seo.linkMovieNight') }}</RouterLink>
-        <RouterLink to="/quests/hit-parade">{{ t('seo.linkHitParade') }}</RouterLink>
-        <RouterLink to="/">{{ t('seo.linkPlay') }}</RouterLink>
+        <RouterLink :to="link('howto')">{{ t('seo.linkHowTo') }}</RouterLink>
+        <RouterLink :to="link('movie-night')">{{ t('seo.linkMovieNight') }}</RouterLink>
+        <RouterLink :to="link('hit-parade')">{{ t('seo.linkHitParade') }}</RouterLink>
+        <RouterLink :to="home()">{{ t('seo.linkPlay') }}</RouterLink>
       </nav>
     </main>
   </div>
@@ -187,12 +187,14 @@ import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import AppHeader from '@/components/common/AppHeader.vue'
 import { useSeo } from '@/composables/useSeo'
+import { useSeoLinks } from '@/composables/useSeoLinks'
 
 const { t } = useI18n()
 const router = useRouter()
+const { to: link, home } = useSeoLinks()
 useSeo('about')
 
 function goHome() {
-  router.push('/')
+  router.push(home())
 }
 </script>

@@ -32,10 +32,10 @@
       </section>
 
       <nav class="seo-page__nav" :aria-label="t('seo.relatedNav')">
-        <RouterLink to="/quests/movie-night">{{ t('seo.linkMovieNight') }}</RouterLink>
-        <RouterLink to="/quests/hit-parade">{{ t('seo.linkHitParade') }}</RouterLink>
-        <RouterLink to="/about">{{ t('seo.linkAbout') }}</RouterLink>
-        <RouterLink to="/">{{ t('seo.linkPlay') }}</RouterLink>
+        <RouterLink :to="link('movie-night')">{{ t('seo.linkMovieNight') }}</RouterLink>
+        <RouterLink :to="link('hit-parade')">{{ t('seo.linkHitParade') }}</RouterLink>
+        <RouterLink :to="link('about')">{{ t('seo.linkAbout') }}</RouterLink>
+        <RouterLink :to="home()">{{ t('seo.linkPlay') }}</RouterLink>
       </nav>
     </main>
   </div>
@@ -46,12 +46,14 @@ import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import AppHeader from '@/components/common/AppHeader.vue'
 import { useSeo } from '@/composables/useSeo'
+import { useSeoLinks } from '@/composables/useSeoLinks'
 
 const { t } = useI18n()
 const router = useRouter()
+const { to: link, home } = useSeoLinks()
 useSeo('howto')
 
 function goHome() {
-  router.push('/')
+  router.push(home())
 }
 </script>

@@ -326,7 +326,7 @@ async function confirmExit() {
     }
   }
   
-  router.push({ name: 'landing' })
+  router.push({ path: '/uk/' })
 }
 
 // Presence (#5/#10): пока игрок на странице — периодически пингуем «я здесь».
@@ -495,7 +495,7 @@ watch(
       // Очищаем активную сессию игрока
       sessionStore.clearActivePlayer()
       // Редиректим на страницу входа
-      router.replace({ name: 'landing' })
+      router.replace({ path: '/uk/' })
     }
   },
   { immediate: false }

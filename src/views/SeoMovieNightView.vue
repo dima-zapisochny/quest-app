@@ -18,13 +18,13 @@
       </ul>
 
       <p class="seo-page__cta-wrap">
-        <RouterLink class="seo-page__cta" to="/" data-track="cta:play-movie-night">{{ t('seo.linkPlay') }}</RouterLink>
+        <RouterLink class="seo-page__cta" :to="home()" data-track="cta:play-movie-night">{{ t('seo.linkPlay') }}</RouterLink>
       </p>
 
       <nav class="seo-page__nav" :aria-label="t('seo.relatedNav')">
-        <RouterLink to="/how-to-play">{{ t('seo.linkHowTo') }}</RouterLink>
-        <RouterLink to="/quests/hit-parade">{{ t('seo.linkHitParade') }}</RouterLink>
-        <RouterLink to="/about">{{ t('seo.linkAbout') }}</RouterLink>
+        <RouterLink :to="link('howto')">{{ t('seo.linkHowTo') }}</RouterLink>
+        <RouterLink :to="link('hit-parade')">{{ t('seo.linkHitParade') }}</RouterLink>
+        <RouterLink :to="link('about')">{{ t('seo.linkAbout') }}</RouterLink>
       </nav>
     </main>
   </div>
@@ -35,12 +35,14 @@ import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import AppHeader from '@/components/common/AppHeader.vue'
 import { useSeo } from '@/composables/useSeo'
+import { useSeoLinks } from '@/composables/useSeoLinks'
 
 const { t } = useI18n()
 const router = useRouter()
+const { to: link, home } = useSeoLinks()
 useSeo('movie-night')
 
 function goHome() {
-  router.push('/')
+  router.push(home())
 }
 </script>

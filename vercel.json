@@ -1,4 +1,15 @@
 {
+  "redirects": [
+    { "source": "/", "destination": "/uk/", "permanent": true },
+    { "source": "/how-to-play", "destination": "/uk/how-to-play", "permanent": true },
+    { "source": "/how-to-play/", "destination": "/uk/how-to-play", "permanent": true },
+    { "source": "/quests/movie-night", "destination": "/uk/quests/movie-night", "permanent": true },
+    { "source": "/quests/movie-night/", "destination": "/uk/quests/movie-night", "permanent": true },
+    { "source": "/quests/hit-parade", "destination": "/uk/quests/hit-parade", "permanent": true },
+    { "source": "/quests/hit-parade/", "destination": "/uk/quests/hit-parade", "permanent": true },
+    { "source": "/about", "destination": "/uk/about", "permanent": true },
+    { "source": "/about/", "destination": "/uk/about", "permanent": true }
+  ],
   "rewrites": [
     {
       "source": "/(.*)",
@@ -6,4 +17,3 @@
     }
   ]
 }
-
