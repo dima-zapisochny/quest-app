@@ -1,7 +1,6 @@
 <template>
   <div class="seo-page seo-page--pack seo-page--movie">
     <main class="seo-page__main seo-page__main--wide">
-      <p class="seo-page__brand">Quiz Quest · 🎬</p>
       <h1 class="seo-page__title">{{ t('seo.movieH1') }}</h1>
       <p class="seo-page__lead">{{ t('seo.movieLead') }}</p>
 

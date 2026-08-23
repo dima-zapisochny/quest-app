@@ -1,7 +1,6 @@
 <template>
   <div class="seo-page seo-page--pack seo-page--music">
     <main class="seo-page__main seo-page__main--wide">
-      <p class="seo-page__brand">Quiz Quest · 🎵</p>
       <h1 class="seo-page__title">{{ t('seo.musicH1') }}</h1>
       <p class="seo-page__lead">{{ t('seo.musicLead') }}</p>
 
