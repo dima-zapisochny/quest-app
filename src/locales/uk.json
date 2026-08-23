@@ -350,6 +350,10 @@
     "emptyGeo": "Поки дані відсутні.",
     "recentVisitors": "Унікальні відвідувачі",
     "emptyVisitors": "Поки немає відвідувачів.",
+    "colAvatar": "",
+    "colName": "Імʼя",
+    "colTime": "Час",
+    "colCountry": "Країна",
     "refreshed": "Оновлено",
     "lastUpdated": "Останнє оновлення:"
   }
