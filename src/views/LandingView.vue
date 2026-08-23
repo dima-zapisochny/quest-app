@@ -100,7 +100,7 @@ import AvatarPicker from '@/components/common/AvatarPicker.vue'
 import LanguageSwitcher from '@/components/common/LanguageSwitcher.vue'
 import HowToPlayModal from '@/components/common/HowToPlayModal.vue'
 import { useGameSessionStore } from '@/store/gameSessionStore'
-import { useIsMobileViewport } from '@/composables/useIsMobileViewport'
+import { useIsMobileViewport, useIsPhoneViewport } from '@/composables/useIsMobileViewport'
 import { mapAppError } from '@/utils/mapAppError'
 import { useSeo } from '@/composables/useSeo'
 
@@ -108,6 +108,7 @@ const { t } = useI18n()
 useSeo('home')
 const router = useRouter()
 const { isMobileViewport } = useIsMobileViewport()
+const { isPhoneViewport } = useIsPhoneViewport()
 const route = useRoute()
 const sessionStore = useGameSessionStore()
 
@@ -149,6 +150,7 @@ function closeHowTo() {
 function maybeOpenHowToOnFirstVisit() {
   if (shouldRedirect.value || isCheckingAuth.value) return
   if (hasSeenHowTo()) return
+  if (isPhoneViewport.value) return
   showHowTo.value = true
 }
 
