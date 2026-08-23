@@ -12,6 +12,11 @@ const LOCALE = 'uk|en|ru|de|fr|es'
 
 const router = createRouter({
   history: createWebHistory(),
+  scrollBehavior(to, _from, savedPosition) {
+    if (savedPosition) return savedPosition
+    if (to.hash) return { el: to.hash, behavior: 'smooth' }
+    return { top: 0, left: 0 }
+  },
   routes: [
     { path: '/', redirect: '/uk/' },
     { path: '/how-to-play', redirect: '/uk/how-to-play' },
