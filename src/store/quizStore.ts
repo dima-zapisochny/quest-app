@@ -225,7 +225,11 @@ export const useQuizStore = defineStore('quiz', () => {
         const category = round.categories.find(c => c.id === p.categoryId)
         if (category) {
           const question = category.questions.find(q => q.id === p.questionId)
-          if (question) question.played = true
+          if (question) {
+            question.played = true
+            // У таблиці прогресу немає answeredBy — показуємо ✕, а не порожню плитку
+            if (!question.answeredBy) question.timedOut = true
+          }
         }
       }
     })
