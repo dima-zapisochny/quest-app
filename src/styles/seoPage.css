@@ -316,6 +316,22 @@ html:has(.seo-page) {
 .seo-page--howto h2 {
   font-weight: 800;
   letter-spacing: -0.01em;
+  font-size: clamp(1.2rem, 3vw, 1.4rem);
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.55rem;
+  border-bottom: 1px solid rgb(var(--c-accent-sky) / 0.2);
+}
+
+.seo-page--howto .seo-page__section {
+  margin-bottom: 2.25rem;
+}
+
+.seo-page--howto .seo-page__lead {
+  max-width: 36rem;
+  font-size: 1.08rem;
+  line-height: 1.65;
+  color: rgb(var(--c-text) / 0.88);
+  margin-bottom: 1.1rem;
 }
 
 .seo-page--about h3,
@@ -431,155 +447,78 @@ html:has(.seo-page) {
   }
 }
 
-.howto-prose {
-  margin: 0 0 1.25rem;
-  line-height: 1.55;
-  color: rgb(var(--c-text-soft) / 0.92);
+.howto-header {
+  margin-bottom: 0.5rem;
 }
 
-.howto-prose--tight {
-  margin-bottom: 1rem;
-}
-
-.howto-seo-steps {
+.howto-overview {
+  list-style: none;
+  margin: 0 0 0.5rem;
+  padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.55rem;
+  max-width: 36rem;
 }
 
-.howto-seo-step {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
-  gap: 1rem;
-  align-items: center;
-  padding: 0.9rem;
-  border-radius: 1rem;
-  background: rgb(var(--c-surface) / 0.42);
-  border: 1px solid rgb(var(--c-accent-sky) / 0.14);
-}
-
-.howto-seo-step--reverse {
-  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
-}
-
-.howto-seo-step--reverse .howto-seo-step__illu {
-  order: 2;
-}
-
-.howto-seo-step--reverse .howto-seo-step__body {
-  order: 1;
-}
-
-.howto-seo-step__illu {
-  margin: 0;
-  min-height: 210px;
-  border-radius: 0.85rem;
-  background:
-    radial-gradient(ellipse 70% 60% at 50% 40%, rgb(var(--c-accent-sky) / 0.1), transparent),
-    rgb(var(--c-bg-deep) / 0.55);
-  border: 1px solid rgb(var(--c-accent-sky) / 0.12);
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.howto-seo-step__illu :deep(.illu) {
-  width: 100%;
-  height: 210px;
-}
-
-.howto-seo-step__illu :deep(.illu > .scene) {
-  transform: scale(0.88);
-}
-
-.howto-seo-step__body {
+.howto-overview li {
   position: relative;
-  padding: 0.15rem 0.25rem 0.15rem 0.5rem;
-}
-
-.howto-seo-step__num {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.75rem;
-  height: 1.75rem;
-  margin-bottom: 0.45rem;
-  border-radius: 999px;
-  background: linear-gradient(135deg, rgb(var(--c-accent)), rgb(var(--c-accent-sky)));
-  color: rgb(var(--c-bg-deep));
-  font-weight: 800;
-  font-size: 0.85rem;
-}
-
-.howto-seo-step__body h3 {
-  margin: 0 0 0.35rem;
-  font-size: 1.05rem;
-}
-
-.howto-seo-step__body p {
-  margin: 0;
+  padding-left: 1.35rem;
+  font-size: 1rem;
   line-height: 1.5;
-  color: rgb(var(--c-text-soft) / 0.9);
-  font-size: 0.95rem;
+  color: rgb(var(--c-text-soft) / 0.95);
+}
+
+.howto-overview li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 999px;
+  background: rgb(var(--c-accent-sky));
+}
+
+.howto-section__lead {
+  margin: 0 0 1.15rem;
+  font-size: 1rem;
+  line-height: 1.55;
+  color: rgb(var(--c-text-soft) / 0.92);
+  max-width: 38rem;
+}
+
+.howto-slider-section {
+  margin-bottom: 2.5rem;
 }
 
 .howto-tips {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.85rem;
+  gap: 1rem;
 }
 
 .howto-tip {
-  padding: 0.95rem 0.9rem 1rem;
+  padding: 1.05rem 1rem 1.1rem;
   border-radius: 0.9rem;
   background: rgb(var(--c-surface) / 0.55);
   border: 1px solid rgb(var(--c-accent-sky) / 0.16);
 }
 
 .howto-tip h3 {
-  margin: 0 0 0.35rem;
-  font-size: 1rem;
+  margin: 0 0 0.45rem;
+  font-size: 1.05rem;
 }
 
 .howto-tip p {
   margin: 0;
-  font-size: 0.92rem;
-  line-height: 1.45;
-  color: rgb(var(--c-text-soft) / 0.88);
-}
-
-.howto-seo-steps--animated .howto-seo-step {
-  animation: about-rise 0.55s ease both;
-  animation-delay: var(--step-delay, 0s);
+  font-size: 0.98rem;
+  line-height: 1.6;
+  color: rgb(var(--c-text) / 0.84);
 }
 
 @media (max-width: 720px) {
-  .howto-seo-step,
-  .howto-seo-step--reverse {
-    grid-template-columns: 1fr;
-  }
-
-  .howto-seo-step--reverse .howto-seo-step__illu,
-  .howto-seo-step--reverse .howto-seo-step__body {
-    order: unset;
-  }
-
-  .howto-seo-step__illu {
-    min-height: 190px;
-  }
-
-  .howto-seo-step__illu :deep(.illu) {
-    height: 190px;
-  }
-
   .howto-tips {
     grid-template-columns: 1fr;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .howto-seo-steps--animated .howto-seo-step {
-    animation: none;
   }
 }

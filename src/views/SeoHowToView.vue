@@ -1,57 +1,19 @@
 <template>
   <div class="seo-page seo-page--howto">
     <main class="seo-page__main seo-page__main--wide">
-      <h1 class="seo-page__title">{{ t('seo.howtoH1') }}</h1>
-      <p class="seo-page__lead">{{ t('seo.howtoLead') }}</p>
-      <p class="howto-prose">{{ t('seo.howtoIntro') }}</p>
+      <header class="howto-header">
+        <h1 class="seo-page__title">{{ t('seo.howtoH1') }}</h1>
+        <p class="seo-page__lead">{{ t('seo.howtoLead') }}</p>
+        <ul class="howto-overview">
+          <li v-for="n in 3" :key="`bullet-${n}`">{{ t(`seo.howtoBullet${n}`) }}</li>
+        </ul>
+      </header>
 
-      <section class="seo-page__section">
-        <h2>{{ t('howto.tabPlay') }}</h2>
-        <p class="howto-prose howto-prose--tight">{{ t('seo.howtoPlayIntro') }}</p>
-        <div class="howto-seo-steps howto-seo-steps--animated">
-          <article
-            v-for="(step, idx) in playSteps"
-            :key="step.scene"
-            class="howto-seo-step"
-            :class="{ 'howto-seo-step--reverse': idx % 2 === 1 }"
-            :style="{ '--step-delay': `${0.04 + idx * 0.06}s` }"
-          >
-            <figure class="howto-seo-step__illu" aria-hidden="true">
-              <HowToIllustration :scene="step.scene" />
-            </figure>
-            <div class="howto-seo-step__body">
-              <span class="howto-seo-step__num">{{ step.n }}</span>
-              <h3>{{ t(`howto.play${step.n}Title`) }}</h3>
-              <p>{{ t(`howto.play${step.n}Text`) }}</p>
-            </div>
-          </article>
-        </div>
+      <section class="seo-page__section howto-slider-section">
+        <HowToPlaySlider embedded @complete="scrollToTips" />
       </section>
 
-      <section class="seo-page__section">
-        <h2>{{ t('howto.tabCreate') }}</h2>
-        <p class="howto-prose howto-prose--tight">{{ t('seo.howtoCreateIntro') }}</p>
-        <div class="howto-seo-steps howto-seo-steps--animated">
-          <article
-            v-for="(step, idx) in createSteps"
-            :key="step.scene"
-            class="howto-seo-step"
-            :class="{ 'howto-seo-step--reverse': idx % 2 === 1 }"
-            :style="{ '--step-delay': `${0.04 + idx * 0.06}s` }"
-          >
-            <figure class="howto-seo-step__illu" aria-hidden="true">
-              <HowToIllustration :scene="step.scene" />
-            </figure>
-            <div class="howto-seo-step__body">
-              <span class="howto-seo-step__num">{{ step.n }}</span>
-              <h3>{{ t(`howto.create${step.n}Title`) }}</h3>
-              <p>{{ t(`howto.create${step.n}Text`) }}</p>
-            </div>
-          </article>
-        </div>
-      </section>
-
-      <section class="seo-page__section">
+      <section id="howto-tips" class="seo-page__section">
         <h2>{{ t('seo.howtoTipsTitle') }}</h2>
         <div class="howto-tips">
           <article class="howto-tip">
@@ -95,7 +57,7 @@
 
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import HowToIllustration from '@/components/common/howto/HowToIllustration.vue'
+import HowToPlaySlider from '@/components/common/howto/HowToPlaySlider.vue'
 import { useSeo } from '@/composables/useSeo'
 import { useSeoLinks } from '@/composables/useSeoLinks'
 
@@ -103,18 +65,7 @@ const { t } = useI18n()
 const { to: link, home } = useSeoLinks()
 useSeo('howto')
 
-const playSteps = [
-  { scene: 'start', n: 1 },
-  { scene: 'join', n: 2 },
-  { scene: 'open', n: 3 },
-  { scene: 'buzz', n: 4 },
-  { scene: 'score', n: 5 }
-] as const
-
-const createSteps = [
-  { scene: 'new', n: 1 },
-  { scene: 'board', n: 2 },
-  { scene: 'fill', n: 3 },
-  { scene: 'done', n: 4 }
-] as const
+function scrollToTips() {
+  document.getElementById('howto-tips')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+}
 </script>
