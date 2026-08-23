@@ -1,12 +1,5 @@
 <template>
   <div class="seo-page seo-page--about">
-    <AppHeader
-      button-variant="home"
-      :button-label="t('common.toHome')"
-      :show-sound-toggle="false"
-      @button-click="goHome"
-    />
-
     <main class="seo-page__main seo-page__main--wide">
       <h1 class="seo-page__title">{{ t('about.h1') }}</h1>
       <p class="seo-page__lead">{{ t('about.lead') }}</p>
@@ -184,17 +177,10 @@
 
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import { useRouter } from 'vue-router'
-import AppHeader from '@/components/common/AppHeader.vue'
 import { useSeo } from '@/composables/useSeo'
 import { useSeoLinks } from '@/composables/useSeoLinks'
 
 const { t } = useI18n()
-const router = useRouter()
 const { to: link, home } = useSeoLinks()
 useSeo('about')
-
-function goHome() {
-  router.push(home())
-}
 </script>

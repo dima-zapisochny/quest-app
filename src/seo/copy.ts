@@ -210,6 +210,7 @@ export const SEO_COPY: Record<SeoPageId, Record<AppLocale, SeoPageCopy>> = {
   about: {
     uk: {
       title: 'Про Quiz Quest · онлайн-гра для компанії, правила та для кого',
+      ogTitle: 'онлайн-гра для компанії',
       h1: 'Про Quiz Quest — онлайн-гра для компанії',
       description:
         'Quiz Quest — безкоштовна гра для компанії та команди онлайн: вікторина у стилі шоу, тімбілдинг, офіс. Правила, кому підійде, як грати з телефона.',
@@ -218,6 +219,7 @@ export const SEO_COPY: Record<SeoPageId, Record<AppLocale, SeoPageCopy>> = {
     },
     ru: {
       title: 'О Quiz Quest · игра для компании онлайн, правила и для кого',
+      ogTitle: 'игра для компании онлайн',
       h1: 'О Quiz Quest — игра для компании',
       description:
         'Quiz Quest — бесплатная игра для компании и команды онлайн: викторина в стиле шоу, тимбилдинг, офис. Правила, кому подойдёт, как играть с телефона.',
@@ -226,6 +228,7 @@ export const SEO_COPY: Record<SeoPageId, Record<AppLocale, SeoPageCopy>> = {
     },
     en: {
       title: 'About Quiz Quest · online game for teams & companies',
+      ogTitle: 'online game for teams',
       h1: 'About Quiz Quest',
       description:
         'Quiz Quest is a free online game for companies and teams: game-show quiz, team building, office parties. Rules, who it’s for, how to host and play from phones.',
@@ -234,6 +237,7 @@ export const SEO_COPY: Record<SeoPageId, Record<AppLocale, SeoPageCopy>> = {
     },
     de: {
       title: 'Über Quiz Quest · Online-Quiz für die Gruppe, Regeln & Zielgruppe',
+      ogTitle: 'Online-Quiz für die Gruppe',
       h1: 'Über Quiz Quest',
       description:
         'Was Quiz Quest ist: kostenloses Team-Quiz online im Show-Stil. Regeln, für wen es passt, Spiel starten und per Handy mitspielen.',
@@ -241,6 +245,7 @@ export const SEO_COPY: Record<SeoPageId, Record<AppLocale, SeoPageCopy>> = {
     },
     fr: {
       title: 'À propos de Quiz Quest · quiz en ligne, règles et pour qui',
+      ogTitle: 'quiz en ligne',
       h1: 'À propos de Quiz Quest',
       description:
         'Qu’est-ce que Quiz Quest : quiz d’équipe gratuit en ligne façon show. Règles, public, créer une partie et jouer sur téléphone.',
@@ -248,6 +253,7 @@ export const SEO_COPY: Record<SeoPageId, Record<AppLocale, SeoPageCopy>> = {
     },
     es: {
       title: 'Sobre Quiz Quest · quiz online, reglas y para quién',
+      ogTitle: 'quiz online para equipos',
       h1: 'Sobre Quiz Quest',
       description:
         'Qué es Quiz Quest: quiz en equipo gratis online con estilo de concurso. Reglas, a quién va dirigido, crear partida y jugar desde el móvil.',

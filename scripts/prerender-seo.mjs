@@ -50,6 +50,98 @@ function hreflangLinks(page) {
   return lines.join('\n')
 }
 
+function loadAboutFaq(locale) {
+  try {
+    const raw = readFileSync(join(root, 'src/locales', `${locale}.json`), 'utf8')
+    const about = JSON.parse(raw).about ?? {}
+    return [1, 2, 3, 4, 5]
+      .map(n => ({
+        '@type': 'Question',
+        name: about[`faq${n}Q`] ?? '',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: about[`faq${n}A`] ?? ''
+        }
+      }))
+      .filter(q => q.name && q.acceptedAnswer.text)
+  } catch {
+    return []
+  }
+}
+
+function buildJsonLdBlocks(page) {
+  const organization = {
+    '@type': 'Organization',
+    name: 'Quiz Quest',
+    url: SITE_URL,
+    logo: ogImage
+  }
+
+  const blocks = [
+    {
+      id: 'seo-jsonld-app',
+      data: {
+        '@context': 'https://schema.org',
+        '@type': 'WebApplication',
+        name: 'Quiz Quest',
+        url: seoUrl(SITE_URL, page.locale, 'home'),
+        applicationCategory: 'GameApplication',
+        operatingSystem: 'Web',
+        description: page.description,
+        inLanguage: page.locale,
+        image: ogImage,
+        offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+        publisher: organization
+      }
+    }
+  ]
+
+  if (page.id !== 'home') {
+    blocks.push({
+      id: 'seo-jsonld-breadcrumb',
+      data: {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: 'Quiz Quest',
+            item: seoUrl(SITE_URL, page.locale, 'home')
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: page.ogTitle ?? page.title,
+            item: absoluteUrl(page.path)
+          }
+        ]
+      }
+    })
+  }
+
+  if (page.id === 'about') {
+    const faq = loadAboutFaq(page.locale)
+    if (faq.length) {
+      blocks.push({
+        id: 'seo-jsonld-faq',
+        data: {
+          '@context': 'https://schema.org',
+          '@type': 'FAQPage',
+          mainEntity: faq
+        }
+      })
+    }
+  }
+
+  return blocks
+    .map(
+      b =>
+        `    <script type="application/ld+json" id="${b.id}">${JSON.stringify(b.data)}</script>`
+    )
+    .join('\n')
+}
+
 function injectPage(html, page) {
   const url = absoluteUrl(page.path)
   let out = html
@@ -107,30 +199,10 @@ function injectPage(html, page) {
       </ul>
     </noscript>`
 
-  const jsonLdApp = {
-    '@context': 'https://schema.org',
-    '@type': 'WebApplication',
-    name: 'Quiz Quest',
-    url: seoUrl(SITE_URL, page.locale, 'home'),
-    applicationCategory: 'GameApplication',
-    operatingSystem: 'Web',
-    description: page.description,
-    inLanguage: page.locale,
-    image: ogImage,
-    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
-    publisher: { '@type': 'Organization', name: 'Quiz Quest', url: SITE_URL, logo: ogImage }
-  }
+  const jsonLdBlock = buildJsonLdBlocks(page)
 
-  const jsonLdBlock = `    <script type="application/ld+json">${JSON.stringify(jsonLdApp)}</script>`
-
-  if (/<script\s+type="application\/ld\+json"[^>]*>[\s\S]*?<\/script>/i.test(out)) {
-    out = out.replace(
-      /<script\s+type="application\/ld\+json"[^>]*>[\s\S]*?<\/script>/i,
-      jsonLdBlock.trim()
-    )
-  } else {
-    out = out.replace('</head>', `${jsonLdBlock}\n  </head>`)
-  }
+  out = out.replace(/\s*<script\s+type="application\/ld\+json"[^>]*>[\s\S]*?<\/script>/gi, '')
+  out = out.replace('</head>', `${jsonLdBlock}\n  </head>`)
 
   const gsc = process.env.VITE_GOOGLE_SITE_VERIFICATION
   if (gsc) {
