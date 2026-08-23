@@ -224,11 +224,15 @@
           </div>
 
           <aside class="stats-visitors" :aria-label="tUk('stats.recentVisitors')">
-            <section class="stats-panel stats-panel--visitors">
+            <section ref="visitorsPanelRef" class="stats-panel stats-panel--visitors">
               <header class="stats-panel__head">
                 <h2>{{ tUk('stats.recentVisitors') }}</h2>
               </header>
-              <div v-if="recentVisitors.length" class="stats-visitors__scroll">
+              <div
+                v-if="recentVisitors.length"
+                ref="visitorsScrollRef"
+                class="stats-visitors__scroll"
+              >
                 <table class="stats-visitors-table">
                   <thead>
                     <tr>
@@ -266,7 +270,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onBeforeUnmount, ref } from 'vue'
+import { computed, onMounted, onBeforeUnmount, ref, watch, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 import {
@@ -298,6 +302,56 @@ const data = ref<SiteAnalyticsSummary | null>(null)
 const lastUpdatedAt = ref<Date | null>(null)
 const refreshState = ref<'idle' | 'saving' | 'saved'>('idle')
 let refreshHideTimer: ReturnType<typeof setTimeout> | null = null
+const visitorsPanelRef = ref<HTMLElement | null>(null)
+const visitorsScrollRef = ref<HTMLElement | null>(null)
+let visitorsResizeObserver: ResizeObserver | null = null
+
+/** Висота scroll-області кратна рядку таблиці — без обрізаного останнього рядка. */
+function syncVisitorsScrollHeight() {
+  const panel = visitorsPanelRef.value
+  const scroll = visitorsScrollRef.value
+  if (!panel || !scroll) return
+
+  scroll.style.height = ''
+  scroll.style.maxHeight = ''
+  scroll.style.flex = ''
+
+  if (!recentVisitors.value.length) return
+
+  const head = panel.querySelector<HTMLElement>('.stats-panel__head')
+  const thead = scroll.querySelector<HTMLElement>('thead')
+  const firstRow = scroll.querySelector<HTMLElement>('tbody tr')
+  if (!head || !thead || !firstRow) return
+
+  const panelStyle = getComputedStyle(panel)
+  const padTop = parseFloat(panelStyle.paddingTop) || 0
+  const padBottom = parseFloat(panelStyle.paddingBottom) || 0
+  const scrollBudget = panel.clientHeight - padTop - padBottom - head.offsetHeight
+  const theadH = thead.offsetHeight
+  const rowH = firstRow.offsetHeight
+  if (rowH <= 0 || scrollBudget <= theadH) return
+
+  const rowCount = recentVisitors.value.length
+  const maxBodyH = Math.max(rowH, Math.floor((scrollBudget - theadH) / rowH) * rowH)
+  const contentBodyH = rowCount * rowH
+  const bodyH = Math.min(contentBodyH, maxBodyH)
+  const scrollH = theadH + bodyH
+
+  scroll.style.flex = '0 0 auto'
+  scroll.style.height = `${scrollH}px`
+  scroll.style.maxHeight = `${scrollH}px`
+}
+
+function setupVisitorsScrollObserver() {
+  visitorsResizeObserver?.disconnect()
+  visitorsResizeObserver = null
+  if (!unlocked.value || !visitorsPanelRef.value) return
+
+  visitorsResizeObserver = new ResizeObserver(() => {
+    syncVisitorsScrollHeight()
+  })
+  visitorsResizeObserver.observe(visitorsPanelRef.value)
+}
 
 const chartW = 720
 const chartH = 200
@@ -467,6 +521,8 @@ async function load(token: string, fromRefresh = false) {
         refreshState.value = 'idle'
       }, 1600)
     }
+    await nextTick()
+    syncVisitorsScrollHeight()
   } catch {
     unlocked.value = false
     data.value = null
@@ -504,8 +560,26 @@ onMounted(() => {
   }
 })
 
+watch(unlocked, async isLive => {
+  if (!isLive) {
+    visitorsResizeObserver?.disconnect()
+    visitorsResizeObserver = null
+    return
+  }
+  await nextTick()
+  setupVisitorsScrollObserver()
+  syncVisitorsScrollHeight()
+})
+
+watch(recentVisitors, async () => {
+  if (!unlocked.value) return
+  await nextTick()
+  syncVisitorsScrollHeight()
+})
+
 onBeforeUnmount(() => {
   if (refreshHideTimer) clearTimeout(refreshHideTimer)
+  visitorsResizeObserver?.disconnect()
 })
 </script>
 
@@ -655,6 +729,8 @@ onBeforeUnmount(() => {
   overflow-x: hidden;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
+  box-sizing: border-box;
+  padding-bottom: 0.15rem;
 }
 
 .stats-visitors__empty {
@@ -692,6 +768,10 @@ onBeforeUnmount(() => {
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.04em;
+}
+
+.stats-visitors-table tbody tr:last-child td {
+  border-bottom: none;
 }
 
 .stats-visitors-table__avatar {

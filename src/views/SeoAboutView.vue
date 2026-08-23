@@ -1,13 +1,13 @@
 <template>
   <div class="seo-page seo-page--about">
     <AppHeader
-      button-variant="back"
-      :button-label="t('common.back')"
+      button-variant="home"
+      :button-label="t('common.toHome')"
+      :show-sound-toggle="false"
       @button-click="goHome"
     />
 
     <main class="seo-page__main seo-page__main--wide">
-      <p class="seo-page__brand">Quiz Quest</p>
       <h1 class="seo-page__title">{{ t('about.h1') }}</h1>
       <p class="seo-page__lead">{{ t('about.lead') }}</p>
 
