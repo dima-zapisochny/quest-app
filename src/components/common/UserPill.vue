@@ -1,6 +1,6 @@
 <template>
   <div class="user-pill" spellcheck="false" translate="no">
-    <span class="user-name">{{ displayName }}</span>
+    <span class="user-name" spellcheck="false" translate="no" autocorrect="off" autocapitalize="off">{{ displayName }}</span>
     <div 
       class="user-avatar" 
       :class="{ 'user-avatar--placeholder': !hasAvatar }" 
@@ -83,8 +83,13 @@ const avatarInitial = computed(() => displayName.value.charAt(0).toUpperCase())
   font-size: 1.05rem;
   font-weight: 700;
   letter-spacing: 0.02em;
-  text-decoration: none;
-  -webkit-text-decoration-line: none;
+  text-decoration: none !important;
+  -webkit-text-decoration: none !important;
+  -webkit-text-decoration-line: none !important;
+  text-decoration-line: none !important;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
 }
 
 .user-avatar {
