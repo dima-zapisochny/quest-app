@@ -674,7 +674,7 @@ onBeforeUnmount(() => {
   flex-direction: column;
   overflow: hidden;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
   gap: 0.75rem;
 }
 
@@ -697,19 +697,17 @@ onBeforeUnmount(() => {
   flex-wrap: wrap;
   gap: 0.5rem;
   justify-content: center;
-  align-content: center;
+  align-content: flex-start;
   width: 100%;
-  flex: 1 1 auto;
+  flex: 0 1 auto;
   min-height: 0;
+  max-height: 100%;
   overflow: hidden;
 }
 
 .player-media-grid :deep(.media-card) {
-  max-width: min(100%, 420px);
-  width: 100%;
-  flex: 1 1 auto;
-  align-self: stretch;
-  height: auto;
+  max-width: min(100%, 360px);
+  width: auto;
   max-height: 100%;
   min-height: 0;
   padding: 0.35rem;
@@ -719,11 +717,12 @@ onBeforeUnmount(() => {
   box-shadow: none;
   display: flex;
   flex-direction: column;
+  flex: 0 1 auto;
 }
 
 .player-media-grid :deep(.image-wrapper) {
   width: 100%;
-  flex: 1 1 auto;
+  max-height: 100%;
   min-height: 0;
   overflow: hidden;
   border-radius: 0.75rem;
@@ -734,7 +733,7 @@ onBeforeUnmount(() => {
 
 .player-media-grid :deep(.image-wrapper img) {
   max-width: 100%;
-  max-height: 100%;
+  max-height: min(42vh, 100%);
   width: auto;
   height: auto;
   object-fit: contain;
