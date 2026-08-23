@@ -42,7 +42,7 @@ export async function initSeoPages() {
 }
 
 async function buildPages() {
-  const { SEO_COPY, SEO_PAGE_IDS, SEO_LOCALES, seoPath, seoDistFile } = await loadSeoBundle()
+  const { SEO_COPY, SEO_PAGE_IDS, SEO_LOCALES, seoPath, seoDistFile, formatSeoTitle } = await loadSeoBundle()
   const pages = []
 
   for (const locale of SEO_LOCALES) {
@@ -54,8 +54,8 @@ async function buildPages() {
         locale,
         path,
         file: seoDistFile(locale, id),
-        title: copy.title,
-        ogTitle: copy.ogTitle,
+        title: formatSeoTitle(copy.title),
+        ogTitle: copy.ogTitle ? formatSeoTitle(copy.ogTitle) : undefined,
         description: copy.description,
         keywords: copy.keywords,
         h1: copy.h1 ?? copy.title.split('|')[0].trim()

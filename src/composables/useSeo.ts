@@ -9,6 +9,7 @@ import {
   seoUrl,
   DEFAULT_SEO_LOCALE,
   isSeoLocale,
+  formatSeoTitle,
   type SeoPageId
 } from '@/seo/meta'
 
@@ -76,7 +77,7 @@ export function useSeo(pageId: SeoPageId) {
     const url = seoUrl(site, loc, pageId)
     const ogImage = `${site}/og-cover.png`
 
-    document.title = copy.title
+    document.title = formatSeoTitle(copy.title)
     document.documentElement.lang = loc
 
     upsertMeta('name', 'description', copy.description)
@@ -88,9 +89,11 @@ export function useSeo(pageId: SeoPageId) {
     const gsc = import.meta.env.VITE_GOOGLE_SITE_VERIFICATION as string | undefined
     if (gsc) upsertMeta('name', 'google-site-verification', gsc)
 
+    const socialTitle = formatSeoTitle(copy.ogTitle ?? copy.title)
+
     upsertMeta('property', 'og:type', 'website')
     upsertMeta('property', 'og:site_name', 'Quiz Quest')
-    upsertMeta('property', 'og:title', copy.ogTitle ?? copy.title)
+    upsertMeta('property', 'og:title', socialTitle)
     upsertMeta('property', 'og:description', copy.ogDescription ?? copy.description)
     upsertMeta('property', 'og:url', url)
     upsertMeta(
@@ -104,7 +107,7 @@ export function useSeo(pageId: SeoPageId) {
     upsertMeta('property', 'og:image:type', 'image/png')
 
     upsertMeta('name', 'twitter:card', 'summary_large_image')
-    upsertMeta('name', 'twitter:title', copy.ogTitle ?? copy.title)
+    upsertMeta('name', 'twitter:title', socialTitle)
     upsertMeta('name', 'twitter:description', copy.ogDescription ?? copy.description)
     upsertMeta('name', 'twitter:image', ogImage)
 
