@@ -23,6 +23,7 @@ export {
   isSeoLocale,
   type SeoLocale
 } from '@/seo/localeUrls'
+export { formatSeoTitle } from '@/seo/formatTitle'
 
 /** @deprecated Використовуйте seoPath(locale, pageId). Залишено для легасі-редirectів. */
 export const SEO_PATHS = {

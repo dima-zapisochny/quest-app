@@ -79,3 +79,4 @@ export function seoDistFile(locale: SeoLocale, pageId: SeoPageId): string {
 }
 
 export { SEO_COPY, SEO_PAGE_IDS } from '@/seo/copy'
+export { formatSeoTitle } from '@/seo/formatTitle'
