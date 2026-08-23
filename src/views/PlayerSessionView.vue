@@ -533,6 +533,52 @@ onBeforeUnmount(() => {
   }
 }
 
+/* «Вийти» — та сама висота й рівень, що капсула з іменем */
+.player-view :deep(.app-header) {
+  align-items: center;
+}
+
+.player-view :deep(.app-header-left) {
+  align-items: center;
+}
+
+.player-view :deep(.nav-button--exit) {
+  height: 72px;
+  min-height: 72px;
+  min-width: 8.25rem;
+  padding: 0 1.85rem;
+  font-size: 1.05rem;
+}
+
+@media (max-width: 768px) {
+  .player-view :deep(.nav-button--exit) {
+    height: 60px;
+    min-height: 60px;
+    min-width: 7.5rem;
+    padding: 0 1.5rem;
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .player-view :deep(.nav-button--exit) {
+    height: 56px;
+    min-height: 56px;
+    min-width: 7rem;
+    padding: 0 1.35rem;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .player-view :deep(.nav-button--exit) {
+    height: 52px;
+    min-height: 52px;
+    min-width: 6.5rem;
+    padding: 0 1.2rem;
+    font-size: 0.85rem;
+  }
+}
 
 .player-main {
   flex: 1;
@@ -1009,7 +1055,7 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: 0.5rem;
   margin: 0.15rem 0 0;
-  padding: 0.5rem 0 0.65rem;
+  padding: 0.5rem 0 1.1rem;
   flex-shrink: 0;
   box-sizing: border-box;
 }
@@ -1443,7 +1489,7 @@ onBeforeUnmount(() => {
   }
 
   .buzzer-section {
-    padding: 0.35rem 0.625rem 0.5rem;
+    padding: 0.35rem 0.625rem 0.75rem;
     margin: 0;
     flex-shrink: 0;
   }
@@ -1610,7 +1656,7 @@ onBeforeUnmount(() => {
   }
 
   .buzzer-section {
-    padding: 0.25rem 0.25rem 0.4rem;
+    padding: 0.25rem 0.25rem 0.65rem;
     margin: 0;
     flex-shrink: 0;
     box-sizing: border-box;
@@ -1878,7 +1924,7 @@ onBeforeUnmount(() => {
   }
 
   .buzzer-section {
-    padding: 0.2rem 0.2rem 0.35rem;
+    padding: 0.2rem 0.2rem 0.55rem;
     margin: 0;
     flex-shrink: 0;
     box-sizing: border-box;
