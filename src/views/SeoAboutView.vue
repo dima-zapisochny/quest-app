@@ -1,5 +1,5 @@
 <template>
-  <div class="seo-page">
+  <div class="seo-page seo-page--about">
     <AppHeader
       button-variant="back"
       :button-label="t('common.back')"
@@ -11,7 +11,7 @@
       <h1 class="seo-page__title">{{ t('about.h1') }}</h1>
       <p class="seo-page__lead">{{ t('about.lead') }}</p>
 
-      <figure class="about-hero" aria-hidden="true">
+      <figure class="about-hero about-hero--animated" aria-hidden="true">
         <svg viewBox="0 0 640 220" xmlns="http://www.w3.org/2000/svg" role="img">
           <defs>
             <linearGradient id="aboutBoard" x1="0" y1="0" x2="1" y2="1">
@@ -64,7 +64,7 @@
 
       <section class="seo-page__section">
         <h2>{{ t('about.forWhomTitle') }}</h2>
-        <div class="about-cards">
+        <div class="about-cards about-cards--animated">
           <article class="about-card">
             <div class="about-card__art" aria-hidden="true">
               <svg viewBox="0 0 72 56" xmlns="http://www.w3.org/2000/svg">
@@ -120,18 +120,15 @@
 
       <section class="seo-page__section">
         <h2>{{ t('about.rulesTitle') }}</h2>
-        <ol class="seo-page__list">
-          <li v-for="n in 5" :key="`rule-${n}`">
-            <strong>{{ t(`about.rule${n}Title`) }}</strong>
-            — {{ t(`about.rule${n}Text`) }}
-          </li>
+        <ol class="about-rules">
+          <li v-for="n in 5" :key="`rule-${n}`">{{ t(`about.rule${n}Text`) }}</li>
         </ol>
       </section>
 
       <section class="seo-page__section">
         <h2>{{ t('about.howtoTitle') }}</h2>
         <p class="about-prose about-prose--tight">{{ t('about.howtoLead') }}</p>
-        <ol class="about-steps">
+        <ol class="about-steps about-steps--animated">
           <li v-for="n in 5" :key="`step-${n}`" class="about-step">
             <span class="about-step__num">{{ n }}</span>
             <div>
