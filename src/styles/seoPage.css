@@ -28,6 +28,10 @@ html:has(.seo-page) {
   max-width: 46rem;
 }
 
+.seo-page--about .seo-page__main {
+  padding-top: clamp(1.5rem, 4vh, 2.5rem);
+}
+
 .seo-page__brand {
   margin: 0 0 0.5rem;
   font-size: 0.85rem;
