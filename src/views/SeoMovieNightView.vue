@@ -33,6 +33,7 @@
       </section>
 
       <nav class="seo-page__nav" :aria-label="t('seo.relatedNav')">
+        <RouterLink :to="home()">{{ t('seo.linkHome') }}</RouterLink>
         <RouterLink :to="link('howto')">{{ t('seo.linkHowTo') }}</RouterLink>
         <RouterLink :to="link('hit-parade')">{{ t('seo.linkHitParade') }}</RouterLink>
         <RouterLink :to="link('about')">{{ t('seo.linkAbout') }}</RouterLink>

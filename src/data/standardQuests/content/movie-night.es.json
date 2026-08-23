@@ -34,23 +34,23 @@
           "title": "Citas famosas",
           "questions": [
             {
-              "question": "«La vida es como una caja de bombones…» — ¿de qué película?",
+              "question": "«La vida es como una caja de bombones…» - ¿de qué película?",
               "answer": "Forrest Gump"
             },
             {
-              "question": "«Le haré una oferta que no podrá rechazar» — ¿quién lo dijo?",
+              "question": "«Le haré una oferta que no podrá rechazar» - ¿quién lo dijo?",
               "answer": "Vito Corleone / El Padrino"
             },
             {
-              "question": "«¿Por qué tan serio?» — ¿quién dice esta frase?",
+              "question": "«¿Por qué tan serio?» - ¿quién dice esta frase?",
               "answer": "El Joker (El caballero oscuro)"
             },
             {
-              "question": "«Ocúpate de vivir o ocúpate de morir» — ¿de qué película?",
+              "question": "«Ocúpate de vivir o ocúpate de morir» - ¿de qué película?",
               "answer": "Cadena perpetua"
             },
             {
-              "question": "«¿Qué hay en la caja?» — ¿de qué thriller de David Fincher?",
+              "question": "«¿Qué hay en la caja?» - ¿de qué thriller de David Fincher?",
               "answer": "Seven"
             }
           ]
@@ -194,7 +194,7 @@
               "answer": "Céline Dion"
             },
             {
-              "question": "¿Quién escribió e interpretó «Lose Yourself» — la banda sonora oscarizada de 8 Mile?",
+              "question": "¿Quién escribió e interpretó «Lose Yourself» - la banda sonora oscarizada de 8 Mile?",
               "answer": "Eminem"
             },
             {
@@ -312,7 +312,7 @@
               "answer": "Christoph Waltz"
             },
             {
-              "question": "¿Quién interpretó a Terence Fletcher — el cruel profesor de jazz en Whiplash?",
+              "question": "¿Quién interpretó a Terence Fletcher - el cruel profesor de jazz en Whiplash?",
               "answer": "J.K. Simmons"
             }
           ]

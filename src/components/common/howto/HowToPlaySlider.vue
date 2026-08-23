@@ -66,7 +66,7 @@
 
     <ol v-if="embedded" class="howto-slider__seo-steps">
       <li v-for="s in [...HOWTO_PLAY_STEPS, ...HOWTO_CREATE_STEPS]" :key="s.scene">
-        <strong>{{ t(s.title) }}</strong> — {{ t(s.text) }}
+        <strong>{{ t(s.title) }}</strong> - {{ t(s.text) }}
       </li>
     </ol>
   </div>
