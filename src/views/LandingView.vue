@@ -7,10 +7,21 @@
   </div>
   <div v-else-if="!shouldRedirect" class="landing">
     <button type="button" class="landing-howto" data-track="cta:howto" @click="showHowTo = true">
-      <span class="landing-howto__icon" aria-hidden="true">?</span>
+      <LandingHowToIcon class="landing-howto__icon" />
       <span class="landing-howto__label">{{ t('howto.title') }}</span>
     </button>
-    <LanguageSwitcher class="landing-lang" />
+    <div class="landing-top-right">
+      <RouterLink
+        class="landing-about"
+        :to="seoLink('about')"
+        data-track="cta:about"
+        :aria-label="t('seo.linkAbout')"
+      >
+        <span class="landing-about__mark" aria-hidden="true">?</span>
+        <span class="landing-about__tip" aria-hidden="true">{{ t('seo.linkAbout') }}</span>
+      </RouterLink>
+      <LanguageSwitcher class="landing-lang" />
+    </div>
     <HowToPlayModal :show="showHowTo" @close="closeHowTo" />
     <div class="landing-card">
       <div class="landing-brand">
@@ -99,6 +110,7 @@ import { useI18n } from 'vue-i18n'
 import AvatarPicker from '@/components/common/AvatarPicker.vue'
 import LanguageSwitcher from '@/components/common/LanguageSwitcher.vue'
 import HowToPlayModal from '@/components/common/HowToPlayModal.vue'
+import LandingHowToIcon from '@/components/common/LandingHowToIcon.vue'
 import { useGameSessionStore } from '@/store/gameSessionStore'
 import { useIsMobileViewport, useIsPhoneViewport } from '@/composables/useIsMobileViewport'
 import { mapAppError } from '@/utils/mapAppError'
@@ -664,37 +676,90 @@ watch(() => route.path, (newPath) => {
 }
 
 .landing-seo-links {
-  position: absolute;
-  left: 50%;
-  bottom: clamp(0.85rem, 3vw, 1.4rem);
-  transform: translateX(-50%);
-  z-index: 15;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.55rem 1.1rem;
-  max-width: min(92vw, 40rem);
-  padding: 0.35rem 0.75rem;
+  /* Keep in DOM for SEO indexing; hide on all viewports */
+  display: none;
 }
 
-.landing-seo-links a {
-  color: rgb(var(--c-text-soft) / 0.78);
-  font-size: 0.82rem;
-  font-weight: 650;
-  text-decoration: none;
-  white-space: nowrap;
-}
-
-.landing-seo-links a:hover {
-  color: rgb(var(--c-accent-soft));
-  text-decoration: underline;
-}
-
-.landing-lang {
+.landing-top-right {
   position: absolute;
   top: clamp(1rem, 3vw, 1.75rem);
   right: clamp(1rem, 3vw, 1.75rem);
   z-index: 20;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.landing-about {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  border: 1px solid rgb(var(--c-accent-sky) / 0.2);
+  background: rgb(var(--c-surface) / 0.55);
+  color: rgb(var(--c-text));
+  text-decoration: none;
+  backdrop-filter: blur(14px);
+  box-shadow: 0 6px 18px rgb(var(--c-bg-deep) / 0.35);
+  transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
+}
+
+.landing-about:hover {
+  border-color: rgb(var(--c-accent-sky) / 0.4);
+  color: rgb(var(--c-accent-soft));
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgb(var(--c-bg-deep) / 0.45);
+}
+
+.landing-about:focus {
+  outline: none;
+}
+
+.landing-about:focus-visible {
+  outline: 2px solid rgb(var(--c-accent-sky) / 0.6);
+  outline-offset: 3px;
+}
+
+.landing-about__mark {
+  font-size: 1.15rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.landing-about__tip {
+  position: absolute;
+  top: 50%;
+  right: calc(100% + 0.45rem);
+  left: auto;
+  transform: translateY(-50%) translateX(2px);
+  padding: 0.3rem 0.55rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgb(var(--c-accent-sky) / 0.25);
+  background: rgb(var(--c-bg) / 0.94);
+  color: rgb(var(--c-text-soft));
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+  box-shadow: 0 8px 18px rgb(var(--c-bg-deep) / 0.4);
+  backdrop-filter: blur(10px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.landing-about:hover .landing-about__tip,
+.landing-about:focus-visible .landing-about__tip {
+  opacity: 1;
+  transform: translateY(-50%) translateX(0);
+}
+
+.landing-lang {
+  position: static;
 }
 
 .landing-howto {
@@ -728,26 +793,19 @@ watch(() => route.path, (newPath) => {
   outline: 2px solid rgb(var(--c-accent-sky) / 0.6);
   outline-offset: 3px;
 }
-.landing-howto__icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.1rem;
-  height: 2.1rem;
-  border-radius: 50%;
-  line-height: 1;
-  font-size: 1.15rem;
-  font-weight: 800;
-  color: rgb(var(--c-accent-soft));
-  background: rgb(var(--c-accent-sky) / 0.16);
-  border: 1px solid rgb(var(--c-accent-sky) / 0.3);
+
+.landing-howto:hover :deep(.howto-bulb) {
+  background: rgb(var(--c-accent-sky) / 0.22);
+  border-color: rgb(var(--c-accent-sky) / 0.42);
+  box-shadow: 0 0 10px rgb(250 204 21 / 0.12);
 }
-.landing-howto:hover .landing-howto__icon {
-  background: rgb(var(--c-accent-sky) / 0.24);
-}
+
 @media (max-width: 420px) {
-  .landing-howto { padding: 0 0.9rem 0 0.4rem; font-size: 0.92rem; gap: 0.6rem; }
-  .landing-howto__icon { width: 1.75rem; height: 1.75rem; font-size: 1.05rem; }
+  .landing-howto {
+    padding: 0 0.9rem 0 0.4rem;
+    font-size: 0.92rem;
+    gap: 0.6rem;
+  }
 }
 
 .landing-card {
@@ -1242,11 +1300,7 @@ watch(() => route.path, (newPath) => {
     -webkit-overflow-scrolling: touch;
   }
 
-  /* SEO-ссылки остаются в DOM для индексации, но не ломают мобильный лейаут */
-  .landing-seo-links {
-    display: none;
-  }
-
+  /* SEO-ссылки скрыты на всех ширинах (см. .landing-seo-links выше) */
   .landing-card {
     padding: 2rem 1.75rem;
     gap: 1.25rem;
