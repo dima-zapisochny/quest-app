@@ -201,9 +201,6 @@ function isPlayerAnswered(playerId: string): boolean {
   text-align: center;
   font-size: 0.85rem;
   color: rgb(var(--c-text-muted) / 0.85);
-  border: 1px dashed rgb(var(--c-accent-sky) / 0.25);
-  border-radius: 12px;
-  background: rgb(var(--c-bg) / 0.35);
   box-sizing: border-box;
 }
 
