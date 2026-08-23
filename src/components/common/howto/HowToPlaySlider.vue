@@ -25,7 +25,7 @@
 
     <div class="howto-slider__stage">
       <transition :name="dir === 1 ? 'howto-stage-next' : 'howto-stage-prev'" mode="out-in">
-        <HowToIllustration :key="current.scene" :scene="current.scene" class="howto-slider__illu" />
+        <HowToIllustration :key="current.scene" :scene="current.scene" :compact="embedded" class="howto-slider__illu" />
       </transition>
     </div>
 
@@ -174,7 +174,12 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   width: 100%;
   max-width: 920px;
   margin: 0 auto;
-  min-height: 520px;
+  min-height: 580px;
+}
+
+.howto-slider--embedded .howto-slider__stage {
+  min-height: 340px;
+  flex: 1 1 340px;
 }
 
 .howto-slider__tabs {
@@ -401,7 +406,12 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 
 @media (max-width: 768px) {
   .howto-slider--embedded {
-    min-height: 480px;
+    min-height: 520px;
+  }
+
+  .howto-slider--embedded .howto-slider__stage {
+    min-height: 280px;
+    flex-basis: 280px;
   }
 
   .howto-slider__stage {
