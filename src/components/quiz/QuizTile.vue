@@ -24,7 +24,8 @@
           <span class="quiz-tile-user-name">{{ question.answeredBy.playerName }}</span>
           <span class="quiz-tile-user-check" aria-hidden="true">✓</span>
         </div>
-        <span v-else-if="question.timedOut" class="quiz-tile-cross">✕</span>
+        <!-- Прогрес з БД може мати лише played без answeredBy/timedOut — інакше порожня «дірка» -->
+        <span v-else class="quiz-tile-cross" aria-hidden="true">✕</span>
       </div>
     </template>
   </button>
@@ -172,10 +173,10 @@ function handleClick() {
 }
 
 .quiz-tile--played {
-  background: rgb(var(--c-bg) / 0.75);
-  border-color: rgb(var(--c-slate-500) / 0.4);
+  background: rgb(var(--c-slate-800) / 0.85);
+  border-color: rgb(var(--c-slate-500) / 0.45);
   cursor: not-allowed;
-  opacity: 0.9;
+  opacity: 1;
   box-shadow: 
     0 1px 3px rgb(var(--c-bg-deep) / 0.2),
     inset 0 1px 2px rgb(var(--c-white) / 0.04),
@@ -190,8 +191,8 @@ function handleClick() {
     0 1px 3px rgb(var(--c-bg-deep) / 0.2),
     inset 0 1px 2px rgb(var(--c-white) / 0.04),
     inset 0 -1px 2px rgb(var(--c-black) / 0.2) !important;
-  border-color: rgb(var(--c-slate-500) / 0.4) !important;
-  background: rgb(var(--c-bg) / 0.75) !important;
+  border-color: rgb(var(--c-slate-500) / 0.45) !important;
+  background: rgb(var(--c-slate-800) / 0.85) !important;
 }
 
 .quiz-tile--played:hover::before {
