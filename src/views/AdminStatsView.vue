@@ -133,6 +133,21 @@
           </div>
         </section>
 
+        <details class="stats-block-collapse">
+          <summary class="stats-block-collapse__summary">
+            <span class="stats-block-collapse__title">{{ tUk('stats.pagesClicksSummary') }}</span>
+            <span class="stats-block-collapse__hint">{{ tUk('stats.topPagesLead') }}</span>
+            <svg class="stats-block-collapse__chevron" viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M6 9l6 6 6-6"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </summary>
         <div class="stats-grids">
           <section class="stats-panel">
             <header class="stats-panel__head">
@@ -169,6 +184,7 @@
             <p v-else class="stats-empty">{{ tUk('stats.empty') }}</p>
           </section>
         </div>
+        </details>
 
         <div class="stats-grids stats-grids--geo">
           <section class="stats-panel">
@@ -927,6 +943,65 @@ onBeforeUnmount(() => {
   width: 100%;
   max-width: 100%;
   min-width: 0;
+}
+
+.stats-block-collapse {
+  margin: 0;
+  padding: 0;
+  border: none;
+  min-width: 0;
+}
+
+.stats-block-collapse__summary {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin: 0 0 0.75rem;
+  padding: 0.72rem 0.9rem;
+  list-style: none;
+  cursor: pointer;
+  border-radius: 0.9rem;
+  background: rgb(var(--c-surface) / 0.42);
+  border: 1px solid rgb(var(--c-accent-sky) / 0.14);
+  box-shadow: 0 10px 28px rgb(var(--c-bg-deep) / 0.18);
+  user-select: none;
+}
+
+.stats-block-collapse__summary::-webkit-details-marker {
+  display: none;
+}
+
+.stats-block-collapse__title {
+  font-size: 0.98rem;
+  font-weight: 800;
+  color: rgb(var(--c-text));
+}
+
+.stats-block-collapse__hint {
+  margin-left: auto;
+  font-size: 0.72rem;
+  font-weight: 650;
+  color: rgb(var(--c-text-muted));
+}
+
+.stats-block-collapse__chevron {
+  flex-shrink: 0;
+  width: 1.1rem;
+  height: 1.1rem;
+  color: rgb(var(--c-text-muted));
+  transition: transform 0.2s ease;
+}
+
+.stats-block-collapse[open] .stats-block-collapse__chevron {
+  transform: rotate(180deg);
+}
+
+.stats-block-collapse[open] .stats-block-collapse__summary {
+  margin-bottom: 0.75rem;
+}
+
+.stats-block-collapse:not([open]) .stats-block-collapse__summary {
+  margin-bottom: 0;
 }
 
 .stats-grids--geo {
