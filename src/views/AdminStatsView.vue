@@ -1,5 +1,5 @@
 <template>
-  <div class="stats-page" data-analytics-ignore>
+  <div class="stats-page" :class="{ 'stats-page--live': unlocked }" data-analytics-ignore>
     <main class="stats-page__main">
       <header class="stats-page__header">
         <h1 class="stats-page__title">Site analytics</h1>
@@ -525,6 +525,14 @@ onBeforeUnmount(() => {
   color: rgb(var(--c-text));
 }
 
+.stats-page--live {
+  height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
 .stats-page :is(h1, h2, h3) {
   font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   letter-spacing: normal;
@@ -541,6 +549,12 @@ onBeforeUnmount(() => {
   gap: 1.15rem;
   min-width: 0;
   overflow-x: clip;
+}
+
+.stats-page--live .stats-page__main {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .stats-page__header {
@@ -577,6 +591,12 @@ onBeforeUnmount(() => {
   min-width: 0;
 }
 
+.stats-page--live .stats-dashboard {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
 .stats-dashboard__layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(22rem, 30rem);
@@ -588,6 +608,11 @@ onBeforeUnmount(() => {
   min-height: 0;
 }
 
+.stats-page--live .stats-dashboard__layout {
+  flex: 1;
+  overflow: hidden;
+}
+
 .stats-dashboard__primary {
   display: flex;
   flex-direction: column;
@@ -595,12 +620,20 @@ onBeforeUnmount(() => {
   min-width: 0;
 }
 
+.stats-page--live .stats-dashboard__primary {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
 .stats-visitors {
   display: flex;
   flex-direction: column;
-  min-height: 100%;
   min-width: 0;
   max-width: 100%;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
   align-self: stretch;
 }
 
@@ -608,7 +641,8 @@ onBeforeUnmount(() => {
   flex: 1 1 auto;
   display: flex;
   flex-direction: column;
-  min-height: 100%;
+  min-height: 0;
+  height: 100%;
   min-width: 0;
   max-width: 100%;
   overflow: hidden;
@@ -617,13 +651,19 @@ onBeforeUnmount(() => {
 .stats-visitors__scroll {
   flex: 1 1 auto;
   min-height: 0;
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
   overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .stats-visitors__empty {
   flex: 1 1 auto;
   min-height: 0;
+}
+
+.stats-panel--visitors .stats-panel__head {
+  flex-shrink: 0;
 }
 
 .stats-visitors-table {
@@ -1088,13 +1128,21 @@ onBeforeUnmount(() => {
 @media (max-width: 1200px) {
   .stats-dashboard__layout {
     grid-template-columns: 1fr;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .stats-page--live .stats-dashboard__primary {
+    overflow: visible;
   }
 
   .stats-visitors {
-    min-height: auto;
+    height: auto;
+    max-height: none;
   }
 
   .stats-panel--visitors {
+    height: auto;
     max-height: 22rem;
     min-height: auto;
   }
