@@ -668,7 +668,8 @@ onBeforeUnmount(() => {
 .stats-page--live .stats-dashboard {
   flex: 1;
   min-height: 0;
-  overflow: hidden;
+  /* Do not clip here — toolbar button hover shadow would get cut off.
+     Scroll/clip lives on .stats-dashboard__layout and panels instead. */
 }
 
 .stats-dashboard__layout {
@@ -859,6 +860,9 @@ onBeforeUnmount(() => {
   flex-wrap: wrap;
   align-items: center;
   gap: 0.55rem 0.85rem;
+  /* Room for button hover glow inside ancestors with overflow clipping */
+  padding: 0.35rem;
+  margin: -0.35rem;
 }
 
 .stats-toolbar__btn {
