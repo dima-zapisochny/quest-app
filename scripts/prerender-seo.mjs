@@ -20,7 +20,7 @@ if (!existsSync(templatePath)) {
   process.exit(1)
 }
 
-const { seoPath, seoUrl } = await loadSeoBundle()
+const { seoPath, seoUrl, SEO_COPY } = await loadSeoBundle()
 const PUBLIC_SEO_PAGES = await initSeoPages()
 
 const template = readFileSync(templatePath, 'utf8')
@@ -137,6 +137,42 @@ function buildJsonLdBlocks(page) {
     }
   ]
 
+  if (page.id === 'home') {
+    blocks.push({
+      id: 'seo-jsonld-sitelinks',
+      data: {
+        '@context': 'https://schema.org',
+        '@type': 'ItemList',
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: SEO_COPY.howto[page.locale].title,
+            url: seoUrl(SITE_URL, page.locale, 'howto')
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: SEO_COPY['movie-night'][page.locale].title,
+            url: seoUrl(SITE_URL, page.locale, 'movie-night')
+          },
+          {
+            '@type': 'ListItem',
+            position: 3,
+            name: SEO_COPY['hit-parade'][page.locale].title,
+            url: seoUrl(SITE_URL, page.locale, 'hit-parade')
+          },
+          {
+            '@type': 'ListItem',
+            position: 4,
+            name: SEO_COPY.about[page.locale].title,
+            url: seoUrl(SITE_URL, page.locale, 'about')
+          }
+        ]
+      }
+    })
+  }
+
   if (page.id !== 'home') {
     blocks.push({
       id: 'seo-jsonld-breadcrumb',
@@ -227,7 +263,9 @@ function injectPage(html, page) {
 
   replaceMeta('name', 'description', page.description)
   replaceMeta('name', 'keywords', page.keywords)
-  const ogTitle = page.ogTitle ?? page.title
+  const shouldUseFullOgTitle =
+    page.id === 'home' || page.id === 'howto' || page.id === 'about'
+  const ogTitle = shouldUseFullOgTitle ? page.title : page.ogTitle ?? page.title
   replaceMeta('property', 'og:title', ogTitle)
   replaceMeta('property', 'og:description', page.description)
   replaceMeta('property', 'og:url', url)

@@ -75,7 +75,7 @@ export const SEO_COPY: Record<SeoPageId, Record<AppLocale, SeoPageCopy>> = {
       ogTitle: 'інструкція для ведучого та гравців',
       h1: 'Як грати в Quiz Quest?',
       description:
-        'Повна інструкція Quiz Quest: як ведучому створити гру, відкривати питання на дошці, а гравцям підключитися з телефона, натиснути «Відповісти» і збирати бали. Плюс створення власного квесту.',
+        'Повна інструкція Quiz Quest: ведучий створює гру й відкриває питання, гравці підключаються з телефонів, натискають «Відповісти» та збирають бали. Плюс: власний квест.',
       keywords:
         'як грати вікторину, інструкція вікторина онлайн, як створити вікторину, quiz quest як грати, ведучий вікторина, гра з телефона, buzz вікторина, jeopardy українською, онлайн вікторина для компанії'
     },
@@ -84,7 +84,7 @@ export const SEO_COPY: Record<SeoPageId, Record<AppLocale, SeoPageCopy>> = {
       ogTitle: 'инструкция для ведущего и игроков',
       h1: 'Как играть в Quiz Quest?',
       description:
-        'Полная инструкция Quiz Quest: как ведущему создать игру и открывать вопросы на доске, а игрокам подключиться с телефона, нажать «Ответить» и набирать очки. Плюс создание своего квеста.',
+        'Полная инструкция Quiz Quest: ведущий создаёт игру и открывает вопросы, игроки подключаются с телефонов, нажимают «Ответить» и набирают очки. Плюс: свой квест.',
       keywords:
         'как играть в викторину, инструкция викторина онлайн, как создать викторину, quiz quest как играть, ведущий викторина, игра с телефона, buzz викторина, jeopardy онлайн, викторина для компании'
     },
@@ -93,7 +93,7 @@ export const SEO_COPY: Record<SeoPageId, Record<AppLocale, SeoPageCopy>> = {
       ogTitle: 'host & player guide',
       h1: 'How to play Quiz Quest?',
       description:
-        'Full Quiz Quest guide: host creates a game and opens board tiles; players join on phones, buzz in and score points. Plus how to build your own quest with photos and audio.',
+        'Full Quiz Quest guide: the host creates the game and opens board tiles; players join on phones, buzz in, and score points. Plus: build your own quest.',
       keywords:
         'how to play quiz, online quiz guide, create quiz board, quiz quest howto, host quiz game, phone buzz quiz, jeopardy style quiz, team trivia guide, party quiz instructions'
     },
@@ -102,7 +102,7 @@ export const SEO_COPY: Record<SeoPageId, Record<AppLocale, SeoPageCopy>> = {
       ogTitle: 'Anleitung für Moderator und Spieler',
       h1: 'Wie spielt man Quiz Quest?',
       description:
-        'Komplette Quiz-Quest-Anleitung: Moderator erstellt ein Spiel und öffnet Felder; Spieler joinen per Handy, buzzern und sammeln Punkte. Plus eigenes Quiz mit Fotos und Audio bauen.',
+        'Komplette Quiz-Quest-Anleitung: Moderator erstellt ein Spiel, öffnet Felder, Spieler joinen per Handy, buzzern und sammeln Punkte. Plus: eigenes Quiz.',
       keywords:
         'quiz anleitung, online quiz spielen, quiz erstellen, quiz quest, moderator quiz, handy buzz, jeopardy online, team quiz guide, party quiz anleitung'
     },
@@ -111,7 +111,7 @@ export const SEO_COPY: Record<SeoPageId, Record<AppLocale, SeoPageCopy>> = {
       ogTitle: 'guide animateur et joueurs',
       h1: 'Comment jouer à Quiz Quest ?',
       description:
-        'Guide complet Quiz Quest : l’animateur crée une partie et ouvre les cases ; les joueurs rejoignent sur téléphone, buzzent et marquent des points. Et créer votre propre quiz avec photos et audio.',
+        'Guide complet Quiz Quest : l’animateur crée une partie et ouvre les cases ; les joueurs rejoignent sur téléphone, buzzent et marquent des points. Et : créez votre quiz.',
       keywords:
         'comment jouer quiz, guide quiz en ligne, créer un quiz, quiz quest, animateur quiz, buzz téléphone, jeopardy en ligne, quiz équipe, instructions trivia'
     },
@@ -120,7 +120,7 @@ export const SEO_COPY: Record<SeoPageId, Record<AppLocale, SeoPageCopy>> = {
       ogTitle: 'guía para anfitrión y jugadores',
       h1: '¿Cómo jugar a Quiz Quest?',
       description:
-        'Guía completa de Quiz Quest: el anfitrión crea la partida y abre casillas; los jugadores entran con el móvil, pulsan responder y suman puntos. Además, cómo crear tu propio cuestionario con fotos y audio.',
+        'Guía completa de Quiz Quest: el anfitrión crea la partida y abre casillas; los jugadores entran con el móvil, pulsan responder y suman puntos. Además: crea tu quiz.',
       keywords:
         'cómo jugar quiz, guía trivia online, crear quiz, quiz quest, anfitrión quiz, buzz móvil, jeopardy online, quiz equipo, instrucciones trivia'
     }

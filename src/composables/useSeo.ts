@@ -89,7 +89,12 @@ export function useSeo(pageId: SeoPageId) {
     const gsc = import.meta.env.VITE_GOOGLE_SITE_VERIFICATION as string | undefined
     if (gsc) upsertMeta('name', 'google-site-verification', gsc)
 
-    const socialTitle = formatSeoTitle(copy.ogTitle ?? copy.title)
+    // For search/OG cards prefer the full document title on public SEO pages.
+    const socialTitleSource =
+      pageId === 'home' || pageId === 'howto' || pageId === 'about'
+        ? copy.title
+        : copy.ogTitle ?? copy.title
+    const socialTitle = formatSeoTitle(socialTitleSource)
 
     upsertMeta('property', 'og:type', 'website')
     upsertMeta('property', 'og:site_name', 'Quiz Quest')
