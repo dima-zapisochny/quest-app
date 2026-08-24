@@ -86,7 +86,7 @@
           <div class="q-modal" role="dialog" aria-modal="true">
             <header class="q-modal__head">
               <span class="q-modal__title">
-                {{ editingCategoryTitle }} · {{ t('editor.points', { value: editingQuestion.value }) }}
+                {{ editingCategoryTitle }} - {{ t('editor.points', { value: editingQuestion.value }) }}
               </span>
               <button
                 type="button"
