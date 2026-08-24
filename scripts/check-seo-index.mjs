@@ -79,7 +79,7 @@ async function main() {
   for (const page of PUBLIC_SEO_PAGES) {
     const url = absoluteUrl(page.path)
     await checkUrl(url, page.path)
-    await checkPageSeo(url, page.id === 'home' ? 'Quiz Quest' : page.h1.split('—')[0].trim())
+    await checkPageSeo(url, page.id === 'home' ? 'Quiz Quest' : page.h1.split(' - ')[0].trim())
   }
 
   console.log('\n--- Індексація (ручна перевірка в браузері) ---\n')
