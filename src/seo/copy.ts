@@ -8,14 +8,14 @@ export type SeoPageCopy = {
   keywords: string
   ogTitle?: string
   ogDescription?: string
-  /** H1 для noscript/prerender; якщо немає · береться з title. */
+  /** H1 для noscript/prerender; якщо немає — береться з title. */
   h1?: string
 }
 
 export const SEO_COPY: Record<SeoPageId, Record<AppLocale, SeoPageCopy>> = {
   home: {
     uk: {
-      title: 'Quiz Quest · Вікторина для компанії',
+      title: 'Quiz Quest - Вікторина для компанії',
       ogTitle: 'вікторина для компанії',
       h1: 'Quiz Quest',
       description:
@@ -24,7 +24,7 @@ export const SEO_COPY: Record<SeoPageId, Record<AppLocale, SeoPageCopy>> = {
         'гра для компанії, гра для компанії онлайн, вікторина для компанії, онлайн гра для команди, тімбілдинг вікторина, вікторина онлайн, джепарді онлайн, кіно вікторина, музична вікторина, quiz quest, гра з друзями'
     },
     ru: {
-      title: 'Quiz Quest · Викторина для компании',
+      title: 'Quiz Quest - Викторина для компании',
       ogTitle: 'викторина для компании',
       h1: 'Quiz Quest',
       description:
@@ -33,7 +33,7 @@ export const SEO_COPY: Record<SeoPageId, Record<AppLocale, SeoPageCopy>> = {
         'игра для компании, игра для компании онлайн, викторина для компании, онлайн игра для команды, тимбилдинг викторина, викторина онлайн, джепарди онлайн, кино викторина, quiz quest'
     },
     en: {
-      title: 'Quiz Quest · Online party quiz',
+      title: 'Quiz Quest - Online party quiz',
       ogTitle: 'online party quiz',
       h1: 'Quiz Quest',
       description:
@@ -42,7 +42,7 @@ export const SEO_COPY: Record<SeoPageId, Record<AppLocale, SeoPageCopy>> = {
         'company team game, office quiz game, team building quiz online, corporate trivia game, online quiz, party quiz, team quiz, jeopardy online, movie quiz, quiz quest, buzz-in quiz'
     },
     de: {
-      title: 'Quiz Quest · Online-Quiz für die Gruppe',
+      title: 'Quiz Quest - Online-Quiz für die Gruppe',
       ogTitle: 'Online-Quiz für die Gruppe',
       h1: 'Quiz Quest',
       description:
@@ -51,7 +51,7 @@ export const SEO_COPY: Record<SeoPageId, Record<AppLocale, SeoPageCopy>> = {
         'online quiz, firmenevent quiz, quiz für unternehmen, team quiz, teamevent quiz, filmquiz, musikquiz, quiz quest, jeopardy online'
     },
     fr: {
-      title: 'Quiz Quest · Quiz en ligne',
+      title: 'Quiz Quest - Quiz en ligne',
       ogTitle: 'quiz en ligne',
       h1: 'Quiz Quest',
       description:
@@ -60,7 +60,7 @@ export const SEO_COPY: Record<SeoPageId, Record<AppLocale, SeoPageCopy>> = {
         'quiz entreprise, quiz team building, jeu quiz équipe, quiz en ligne, quiz entre amis, quiz cinéma, quiz quest, jeu buzz'
     },
     es: {
-      title: 'Quiz Quest · Quiz online',
+      title: 'Quiz Quest - Quiz online',
       ogTitle: 'quiz online',
       h1: 'Quiz Quest',
       description:
@@ -71,7 +71,7 @@ export const SEO_COPY: Record<SeoPageId, Record<AppLocale, SeoPageCopy>> = {
   },
   howto: {
     uk: {
-      title: 'Quiz Quest · Як грати: інструкція для ведучого та гравців',
+      title: 'Quiz Quest - Як грати: інструкція для ведучого та гравців',
       ogTitle: 'інструкція для ведучого та гравців',
       h1: 'Як грати в Quiz Quest?',
       description:
@@ -80,7 +80,7 @@ export const SEO_COPY: Record<SeoPageId, Record<AppLocale, SeoPageCopy>> = {
         'як грати вікторину, інструкція вікторина онлайн, як створити вікторину, quiz quest як грати, ведучий вікторина, гра з телефона, buzz вікторина, jeopardy українською, онлайн вікторина для компанії'
     },
     ru: {
-      title: 'Quiz Quest · Как играть: инструкция для ведущего и игроков',
+      title: 'Quiz Quest - Как играть: инструкция для ведущего и игроков',
       ogTitle: 'инструкция для ведущего и игроков',
       h1: 'Как играть в Quiz Quest?',
       description:
@@ -89,7 +89,7 @@ export const SEO_COPY: Record<SeoPageId, Record<AppLocale, SeoPageCopy>> = {
         'как играть в викторину, инструкция викторина онлайн, как создать викторину, quiz quest как играть, ведущий викторина, игра с телефона, buzz викторина, jeopardy онлайн, викторина для компании'
     },
     en: {
-      title: 'Quiz Quest · How to play: host & player guide',
+      title: 'Quiz Quest - How to play: host & player guide',
       ogTitle: 'host & player guide',
       h1: 'How to play Quiz Quest?',
       description:
@@ -98,7 +98,7 @@ export const SEO_COPY: Record<SeoPageId, Record<AppLocale, SeoPageCopy>> = {
         'how to play quiz, online quiz guide, create quiz board, quiz quest howto, host quiz game, phone buzz quiz, jeopardy style quiz, team trivia guide, party quiz instructions'
     },
     de: {
-      title: 'Quiz Quest · Anleitung für Moderator und Spieler',
+      title: 'Quiz Quest - Anleitung für Moderator und Spieler',
       ogTitle: 'Anleitung für Moderator und Spieler',
       h1: 'Wie spielt man Quiz Quest?',
       description:
@@ -107,7 +107,7 @@ export const SEO_COPY: Record<SeoPageId, Record<AppLocale, SeoPageCopy>> = {
         'quiz anleitung, online quiz spielen, quiz erstellen, quiz quest, moderator quiz, handy buzz, jeopardy online, team quiz guide, party quiz anleitung'
     },
     fr: {
-      title: 'Quiz Quest · Comment jouer: guide animateur et joueurs',
+      title: 'Quiz Quest - Comment jouer: guide animateur et joueurs',
       ogTitle: 'guide animateur et joueurs',
       h1: 'Comment jouer à Quiz Quest ?',
       description:
@@ -116,7 +116,7 @@ export const SEO_COPY: Record<SeoPageId, Record<AppLocale, SeoPageCopy>> = {
         'comment jouer quiz, guide quiz en ligne, créer un quiz, quiz quest, animateur quiz, buzz téléphone, jeopardy en ligne, quiz équipe, instructions trivia'
     },
     es: {
-      title: 'Quiz Quest · Cómo jugar: guía para anfitrión y jugadores',
+      title: 'Quiz Quest - Cómo jugar: guía para anfitrión y jugadores',
       ogTitle: 'guía para anfitrión y jugadores',
       h1: '¿Cómo jugar a Quiz Quest?',
       description:
@@ -127,45 +127,45 @@ export const SEO_COPY: Record<SeoPageId, Record<AppLocale, SeoPageCopy>> = {
   },
   'movie-night': {
     uk: {
-      title: 'Quiz Quest · Movie Night · кіно-вікторина онлайн',
-      h1: 'Movie Night · кіно-вікторина',
+      title: 'Quiz Quest - Movie Night - кіно-вікторина онлайн',
+      h1: 'Movie Night - кіно-вікторина',
       description:
         'Готовий квест про популярні фільми й серіали IMDb: постери, цитати, ролі, саундтреки. 3 раунди × 5 категорій × 5 питань для вечора з друзями.',
       keywords:
         'кіно вікторина, вікторина по фільмах, movie quiz, imdb вікторина, movie night quiz, кіноквест'
     },
     ru: {
-      title: 'Quiz Quest · Movie Night · кино-викторина онлайн',
-      h1: 'Movie Night · кино-викторина',
+      title: 'Quiz Quest - Movie Night - кино-викторина онлайн',
+      h1: 'Movie Night - кино-викторина',
       description:
         'Готовый квест про популярные фильмы и сериалы IMDb: постеры, цитаты, роли, саундтреки. 3 раунда × 5 категорий × 5 вопросов для вечера с друзьями.',
       keywords:
         'кино викторина, викторина по фильмам, movie quiz, imdb викторина, movie night, киноквест'
     },
     en: {
-      title: 'Quiz Quest · Movie Night · online movie quiz pack',
-      h1: 'Movie Night · online movie quiz',
+      title: 'Quiz Quest - Movie Night - online movie quiz pack',
+      h1: 'Movie Night - online movie quiz',
       description:
         'Ready-made quiz on popular IMDb films and series: posters, quotes, cast, soundtracks. 3 rounds × 5 categories × 5 questions for movie night with friends.',
       keywords: 'movie quiz, film trivia, imdb quiz, movie night quiz, online movie quiz'
     },
     de: {
-      title: 'Quiz Quest · Movie Night · Online-Filmquiz',
-      h1: 'Movie Night · Filmquiz',
+      title: 'Quiz Quest - Movie Night - Online-Filmquiz',
+      h1: 'Movie Night - Filmquiz',
       description:
         'Fertiges Quiz zu beliebten IMDb-Filmen und Serien: Poster, Zitate, Rollen, Soundtracks. 3 Runden × 5 Kategorien × 5 Fragen.',
       keywords: 'filmquiz, movie quiz, imdb quiz, movie night, kinorätsel'
     },
     fr: {
-      title: 'Quiz Quest · Movie Night · quiz cinéma en ligne',
-      h1: 'Movie Night · quiz cinéma',
+      title: 'Quiz Quest - Movie Night - quiz cinéma en ligne',
+      h1: 'Movie Night - quiz cinéma',
       description:
         'Quiz prêt à jouer sur les films et séries IMDb populaires : affiches, citations, rôles, BO. 3 manches × 5 catégories × 5 questions.',
       keywords: 'quiz cinéma, quiz films, movie quiz, movie night, trivia cinéma'
     },
     es: {
-      title: 'Quiz Quest · Movie Night · quiz de cine online',
-      h1: 'Movie Night · quiz de cine',
+      title: 'Quiz Quest - Movie Night - quiz de cine online',
+      h1: 'Movie Night - quiz de cine',
       description:
         'Cuestionario listo sobre películas y series populares de IMDb: pósters, citas, roles, bandas sonoras. 3 rondas × 5 categorías × 5 preguntas.',
       keywords: 'quiz de cine, trivia películas, movie quiz, movie night, imdb quiz'
@@ -173,45 +173,45 @@ export const SEO_COPY: Record<SeoPageId, Record<AppLocale, SeoPageCopy>> = {
   },
   'hit-parade': {
     uk: {
-      title: 'Quiz Quest · Hit Parade · музична вікторина онлайн',
-      h1: 'Hit Parade · музична вікторина',
+      title: 'Quiz Quest - Hit Parade - музична вікторина онлайн',
+      h1: 'Hit Parade - музична вікторина',
       description:
         'Готовий музичний квест: Beatles, Queen, поп, рок, хіп-хоп. Пропущені слова, альбоми, колаборації. 75 питань для вечірки з хітами.',
       keywords:
         'музична вікторина, вікторина по музиці, music quiz, hit parade, вікторина пісні, quiz hits'
     },
     ru: {
-      title: 'Quiz Quest · Hit Parade · музыкальная викторина онлайн',
-      h1: 'Hit Parade · музыкальная викторина',
+      title: 'Quiz Quest - Hit Parade - музыкальная викторина онлайн',
+      h1: 'Hit Parade - музыкальная викторина',
       description:
         'Готовый музыкальный квест: Beatles, Queen, поп, рок, хип-хоп. Пропущенные слова, альбомы, коллаборации. 75 вопросов для вечеринки с хитами.',
       keywords:
         'музыкальная викторина, викторина по музыке, music quiz, hit parade, викторина песни'
     },
     en: {
-      title: 'Quiz Quest · Hit Parade · online music quiz pack',
-      h1: 'Hit Parade · music quiz',
+      title: 'Quiz Quest - Hit Parade - online music quiz pack',
+      h1: 'Hit Parade - music quiz',
       description:
         'Ready-made music quiz: Beatles, Queen, pop, rock, hip-hop. Lyric gaps, albums, collabs. 75 questions for a hit-filled party night.',
       keywords: 'music quiz, song trivia, hit parade quiz, lyric quiz, online music quiz'
     },
     de: {
-      title: 'Quiz Quest · Hit Parade · Online-Musikquiz',
-      h1: 'Hit Parade · Musikquiz',
+      title: 'Quiz Quest - Hit Parade - Online-Musikquiz',
+      h1: 'Hit Parade - Musikquiz',
       description:
         'Fertiges Musikquiz: Beatles, Queen, Pop, Rock, Hip-Hop. Lückentexte, Alben, Features. 75 Fragen für die Hit-Party.',
       keywords: 'musikquiz, song quiz, hit parade, lyrics quiz, online musikquiz'
     },
     fr: {
-      title: 'Quiz Quest · Hit Parade · quiz musique en ligne',
-      h1: 'Hit Parade · quiz musique',
+      title: 'Quiz Quest - Hit Parade - quiz musique en ligne',
+      h1: 'Hit Parade - quiz musique',
       description:
         'Quiz musical prêt à jouer : Beatles, Queen, pop, rock, hip-hop. Paroles à trous, albums, collabs. 75 questions pour une soirée hits.',
       keywords: 'quiz musique, trivia chansons, hit parade, quiz paroles, quiz musical'
     },
     es: {
-      title: 'Quiz Quest · Hit Parade · quiz de música online',
-      h1: 'Hit Parade · quiz de música',
+      title: 'Quiz Quest - Hit Parade - quiz de música online',
+      h1: 'Hit Parade - quiz de música',
       description:
         'Cuestionario musical listo: Beatles, Queen, pop, rock, hip-hop. Letras incompletas, álbumes, colaboraciones. 75 preguntas para la fiesta.',
       keywords: 'quiz de música, trivia canciones, hit parade, quiz letras, music quiz'
@@ -219,25 +219,25 @@ export const SEO_COPY: Record<SeoPageId, Record<AppLocale, SeoPageCopy>> = {
   },
   about: {
     uk: {
-      title: 'Quiz Quest · Про нас: онлайн-гра для компанії',
+      title: 'Quiz Quest - Про нас: онлайн-гра для компанії',
       ogTitle: 'онлайн-гра для компанії',
-      h1: 'Про Quiz Quest · онлайн-гра для компанії',
+      h1: 'Про Quiz Quest - онлайн-гра для компанії',
       description:
         'Quiz Quest: безкоштовна гра для компанії та команди онлайн, вікторина у стилі шоу, тімбілдинг, офіс. Правила, кому підійде, як грати з телефона.',
       keywords:
         'гра для компанії, гра для компанії онлайн, вікторина для компанії, тімбілдинг вікторина, корпоративна гра, онлайн гра для команди, quiz quest, правила вікторини'
     },
     ru: {
-      title: 'Quiz Quest · О нас: игра для компании онлайн',
+      title: 'Quiz Quest - О нас: игра для компании онлайн',
       ogTitle: 'игра для компании онлайн',
-      h1: 'О Quiz Quest · игра для компании',
+      h1: 'О Quiz Quest - игра для компании',
       description:
         'Quiz Quest: бесплатная игра для компании и команды онлайн, викторина в стиле шоу, тимбилдинг, офис. Правила, кому подойдёт, как играть с телефона.',
       keywords:
         'игра для компании, игра для компании онлайн, викторина для компании, тимбилдинг викторина, корпоративная игра, quiz quest, правила викторины'
     },
     en: {
-      title: 'Quiz Quest · About: online game for teams & companies',
+      title: 'Quiz Quest - About: online game for teams & companies',
       ogTitle: 'online game for teams',
       h1: 'About Quiz Quest',
       description:
@@ -246,7 +246,7 @@ export const SEO_COPY: Record<SeoPageId, Record<AppLocale, SeoPageCopy>> = {
         'company team game, office quiz game, team building quiz, corporate trivia, about quiz quest, team quiz, party quiz, jeopardy-style quiz'
     },
     de: {
-      title: 'Quiz Quest · Über uns: Online-Quiz für die Gruppe',
+      title: 'Quiz Quest - Über uns: Online-Quiz für die Gruppe',
       ogTitle: 'Online-Quiz für die Gruppe',
       h1: 'Über Quiz Quest',
       description:
@@ -254,7 +254,7 @@ export const SEO_COPY: Record<SeoPageId, Record<AppLocale, SeoPageCopy>> = {
       keywords: 'über quiz quest, online quiz regeln, quiz für freunde, team quiz, jeopardy online'
     },
     fr: {
-      title: 'Quiz Quest · À propos: quiz en ligne pour le groupe',
+      title: 'Quiz Quest - À propos: quiz en ligne pour le groupe',
       ogTitle: 'quiz en ligne',
       h1: 'À propos de Quiz Quest',
       description:
@@ -262,7 +262,7 @@ export const SEO_COPY: Record<SeoPageId, Record<AppLocale, SeoPageCopy>> = {
       keywords: 'à propos quiz quest, règles quiz en ligne, quiz entre amis, quiz buzz'
     },
     es: {
-      title: 'Quiz Quest · Sobre nosotros: quiz online para grupos',
+      title: 'Quiz Quest - Sobre nosotros: quiz online para grupos',
       ogTitle: 'quiz online para equipos',
       h1: 'Sobre Quiz Quest',
       description:

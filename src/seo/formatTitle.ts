@@ -1,6 +1,6 @@
-const SEO_TITLE_SEP = ' · '
+const SEO_TITLE_SEP = ' - '
 
-/** Після кожного « · » — велика літера на початку сегмента (для tab title). */
+/** Після кожного « - » — велика літера на початку сегмента (для tab title). */
 export function formatSeoTitle(title: string): string {
   const parts = title.split(SEO_TITLE_SEP)
   if (parts.length <= 1) return title
