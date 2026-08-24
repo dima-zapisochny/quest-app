@@ -5,8 +5,8 @@
       <GridSizePicker
         v-model:categories="presetCategories"
         v-model:questions="presetQuestions"
-        :max-categories="5"
-        :max-questions="5"
+        :max-categories="6"
+        :max-questions="6"
         @select="onGridSelect"
       />
       <span v-if="isBuildingBoard" class="mini-loader" :aria-label="t('editor.buildingBoard')"></span>
@@ -50,7 +50,7 @@
             </button>
 
             <button
-              v-if="category.questions.length < 5"
+              v-if="category.questions.length < 6"
               type="button"
               class="board-tile board-tile--add"
               :disabled="addingCategoryId === category.id || isBusy"
@@ -61,7 +61,7 @@
         </div>
 
         <button
-          v-if="categories.length < 5"
+          v-if="categories.length < 6"
           type="button"
           class="board-col board-col--add"
           :disabled="isBusy"
@@ -202,7 +202,7 @@ const isBuildingBoard = ref(false)
 const isBusy = computed(() => isAddingCategory.value || isBuildingBoard.value)
 
 async function addCategory() {
-  if (isAddingCategory.value || categories.value.length >= 5) return
+  if (isAddingCategory.value || categories.value.length >= 6) return
   isAddingCategory.value = true
   try {
     await store.addCategory(props.questId, props.round.id, defaultCategoryTitle(categories.value.length))
@@ -213,7 +213,7 @@ async function addCategory() {
 
 async function addQuestion(categoryId: string) {
   const category = categories.value.find(c => c.id === categoryId)
-  if (!category || category.questions.length >= 5 || addingCategoryId.value) return
+  if (!category || category.questions.length >= 6 || addingCategoryId.value) return
   addingCategoryId.value = categoryId
   try {
     const value = 100 * (category.questions.length + 1)
@@ -287,7 +287,7 @@ async function handleAddNext() {
   const categoryId = editingCategoryId.value
   if (!categoryId) return
   const category = categories.value.find(c => c.id === categoryId)
-  if (!category || category.questions.length >= 5) return
+  if (!category || category.questions.length >= 6) return
   const value = 100 * (category.questions.length + 1)
   const newId = await store.addQuestion(props.questId, props.round.id, categoryId, value, '', '')
   if (newId) {
