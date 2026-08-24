@@ -8,7 +8,7 @@ export type SeoPageCopy = {
   keywords: string
   ogTitle?: string
   ogDescription?: string
-  /** H1 для noscript/prerender; якщо немає - береться з title. */
+  /** H1 для noscript/prerender; якщо немає · береться з title. */
   h1?: string
 }
 
@@ -128,44 +128,44 @@ export const SEO_COPY: Record<SeoPageId, Record<AppLocale, SeoPageCopy>> = {
   'movie-night': {
     uk: {
       title: 'Movie Night · кіно-вікторина онлайн · Quiz Quest',
-      h1: 'Movie Night - кіно-вікторина',
+      h1: 'Movie Night · кіно-вікторина',
       description:
-        'Готовий квест про популярні фільми й серіали IMDb: постери, цитати, ролі, саундтреки. 3 раунди × 5 категорій × 5 питань - для вечора з друзями.',
+        'Готовий квест про популярні фільми й серіали IMDb: постери, цитати, ролі, саундтреки. 3 раунди × 5 категорій × 5 питань для вечора з друзями.',
       keywords:
         'кіно вікторина, вікторина по фільмах, movie quiz, imdb вікторина, movie night quiz, кіноквест'
     },
     ru: {
       title: 'Movie Night · кино-викторина онлайн · Quiz Quest',
-      h1: 'Movie Night - кино-викторина',
+      h1: 'Movie Night · кино-викторина',
       description:
-        'Готовый квест про популярные фильмы и сериалы IMDb: постеры, цитаты, роли, саундтреки. 3 раунда × 5 категорий × 5 вопросов - для вечера с друзьями.',
+        'Готовый квест про популярные фильмы и сериалы IMDb: постеры, цитаты, роли, саундтреки. 3 раунда × 5 категорий × 5 вопросов для вечера с друзьями.',
       keywords:
         'кино викторина, викторина по фильмам, movie quiz, imdb викторина, movie night, киноквест'
     },
     en: {
       title: 'Movie Night · online movie quiz pack · Quiz Quest',
-      h1: 'Movie Night - online movie quiz',
+      h1: 'Movie Night · online movie quiz',
       description:
         'Ready-made quiz on popular IMDb films and series: posters, quotes, cast, soundtracks. 3 rounds × 5 categories × 5 questions for movie night with friends.',
       keywords: 'movie quiz, film trivia, imdb quiz, movie night quiz, online movie quiz'
     },
     de: {
       title: 'Movie Night · Online-Filmquiz · Quiz Quest',
-      h1: 'Movie Night - Filmquiz',
+      h1: 'Movie Night · Filmquiz',
       description:
         'Fertiges Quiz zu beliebten IMDb-Filmen und Serien: Poster, Zitate, Rollen, Soundtracks. 3 Runden × 5 Kategorien × 5 Fragen.',
       keywords: 'filmquiz, movie quiz, imdb quiz, movie night, kinorätsel'
     },
     fr: {
       title: 'Movie Night · quiz cinéma en ligne · Quiz Quest',
-      h1: 'Movie Night - quiz cinéma',
+      h1: 'Movie Night · quiz cinéma',
       description:
         'Quiz prêt à jouer sur les films et séries IMDb populaires : affiches, citations, rôles, BO. 3 manches × 5 catégories × 5 questions.',
       keywords: 'quiz cinéma, quiz films, movie quiz, movie night, trivia cinéma'
     },
     es: {
       title: 'Movie Night · quiz de cine online · Quiz Quest',
-      h1: 'Movie Night - quiz de cine',
+      h1: 'Movie Night · quiz de cine',
       description:
         'Cuestionario listo sobre películas y series populares de IMDb: pósters, citas, roles, bandas sonoras. 3 rondas × 5 categorías × 5 preguntas.',
       keywords: 'quiz de cine, trivia películas, movie quiz, movie night, imdb quiz'
@@ -174,7 +174,7 @@ export const SEO_COPY: Record<SeoPageId, Record<AppLocale, SeoPageCopy>> = {
   'hit-parade': {
     uk: {
       title: 'Hit Parade · музична вікторина онлайн · Quiz Quest',
-      h1: 'Hit Parade - музична вікторина',
+      h1: 'Hit Parade · музична вікторина',
       description:
         'Готовий музичний квест: Beatles, Queen, поп, рок, хіп-хоп. Пропущені слова, альбоми, колаборації. 75 питань для вечірки з хітами.',
       keywords:
@@ -182,7 +182,7 @@ export const SEO_COPY: Record<SeoPageId, Record<AppLocale, SeoPageCopy>> = {
     },
     ru: {
       title: 'Hit Parade · музыкальная викторина онлайн · Quiz Quest',
-      h1: 'Hit Parade - музыкальная викторина',
+      h1: 'Hit Parade · музыкальная викторина',
       description:
         'Готовый музыкальный квест: Beatles, Queen, поп, рок, хип-хоп. Пропущенные слова, альбомы, коллаборации. 75 вопросов для вечеринки с хитами.',
       keywords:
@@ -190,28 +190,28 @@ export const SEO_COPY: Record<SeoPageId, Record<AppLocale, SeoPageCopy>> = {
     },
     en: {
       title: 'Hit Parade · online music quiz pack · Quiz Quest',
-      h1: 'Hit Parade - music quiz',
+      h1: 'Hit Parade · music quiz',
       description:
         'Ready-made music quiz: Beatles, Queen, pop, rock, hip-hop. Lyric gaps, albums, collabs. 75 questions for a hit-filled party night.',
       keywords: 'music quiz, song trivia, hit parade quiz, lyric quiz, online music quiz'
     },
     de: {
       title: 'Hit Parade · Online-Musikquiz · Quiz Quest',
-      h1: 'Hit Parade - Musikquiz',
+      h1: 'Hit Parade · Musikquiz',
       description:
         'Fertiges Musikquiz: Beatles, Queen, Pop, Rock, Hip-Hop. Lückentexte, Alben, Features. 75 Fragen für die Hit-Party.',
       keywords: 'musikquiz, song quiz, hit parade, lyrics quiz, online musikquiz'
     },
     fr: {
       title: 'Hit Parade · quiz musique en ligne · Quiz Quest',
-      h1: 'Hit Parade - quiz musique',
+      h1: 'Hit Parade · quiz musique',
       description:
         'Quiz musical prêt à jouer : Beatles, Queen, pop, rock, hip-hop. Paroles à trous, albums, collabs. 75 questions pour une soirée hits.',
       keywords: 'quiz musique, trivia chansons, hit parade, quiz paroles, quiz musical'
     },
     es: {
       title: 'Hit Parade · quiz de música online · Quiz Quest',
-      h1: 'Hit Parade - quiz de música',
+      h1: 'Hit Parade · quiz de música',
       description:
         'Cuestionario musical listo: Beatles, Queen, pop, rock, hip-hop. Letras incompletas, álbumes, colaboraciones. 75 preguntas para la fiesta.',
       keywords: 'quiz de música, trivia canciones, hit parade, quiz letras, music quiz'
@@ -221,18 +221,18 @@ export const SEO_COPY: Record<SeoPageId, Record<AppLocale, SeoPageCopy>> = {
     uk: {
       title: 'Про Quiz Quest · Онлайн-гра для компанії, правила та для кого',
       ogTitle: 'онлайн-гра для компанії',
-      h1: 'Про Quiz Quest - онлайн-гра для компанії',
+      h1: 'Про Quiz Quest · онлайн-гра для компанії',
       description:
-        'Quiz Quest - безкоштовна гра для компанії та команди онлайн: вікторина у стилі шоу, тімбілдинг, офіс. Правила, кому підійде, як грати з телефона.',
+        'Quiz Quest: безкоштовна гра для компанії та команди онлайн, вікторина у стилі шоу, тімбілдинг, офіс. Правила, кому підійде, як грати з телефона.',
       keywords:
         'гра для компанії, гра для компанії онлайн, вікторина для компанії, тімбілдинг вікторина, корпоративна гра, онлайн гра для команди, quiz quest, правила вікторини'
     },
     ru: {
       title: 'О Quiz Quest · Игра для компании онлайн, правила и для кого',
       ogTitle: 'игра для компании онлайн',
-      h1: 'О Quiz Quest - игра для компании',
+      h1: 'О Quiz Quest · игра для компании',
       description:
-        'Quiz Quest - бесплатная игра для компании и команды онлайн: викторина в стиле шоу, тимбилдинг, офис. Правила, кому подойдёт, как играть с телефона.',
+        'Quiz Quest: бесплатная игра для компании и команды онлайн, викторина в стиле шоу, тимбилдинг, офис. Правила, кому подойдёт, как играть с телефона.',
       keywords:
         'игра для компании, игра для компании онлайн, викторина для компании, тимбилдинг викторина, корпоративная игра, quiz quest, правила викторины'
     },
