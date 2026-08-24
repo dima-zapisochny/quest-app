@@ -361,7 +361,7 @@ const padT = 24
 const padB = 32
 
 function applyNoIndex() {
-  document.title = 'Site analytics · Quiz Quest'
+  document.title = 'Site analytics - Quiz Quest'
   let robots = document.head.querySelector<HTMLMetaElement>('meta[name="robots"]')
   if (!robots) {
     robots = document.createElement('meta')

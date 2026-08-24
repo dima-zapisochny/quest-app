@@ -127,7 +127,7 @@
         <div class="qcard qcard--saved">
           <span class="qcard__cover"><span class="qcard__emoji">🎬</span></span>
           <span class="qcard__title">Movie Night</span>
-          <span class="qcard__sub">12 questions · 3 rounds</span>
+          <span class="qcard__sub">12 questions - 3 rounds</span>
         </div>
         <div class="qcard qcard--new">
           <span class="qcard__plus" aria-hidden="true"></span>
@@ -170,7 +170,7 @@
           </div>
         </div>
       </div>
-      <div class="gridlabel">5 × 5 · 25</div>
+      <div class="gridlabel">5 × 5 - 25</div>
     </div>
 
     <!-- ЗАПОЛНИТЕ ВОПРОСЫ -->
