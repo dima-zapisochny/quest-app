@@ -11,7 +11,7 @@
     <div class="stats-capsule">
       <span class="stat-chip">
         <span class="stat-chip__label">{{ t('editor.roundsLabel') }}</span>
-        <span class="stat-chip__value">{{ Array.isArray(quest.rounds) ? quest.rounds.length : 0 }}/5</span>
+        <span class="stat-chip__value">{{ Array.isArray(quest.rounds) ? quest.rounds.length : 0 }}/6</span>
       </span>
       <span class="stats-capsule__divider" aria-hidden="true"></span>
       <span class="stat-chip">
@@ -81,7 +81,7 @@
           </transition>
         </div>
         <button
-          v-if="roundsCount < 5"
+          v-if="roundsCount < 6"
           class="round-tab round-tab--add"
           type="button"
           :disabled="isAddingRound"

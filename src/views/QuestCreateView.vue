@@ -48,7 +48,7 @@
             <div class="grid-size__rounds">
               <div class="seg" role="group" :aria-label="t('create.roundsAria')">
                 <button
-                  v-for="n in 5"
+                  v-for="n in 6"
                   :key="n"
                   type="button"
                   class="seg__btn"
@@ -61,8 +61,8 @@
               <GridSizePicker
                 v-model:categories="categories"
                 v-model:questions="questions"
-                :max-categories="5"
-                :max-questions="5"
+                :max-categories="6"
+                :max-questions="6"
                 :suffix="roundsSuffix"
                 @select="onGridSelect"
               />

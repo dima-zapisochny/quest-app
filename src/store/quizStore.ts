@@ -455,7 +455,7 @@ export const useQuizStore = defineStore('quiz', () => {
     if (!Array.isArray(quest.rounds)) {
       quest.rounds = []
     }
-    if (quest.rounds.length >= 5) throw new Error('QUEST_ROUND_LIMIT')
+    if (quest.rounds.length >= 6) throw new Error('QUEST_ROUND_LIMIT')
     const newRound: Round = {
       id: generateId('round'),
       title,
@@ -491,7 +491,7 @@ export const useQuizStore = defineStore('quiz', () => {
     if (!Array.isArray(round.categories)) {
       round.categories = []
     }
-    if (round.categories.length >= 5) throw new Error('QUEST_CATEGORY_LIMIT')
+    if (round.categories.length >= 6) throw new Error('QUEST_CATEGORY_LIMIT')
     const newCategory: Category = {
       id: generateId('category'),
       title,
@@ -538,7 +538,7 @@ export const useQuizStore = defineStore('quiz', () => {
     if (!Array.isArray(category.questions)) {
       category.questions = []
     }
-    if (category.questions.length >= 5) throw new Error('QUEST_QUESTION_LIMIT')
+    if (category.questions.length >= 6) throw new Error('QUEST_QUESTION_LIMIT')
 
     const newQuestion: Question = {
       id: generateId('question'),
@@ -589,7 +589,7 @@ export const useQuizStore = defineStore('quiz', () => {
     emoji?: string
   ): Promise<string> {
     const questId = await createQuest(title, description, emoji)
-    const roundCount = Math.max(1, Math.min(5, rounds))
+    const roundCount = Math.max(1, Math.min(6, rounds))
     for (let r = 0; r < roundCount; r++) {
       const roundId = await addRound(questId, defaultRoundTitle(r))
       if (roundId) await buildBoard(questId, roundId, categories, questions)
