@@ -607,7 +607,7 @@ export const useGameSessionStore = defineStore('game-session', () => {
     }
 
     // 3 секунды на чтение вопроса после открытия — buzz не принимаем
-    const READ_DELAY_MS = 3000
+    const READ_DELAY_MS = 5000
     if (now() - session.activeQuestion.openedAt < READ_DELAY_MS) {
       return
     }
