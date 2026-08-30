@@ -606,6 +606,19 @@ export const useGameSessionStore = defineStore('game-session', () => {
       return
     }
 
+    // 3 секунды на чтение вопроса после открытия — buzz не принимаем
+    const READ_DELAY_MS = 3000
+    if (now() - session.activeQuestion.openedAt < READ_DELAY_MS) {
+      return
+    }
+
+    // Пока отвечает другой игрок (идут его 10 сек) — buzz других не принимаем (без очереди).
+    // Когда он не ответит, timeoutResponder переоткроет вопрос — и они снова смогут нажать.
+    const responder = session.activeQuestion.currentResponderId
+    if (responder && responder !== playerId) {
+      return
+    }
+
     // Клиентский timestamp: хто натиснув раніше за своїм часом — той і відповідає (усуває гонку через порядок запитів).
     const clientTs = typeof Date.now === 'function' ? Date.now() : 0
     const updated = await tryBuzzInDb(sessionId, playerId, clientTs)

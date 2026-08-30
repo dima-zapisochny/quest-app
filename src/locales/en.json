@@ -223,7 +223,9 @@
     "waitTurn": "Wait for your turn",
     "answered": "Answer already given",
     "buzz": "Answer",
-    "waitForQuestion": "Waiting for question"
+    "waitForQuestion": "Waiting for question",
+    "readQuestion": "Read the question…",
+    "otherAnswering": "Another player is answering"
   },
   "howto": {
     "title": "How to play?",
