@@ -389,6 +389,8 @@
   },
   "settings": {
     "title": "Ajustes",
+    "soundTitle": "Sonidos de la interfaz",
+    "soundDesc": "Sonidos breves al elegir un cuestionario y en las acciones del anfitrión.",
     "readDelayTitle": "Tiempo de lectura de la pregunta",
     "readDelayDesc": "Una breve pausa antes de que los jugadores puedan responder, para que dé tiempo a leer la pregunta.",
     "secShort": "s",

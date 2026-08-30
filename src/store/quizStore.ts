@@ -798,7 +798,12 @@ export const useQuizStore = defineStore('quiz', () => {
     }
     
     scheduleSave(questId)
-    await sessionStore.syncSessionQuestSnapshot(questId, quest)
+    // Синкаем в снимок сессии только полный квест: лёгкий элемент списка без
+    // rounds затёр бы снимок пустышкой (mergeSessionQuestSnapshot её отбросит,
+    // и прогресс на доске не сбросится). Снимок сбрасывает resetSessionProgress.
+    if (quest.rounds?.length) {
+      await sessionStore.syncSessionQuestSnapshot(questId, quest)
+    }
   }
 
 

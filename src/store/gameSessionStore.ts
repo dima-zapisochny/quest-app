@@ -768,6 +768,32 @@ export const useGameSessionStore = defineStore('game-session', () => {
     await persistSession(session)
   }
 
+  /**
+   * Полный сброс прогресса игры по снимку сессии (session.quest): снимает
+   * played/timedOut/answeredBy со всех вопросов, закрывает активный вопрос и
+   * сбрасывает статусы игроков. Работает от снимка сессии, а не от квеста в
+   * quizStore, — снимок всегда содержит rounds (в отличие от лёгкого элемента списка).
+   */
+  async function resetSessionProgress(sessionId: string) {
+    const session = getSessionById(sessionId)
+    if (!session) return
+
+    session.quest?.rounds?.forEach(round => {
+      round.categories.forEach(category => {
+        category.questions.forEach(question => {
+          question.played = false
+          question.timedOut = false
+          question.answeredBy = undefined
+        })
+      })
+    })
+
+    session.activeQuestion = undefined
+    resetPlayersStatuses(session)
+    session.updatedAt = now()
+    await persistSession(session, { includeQuestData: true })
+  }
+
   async function setPlayerScore(sessionId: string, playerId: string, newScore: number) {
     const session = getSessionById(sessionId)
     if (!session) return
@@ -958,6 +984,7 @@ export const useGameSessionStore = defineStore('game-session', () => {
     resumeTimer,
     timeoutResponder,
     resetPlayersScores,
+    resetSessionProgress,
     setPlayerScore,
     setActivePlayer: profileStore.setActivePlayer,
     clearActivePlayer: profileStore.clearActivePlayer,

@@ -350,10 +350,18 @@ async function confirmReset() {
   if (!quest.value) return
   showResetConfirm.value = false
 
-  // Сбрасываем прогресс квеста и баллы участников после закрытия попапа
-  await quizStore.resetQuestProgress(questId.value)
+  // Снимок сессии — источник правды для доски: сбрасываем прогресс и баллы по нему.
   if (session.value) {
     await sessionStore.resetPlayersScores(session.value.id)
+    await sessionStore.resetSessionProgress(session.value.id)
+  }
+
+  // Персистентный прогресс владельца квеста (таблица в БД + квест в quizStore) —
+  // best-effort: если полный квест не загружен, снимок уже сброшен выше.
+  try {
+    await quizStore.resetQuestProgress(questId.value)
+  } catch (error) {
+    console.warn('resetQuestProgress пропущен:', error)
   }
 }
 </script>
