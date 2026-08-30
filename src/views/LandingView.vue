@@ -670,6 +670,7 @@ watch(() => route.path, (newPath) => {
 .landing {
   position: relative;
   isolation: isolate;
+  box-sizing: border-box;
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
