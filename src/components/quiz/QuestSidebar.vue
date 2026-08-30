@@ -75,7 +75,6 @@ import { useI18n } from 'vue-i18n'
 import { ref, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGameSessionStore } from '@/store/gameSessionStore'
-import { useQuizStore } from '@/store/quizStore'
 import BaseCard from '@/components/common/BaseCard.vue'
 import BaseButton from '@/components/common/BaseButton.vue'
 import type { Quest, GameSession } from '@/types'
@@ -91,7 +90,6 @@ const emit = defineEmits<{ reset: [] }>()
 
 const router = useRouter()
 const sessionStore = useGameSessionStore()
-const quizStore = useQuizStore()
 
 const isPlayerInSession = computed(() => {
   const profileId = sessionStore.userProfile?.id
@@ -99,12 +97,12 @@ const isPlayerInSession = computed(() => {
   return props.session.players.some(player => player.id === profileId)
 })
 
-// Статистика «Сыграно» из store (обновляется при markQuestionAsPlayed), чтобы совпадать с карточками
+// Статистика «Сыграно» считается по самому квесту сессии (props.quest) — тому же
+// источнику, что и плитки доски. Раньше читалось из store по id, но во время игры
+// снапшот сессии и store-квест могут расходиться (Realtime-обновления, сброс при
+// старте новой партии, неполный store) — и прогресс переставал обновляться.
 const questProgress = computed(() => {
-  if (props.quest.id) {
-    return quizStore.getQuestProgress(props.quest.id)
-  }
-  const rounds = props.quest.rounds
+  const rounds = props.quest?.rounds
   if (!Array.isArray(rounds)) {
     return { totalRounds: 0, totalQuestions: 0, playedQuestions: 0 }
   }
