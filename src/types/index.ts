@@ -89,6 +89,8 @@ export type ActiveQuestionState = {
   responderStartedAt: number | null
   /** Клієнтський timestamp натискання «Відповісти» — для визначення, хто натиснув першим при гонці запитів */
   responderClientTs?: number | null
+  /** Секунд на чтение вопроса до разблокировки кнопки ответа (настройка ведущего, 0..10). */
+  readDelaySec?: number
 }
 
 export type GameSession = {

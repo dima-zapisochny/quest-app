@@ -6,10 +6,25 @@
     </div>
   </div>
   <div v-else-if="!shouldRedirect" class="landing">
-    <button type="button" class="landing-howto" data-track="cta:howto" @click="showHowTo = true">
-      <LandingHowToIcon class="landing-howto__icon" />
-      <span class="landing-howto__label">{{ t('howto.title') }}</span>
-    </button>
+    <div class="landing-top-left">
+      <button type="button" class="landing-howto" data-track="cta:howto" @click="showHowTo = true">
+        <LandingHowToIcon class="landing-howto__icon" />
+        <span class="landing-howto__label">{{ t('howto.title') }}</span>
+      </button>
+      <button
+        type="button"
+        class="landing-settings"
+        data-track="cta:settings"
+        :aria-label="t('settings.title')"
+        :title="t('settings.title')"
+        @click="showSettings = true"
+      >
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="3" />
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+        </svg>
+      </button>
+    </div>
     <div class="landing-top-right">
       <RouterLink
         class="landing-about"
@@ -23,6 +38,7 @@
       <LanguageSwitcher class="landing-lang" />
     </div>
     <HowToPlayModal :show="showHowTo" @close="closeHowTo" />
+    <GameSettingsModal :show="showSettings" @close="showSettings = false" />
     <div class="landing-card">
       <div class="landing-brand">
         <h1
@@ -110,6 +126,7 @@ import { useI18n } from 'vue-i18n'
 import AvatarPicker from '@/components/common/AvatarPicker.vue'
 import LanguageSwitcher from '@/components/common/LanguageSwitcher.vue'
 import HowToPlayModal from '@/components/common/HowToPlayModal.vue'
+import GameSettingsModal from '@/components/common/GameSettingsModal.vue'
 import LandingHowToIcon from '@/components/common/LandingHowToIcon.vue'
 import { useGameSessionStore } from '@/store/gameSessionStore'
 import { useIsMobileViewport, useIsPhoneViewport } from '@/composables/useIsMobileViewport'
@@ -137,6 +154,7 @@ const errorMessage = ref('')
 const shouldRedirect = ref(false)
 const isCheckingAuth = ref(true)
 const showHowTo = ref(false)
+const showSettings = ref(false)
 
 const HOWTO_SEEN_KEY = 'quest-app:howto-seen'
 
@@ -760,6 +778,51 @@ watch(() => route.path, (newPath) => {
 
 .landing-lang {
   position: static;
+}
+
+.landing-top-left {
+  position: absolute;
+  top: clamp(1rem, 3vw, 1.75rem);
+  left: clamp(1rem, 3vw, 1.75rem);
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+/* Внутри контейнера кнопка «Как играть» уже не позиционируется сама */
+.landing-top-left .landing-howto {
+  position: static;
+  top: auto;
+  left: auto;
+}
+/* Шестерёнка настроек — только на десктопе */
+.landing-settings {
+  width: 3rem;
+  height: 3rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid rgb(var(--c-accent-sky) / 0.2);
+  background: rgb(var(--c-surface) / 0.55);
+  color: rgb(var(--c-text-soft));
+  cursor: pointer;
+  backdrop-filter: blur(14px);
+  box-shadow: 0 6px 18px rgb(var(--c-bg-deep) / 0.35);
+  transition: border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+.landing-settings:hover {
+  border-color: rgb(var(--c-accent-sky) / 0.45);
+  color: rgb(var(--c-text));
+  transform: translateY(-1px) rotate(30deg);
+}
+.landing-settings:focus { outline: none; }
+.landing-settings:focus-visible {
+  outline: 2px solid rgb(var(--c-accent-sky) / 0.6);
+  outline-offset: 2px;
+}
+@media (max-width: 640px) {
+  .landing-settings { display: none; }
 }
 
 .landing-howto {
