@@ -390,7 +390,7 @@
   "settings": {
     "title": "Settings",
     "readDelayTitle": "Question reading time",
-    "readDelayDesc": "The buzz button stays locked for this many seconds after a question opens, so players can read it.",
+    "readDelayDesc": "A short pause before players can buzz in — so everyone has time to read the question.",
     "secShort": "sec",
     "instant": "No delay"
   }

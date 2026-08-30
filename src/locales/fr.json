@@ -390,7 +390,7 @@
   "settings": {
     "title": "Paramètres",
     "readDelayTitle": "Temps de lecture de la question",
-    "readDelayDesc": "Le bouton de réponse reste bloqué ce nombre de secondes après l’ouverture de la question, pour laisser lire les joueurs.",
+    "readDelayDesc": "Une courte pause avant que les joueurs puissent répondre, le temps de lire la question.",
     "secShort": "s",
     "instant": "Sans délai"
   }
