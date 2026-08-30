@@ -390,7 +390,7 @@
   "settings": {
     "title": "Einstellungen",
     "readDelayTitle": "Lesezeit für die Frage",
-    "readDelayDesc": "Der Antwort-Button bleibt so viele Sekunden nach dem Öffnen gesperrt, damit die Spieler lesen können.",
+    "readDelayDesc": "Eine kurze Pause, bevor Spieler antworten können — damit alle die Frage lesen können.",
     "secShort": "Sek",
     "instant": "Keine Verzögerung"
   }
