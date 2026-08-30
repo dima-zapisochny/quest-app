@@ -9,6 +9,7 @@ import type {
 import { useQuizStore } from './quizStore'
 import { useProfileStore } from './profileStore'
 import { generateId } from '@/utils/id'
+import { getReadDelaySec, READ_DELAY_DEFAULT } from '@/composables/useGameSettings'
 import {
   findQuestion,
   resetPlayersStatuses,
@@ -517,7 +518,8 @@ export const useGameSessionStore = defineStore('game-session', () => {
     if (!session) return
 
     resetPlayersStatuses(session)
-    session.activeQuestion = buildActiveQuestion(payload, now())
+    // Ведущий проставляет своё время на чтение — оно синхронизируется игрокам в activeQuestion
+    session.activeQuestion = buildActiveQuestion(payload, now(), getReadDelaySec())
     session.state = 'active'
     session.updatedAt = now()
     await persistSession(session)
@@ -606,9 +608,9 @@ export const useGameSessionStore = defineStore('game-session', () => {
       return
     }
 
-    // 3 секунды на чтение вопроса после открытия — buzz не принимаем
-    const READ_DELAY_MS = 5000
-    if (now() - session.activeQuestion.openedAt < READ_DELAY_MS) {
+    // Время на чтение вопроса после открытия — buzz не принимаем (значение из настройки ведущего)
+    const readDelayMs = (session.activeQuestion.readDelaySec ?? READ_DELAY_DEFAULT) * 1000
+    if (readDelayMs > 0 && now() - session.activeQuestion.openedAt < readDelayMs) {
       return
     }
 

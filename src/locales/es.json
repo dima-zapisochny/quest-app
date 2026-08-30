@@ -386,5 +386,12 @@
     "emptyGeo": "Aún no hay datos.",
     "refreshed": "Actualizado",
     "lastUpdated": "Última actualización:"
+  },
+  "settings": {
+    "title": "Ajustes",
+    "readDelayTitle": "Tiempo de lectura de la pregunta",
+    "readDelayDesc": "El botón de respuesta queda bloqueado estos segundos tras abrir la pregunta, para que los jugadores puedan leerla.",
+    "secShort": "s",
+    "instant": "Sin retardo"
   }
 }

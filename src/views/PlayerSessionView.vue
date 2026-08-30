@@ -144,6 +144,7 @@ import { useGameSessionStore } from '@/store/gameSessionStore'
 import { useQuizStore } from '@/store/quizStore'
 import { useQuestionMedia } from '@/composables/useQuestionMedia'
 import { useQuestionElapsed } from '@/composables/useQuestionElapsed'
+import { READ_DELAY_DEFAULT } from '@/composables/useGameSettings'
 import { useQuestionContentReady } from '@/composables/useQuestionContentReady'
 import AppHeader from '@/components/common/AppHeader.vue'
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
@@ -218,15 +219,19 @@ const showQuestionContent = computed(() => {
   )
 })
 
-// Сколько секунд после открытия вопроса кнопка заблокирована — время на чтение
-const READ_DELAY_SEC = 5
+// Сколько секунд после открытия вопроса кнопка заблокирована — время на чтение.
+// Значение приходит от ведущего в activeQuestion (0 = без задержки), дефолт — 5.
+const readDelaySecEffective = computed(
+  () => activeQuestion.value?.readDelaySec ?? READ_DELAY_DEFAULT
+)
 
-// Первые 3 секунды после открытия — даём прочитать вопрос, кнопка выключена
+// Первые N секунд после открытия — даём прочитать вопрос, кнопка выключена
 const readDelayActive = computed(() =>
   !!activeQuestion.value &&
   !activeQuestion.value.showAnswer &&
   !activeQuestion.value.currentResponderId &&
-  elapsedSec.value < READ_DELAY_SEC
+  readDelaySecEffective.value > 0 &&
+  elapsedSec.value < readDelaySecEffective.value
 )
 
 // Кто-то другой отвечает (идут его 10 сек) — остальные заблокированы

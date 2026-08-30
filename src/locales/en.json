@@ -386,5 +386,12 @@
     "emptyGeo": "No data yet.",
     "refreshed": "Updated",
     "lastUpdated": "Last updated:"
+  },
+  "settings": {
+    "title": "Settings",
+    "readDelayTitle": "Question reading time",
+    "readDelayDesc": "The buzz button stays locked for this many seconds after a question opens, so players can read it.",
+    "secShort": "sec",
+    "instant": "No delay"
   }
 }

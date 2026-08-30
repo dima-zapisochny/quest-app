@@ -43,7 +43,8 @@ export function resetPlayersStatuses(session: GameSession, status: PlayerStatus 
 /** Свежее состояние активного вопроса при открытии. */
 export function buildActiveQuestion(
   payload: { roundId: string; categoryId: string; questionId: string },
-  at: number
+  at: number,
+  readDelaySec?: number
 ): ActiveQuestionState {
   return {
     ...payload,
@@ -52,7 +53,8 @@ export function buildActiveQuestion(
     timerPaused: false,
     buzzedOrder: [],
     currentResponderId: null,
-    responderStartedAt: null
+    responderStartedAt: null,
+    ...(readDelaySec != null ? { readDelaySec } : {})
   }
 }
 
