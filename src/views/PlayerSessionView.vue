@@ -219,7 +219,7 @@ const showQuestionContent = computed(() => {
 })
 
 // Сколько секунд после открытия вопроса кнопка заблокирована — время на чтение
-const READ_DELAY_SEC = 3
+const READ_DELAY_SEC = 5
 
 // Первые 3 секунды после открытия — даём прочитать вопрос, кнопка выключена
 const readDelayActive = computed(() =>
