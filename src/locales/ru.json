@@ -225,7 +225,9 @@
     "waitTurn": "Ожидайте своей очереди",
     "answered": "Ответ уже дан",
     "buzz": "Ответить",
-    "waitForQuestion": "Ждём вопрос"
+    "waitForQuestion": "Ждём вопрос",
+    "readQuestion": "Читайте вопрос…",
+    "otherAnswering": "Отвечает другой игрок"
   },
   "howto": {
     "title": "Как играть?",

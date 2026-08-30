@@ -218,10 +218,31 @@ const showQuestionContent = computed(() => {
   )
 })
 
+// Сколько секунд после открытия вопроса кнопка заблокирована — время на чтение
+const READ_DELAY_SEC = 3
+
+// Первые 3 секунды после открытия — даём прочитать вопрос, кнопка выключена
+const readDelayActive = computed(() =>
+  !!activeQuestion.value &&
+  !activeQuestion.value.showAnswer &&
+  !activeQuestion.value.currentResponderId &&
+  elapsedSec.value < READ_DELAY_SEC
+)
+
+// Кто-то другой отвечает (идут его 10 сек) — остальные заблокированы
+const otherIsAnswering = computed(() => {
+  const responder = activeQuestion.value?.currentResponderId
+  return !!responder && responder !== player.value?.id
+})
+
 const canBuzz = computed(() => {
   if (!player.value || !activeQuestion.value) return false
   if (activeQuestion.value.showAnswer) return false
-  // Пауза ведучого (немає відповідача) — не buzz; під час чужої відповіді інші можуть в чергу
+  // 3 секунды на чтение вопроса после открытия
+  if (readDelayActive.value) return false
+  // Пока отвечает другой игрок (идут его 10 сек) — кнопка заблокирована.
+  // Разблокируется автоматически, когда он не ответит и вопрос переоткроется для buzz.
+  if (otherIsAnswering.value) return false
   if (activeQuestion.value.timerPaused && !activeQuestion.value.currentResponderId) return false
   if (player.value.status === 'locked') return false
   if (player.value.status === 'buzzed') return false
@@ -240,7 +261,10 @@ const buzzerLabel = computed(() => {
     case 'locked':
       return t('player.answered')
     default:
-      return activeQuestion.value ? t('player.buzz') : t('player.waitForQuestion')
+      if (!activeQuestion.value) return t('player.waitForQuestion')
+      if (readDelayActive.value) return t('player.readQuestion')
+      if (otherIsAnswering.value) return t('player.otherAnswering')
+      return t('player.buzz')
   }
 })
 
@@ -294,6 +318,8 @@ watch(
 
 function handleBuzz() {
   if (!player.value || !session.value || !activeQuestion.value) return
+  // Защита от гонки: не отправляем buzz в период чтения или пока отвечает другой
+  if (!canBuzz.value) return
   sessionStore.buzz(session.value.id, player.value.id)
 }
 

@@ -225,7 +225,9 @@
     "waitTurn": "Очікуйте своєї черги",
     "answered": "Відповідь уже надано",
     "buzz": "Відповісти",
-    "waitForQuestion": "Чекаємо запитання"
+    "waitForQuestion": "Чекаємо запитання",
+    "readQuestion": "Читайте питання…",
+    "otherAnswering": "Відповідає інший гравець"
   },
   "howto": {
     "title": "Як грати?",

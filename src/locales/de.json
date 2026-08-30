@@ -223,7 +223,9 @@
     "waitTurn": "Warte, bis du dran bist",
     "answered": "Antwort bereits gegeben",
     "buzz": "Antworten",
-    "waitForQuestion": "Warte auf Frage"
+    "waitForQuestion": "Warte auf Frage",
+    "readQuestion": "Frage lesen…",
+    "otherAnswering": "Anderer Spieler antwortet"
   },
   "howto": {
     "title": "Wie spielt man?",

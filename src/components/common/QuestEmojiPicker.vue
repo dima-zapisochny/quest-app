@@ -85,7 +85,7 @@ const emit = defineEmits<{
 
 const showPicker = ref(false)
 const rowRef = ref<HTMLElement | null>(null)
-const visibleCount = ref(QUEST_EMOJI_ROW_ORDER.length)
+const visibleCount = ref<number>(QUEST_EMOJI_ROW_ORDER.length)
 
 let rowObserver: ResizeObserver | null = null
 
