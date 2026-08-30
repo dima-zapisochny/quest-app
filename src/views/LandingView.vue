@@ -6,11 +6,11 @@
     </div>
   </div>
   <div v-else-if="!shouldRedirect" class="landing">
-    <div class="landing-top-left">
-      <button type="button" class="landing-howto" data-track="cta:howto" @click="showHowTo = true">
-        <LandingHowToIcon class="landing-howto__icon" />
-        <span class="landing-howto__label">{{ t('howto.title') }}</span>
-      </button>
+    <button type="button" class="landing-howto" data-track="cta:howto" @click="showHowTo = true">
+      <LandingHowToIcon class="landing-howto__icon" />
+      <span class="landing-howto__label">{{ t('howto.title') }}</span>
+    </button>
+    <div class="landing-top-right">
       <button
         type="button"
         class="landing-settings"
@@ -24,8 +24,6 @@
           <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
         </svg>
       </button>
-    </div>
-    <div class="landing-top-right">
       <RouterLink
         class="landing-about"
         :to="seoLink('about')"
@@ -780,25 +778,10 @@ watch(() => route.path, (newPath) => {
   position: static;
 }
 
-.landing-top-left {
-  position: absolute;
-  top: clamp(1rem, 3vw, 1.75rem);
-  left: clamp(1rem, 3vw, 1.75rem);
-  z-index: 20;
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-}
-/* Внутри контейнера кнопка «Как играть» уже не позиционируется сама */
-.landing-top-left .landing-howto {
-  position: static;
-  top: auto;
-  left: auto;
-}
-/* Шестерёнка настроек — только на десктопе */
+/* Шестерёнка настроек (в правом верхнем блоке, слева от «О нас») — только на десктопе */
 .landing-settings {
-  width: 3rem;
-  height: 3rem;
+  width: 2.5rem;
+  height: 2.5rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;

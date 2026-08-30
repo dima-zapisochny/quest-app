@@ -389,6 +389,8 @@
   },
   "settings": {
     "title": "Paramètres",
+    "soundTitle": "Sons de l'interface",
+    "soundDesc": "De courts sons lors du choix d'un quiz et des actions de l'animateur.",
     "readDelayTitle": "Temps de lecture de la question",
     "readDelayDesc": "Une courte pause avant que les joueurs puissent répondre, le temps de lire la question.",
     "secShort": "s",

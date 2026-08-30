@@ -389,6 +389,8 @@
   },
   "settings": {
     "title": "Settings",
+    "soundTitle": "Interface sounds",
+    "soundDesc": "Short sounds when picking a quest and during host actions.",
     "readDelayTitle": "Question reading time",
     "readDelayDesc": "A short pause before players can buzz in — so everyone has time to read the question.",
     "secShort": "sec",

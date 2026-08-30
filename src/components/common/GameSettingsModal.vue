@@ -9,6 +9,26 @@
           </header>
 
           <div class="gs__body">
+            <div class="gs__toggle-row">
+              <div class="gs__toggle-text">
+                <span class="gs__label">{{ t('settings.soundTitle') }}</span>
+                <p class="gs__desc gs__desc--tight">{{ t('settings.soundDesc') }}</p>
+              </div>
+              <button
+                type="button"
+                class="gs__switch"
+                :class="{ 'gs__switch--on': soundEnabled }"
+                role="switch"
+                :aria-checked="soundEnabled"
+                :aria-label="t('settings.soundTitle')"
+                @click="onToggleSound"
+              >
+                <span class="gs__switch-knob" aria-hidden="true"></span>
+              </button>
+            </div>
+
+            <div class="gs__divider" aria-hidden="true"></div>
+
             <div class="gs__row-head">
               <span class="gs__label">{{ t('settings.readDelayTitle') }}</span>
               <span class="gs__value">
@@ -38,12 +58,21 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 import { useGameSettings, READ_DELAY_MIN, READ_DELAY_MAX } from '@/composables/useGameSettings'
+import { useUiSound } from '@/composables/useUiSound'
+import { playQuestSelectSound } from '@/utils/uiSound'
 
 defineProps<{ show: boolean }>()
 const emit = defineEmits<{ close: [] }>()
 
 const { t } = useI18n()
 const { readDelaySec } = useGameSettings()
+const { soundEnabled, toggleSound } = useUiSound()
+
+function onToggleSound() {
+  const willEnable = !soundEnabled.value
+  toggleSound()
+  if (willEnable) void playQuestSelectSound({ force: true })
+}
 </script>
 
 <style scoped>
@@ -95,6 +124,65 @@ const { readDelaySec } = useGameSettings()
 .gs__close:hover {
   background: rgb(var(--c-danger) / 0.16);
   color: rgb(var(--c-danger-soft));
+}
+
+.gs__toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.gs__toggle-text {
+  min-width: 0;
+}
+.gs__toggle-text .gs__label {
+  display: block;
+}
+.gs__desc--tight {
+  margin-top: 0.25rem;
+}
+
+.gs__switch {
+  flex-shrink: 0;
+  position: relative;
+  width: 3.1rem;
+  height: 1.75rem;
+  border-radius: 999px;
+  border: 1px solid rgb(var(--c-text-muted) / 0.25);
+  background: rgb(var(--c-bg) / 0.55);
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+.gs__switch--on {
+  background: linear-gradient(135deg, rgb(var(--c-accent-sky)), rgb(var(--c-accent)));
+  border-color: rgb(var(--c-accent-sky) / 0.6);
+}
+.gs__switch-knob {
+  position: absolute;
+  top: 50%;
+  left: 0.22rem;
+  transform: translateY(-50%);
+  width: 1.3rem;
+  height: 1.3rem;
+  border-radius: 50%;
+  background: rgb(var(--c-text));
+  box-shadow: 0 2px 6px rgb(var(--c-bg-deep) / 0.5);
+  transition: transform 0.2s ease;
+}
+.gs__switch--on .gs__switch-knob {
+  transform: translateY(-50%) translateX(1.35rem);
+}
+.gs__switch:focus { outline: none; }
+.gs__switch:focus-visible {
+  outline: 2px solid rgb(var(--c-accent-sky) / 0.6);
+  outline-offset: 3px;
+}
+
+.gs__divider {
+  height: 1px;
+  margin: 1.2rem 0;
+  background: rgb(var(--c-text-muted) / 0.14);
 }
 
 .gs__row-head {

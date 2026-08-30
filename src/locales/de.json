@@ -389,6 +389,8 @@
   },
   "settings": {
     "title": "Einstellungen",
+    "soundTitle": "Oberflächenklänge",
+    "soundDesc": "Kurze Töne bei der Quiz-Auswahl und Aktionen des Moderators.",
     "readDelayTitle": "Lesezeit für die Frage",
     "readDelayDesc": "Eine kurze Pause, bevor Spieler antworten können — damit alle die Frage lesen können.",
     "secShort": "Sek",
